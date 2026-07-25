@@ -1,0 +1,15 @@
+# Enforce LF line endings for text files
+* text=auto eol=lf
+*.qmd text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+
+# Data and reference stores
+data/** filter=lfs diff=lfs merge=lfs -text
+_ref/** filter=lfs diff=lfs merge=lfs -text

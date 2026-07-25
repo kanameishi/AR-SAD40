@@ -1,0 +1,118 @@
+{
+  "dataPlaceholder": {
+    "emptyFileBehavior": "Git LFS 3.7.1 leaves a zero-byte placeholder as the Git empty blob in the index, while git lfs status classifies it with the empty-content LFS OID; the data/** attribute applies to future non-empty files.",
+    "path": "data/.gitkeep",
+    "size": 0
+  },
+  "gitLfs": {
+    "availableVersion": "git-lfs/3.7.1 (GitHub; darwin arm64; go 1.25.3)",
+    "chosenPatternModel": "folder-scoped",
+    "patterns": [
+      "data/**",
+      "_ref/**"
+    ]
+  },
+  "referenceProjects": [
+    "AR-SAC00.R",
+    "AR-SABP0.R",
+    "AR-SABJ0.R"
+  ],
+  "refRoot": {
+    "classification": "user-provided reference store for binary/project reference material",
+    "fileCount": 21,
+    "files": [
+      {
+        "path": "_ref/FLS Espesador (83.4m)/1001203319 General Arrangement DIAM 82.4.pdf",
+        "size": 1442108
+      },
+      {
+        "path": "_ref/FLS Espesador (83.4m)/1001203320 Foundation Details DIAM 82.4.pdf",
+        "size": 474932
+      },
+      {
+        "path": "_ref/Fotos Tunel Existente/WhatsApp Image 2026-07-16 at 2.28.00 PM (1).jpeg",
+        "size": 352197
+      },
+      {
+        "path": "_ref/Fotos Tunel Existente/WhatsApp Image 2026-07-16 at 2.28.00 PM (2).jpeg",
+        "size": 313074
+      },
+      {
+        "path": "_ref/Fotos Tunel Existente/WhatsApp Image 2026-07-16 at 2.28.00 PM.jpeg",
+        "size": 307086
+      },
+      {
+        "path": "_ref/Fotos Tunel Existente/WhatsApp Image 2026-07-16 at 2.28.01 PM (1).jpeg",
+        "size": 361102
+      },
+      {
+        "path": "_ref/Fotos Tunel Existente/WhatsApp Image 2026-07-16 at 2.28.01 PM (2).jpeg",
+        "size": 312018
+      },
+      {
+        "path": "_ref/Fotos Tunel Existente/WhatsApp Image 2026-07-16 at 2.28.01 PM (3).jpeg",
+        "size": 309569
+      },
+      {
+        "path": "_ref/Fotos Tunel Existente/WhatsApp Image 2026-07-16 at 2.28.01 PM (4).jpeg",
+        "size": 298706
+      },
+      {
+        "path": "_ref/Fotos Tunel Existente/WhatsApp Image 2026-07-16 at 2.28.01 PM (5).jpeg",
+        "size": 342843
+      },
+      {
+        "path": "_ref/Fotos Tunel Existente/WhatsApp Image 2026-07-16 at 2.28.01 PM.jpeg",
+        "size": 452448
+      },
+      {
+        "path": "_ref/Fotos Tunel Existente/WhatsApp Image 2026-07-16 at 2.28.02 PM (1).jpeg",
+        "size": 361964
+      },
+      {
+        "path": "_ref/Fotos Tunel Existente/WhatsApp Image 2026-07-16 at 2.28.02 PM (2).jpeg",
+        "size": 315414
+      },
+      {
+        "path": "_ref/Fotos Tunel Existente/WhatsApp Image 2026-07-16 at 2.28.02 PM (3).jpeg",
+        "size": 365379
+      },
+      {
+        "path": "_ref/Fotos Tunel Existente/WhatsApp Image 2026-07-16 at 2.28.02 PM (4).jpeg",
+        "size": 359925
+      },
+      {
+        "path": "_ref/Fotos Tunel Existente/WhatsApp Image 2026-07-16 at 2.28.02 PM.jpeg",
+        "size": 456643
+      },
+      {
+        "path": "_ref/Lev. Radier y T\u00fanel existente/2026-06-16_Lev_Radier_SF.dwg",
+        "size": 4329872
+      },
+      {
+        "path": "_ref/Lev. Radier y T\u00fanel existente/control tunel y centro espesador  RS146-ESPESADOR_SF 1.dwg",
+        "size": 23073051
+      },
+      {
+        "path": "_ref/Planos Espesador Existente/03D15624-SLC1 Dorr Oliver.pdf",
+        "size": 548568
+      },
+      {
+        "path": "_ref/Planos Espesador Existente/03D15646-YYZ1 Dorr Oliver.pdf",
+        "size": 1141013
+      },
+      {
+        "path": "_ref/Planos Espesador Existente/3340-PA-55.TIF.pdf",
+        "size": 312177
+      }
+    ],
+    "totalFileBytes": 36230089
+  },
+  "validation": {
+    "attrSamplePaths": [
+      "data/.gitkeep",
+      "_ref/FLS Espesador (83.4m)/1001203319 General Arrangement DIAM 82.4.pdf"
+    ],
+    "attrsConfirmed": "filter=lfs diff=lfs merge=lfs text=unset"
+  }
+}
