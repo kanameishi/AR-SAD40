@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "topicId": "lfs-bootstrap",
+  "outcome": "CLOSED",
+  "objective": "Configure _ref/ and data/ as Git LFS-managed roots, create a zero-length data placeholder, commit, and push.",
+  "functionalCommit": {
+    "hash": "3cbac5906135b2a06026634adad57dff1920788f",
+    "message": "Configure LFS reference storage",
+    "remote": "origin/main",
+    "pushed": true
+  },
+  "lfs": {
+    "patterns": [
+      "data/**",
+      "_ref/**"
+    ],
+    "model": "folder-scoped",
+    "uploadedObjects": 21,
+    "uploadedBytesLabel": "36 MB",
+    "refFilesListedByGitLfs": 21
+  },
+  "dataPlaceholder": {
+    "path": "data/.gitkeep",
+    "workingTreeSize": 0,
+    "attributes": "filter=lfs diff=lfs merge=lfs text=unset",
+    "emptyFileBehavior": "Git LFS 3.7.1 stores a zero-byte placeholder as the Git empty blob while applying LFS attributes; non-empty files under data/** will be LFS pointers."
+  },
+  "validation": [
+    "git lfs version",
+    "bounded _ref metadata manifest",
+    "reference .gitattributes comparison in AR-SAC00.R, AR-SABP0.R, and AR-SABJ0.R",
+    "git check-attr filter diff merge text for data/.gitkeep and an _ref sample",
+    "git diff --cached",
+    "git diff --cached --check",
+    "git lfs status",
+    "git show --stat --oneline --decorate --no-renames HEAD",
+    "git lfs ls-files -l",
+    "git push origin main",
+    "post-push HEAD equals origin/main"
+  ],
+  "preservedOutOfScope": [
+    "_chapters/",
+    "scripts/"
+  ],
+  "evidence": [
+    "dev/plan/lfs-bootstrap/results/lfs-bootstrap-summary.json"
+  ],
+  "remainingInScopeWork": []
+}

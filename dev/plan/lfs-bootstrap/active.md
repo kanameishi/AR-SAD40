@@ -10,74 +10,37 @@
     "mtimeNs": 1784984863009143718,
     "sha256": "3687e09f44a704c2928cda079ad8edfcb6d16aa157e2e79146d4e676bac9a2a3"
   },
-  "previousReceipt": null,
-  "work": {
-    "lfsAttributes": {
-      "object": ".gitattributes@working-tree",
-      "state": "EXECUTED",
-      "executor": "codex-lfs-bootstrap-20260725",
-      "verifier": "git-check-attr",
-      "acceptor": "user-request",
-      "result": ".gitattributes created with LF text rules plus data/** and _ref/** LFS folder patterns.",
-      "evidence": [
-        "reference-projects-use-folder-patterns:data/**,_ref/**"
-      ],
-      "nextAction": "Stage .gitattributes after exact scope validation."
-    },
-    "dataPlaceholder": {
-      "object": "data/.gitkeep@working-tree",
-      "state": "EXECUTED",
-      "executor": "codex-lfs-bootstrap-20260725",
-      "verifier": "stat-and-git-check-attr",
-      "acceptor": "user-request",
-      "result": "data/.gitkeep created with working-tree size 0 and LFS attributes from data/**.",
-      "evidence": [],
-      "nextAction": "Stage data/.gitkeep after exact scope validation."
-    },
-    "publication": {
-      "object": "main@origin/main",
-      "state": "EXECUTING",
-      "executor": "codex-lfs-bootstrap-20260725",
-      "verifier": "git-status-diff-commit-push",
-      "acceptor": "user-request",
-      "result": null,
-      "evidence": [
-        "upstream=origin/main",
-        "pushUrl=git@github.com:kanameishi/AR-SAD40.git"
-      ],
-      "nextAction": "Commit staged scope and push to origin/main."
-    }
+  "previousReceipt": {
+    "path": "dev/plan/lfs-bootstrap/receipts/RECEIPT-0001.json",
+    "size": 1577,
+    "mtimeNs": 1784985548727883348,
+    "sha256": "f9b7fd914751f73b978984dbf06b1aaf42d86388c9028fa650267eac5074abcc"
   },
+  "work": {},
   "liveRuns": {},
-  "openConditions": [
-    {
-      "id": "pre-existing-untracked-out-of-scope",
-      "requiredState": "PLANNED",
-      "condition": "Initial git status showed untracked _chapters/ and scripts/ before task changes; preserve and do not stage them."
-    }
-  ],
+  "openConditions": [],
   "validation": [
     {
       "id": "bounded-lfs-inspection",
-      "state": "EXECUTED",
+      "state": "VERIFIED",
       "authority": "DATA.md",
       "gate": "Use metadata/pointer/config reads only for _ref, data, and LFS patterns."
     },
     {
       "id": "lfs-attributes",
-      "state": "EXECUTED",
+      "state": "VERIFIED",
       "authority": "git check-attr",
       "gate": "_ref/** and data/.gitkeep resolve to Git LFS attributes."
     },
     {
       "id": "staged-scope",
-      "state": "EXECUTED",
+      "state": "VERIFIED",
       "authority": "GIT.md",
       "gate": "git diff --cached contains only task-owned paths."
     },
     {
       "id": "publication",
-      "state": "PLANNED",
+      "state": "VERIFIED",
       "authority": "git push",
       "gate": "Current branch push succeeds to its configured remote."
     }
@@ -112,9 +75,24 @@
       "id": "staged-scope",
       "kind": "observation",
       "value": "git diff --cached and git diff --cached --check passed; staged paths are .gitattributes, _ref, data/.gitkeep, dev/SoT/ACTIVE.md, and dev/plan/lfs-bootstrap; _chapters and scripts remain unstaged."
+    },
+    {
+      "id": "functional-commit",
+      "kind": "observation",
+      "value": "3cbac5906135b2a06026634adad57dff1920788f Configure LFS reference storage pushed to origin/main."
+    },
+    {
+      "id": "push-result",
+      "kind": "observation",
+      "value": "git push origin main uploaded LFS objects 100% (21/21), 36 MB, and advanced origin/main from 956d2b4 to 3cbac59."
+    },
+    {
+      "id": "terminal-receipt",
+      "kind": "path|size|mtimeNs|sha256",
+      "value": "dev/plan/lfs-bootstrap/receipts/RECEIPT-0001.json|1577|1784985548727883348|f9b7fd914751f73b978984dbf06b1aaf42d86388c9028fa650267eac5074abcc"
     }
   ],
-  "exactNextAction": "Commit staged scope with configured human identity, then push main to origin/main.",
-  "semanticDigest": "sha256:2e91d251f7600b7dae33bd61d7826241b061262d0ae89822efa590e248af23ea"
+  "exactNextAction": "No in-scope action remains; preserve out-of-scope _chapters/ and scripts/ unless separately authorized.",
+  "semanticDigest": "sha256:785cc6b61049dc2396324d915066fc701ea90c25853b165d693f772efb543f7e"
 }
 ```
