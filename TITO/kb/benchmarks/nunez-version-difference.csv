@@ -1,0 +1,7 @@
+"case","quantity","version2000","version2014","difference2014Minus2000","unit","note"
+"primary","M",1.21181231742941,1.21181231742941,0,"Tn m/m","The equations are version-specific; agreement in M does not imply agreement in N"
+"primary","NC",54.3430501460565,52.8953667640377,-1.44768338201883,"Tn/m","The equations are version-specific; agreement in M does not imply agreement in N"
+"primary","NA",76.25,73.75,-2.5,"Tn/m","The equations are version-specific; agreement in M does not imply agreement in N"
+"permanent","M",9.11773716839677,9.11773716839677,0,"Tn m/m","The equations are version-specific; agreement in M does not imply agreement in N"
+"permanent","NC",103.330810265283,110.137206843522,6.80639657823912,"Tn/m","The equations are version-specific; agreement in M does not imply agreement in N"
+"permanent","NA",147.5,147.5,0,"Tn/m","The equations are version-specific; agreement in M does not imply agreement in N"

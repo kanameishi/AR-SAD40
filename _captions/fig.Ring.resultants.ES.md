@@ -1,0 +1,1 @@
+Carga prescrita y resultantes del anillo para un campo biaxial constante adimensional con $K_0=0.5$. Las ramas de tracción completa y sólo normal son límites de modelación, no leyes publicadas de interfaz ni resultados del proyecto.

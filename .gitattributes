@@ -13,3 +13,4 @@
 # Data and reference stores
 data/** filter=lfs diff=lfs merge=lfs -text
 _ref/** filter=lfs diff=lfs merge=lfs -text
+TITO/kb/sources/** filter=lfs diff=lfs merge=lfs -text

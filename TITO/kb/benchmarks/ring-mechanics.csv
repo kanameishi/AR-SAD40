@@ -1,0 +1,10 @@
+"case","quantity","maximumAbsoluteError","reference","tolerance"
+"uniform pressure","N",2.60769184023957e-12,"N=-pR",2e-08
+"uniform pressure","M",7.38253902454744e-12,"M=0",2e-08
+"uniform pressure","Q",3.77365486806179e-12,"Q=0",2e-08
+"K0 direct versus closed fullTraction","N",2.28794760914752e-11,"closed n=0+n=2 solution",3e-08
+"K0 direct versus closed fullTraction","M",3.60813601218979e-11,"closed n=0+n=2 solution",3e-08
+"K0 direct versus closed fullTraction","Q",2.05000461050986e-11,"closed n=0+n=2 solution",3e-08
+"K0 direct versus closed normalOnly","N",2.39026576309698e-11,"closed n=0+n=2 solution",3e-08
+"K0 direct versus closed normalOnly","M",4.13251655118074e-11,"closed n=0+n=2 solution",3e-08
+"K0 direct versus closed normalOnly","Q",2.5217161692126e-11,"closed n=0+n=2 solution",3e-08

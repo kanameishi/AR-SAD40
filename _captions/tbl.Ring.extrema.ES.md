@@ -1,0 +1,1 @@
+Extremos del control membranal y de la sección corrugada preliminar. La tabla conserva mínimos y máximos con signo, máximos absolutos, posiciones angulares y unidades; es un control numérico, no la demanda del proyecto.

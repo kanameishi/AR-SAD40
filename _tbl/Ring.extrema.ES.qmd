@@ -1,0 +1,13 @@
+```{r}
+#| include: false
+CAP <- paste(
+  readLines("_captions/tbl.Ring.extrema.ES.md", warn = FALSE),
+  collapse = "\n"
+)
+CaseLabels <- c(
+  "membrane-control" = "Membrana",
+  "SAD40-3x1-3mm-preliminary" = "Sección 76x25x3 mm"
+)
+```
+
+{{< include /_tbl/Ring.extrema.qmd >}}

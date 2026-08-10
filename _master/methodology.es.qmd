@@ -1,0 +1,19 @@
+---
+lang: es
+title: "Metodología no-FEM para cargas y resultantes de un liner circular"
+subtitle: "Solución directa, comparación modal y propagación Monte Carlo"
+date: "2026-08-10"
+format:
+  html:
+    embed-resources: true
+toc-title: "Contenido"
+crossref:
+  fig-title: Figura
+  tbl-title: Tabla
+  eq-title: Ecuación
+  fig-prefix: figura
+  tbl-prefix: tabla
+  eq-prefix: ec.
+---
+
+{{< include /_index/methodology.ES.qmd >}}

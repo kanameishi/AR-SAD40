@@ -1,0 +1,5 @@
+"sequence","interface","thetaDeg","publishedThrustRatio","calculatedThrustRatio","publishedMomentRatio","calculatedMomentRatio","calculatedShearRatio","shearEvidence","sourceLocation"
+"excavation","fullSlip",30,0.736,0.735909301696487,0.00774,0.00774336283185842,-0.0268237956924384,"derived from Q=(1/R)dM/dtheta; not printed in HP97","Schwartz-Einstein HP97, printed pp. 391-392/PDF p. 407"
+"excavation","noSlip",30,0.812,0.811805900676952,0.00707,0.0070657146266757,-0.0244763534503697,"derived from Q=(1/R)dM/dtheta; not printed in HP97","Schwartz-Einstein HP97, printed pp. 391-392/PDF p. 407"
+"external","fullSlip",30,0.887,0.887060744050176,0.0133,0.0132743362831858,-0.0459836497584658,"derived from Q=(1/R)dM/dtheta; not printed in HP97","Schwartz-Einstein HP97, printed pp. 391-392/PDF p. 407"
+"external","noSlip",30,1.02,1.01716919944526,0.0121,0.0121126536457298,-0.0419594630577766,"derived from Q=(1/R)dM/dtheta; not printed in HP97","Schwartz-Einstein HP97, printed pp. 391-392/PDF p. 407"
