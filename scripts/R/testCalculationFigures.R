@@ -1,18 +1,3 @@
-if (!requireNamespace("highcharter", quietly = TRUE) ||
-    !requireNamespace("htmltools", quietly = TRUE) ||
-    !requireNamespace("NGR", quietly = TRUE) ||
-    utils::packageVersion("NGR") < package_version("0.3.10") ||
-    !exists(
-      "buildSectionResultantsPlot",
-      envir = asNamespace("NGR"),
-      inherits = FALSE
-    )) {
-  stop(
-    "highcharter, htmltools, and NGR 0.3.10 or later with buildSectionResultantsPlot() are required.",
-    call. = FALSE
-  )
-}
-
 source("scripts/fig/Calculation.resultants.R")
 source("scripts/fig/Calculation.envelopes.R")
 source("scripts/fig/Calculation.extrema.quantiles.R")

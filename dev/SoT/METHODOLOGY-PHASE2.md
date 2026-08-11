@@ -1418,9 +1418,10 @@ Los contrastes bibliográficos y CANDE permanecen fuera de la memoria. La
 autonomía del Apéndice A no autoriza reintroducir el antiguo Apéndice B ni
 presentar este control matemático interno como benchmark externo.
 
-## 24. Consolidación de productos y limpieza
+## 24. Consolidación inicial de productos y limpieza
 
-El repositorio tendrá dos únicas superficies públicas de render:
+Antes de incorporar las especificaciones técnicas, el repositorio tenía dos
+superficies públicas de render:
 
 | Producto | Master | Salida HTML |
 |---|---|---|
@@ -1440,16 +1441,122 @@ artefactos históricos. La primera pasada retirará únicamente:
 4. archivos temporales reproducibles que no sean fuente ni evidencia
    primaria.
 
-No se eliminarán `TITO/kb/sources/`, `TITO/kb/review/`,
+En esa primera pasada no se eliminarían `TITO/kb/sources/`, `TITO/kb/review/`,
 `TITO/kb/calculation-memo/`, `TITO/kb/paper-candidate/`, los datos de
 contraste reservados para investigación, los prototipos Wolfram vigentes ni
-ningún archivo bajo `_ref/`. Tampoco se incluirán en commits ni se revertirán
+ningún archivo bajo `_ref/`. Tampoco se incluirían en commits ni se revertirían
 la eliminación ajena de
 `_chapters/Especificacion_Inspeccion_UT_Pernos_Seccion.md`, la eliminación
 ajena de `scripts/py/0.py` o la modificación ajena de
 `scripts/wolfram/0.nb`.
 
 Antes de retirar una segunda categoría de archivos se comprobará que no sea
-consumida por ninguno de los dos masters ni por sus pruebas. Después de cada
-pasada deben renderizarse ambos productos, ejecutarse las pruebas de la
-memoria y verificarse que los PDF y textos fuente permanecen disponibles.
+consumida por ninguno de los masters entonces vigentes ni por sus pruebas.
+Después de cada
+pasada se renderizará la memoria, se ejecutarán sus pruebas y se verificará
+que los PDF y textos fuente permanezcan disponibles. La Fase 1 congelada se
+controlará mediante sus hashes y su grafo de inclusiones; no se regenerará sin
+una autorización expresa.
+
+### 24.1 Instalación de NGR
+
+AR-SAD40 no comprueba ni prescribe una versión de NGR. El adaptador de la
+figura llama directamente a `NGR::buildSectionResultantsPlot()`. NGR se instaló
+en la biblioteca general de R mediante la instrucción `devtools::install()` de
+`NGR/inst/install.R`; una sesión nueva identificó la versión `0.3.10` y la
+exportación de esa función.
+
+La duplicación de aliases detectada durante una ejecución anterior del
+instalador quedó resuelta en el árbol de trabajo de NGR mediante anotaciones
+roxygen en `R/quartoYaml.R`; el instalador regeneró la documentación y completó
+la instalación. Esos cambios, junto con la función, su prueba y los archivos de
+integración del paquete, permanecen staged y sin commit hasta que el usuario
+resuelva expresamente el alcance que debe publicarse en NGR.
+
+Con la instalación general, `Rscript scripts/R/testCalculationFigures.R`, el
+render normal `qrt render _master/calculation.review.es.qmd --profile html` y
+la inspección DOM de las tres figuras concluyeron correctamente. El HTML
+resultante tiene SHA-256
+`3c0dcba3a03ace12de00c9951f6a60df5236524e8a936c04287c3dacee5bd0e7`.
+
+### 24.2 Limpieza ejecutada
+
+El punto de recuperación `851527f` se publicó en `origin/main`, incluidos sus
+cuatro objetos PDF administrados por Git LFS. A partir de ese respaldo se
+retiraron el comparador `calculation.resultants.review`, la metodología R0
+rechazada, las dos copias históricas de la memoria y sus salidas HTML. Esta
+decisión sustituye las instrucciones históricas de conservar esos artefactos
+como superficies de revisión.
+
+En ese corte, la estructura pública quedó limitada a los dos masters declarados
+en la tabla de esta sección. Se conservaron la Fase 1 congelada, la memoria vigente, los
+PDF y textos fuente, los insumos del futuro paper, los datos de contraste y
+los scripts `ring*` consumidos por las figuras actuales.
+
+La memoria se renderizó después de la limpieza con el master y perfil
+documentados. El HTML resultante tiene SHA-256
+`e967703af0dc10a5cb670697fd3f8c55adc374d6990d561f9be3b45925dd388d`.
+Los hashes protegidos del master, index y HTML de Fase 1 continúan coincidiendo
+con la línea base registrada en la sección 1.2.
+
+## 25. Especificaciones técnicas y estructura vigente
+
+La instrucción del 11 de agosto de 2026 amplía la estructura a tres productos
+renderizables. Esta sección sustituye únicamente la limitación a dos masters
+de la sección 24.2; no modifica la línea base congelada de la Fase 1 ni el
+contenido aprobado de la memoria de cálculo.
+
+| Producto | Master | Índice | Estado |
+|---|---|---|---|
+| Memoria técnica | `_master/calculation.review.es.qmd` | `_index/calculation.review.ES.qmd` | vigente |
+| Documento metodológico | `_master/methodology.review.es.qmd` | `_index/methodology.review.ES.qmd` | congelado como referencia |
+| Especificaciones técnicas | `_master/specifications.review.es.qmd` | `_index/specifications.review.ES.qmd` | candidato en revisión |
+
+El nuevo master incluye `_chapters/specifications.inspection.es.md`. La
+creación del ensamblador no aprueba el contenido técnico del capítulo: sus
+referencias normativas, criterios de muestreo, umbrales, terminología y
+entregables deberán revisarse antes de promoverlo como especificación emitida.
+
+La versión histórica
+`_chapters/Especificacion_Inspeccion_UT_Pernos_Seccion.md` no aporta contenido
+adicional: respecto del capítulo con naming vigente sólo difiere por un espacio
+final y el salto de línea final. Su eliminación se clasifica como retiro de un
+duplicado, no como pérdida de una fuente.
+
+La auditoría de `dev/` debe conservar `dev/SoT/METHODOLOGY-PHASE2.md` como
+fuente de verdad vigente y `dev/SoT/ACTIVE.md` conforme a la regla local. Todo
+otro retiro exige demostrar que no deja referencias rotas ni elimina evidencia
+necesaria para reconstruir un efecto remoto.
+
+La auditoría del 11 de agosto de 2026 clasificó los seis archivos de `dev/`
+como conservables, sin rutas eliminables ni desconocidas. El flujo
+`dev/plan/lfs-bootstrap/` está cerrado, pero continúa referenciado por el
+puntero protegido `dev/SoT/ACTIVE.md`; retirarlo dejaría una cadena de
+continuidad rota.
+
+El render
+`qrt render _master/specifications.review.es.qmd --profile html` concluyó con
+código 0 y produjo `html/specifications.review.es/index.html`, SHA-256
+`3611b0b266bf78de1200347ce64e821905f0bf2fb7557d49222d3e4fcc4ce940`.
+La falta de red impidió incorporar un polyfill externo durante el render; el
+HTML fue creado y su estructura de títulos quedó verificada, pero ese aviso no
+constituye una revisión técnica del contenido.
+
+### 25.1 Revisión pendiente del capítulo candidato
+
+La siguiente revisión de `_chapters/specifications.inspection.es.md` debe:
+
+1. separar datos confirmados, antecedentes, hipótesis y requisitos de
+   verificación;
+2. verificar las normas y ediciones aplicables y agregarlas a
+   `bib/references.bib` antes de introducir citas Markdown;
+3. justificar o retirar frecuencias de muestreo, porcentajes, categorías y
+   umbrales que hoy carecen de procedencia explícita;
+4. definir autorización, reposición y control de estabilidad para limpieza,
+   aplicación de torque y eventual extracción de pernos;
+5. aplicar la terminología geométrica adoptada para una sección circular; y
+6. revisar formularios, trazabilidad de mediciones y entregables antes de
+   emitir la especificación.
+
+No se crearán claves bibliográficas, criterios de aceptación ni requisitos de
+seguridad por inferencia.

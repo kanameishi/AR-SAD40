@@ -73,19 +73,6 @@ buildCalculationResultantsInteractive <- function(
   graphicAmplification = 1,
   resultant = c("N", "M", "Q")
 ) {
-  MinimumNgrVersion <- package_version("0.3.10")
-  if (!requireNamespace("NGR", quietly = TRUE) ||
-      utils::packageVersion("NGR") < MinimumNgrVersion ||
-      !exists(
-        "buildSectionResultantsPlot",
-        envir = asNamespace("NGR"),
-        inherits = FALSE
-      )) {
-    stop(
-      "NGR 0.3.10 or later with buildSectionResultantsPlot() is required.",
-      call. = FALSE
-    )
-  }
   Geometry <- .readResultantGeometry(
     pathCurves,
     pathScales,

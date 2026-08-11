@@ -1,12 +1,7 @@
-# Especificación Técnica de Inspección — Túnel Espesador San Francisco
-## Ensayo de espesor, inspección de pernos de conexión y confirmación de la sección de chapa corrugada
-
 Proyecto: SRK UY SAD40 — Revisión Estructural Túnel Espesador San Francisco
 Revisión: 0 — 24-jul-2026
 
----
-
-## 1. Objetivo y alcance
+## Objetivo y alcance
 
 Definir el procedimiento de terreno para:
 
@@ -27,7 +22,7 @@ Esta especificación busca verificar cuantitativamente ambas conclusiones prelim
 
 ---
 
-## 2. Referencias normativas
+## Referencias normativas
 
 | Tema | Referencia |
 |---|---|
@@ -38,7 +33,7 @@ Esta especificación busca verificar cuantitativamente ambas conclusiones prelim
 
 ---
 
-## 3. Definiciones clave
+## Definiciones clave
 
 - Espesor especificado (nominal): espesor de fabricación de catálogo (en este caso, 3.0 mm supuestos).
 - Espesor de diseño: espesor especificado reducido según convención AISI/AASHTO (incorpora pérdida típica de recubrimiento).
@@ -49,7 +44,7 @@ Esta especificación busca verificar cuantitativamente ambas conclusiones prelim
 
 ---
 
-## 4. Equipamiento
+## Equipamiento
 
 - Medidor de espesores por ultrasonido, transductor dual-elemento (rango recomendado 1–10 mm, resolución 0.01 mm), con bloques de calibración certificados (escalón conocido, acero al carbono).
 - Acoplante (couplant) apto para superficie curva/vertical.
@@ -63,7 +58,7 @@ Esta especificación busca verificar cuantitativamente ambas conclusiones prelim
 
 ---
 
-## 5. Plan de muestreo — grilla de puntos
+## Plan de muestreo — grilla de puntos
 
 1. Definir progresivas (estaciones) cada 5 m a lo largo del túnel, referenciadas al levantamiento topográfico existente.
 2. En cada estación, medir en 4 posiciones angulares: corona (12h), ambos riñones (3h y 9h) y solera/hastial bajo (6h, si accesible sin agua/lodo).
@@ -78,7 +73,7 @@ Objetivo mínimo orientativo: 3 estaciones de grilla regular por cada 10 m de t�
 
 ---
 
-## 6. Procedimiento A — Medición de espesores por ultrasonido
+## Procedimiento A — Medición de espesores por ultrasonido
 
 1. Calibración del equipo al inicio de la jornada y cada 2 horas, sobre bloque patrón de mismo material base (acero al carbono).
 2. Preparación: limpiar mecánicamente un área de ~50×50 mm en cada punto hasta metal sano visible (sin escamas de óxido ni pintura), evitando desbaste del metal base. Fotografiar antes y después de la limpieza.
@@ -87,7 +82,7 @@ Objetivo mínimo orientativo: 3 estaciones de grilla regular por cada 10 m de t�
 
 ---
 
-## 7. Procedimiento B — Inspección de pernos y conexiones
+## Procedimiento B — Inspección de pernos y conexiones
 
 Para el 20% de los pernos accesibles (ampliable según hallazgos):
 
@@ -107,7 +102,7 @@ Para el 20% de los pernos accesibles (ampliable según hallazgos):
 
 ---
 
-## 8. Procedimiento C/D — Confirmación de la sección de chapa y ovalización
+## Procedimiento C/D — Confirmación de la sección de chapa y ovalización
 
 1. En 5 ubicaciones representativas, medir con la galga de perfiles/calibre:
    - Paso de corrugación (cresta a cresta), 3 mediciones por ubicación.
@@ -118,7 +113,7 @@ Para el 20% de los pernos accesibles (ampliable según hallazgos):
 
 ---
 
-## 9. Registro de datos y entregables
+## Registro de datos y entregables
 
 1. Planilla de espesores UT (progresiva, posición, zona, lecturas, mín., promedio, % pérdida).
 2. Planilla de pernos (progresiva, costura, grado G1–G4, diámetro remanente, resultado de sondeo, foto).

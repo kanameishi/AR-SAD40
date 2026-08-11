@@ -7,8 +7,8 @@
   que seleccione su router. Este archivo agrega reglas del proyecto; no reduce
   las salvaguardas globales.
 - Para trabajos sobre el documento metodológico de referencia, la memoria de
-  cálculo, sus apéndices, la aplicación numérica o sus figuras, leer además
-  `dev/SoT/METHODOLOGY-PHASE2.md`.
+  cálculo, sus apéndices, la aplicación numérica, sus figuras o las
+  especificaciones técnicas, leer además `dev/SoT/METHODOLOGY-PHASE2.md`.
 - La aceptación técnica y editorial corresponde al usuario. No promover una
   versión candidata a las rutas públicas sin su aprobación explícita.
 

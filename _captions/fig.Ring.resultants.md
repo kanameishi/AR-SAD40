@@ -1,1 +1,0 @@
-Prescribed load and ring resultants for a dimensionless constant biaxial field with $K_0=0.5$. The full-traction and normal-only branches are modelling limits, not published soil-interface laws or project results.

@@ -1,0 +1,1 @@
+{{< include /_chapters/specifications.inspection.es.md >}}

@@ -1,1 +1,0 @@
-Extrema of the declared membrane control and preliminary corrugated section. The table reports signed minima and maxima, absolute maxima, angular positions and units; it is a numerical control, not project demand.
