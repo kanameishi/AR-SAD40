@@ -1,0 +1,116 @@
+# Aplicación numérica {#sec-calculation-application}
+
+## Definición del escenario
+
+La aplicación tiene por objeto comprobar la secuencia de cálculo y cuantificar
+la respuesta frente a dos prescripciones de una misma acción biaxial. No
+representa una caracterización del relleno existente. La @tbl-calculation-inputs
+identifica la condición y la clase de evidencia de cada valor.
+
+{{< include /_tbl/Calculation.inputs.ES.qmd >}}
+
+El perfil nominal es de $76\times25$ mm y el espesor informado es $3.0$ mm. A
+falta de confirmación de la categoría del espesor, se adopta condicionalmente
+$t_b=3.0$ mm y se interpolan las dos filas contiguas de la tabla 2.6 de NCSPA
+[@NCSPA2018, tabla 2.6]:
+
+$$
+\lambda=\frac{3.000-2.65684}{3.41630-2.65684}=0.452,
+$$
+
+$$
+A_p=(1-\lambda)(3.30200)+\lambda(4.25027)=3.73\ \mathrm{mm^2/mm},
+$$
+
+$$
+I_p=(1-\lambda)(252.36079)+\lambda(331.01869)
+=288\ \mathrm{mm^4/mm}.
+$$ {#eq-calculation-section-interpolation}
+
+Con $E_\theta=200$ GPa y $R=1.315$ m, la
+@eq-calculation-section-stiffness produce
+
+$$
+EA_\theta=7.46\times10^5\ \mathrm{kN/m},
+\qquad
+EI_\theta=57.6\ \mathrm{kN\,m^2/m},
+\qquad
+\eta_s=4.46\times10^{-5}.
+$$ {#eq-calculation-adopted-section}
+
+## Acciones perimetrales
+
+Se adopta el estado uniforme en el eje
+
+$$
+\sigma'_{v,A}=100\ \mathrm{kPa},
+\qquad K_0=0.50,
+\qquad \Delta u_A=0.
+$$
+
+Por lo tanto,
+
+$$
+\sigma'_{h,A}=50\ \mathrm{kPa},
+\qquad p_m=75\ \mathrm{kPa},
+\qquad \Delta\sigma=50\ \mathrm{kPa}.
+$$ {#eq-calculation-example-stress}
+
+La proyección completa queda definida por
+
+$$
+P_r(\theta)=-75-25\cos2\theta\ \mathrm{kPa},
+\qquad
+P_t(\theta)=25\sin2\theta\ \mathrm{kPa}.
+$$ {#eq-calculation-example-load}
+
+La segunda prescripción conserva el mismo $P_r(\theta)$ y adopta $P_t=0$.
+Ambas satisfacen la @eq-calculation-global-equilibrium.
+
+## Resultados
+
+La @tbl-calculation-extrema resume las resultantes en clave, solera y hastiales,
+además del máximo absoluto de fuerza cortante. El momento uniforme es
+$M_m=-0.0058$ kN·m/m y los máximos absolutos de $Q_\theta$ se localizan en
+$\theta=45^\circ$, $135^\circ$, $225^\circ$ y $315^\circ$.
+
+{{< include /_tbl/Calculation.extrema.ES.qmd >}}
+
+Los diagramas de la @fig-calculation-resultants se construyen a partir de las
+mismas curvas numéricas que alimentan la tabla de extremos. La circunferencia
+discontinua representa la sección de referencia. La distancia radial respecto
+de ella es una escala gráfica fija por resultante: un valor positivo se dibuja
+hacia el exterior y uno negativo hacia el interior; la figura no representa una
+deformada.
+
+{{< include /_fig/Calculation.resultants.ES.qmd >}}
+
+## Control de la solución
+
+Las dos prescripciones poseen solución cerrada. Se integró también el sistema
+de la @eq-calculation-first-order-system sobre una grilla que incluye las ocho
+posiciones críticas, con 8192 pasos de integración. La
+@tbl-calculation-controls informa la diferencia absoluta máxima respecto de las
+@eq-calculation-biaxial-complete-response y
+@eq-calculation-biaxial-normal-response.
+
+{{< include /_tbl/Calculation.controls.ES.qmd >}}
+
+Las seis diferencias son inferiores a $2.4\times10^{-12}$ en sus unidades y a
+la tolerancia declarada de $10^{-7}$. Este resultado es un control matemático
+interno del cálculo, no una comprobación experimental de la acción del relleno.
+
+## Interpretación
+
+Respecto de la carga exclusivamente normal, la proyección completa triplica la
+amplitud del armónico de orden dos de $N_\theta$ e incrementa en 50 % las
+amplitudes de $M_\theta$ y $Q_\theta$. La diferencia procede de conservar o
+suprimir $P_t$ en la @eq-calculation-load-prescriptions. La razón
+$|M_m|/\max|M_\theta|=2.7\times10^{-4}$ confirma que, para las propiedades
+seccionales adoptadas, la rigidez interviene débilmente en el modo uniforme y
+no altera la amplitud de orden dos impuesta por el equilibrio.
+
+La separación entre las dos respuestas debe mantenerse en la evaluación de
+incertidumbres. Hasta caracterizar la transferencia de acciones, su envolvente
+exterior constituye una medida de incertidumbre de modelación; no corresponde
+mezclar ambas curvas mediante probabilidades arbitrarias.

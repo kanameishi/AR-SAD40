@@ -1,0 +1,24 @@
+{{< include /TITO/kb/review/chapters/methodology.scope.review.es.md >}}
+
+{{< include /TITO/kb/review/chapters/methodology.practice.review.es.md >}}
+
+{{< include /TITO/kb/review/chapters/methodology.pressures.review.es.md >}}
+
+{{< include /TITO/kb/review/chapters/methodology.corrugation.review.es.md >}}
+
+{{< include /TITO/kb/review/chapters/methodology.model.review.es.md >}}
+
+{{< include /TITO/kb/review/chapters/methodology.uncertainty.review.es.md >}}
+
+{{< include /TITO/kb/review/chapters/methodology.results.review.es.md >}}
+
+{{< include /TITO/kb/review/chapters/methodology.verification.review.es.md >}}
+
+{{< include /TITO/kb/review/chapters/methodology.limitations.review.es.md >}}
+
+{{< include /TITO/kb/review/chapters/methodology.appendix.review.es.md >}}
+
+# Referencias {.unnumbered}
+
+::: {#refs .references}
+:::

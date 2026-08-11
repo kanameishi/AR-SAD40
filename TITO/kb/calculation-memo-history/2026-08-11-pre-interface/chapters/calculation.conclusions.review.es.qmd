@@ -1,0 +1,72 @@
+# Resultados, límites y conclusiones {#sec-calculation-conclusions}
+
+## Grado de contraste
+
+La formulación se contrastó con soluciones analíticas, ejemplos publicados y
+controles numéricos. La @tbl-calculation-verification-summary presenta la única
+síntesis del cuerpo; el Apéndice B documenta datos, unidades, conversiones y
+diferencias por fuente.
+
+{{< include /_tbl/Calculation.verification.summary.ES.qmd >}}
+
+Baker sustenta el equilibrio radial, la compatibilidad y la solución modal de
+referencia [@Baker1968]. Schwartz--Einstein y Núñez proporcionan formulaciones
+comparativas de interacción suelo--revestimiento para túneles excavados
+[@SchwartzEinstein1980; @Nunez2000; @NunezSfrisoLaiun2014]; sus secuencias de
+carga y convenciones no se transfieren directamente a un conducto instalado y
+rellenado. CANDE es un sistema especializado de análisis y diseño de conductos
+enterrados, materializado en un programa con formulaciones de interacción
+suelo--estructura [@KatonaEtAl1976CANDE; @CANDE2025Formulations]. La evidencia
+revisada no contiene todavía un caso cuantitativo común con las mismas entradas
+y convenciones para incorporarlo a los contrastes de esta memoria.
+
+## Información requerida para la evaluación del revestimiento existente
+
+Antes de calcular la demanda de proyecto deben confirmarse:
+
+1. radio centroidal, ovalidad y geometría medida de la sección;
+2. perfil, categoría de espesor, pérdida de sección y propiedades $A_p$ e
+   $I_p$;
+3. estratigrafía, clasificación, pesos unitarios, humedad y grado de
+   compactación del relleno;
+4. $\phi'$, historia tensional y evidencia para seleccionar las ramas de
+   $K_0$;
+5. niveles de agua exterior e interior y sus variaciones;
+6. equipos, fuerza, ubicación de tongadas, secuencia y mediciones de
+   deformación durante la construcción;
+7. condición de transferencia entre relleno y revestimiento; y
+8. distribuciones conjuntas, dependencias, cuantiles objetivo y criterios de
+   precisión para la simulación de Monte Carlo.
+
+Si se adopta una tensión vertical variable alrededor de la sección, el estado
+de carga debe incorporar además peso, flotación y reacciones de apoyo para
+satisfacer la @eq-calculation-global-equilibrium.
+
+## Conclusiones
+
+1. Las tensiones vertical y lateral del relleno se transforman en acciones
+   normales y tangenciales sobre el contorno mediante relaciones explícitas.
+   Esta transformación distingue el problema de suelo de una presión
+   hidrostática uniforme.
+2. Para cualquier distribución autoequilibrada de acciones prescritas, las
+   @eq-calculation-first-order-system y
+   @eq-calculation-compatibility-constants determinan
+   $N_\theta(\theta)$, $M_\theta(\theta)$ y $Q_\theta(\theta)$ sin restringir
+   la carga a un número finito de armónicos.
+3. El estado plano adoptado representa la chapa corrugada mediante
+   $EA_\theta$ y $EI_\theta$ y determina las resultantes circunferenciales de
+   esta etapa.
+4. El escenario analítico cuantifica la sensibilidad a la componente
+   tangencial: las dos prescripciones producen diferencias de hasta un factor
+   tres en la amplitud de $N_\theta$ y de 1.5 en las amplitudes de
+   $M_\theta$ y $Q_\theta$.
+5. La simulación de Monte Carlo se aplica directamente a la cadena de acciones
+   y respuesta. Los cuantiles puntuales, los cuantiles de extremos espaciales y
+   la envolvente exterior de alternativas se calculan y presentan como
+   productos distintos.
+6. Los valores numéricos actuales reproducen las soluciones cerradas y
+   satisfacen el control de consistencia de la integración directa para un
+   escenario condicionado. La demanda del revestimiento existente se calculará
+   después de completar la caracterización enumerada; sólo entonces podrán
+   identificarse los estados que alimentarán la evaluación resistente de chapa,
+   juntas y pernos.

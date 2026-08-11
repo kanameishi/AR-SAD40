@@ -1,0 +1,73 @@
+# Objeto de la comparación
+
+Las dos alternativas representan los mismos valores de
+$N_\theta(\theta)$, $M_\theta(\theta)$ y $Q_\theta(\theta)$ y emplean las
+mismas escalas gráficas por resultante. La comparación se limita a la
+representación; no modifica las acciones, las rigideces ni la solución de la
+sección transversal.
+
+```{r}
+#| include: false
+source("scripts/fig/Calculation.resultants.R")
+PATH.curves <- "TITO/kb/calculation-memo/results/ring-curves.csv"
+PATH.scales <- "TITO/kb/calculation-memo/results/ring-display-scales.csv"
+RADIUS <- 1.315
+```
+
+# Alternativa interactiva
+
+La leyenda controla las formulaciones completas: línea continua para la
+proyección del estado biaxial y discontinua para la carga exclusivamente
+normal. Al desactivar una entrada se retiran simultáneamente su curva y sus
+ordenadas en los tres diagramas. Las ordenadas se dibujan cada $10^\circ$ y se
+desfasan $5^\circ$ entre formulaciones para evitar superposiciones; el azul
+identifica valores positivos y el naranja, valores negativos.
+
+```{r}
+#| label: fig-resultants-highcharter-review
+#| fig-cap: "Alternativa interactiva Highcharter. Las formulaciones se controlan desde la leyenda."
+#| out-width: 100%
+buildCalculationResultantsInteractive(
+  pathCurves = PATH.curves,
+  pathScales = PATH.scales,
+  radius = RADIUS
+)
+```
+
+# Alternativa estática
+
+La versión estática separa las dos formulaciones en filas para evitar
+superposición. Cada ordenada es un segmento independiente: el azul indica
+valor positivo y el naranja, valor negativo. El espaciamiento angular es de
+$10^\circ$.
+
+```{r}
+#| label: fig-resultants-ggplot-review
+#| fig-cap: "Alternativa estática ggplot2. Las formulaciones se presentan en filas independientes."
+#| dev: ragg_png
+#| dpi: 180
+#| fig-width: 12
+#| fig-height: 7.4
+#| out-width: 100%
+#| fig-align: center
+buildCalculationResultants(
+  pathCurves = PATH.curves,
+  pathScales = PATH.scales,
+  radius = RADIUS
+)
+```
+
+# Criterios para la selección
+
+| Criterio | Highcharter | ggplot2 |
+|---|---|---|
+| Comparación de formulaciones | Superposición con activación independiente | Filas independientes |
+| Lectura de valores | Valor, ángulo y unidad en información emergente | Consulta en las tablas fuente |
+| Ordenadas radiales | Sí, cada $10^\circ$, con desfase de $5^\circ$ entre formulaciones | Sí, cada $10^\circ$ |
+| Salida | HTML interactivo | Imagen estática reproducible |
+| Escala cartesiana | Relación 1:1 mediante paneles cuadrados | Relación 1:1 mediante coordenadas fijas |
+
+```{r}
+#| include: false
+rm(PATH.curves, PATH.scales, RADIUS)
+```

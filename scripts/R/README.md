@@ -208,25 +208,29 @@ El motor recibe realizaciones, no distribuciones:
 ```r
 Draws <- data.frame(
   effectiveVertical = c(80, 100, 120),
-  k0 = c(0.4, 0.5, 0.6),
-  porePressure = c(0, 10, 20)
+  frictionAngleDeg = c(28, 32, 36),
+  porePressure = c(0, 10, 20),
+  tangentialMultiplier = c(0, 0.5, 1)
 )
 
 Result <- runRingMonteCarlo(
   draws = Draws,
   responseFunction = function(Draw, theta) {
-    solveK0Closed(
+    Load <- k0TangentialMultiplierLoad(
       effectiveVertical = Draw$effectiveVertical,
-      k0 = Draw$k0,
+      k0 = k0NormallyConsolidated(Draw$frictionAngleDeg),
       porePressure = Draw$porePressure,
+      tangentialMultiplier = Draw$tangentialMultiplier
+    )
+    solveRingDirect(
+      load = Load,
       radius = 2,
-      theta = theta,
-      interface = "fullTraction"
+      theta = theta
     )
   },
   theta = (0:720) * 2 * pi / 721,
   probabilities = c(0.05, 0.50, 0.95),
-  modelLabel = "declared K0 branch"
+  modelLabel = "declared geotechnical branch"
 )
 ```
 

@@ -1,0 +1,86 @@
+```{r}
+#| include: false
+if (!exists("CAP.N", inherits = FALSE)) {
+  CAP.N <- paste(
+    readLines("_captions/fig.Calculation.normal.md", warn = FALSE),
+    collapse = "\n"
+  )
+}
+if (!exists("CAP.M", inherits = FALSE)) {
+  CAP.M <- paste(
+    readLines("_captions/fig.Calculation.moment.md", warn = FALSE),
+    collapse = "\n"
+  )
+}
+if (!exists("CAP.Q", inherits = FALSE)) {
+  CAP.Q <- paste(
+    readLines("_captions/fig.Calculation.shear.md", warn = FALSE),
+    collapse = "\n"
+  )
+}
+source("scripts/fig/Calculation.resultants.R")
+PATH.curves <- "TITO/kb/calculation-memo/results/ring-curves.csv"
+PATH.scales <- "TITO/kb/calculation-memo/results/ring-display-scales.csv"
+PLOT.N <- buildCalculationResultantsInteractive(
+  pathCurves = PATH.curves,
+  pathScales = PATH.scales,
+  radius = 1.315,
+  graphicAmplification = 2,
+  resultant = "N"
+)
+PLOT.M <- buildCalculationResultantsInteractive(
+  pathCurves = PATH.curves,
+  pathScales = PATH.scales,
+  radius = 1.315,
+  graphicAmplification = 2,
+  resultant = "M"
+)
+PLOT.Q <- buildCalculationResultantsInteractive(
+  pathCurves = "TITO/kb/calculation-memo/results/ring-curves.csv",
+  pathScales = "TITO/kb/calculation-memo/results/ring-display-scales.csv",
+  radius = 1.315,
+  graphicAmplification = 2,
+  resultant = "Q"
+)
+```
+
+::: {.column-page}
+
+```{r}
+#| label: fig-calculation-normal
+#| fig-cap: !expr CAP.N
+#| echo: false
+#| out-width: 100%
+#| fig-align: center
+PLOT.N
+```
+
+```{r}
+#| label: fig-calculation-moment
+#| fig-cap: !expr CAP.M
+#| echo: false
+#| out-width: 100%
+#| fig-align: center
+PLOT.M
+```
+
+```{r}
+#| label: fig-calculation-shear
+#| fig-cap: !expr CAP.Q
+#| echo: false
+#| out-width: 100%
+#| fig-align: center
+PLOT.Q
+```
+
+:::
+
+```{r}
+#| include: false
+rm(
+  CAP.N, CAP.M, CAP.Q,
+  PATH.curves, PATH.scales,
+  PLOT.N, PLOT.M, PLOT.Q,
+  buildCalculationResultantsInteractive
+)
+```

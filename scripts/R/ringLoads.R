@@ -149,6 +149,70 @@ k0TensorLoad <- function(
   )
 }
 
+# Analyst-selected fraction of the projected tangential component.
+#
+# This is a prescribed-load model.  It does not solve interface slip or a
+# friction law.  tangentialMultiplier = 0 omits the tangential component and
+# tangentialMultiplier = 1 applies the complete projected component.
+k0TangentialMultiplierLoad <- function(
+  effectiveVertical,
+  k0,
+  porePressure = 0,
+  horizontalIncrement = 0,
+  tangentialMultiplier
+) {
+  .assertFiniteScalar(effectiveVertical, "effectiveVertical", minimum = 0)
+  .assertFiniteScalar(k0, "k0", minimum = 0)
+  .assertFiniteScalar(porePressure, "porePressure", minimum = 0)
+  .assertFiniteScalar(horizontalIncrement, "horizontalIncrement", minimum = 0)
+  .assertFiniteScalar(
+    tangentialMultiplier,
+    "tangentialMultiplier",
+    minimum = 0
+  )
+  if (tangentialMultiplier > 1) {
+    stop(
+      "tangentialMultiplier must not exceed 1.",
+      call. = FALSE
+    )
+  }
+
+  EffectiveHorizontal <- k0 * effectiveVertical + horizontalIncrement
+  EffectiveMean <- (effectiveVertical + EffectiveHorizontal) / 2
+  Difference <- effectiveVertical - EffectiveHorizontal
+
+  effectiveNormal <- function(theta) {
+    EffectiveMean + Difference * cos(2 * theta) / 2
+  }
+  candidateTangential <- function(theta) {
+    Difference * sin(2 * theta) / 2
+  }
+
+  newRingLoad(
+    radial = function(theta) {
+      -porePressure - effectiveNormal(theta)
+    },
+    tangential = function(theta) {
+      tangentialMultiplier * candidateTangential(theta)
+    },
+    label = paste0(
+      "K0 stress field with tangential multiplier alpha = ",
+      format(tangentialMultiplier, trim = TRUE)
+    ),
+    source = "derived stress projection with analyst-selected multiplier",
+    representation = "scaledTangentialProjection",
+    metadata = list(
+      evidenceLevel = "assumption",
+      effectiveVertical = effectiveVertical,
+      effectiveHorizontal = EffectiveHorizontal,
+      porePressure = porePressure,
+      horizontalIncrement = horizontalIncrement,
+      tangentialMultiplier = tangentialMultiplier,
+      tangentialReference = "biaxial stress projection"
+    )
+  )
+}
+
 solveK0Closed <- function(
   effectiveVertical,
   k0,

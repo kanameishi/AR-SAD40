@@ -1,0 +1,270 @@
+Notebook[
+ {
+  Cell[
+   "Anillo circular bajo tracciones perimetrales \[LongDash] prototipo SoT",
+   "Title"], Cell["Integraci\[OAcute]n directa como soluci\[OAcute]n \
+principal; diferencias finitas y Fourier como controles", "Subtitle"],
+  Cell["Prop\[OAcute]sito. Resolver N(theta), M(theta) y Q(theta) de un \
+anillo circular liso, por unidad longitudinal, sin FEM. El cuaderno es \
+autocontenido, se lee de arriba hacia abajo y no contiene datos del \
+proyecto.", "Text"], Cell["1. Modelo y cierre matem\[AAcute]tico",
+   "Section"], Cell["Convenci\[OAcute]n: theta=0 en clave y crece en sentido \
+horario; Pr>0 hacia afuera; Pt>0 en el sentido creciente de theta; N>0 a \
+tracci\[OAcute]n. Las ecuaciones de equilibrio son N'-Q+R Pt=0, Q'+N-R Pr=0 y \
+M'-R Q=0.", "Text"], Cell["El equilibrio deja tres constantes \
+homog\[EAcute]neas. No se fijan arbitrariamente. De Baker (1968), ecuaciones \
+2-6: M=(K/R^2)(w''+w). La periodicidad elimina los arm\[OAcute]nicos \
+cos(theta) y sin(theta) de M. Adem\[AAcute]s M0=alpha N0, con alpha=R k/(1+k) \
+y k=K/(D R^2)=I/(A R^2). Para una tira rectangular k=t^2/(12 R^2); k=0 es la \
+aproximaci\[OAcute]n membranal.", "Text"], Cell["Una soluci\[OAcute]n \
+peri\[OAcute]dica requiere cargas globalmente equilibradas. El cuaderno \
+informa Fx, Fz y Mc, con +Fz hacia abajo; no borra ni proyecta una resultante \
+no equilibrada.", "Text"],
+  Cell["2. M\[EAcute]todo principal: integraci\[OAcute]n directa",
+   "Section"], Cell["Se integra el sistema de primer orden con condiciones \
+iniciales nulas para obtener una soluci\[OAcute]n particular. Despu\[EAcute]s \
+se suman los t\[EAcute]rminos a cos(theta), b sin(theta) y c. Las tres \
+constantes se calculan con las condiciones de compatibilidad anteriores. Esta \
+ruta no prescribe una grilla peri\[OAcute]dica ni trunca modos: NDSolveValue \
+avanza adaptativamente y s\[OAcute]lo se limita su paso m\[AAcute]ximo.",
+   "Text"], Cell[BoxData["ClearAll[sampleRing, maxError, \
+directRing];\nsampleRing[solution_, angles_] := AssociationMap[solution[#] /@ \
+angles &, {\"N\", \"M\", \"Q\"}];\nmaxError[x_, y_] := \
+Max[Abs[Flatten[Lookup[x, {\"N\", \"M\", \"Q\"}] - Lookup[y, {\"N\", \"M\", \
+\"Q\"}]]]];\ndirectRing[prFun_, ptFun_, radius_, kRatio_: 0.] := Module[\n  \
+{part, th, nP, qP, mP, iMC, iMS, iN, iM, iFx, iFz, iT,\n    mCos1, mSin1, \
+nMean, mMean, a, b, c, alpha},\n  part = NDSolveValue[{\n    nP'[th] == \
+qP[th] - radius ptFun[th],\n    qP'[th] == radius prFun[th] - nP[th],\n    \
+mP'[th] == radius qP[th],\n    iMC'[th] == mP[th] Cos[th], iMS'[th] == mP[th] \
+Sin[th],\n    iN'[th] == nP[th], iM'[th] == mP[th],\n    iFx'[th] == radius \
+(prFun[th] Sin[th] + ptFun[th] Cos[th]),\n    iFz'[th] == radius (-prFun[th] \
+Cos[th] + ptFun[th] Sin[th]),\n    iT'[th] == radius^2 ptFun[th],\n    \
+Thread[{nP[0], qP[0], mP[0], iMC[0], iMS[0], iN[0], iM[0],\n      iFx[0], \
+iFz[0], iT[0]} == ConstantArray[0., 10]]},\n    {nP, qP, mP, iMC, iMS, iN, \
+iM, iFx, iFz, iT}, {th, 0, 2 Pi}, AccuracyGoal -> 12,\n    PrecisionGoal -> \
+10, MaxStepFraction -> 1/100, MaxSteps -> Infinity];\n  mCos1 = part[[4]][2 \
+Pi]/Pi; mSin1 = part[[5]][2 Pi]/Pi; nMean = part[[6]][2 Pi]/(2 Pi); mMean = \
+part[[7]][2 Pi]/(2 Pi);\n  {a, b} = -{mCos1, mSin1}/radius;\n  alpha = radius \
+kRatio/(1 + kRatio); c = alpha nMean - mMean;\n  <|\"N\" -> Function[{x}, \
+part[[1]][x] + a Cos[x] + b Sin[x]],\n    \"Q\" -> Function[{x}, part[[2]][x] \
+- a Sin[x] + b Cos[x]],\n    \"M\" -> Function[{x}, part[[3]][x] + radius a \
+Cos[x] + radius b Sin[x] + c],\n    \"PeriodError\" -> \
+Max[Abs[Through[part[[1 ;; 3]][2 Pi]]]],\n    \"GlobalLoads\" -> \
+AssociationThread[{\"Fx\", \"Fz\", \"Mc\"},\n      Through[part[[8 ;; 10]][2 \
+Pi]]]|>\n];"], "Input", CellTags -> {"DirectMethod"}],
+  Cell["3. Estado biaxial K0: soluci\[OAcute]n cerrada", "Section"],
+  Cell["Sea sigma'h=K0 sigma'v, P=u+(sigma'v+sigma'h)/2 y \
+Delta=sigma'v-sigma'h. Se prescribe Pr=-P-Delta cos(2 theta)/2. FullTraction \
+conserva tambi\[EAcute]n Pt=Delta sin(2 theta)/2; NormalOnly impone Pt=0. Son \
+dos tracciones prescritas para sensibilidad, no dos modelos publicados de \
+interacci\[OAcute]n suelo-liner.", "Text"], Cell["Para FullTraction y k=0: \
+N=-R P+R Delta cos(2 theta)/2, M=R^2 Delta cos(2 theta)/4 y Q=-R Delta sin(2 \
+theta)/2. Para NormalOnly, los coeficientes de Delta son respectivamente 1/6, \
+1/6 y 1/3. Si k no es cero se suma M0=alpha N0.", "Text"],
+  Cell[BoxData["ClearAll[k0Load, k0Closed, k0Extrema];\nk0Load[sv_, k0_, u_, \
+branch : (\"FullTraction\" | \"NormalOnly\")] := Module[{sh, p, delta},\n  sh \
+= k0 sv; p = u + (sv + sh)/2; delta = sv - sh;\n  <|\"Pr\" -> Function[{x}, \
+-p - delta Cos[2 x]/2],\n    \"Pt\" -> If[branch === \"FullTraction\",\n      \
+Function[{x}, delta Sin[2 x]/2], Function[{x}, 0.]]|>\n];\nk0Closed[angles_, \
+sv_, k0_, u_, radius_, branch : (\"FullTraction\" | \"NormalOnly\"), kRatio_: \
+0.] := Module[\n  {sh, p, delta, factors, n0, m0, alpha},\n  sh = k0 sv; p = \
+u + (sv + sh)/2; delta = sv - sh;\n  factors = If[branch === \
+\"FullTraction\", {1/2, 1/4, 1/2}, {1/6, 1/6, 1/3}];\n  n0 = -radius p; alpha \
+= radius kRatio/(1 + kRatio); m0 = alpha n0;\n  <|\"N\" -> n0 + radius delta \
+factors[[1]] Cos[2 angles],\n    \"M\" -> m0 + radius^2 delta factors[[2]] \
+Cos[2 angles],\n    \"Q\" -> -radius delta factors[[3]] Sin[2 \
+angles]|>\n];\nk0Extrema[sv_, k0_, u_, radius_, branch : (\"FullTraction\" | \
+\"NormalOnly\"), kRatio_: 0.] := Module[\n  {sh = k0 sv, p, delta, factors, \
+n0, m0, alpha},\n  p = u + (sv + sh)/2; delta = Abs[sv - sh];\n  factors = \
+If[branch === \"FullTraction\", {1/2, 1/4, 1/2}, {1/6, 1/6, 1/3}];\n  n0 = \
+-radius p; alpha = radius kRatio/(1 + kRatio); m0 = alpha n0;\n  <|\"Nmin\" \
+-> n0 - radius delta factors[[1]],\n    \"Nmax\" -> n0 + radius delta \
+factors[[1]],\n    \"Mabs\" -> Abs[m0] + radius^2 delta factors[[2]],\n    \
+\"Qabs\" -> radius delta factors[[3]]|>\n];"], "Input",
+   CellTags -> {"ClosedK0"}],
+  Cell["4. Controles num\[EAcute]ricos independientes", "Section"],
+  Cell["Diferencias finitas resuelve las mismas tres ecuaciones en una grilla \
+peri\[OAcute]dica impar. Se imponen exactamente las tres condiciones de \
+compatibilidad. El operador centrado de cuarto orden se calibra para derivar \
+exactamente sin(theta) y cos(theta). El residuo queda visible.", "Text"],
+  Cell[BoxData["ClearAll[periodicD, ringFD];\nperiodicD[n_Integer?OddQ] := \
+Module[{h = 2 Pi/n, scale},\n  scale = 2 (8 Sin[h] - Sin[2 h]);\n  \
+SparseArray[Flatten[Table[{{i, 1 + Mod[i - 3, n]} -> 1/scale,\n    {i, 1 + \
+Mod[i - 2, n]} -> -8/scale,\n    {i, 1 + Mod[i, n]} -> 8/scale,\n    {i, 1 + \
+Mod[i + 1, n]} -> -1/scale}, {i, n}], 1], {n, n}]\n];\nringFD[angles_, pr_, \
+pt_, radius_, kRatio_: 0.] := Module[\n  {n = Length[angles], d, id, z, a, b, \
+alpha, gauge, system, rhs, x},\n  d = periodicD[n]; id = IdentityMatrix[n, \
+SparseArray];\n  z = SparseArray[{}, {n, n}];\n  a = ArrayFlatten[{{z, -d, \
+radius id}, {id, z, d}, {d, z, -id}}];\n  b = Join[ConstantArray[0., n], \
+radius pr, -radius pt];\n  alpha = radius kRatio/(1 + kRatio);\n  gauge = \
+SparseArray[{\n    Join[ConstantArray[0., n], Cos[angles]/n, \
+ConstantArray[0., n]],\n    Join[ConstantArray[0., n], Sin[angles]/n, \
+ConstantArray[0., n]],\n    Join[-alpha ConstantArray[1./n, n], \
+ConstantArray[1./n, n], ConstantArray[0., n]]}];\n  system = Join[a, gauge]; \
+rhs = Join[b, {0., 0., 0.}];\n  x = LeastSquares[system, rhs];\n  <|\"N\" -> \
+x[[1 ;; n]], \"M\" -> x[[n + 1 ;; 2 n]],\n    \"Q\" -> x[[2 n + 1 ;; 3 n]], \
+\"Residual\" -> Max[Abs[system.x - rhs]]|>\n];"], "Input",
+   CellTags -> {"FiniteDifferenceComparator"}],
+  Cell["Fourier se conserva s\[OAcute]lo como comparaci\[OAcute]n modal. El \
+modo n=0 usa M0=alpha N0; un modo n=1 equilibrado produce N1=R Pr1 y M1=Q1=0; \
+para n>=2 se aplican las relaciones modales. solveFourier devuelve Failure si \
+detecta resultantes no equilibradas. No gobierna ni la soluci\[OAcute]n \
+principal ni Monte Carlo.", "Text"],
+  Cell[BoxData["ClearAll[fitFourier, solveFourier, \
+evalFourier];\nfitFourier[angles_, pr_, pt_, maxMode_] := Transpose[{Range[0, \
+maxMode],\n  Table[If[n == 0, 1, 2] Mean[pr Cos[n angles]], {n, 0, \
+maxMode}],\n  Table[2 Mean[pr Sin[n angles]], {n, 0, maxMode}],\n  Table[If[n \
+== 0, 1, 2] Mean[pt Cos[n angles]], {n, 0, maxMode}],\n  Table[2 Mean[pt \
+Sin[n angles]], {n, 0, maxMode}]}];\nsolveFourier[coefficients_, radius_, \
+kRatio_: 0.] := Module[\n  {m, a, b, c, d, solution, den, alpha, balance},\n  \
+m = Length[coefficients] - 1; {a, b, c, d} = Transpose[coefficients[[All, 2 \
+;; 5]]];\n  balance = If[m >= 1, {c[[1]], b[[2]] + c[[2]], d[[2]] - a[[2]]}, \
+{c[[1]]}];\n  If[Max[Abs[balance]] > 10^-10 Max[1., \
+Max[Abs[Flatten[coefficients[[All, 2 ;; 5]]]]]], \
+Return[Failure[\"UnbalancedLoad\", <|\"ResidualModes\" -> balance|>]]];\n  \
+solution = ConstantArray[0., {m + 1, 7}]; solution[[All, 1]] = Range[0, m];\n \
+ solution[[1, 2]] = radius a[[1]]; alpha = radius kRatio/(1 + kRatio);\n  \
+solution[[1, 4]] = alpha solution[[1, 2]];\n  If[m >= 1, solution[[2, {2, \
+3}]] = radius {a[[2]], b[[2]]}];\n  Do[den = n^2 - 1;\n    solution[[n + 1, \
+2]] = radius (n d[[n + 1]] - a[[n + 1]])/den;\n    solution[[n + 1, 3]] = \
+-radius (b[[n + 1]] + n c[[n + 1]])/den;\n    solution[[n + 1, 4]] = radius^2 \
+(d[[n + 1]]/n - a[[n + 1]])/den;\n    solution[[n + 1, 5]] = -radius^2 (b[[n \
++ 1]] + c[[n + 1]]/n)/den;\n    solution[[n + 1, 6]] = -radius (n b[[n + 1]] \
++ c[[n + 1]])/den;\n    solution[[n + 1, 7]] = radius (n a[[n + 1]] - d[[n + \
+1]])/den,\n    {n, 2, m}]; solution\n];\nevalFourier[solution_, angles_] := \
+Module[{phase = Outer[Times, angles, solution[[All, 1]]]},\n  <|\"N\" -> \
+Cos[phase].solution[[All, 2]] + Sin[phase].solution[[All, 3]],\n    \"M\" -> \
+Cos[phase].solution[[All, 4]] + Sin[phase].solution[[All, 5]],\n    \"Q\" -> \
+Cos[phase].solution[[All, 6]] + Sin[phase].solution[[All, 7]]|>\n];"],
+   "Input", CellTags -> {"FourierComparator"}],
+  Cell["5. Caso determin\[IAcute]stico editable", "Section"],
+  Cell["Datos sint\[EAcute]ticos y coherentes: R en m, tensiones en kPa, N y \
+Q en kN/m, M en kN m/m. Se prescribe un tensor constante; no se infiere una \
+tapada ni un gradiente sobre el di\[AAcute]metro.", "Text"],
+  Cell[BoxData["nGrid = 181; angles = N[Range[0, nGrid - 1] 2 \
+Pi/nGrid];\nradius = 2.0; sigmaV = 100.0; k0 = 0.50; porePressure = 20.0; \
+branch = \"FullTraction\"; kRatio = 0.0;"], "Input", CellTags -> {"Inputs"}],
+  Cell[BoxData["loadFunctions = k0Load[sigmaV, k0, porePressure, branch];\npr \
+= loadFunctions[\"Pr\"] /@ angles; pt = loadFunctions[\"Pt\"] /@ \
+angles;\nclosed = k0Closed[angles, sigmaV, k0, porePressure, radius, branch, \
+kRatio];\ndirect = directRing[loadFunctions[\"Pr\"], loadFunctions[\"Pt\"], \
+radius, kRatio];\ndirectGrid = sampleRing[direct, angles];\nfd = \
+ringFD[angles, pr, pt, radius, kRatio];\nfourier = \
+evalFourier[solveFourier[fitFourier[angles, pr, pt, 8], radius, kRatio], \
+angles];\ncomparison = <|\"GlobalLoads\" -> direct[\"GlobalLoads\"],\n  \
+\"PeriodErrorDirect\" -> direct[\"PeriodError\"],\n  \"DirectVsClosed\" -> \
+maxError[directGrid, closed],\n  \"FDVsClosed\" -> maxError[fd, closed], \
+\"FDResidual\" -> fd[\"Residual\"],\n  \"FourierVsClosed\" -> \
+maxError[fourier, closed]|>; Dataset[comparison]"], "Input",
+   CellTags -> {"DeterministicRun"}],
+  Cell[BoxData["Column[Table[ListLinePlot[\n  (Transpose[{angles 180/Pi, \
+#[key]}] &) /@ {closed, directGrid, fd, fourier},\n  PlotLegends -> \
+{\"cerrada\", \"directa\", \"FD\", \"Fourier\"},\n  Frame -> True, FrameLabel \
+-> {\"theta [deg]\", key}, PlotRange -> All,\n  ImageSize -> Large], {key, \
+{\"N\", \"M\", \"Q\"}}]]"], "Input", CellTags -> {"DeterministicPlots"}],
+  Cell["6. Benchmarks ejecutables", "Section"],
+  Cell["Cuatro controles internos: presi\[OAcute]n uniforme (N=-pR, M=Q=0), \
+carga n=1 equilibrada (N=3R cos(theta), M=Q=0), la rama NormalOnly con k=0.02 \
+y convergencia de diferencias finitas contra la soluci\[OAcute]n K0 cerrada."\
+, "Text"], Cell[BoxData["uniform = directRing[Function[{x}, -12.3], \
+Function[{x}, 0.], radius, 0.];\nuniformExact = <|\"N\" -> \
+ConstantArray[-12.3 radius, nGrid],\n  \"M\" -> ConstantArray[0., nGrid], \
+\"Q\" -> ConstantArray[0., nGrid]|>;\nuniformError = \
+maxError[sampleRing[uniform, angles], uniformExact];\nsecondaryError = \
+Module[{load = k0Load[sigmaV, k0, porePressure, \"NormalOnly\"]},\n  \
+maxError[sampleRing[directRing[load[\"Pr\"], load[\"Pt\"], radius, 0.02], \
+angles],\n    k0Closed[angles, sigmaV, k0, porePressure, radius, \
+\"NormalOnly\", 0.02]]\n];\nn1Pr = 3 Cos[angles]; n1Pt = 3 \
+Sin[angles];\nn1Exact = <|\"N\" -> 3 radius Cos[angles], \"M\" -> 0 angles, \
+\"Q\" -> 0 angles|>;\nn1Direct = sampleRing[directRing[Function[{x}, 3 \
+Cos[x]], Function[{x}, 3 Sin[x]], radius], angles];\nn1FD = ringFD[angles, \
+n1Pr, n1Pt, radius];\nn1Fourier = evalFourier[solveFourier[fitFourier[angles, \
+n1Pr, n1Pt, 4], radius], angles];\nn1Errors = Map[maxError[#, n1Exact] &,\n  \
+<|\"Direct\" -> n1Direct, \"FD\" -> n1FD, \"Fourier\" -> \
+n1Fourier|>];\nconvergence = Table[Module[{th, functions, exact, \
+numerical},\n  th = N[Range[0, n - 1] 2 Pi/n]; functions = k0Load[sigmaV, k0, \
+porePressure, branch];\n  exact = k0Closed[th, sigmaV, k0, porePressure, \
+radius, branch, kRatio];\n  numerical = ringFD[th, functions[\"Pr\"] /@ th, \
+functions[\"Pt\"] /@ th, radius, kRatio];\n  <|\"n\" -> n, \"MaxError\" -> \
+maxError[numerical, exact],\n    \"Residual\" -> numerical[\"Residual\"]|>], \
+{n, {45, 91, 181, 361}}];\nColumn[{Dataset[<|\"UniformDirectError\" -> \
+uniformError, \"SecondaryK0Error\" -> secondaryError, \"BalancedN1Errors\" -> \
+n1Errors|>],\n  Dataset[convergence]}]"], "Input",
+   CellTags -> {"InternalBenchmarks"}], Cell["Fuente: Owen Charles Baker, A \
+Comparison of Finite Element and Fourier Series Solutions as Applied to \
+Radially Loaded Circular Rings, tesis, Naval Postgraduate School, junio de \
+1968; PDF local \
+TITO/kb/sources/baker_1968_radially_loaded_circular_rings.pdf.", "Text"],
+  Cell["Tables XIII y XIV, p\[AAcute]ginas impresas 50-51/PDF 54-55: pares de \
+cargas radiales opuestas con semianchos 30 y 60 grados, P=R=b=1. Se comparan \
+los n\[UAcute]meros impresos a tres decimales con la integraci\[OAcute]n \
+directa; Fourier no es el or\[AAcute]culo.", "Text"],
+  Cell[BoxData["ClearAll[bakerLoad];\nbakerLoad[halfAngle_] := Function[{x}, \
+Piecewise[{{-1/(2 halfAngle),\n  0 <= x <= halfAngle || 2 Pi - halfAngle <= x \
+<= 2 Pi ||\n  Pi - halfAngle <= x <= Pi + halfAngle}}, 0.]];\nbakerAngles = \
+{0, 30, 60, 90} Degree;\nbakerPublished = {\n  <|\"HalfAngleDeg\" -> 30, \
+\"N\" -> {-0.128, -0.239, -0.413, -0.477},\n    \"M\" -> {0.190, 0.080, \
+-0.095, -0.159}|>,\n  <|\"HalfAngleDeg\" -> 60, \"N\" -> {-0.239, -0.271, \
+-0.358, -0.413},\n    \"M\" -> {0.080, 0.048, -0.040, -0.095}|>};\nbakerRows \
+= Flatten[Table[Module[{solution, calculated},\n  solution = \
+directRing[bakerLoad[case[\"HalfAngleDeg\"] Degree], Function[{x}, 0.], \
+1.];\n  calculated = sampleRing[solution, bakerAngles];\n  \
+Table[<|\"HalfAngleDeg\" -> case[\"HalfAngleDeg\"], \"ThetaDeg\" -> {0, 30, \
+60, 90}[[i]],\n    \"PublishedN\" -> case[\"N\"][[i]], \"CalculatedN\" -> \
+calculated[\"N\"][[i]],\n    \"PublishedM\" -> case[\"M\"][[i]], \
+\"CalculatedM\" -> calculated[\"M\"][[i]]|>,\n    {i, 4}]], {case, \
+bakerPublished}], 1];\nbakerError = Max[Abs[Join[Lookup[bakerRows, \
+\"CalculatedN\"] - Lookup[bakerRows, \"PublishedN\"],\n  Lookup[bakerRows, \
+\"CalculatedM\"] - Lookup[bakerRows, \"PublishedM\"]]]];\nDataset[bakerRows]"]\
+, "Input", CellTags -> {"BakerBenchmarks"}],
+  Cell["7. Monte Carlo m\[IAcute]nimo", "Section"],
+  Cell["Las distribuciones siguientes son sint\[EAcute]ticas y s\[OAcute]lo \
+muestran el flujo. Cada muestra usa la soluci\[OAcute]n K0 cerrada; no llama \
+a la integraci\[OAcute]n, FD ni Fourier. Se informan cuantiles tipo 7 de la \
+envolvente N(theta) y de los extremos N, |M| y |Q|.", "Text"],
+  Cell[BoxData["ClearAll[quantile7];\nquantile7[x_, p_] := Module[{s = \
+Sort[N[x]], h, j, g},\n  h = 1 + (Length[s] - 1) p; j = Floor[h]; g = h - \
+j;\n  If[j >= Length[s], Last[s], (1 - g) s[[j]] + g s[[j + \
+1]]]\n];\nsampleCount = 2000; probabilities = {0.05, 0.50, 0.95}; \
+SeedRandom[20260809]; sigmaVDraws = RandomReal[{80., 120.}, sampleCount]; \
+k0Draws = RandomReal[{0.40, 0.70}, sampleCount];\nmcCurves = \
+MapThread[k0Closed[angles, #1, #2, 0., radius, branch, kRatio] &,\n  \
+{sigmaVDraws, k0Draws}];\nnQuantiles = Table[quantile7[#, p] & /@ \
+Transpose[Lookup[mcCurves, \"N\"]], {p, probabilities}];\nmcExtrema = \
+MapThread[k0Extrema[#1, #2, 0., radius, branch, kRatio] &, {sigmaVDraws, \
+k0Draws}];\nextremeTable = Flatten[Table[<|\"Output\" -> key, \"Probability\" \
+-> p,\n  \"Value\" -> quantile7[Lookup[mcExtrema, key], p]|>,\n  {key, \
+{\"Nmin\", \"Nmax\", \"Mabs\", \"Qabs\"}}, {p, \
+probabilities}]];\nColumn[{ListLinePlot[(Transpose[{angles 180/Pi, #}] &) /@ \
+nQuantiles,\n  PlotLegends -> (\"p=\" <> ToString[#] & /@ probabilities), \
+Frame -> True,\n  FrameLabel -> {\"theta [deg]\", \"N\"}, PlotRange -> All, \
+ImageSize -> Large], Dataset[extremeTable]}]"], "Input",
+   CellTags -> {"MonteCarlo"}], Cell["8. Veredicto reproducible", "Section"],
+  Cell[BoxData["convergenceErrors = Lookup[convergence, \
+\"MaxError\"];\nchecks = <|\"GlobalBalance\" -> \
+Max[Abs[Values[comparison[\"GlobalLoads\"]]]] < 10^-8,\n  \
+\"DirectPeriodicity\" -> comparison[\"PeriodErrorDirect\"] < 2 10^-7,\n  \
+\"DirectK0\" -> comparison[\"DirectVsClosed\"] < 10^-4,\n  \"FDK0\" -> \
+comparison[\"FDVsClosed\"] < 2 10^-4,\n  \"FourierK0\" -> \
+comparison[\"FourierVsClosed\"] < 10^-10,\n  \"FDResidual\" -> \
+comparison[\"FDResidual\"] < 10^-8,\n  \"UniformDirect\" -> uniformError < 2 \
+10^-5,\n  \"NormalOnlyWithK\" -> secondaryError < 10^-4,\n  \"BalancedN1\" -> \
+Max[Values[n1Errors]] < 2 10^-5,\n  \"FourierRejectsUnbalanced\" -> \
+FailureQ[solveFourier[fitFourier[angles, Cos[angles], 0 angles, 4], \
+radius]],\n  \"FDConverges\" -> And @@ Thread[Rest[convergenceErrors] < \
+Most[convergenceErrors]],\n  \"BakerRoundedTables\" -> bakerError < 6 \
+10^-4|>;\n<|\"AllPass\" -> And @@ Values[checks], \"Checks\" -> checks|>"],
+   "Input", CellTags -> {"Checks"}], Cell["L\[IAcute]mites", "Section"],
+  Cell["Este prototipo resuelve un anillo isotr\[OAcute]pico bajo tracciones \
+prescritas. No predice por s\[IAcute] mismo arqueo, compactaci\[OAcute]n, \
+separaci\[OAcute]n de contacto ni redistribuci\[OAcute]n dependiente de \
+rigidez. USACE, FHWA, N\[UAcute]\[NTilde]ez u otra fuente deben entrar \
+despu\[EAcute]s s\[OAcute]lo como generadores expl\[IAcute]citos de \
+Pr(theta), Pt(theta), o como modelos de interacci\[OAcute]n auditados. \
+Ortotrop\[IAcute]a, chapa ondulada y pernos permanecen fuera de esta etapa.",
+   "Text"], Cell["C\[OAcute]digo sustantivo embebido: 200 l\[IAcute]neas.",
+   "Text"]}, WindowTitle -> "SoT \[LongDash] anillo circular",
+ TaggingRules -> <|"SelfContained" -> True, "CodeLines" -> 200,
+   "PrimaryMethod" -> "Direct equilibrium integration + Baker compatibility",
+   "Comparators" -> {"Periodic finite differences", "Fourier"}|>,
+ StyleDefinitions -> "Default.nb"]

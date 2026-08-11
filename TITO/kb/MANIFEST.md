@@ -1,6 +1,6 @@
 # Manifest de fuentes metodológicas recuperadas
 
-Fecha de verificación: 10 de agosto de 2026.
+Fecha de verificación: 11 de agosto de 2026.
 
 Este archivo registra procedencia e integridad. Incluye informes primarios, manuales, artículos, tesis, índices o vistas previas oficiales; la presencia de una fuente no implica que su método sea aplicable al problema.
 
@@ -17,6 +17,7 @@ Este archivo registra procedencia e integridad. Incluye informes primarios, manu
 | `csa_g401_14_archived.pdf` | CSA Group (2014), *Corrugated Steel Pipe Products*, G401-14, copia archivada abierta, [CSPI](https://archive.cspi.ca/sites/default/files/download/CSA%20G401-14.pdf) | 105 | `b173f628c03f3258dcf21ce10e64abe070a38e3d7aad31cfc6393b96a4787903` |
 | `cspi_handbook_ch06_structural_design.pdf` | CSPI, *Handbook of Steel Drainage & Highway Construction Products*, cap. 6, “Structural Design”, [CSPI](https://www.cspi.ca/sites/default/files/download/handbook_chapter06.pdf) | 106 | `f5fc7eb96f98287d7119605917c7dc57af3ad9534aad0d1932743fc0c43eac24` |
 | `fhwa_1999_pipe_interaction_backfill_envelope.pdf` | McGrath et al. (1999), *Pipe Interaction with the Backfill Envelope*, FHWA-RD-98-191, [USDOT ROSA P](https://rosap.ntl.bts.gov/view/dot/48814/dot_48814_DS1.pdf) | 274 | `dedf73d6bd303cd6c92adbe77da75d2cc469d7702115e7bc86ce43e779ddd18e` |
+| `fhwa_rd_03_048_interface_coulomb.pdf` | Vulova y Leshchinsky (2003), *Effects of Geosynthetic Reinforcement Spacing on the Behavior of Mechanically Stabilized Earth Walls*, FHWA-RD-03-048, [FHWA](https://www.fhwa.dot.gov/publications/research/infrastructure/geotechnical/03048/03048.pdf) | 230 | `4ed93e80131e27b52e31540dbebc2a98298a91d6315b2c47dc39442a322a830c` |
 | `fhwa_nhi_05_037_geotechnical_aspects_pavements.pdf` | Christopher, Schwartz y Boudreau (2006), *Geotechnical Aspects of Pavements*, FHWA NHI-05-037, [FHWA](https://www.fhwa.dot.gov/engineering/geotech/pubs/05037/05037.pdf) | 598 | `5246c1143af08f08168c5935c035f9c967dbe72b391b0bf6853a01d3775379ec` |
 | `jcss_2006_soil_properties.pdf` | JCSS (2006), *Probabilistic Model Code, Soil Properties*, [JCSS](https://www.jcss-lc.org/publications/jcsspmc/soilproperties_2006.pdf) | 27 | `66f5b7f08cf12d0322cb8edff5ada5a2d7d4d3f3b3c2c8dcf887b22a5ade85ee` |
 | `korolev_1981_anisotropic_plates_shells.pdf` | Korolev (1981), *Laminated Anisotropic Reinforced Plastic Plates and Shells*, NASA TM-76585, traducción de la edición rusa de 1965, [NASA NTRS](https://ntrs.nasa.gov/citations/19820004601) | 243 | `1567e66d4c9e2b4695eb97934fd9abe614b08e641e20699acba351f16c6b939b` |
@@ -55,6 +56,7 @@ Este archivo registra procedencia e integridad. Incluye informes primarios, manu
 | `csa_g401_14_archived.pdf` | Norma recuperada; lectura dirigida | Terminología de costuras únicamente; vigencia **UNKNOWN** |
 | `cspi_handbook_ch06_structural_design.pdf` | PDF preservado; lectura no documentada aquí | No incorporado al registro actual |
 | `fhwa_1999_pipe_interaction_backfill_envelope.pdf` | Informe preservado; lectura dirigida | Sensibilidad a relleno, compactación e instalación |
+| `fhwa_rd_03_048_interface_coulomb.pdf` | Informe oficial preservado; lectura dirigida del cap. 3, sec. 3.2.3, ec. 3.3 | Resistencia al corte de una interfaz mediante adhesión y fricción, con coeficiente `tan(delta)` |
 | `fhwa_nhi_05_037_geotechnical_aspects_pavements.pdf` | Manual oficial preservado; lectura dirigida p. impresa 5-83/PDF p. 261 | Definición de $K_0$, estimadores elástico/Jaky y efecto de carga-descarga-recarga; la Ec. 5.39 no se codifica sin resolver su transcripción |
 | `jcss_2006_soil_properties.pdf` | Documento preservado; lectura dirigida | Taxonomía de incertidumbre y reglas de admisibilidad |
 | `korolev_1981_anisotropic_plates_shells.pdf` | Traducción NASA preservada; lectura dirigida del índice y cap. 11, pp. impresas 155–159/PDF pp. 165–169 | Fuente clásica candidata para equilibrio, cinemática y ecuaciones de cáscara cilíndrica anisótropa; el cap. 12 usa series trigonométricas, pero sus ecuaciones aún no están promovidas |
@@ -69,7 +71,7 @@ Este archivo registra procedencia e integridad. Incluye informes primarios, manu
 | `nchrp_647_appendix_d1_cmp_examples.pdf` | Apéndice preservado; lectura dirigida | Benchmark aritmético B3 |
 | `nq58239_corrugated_metal_culvert_thesis.pdf` | PDF preservado; lectura no documentada aquí | No incorporado al registro actual |
 | `nunez_2000_tunnel_support_loads.pdf` | Artículo recuperado; lectura dirigida | Contraste literal con las ecuaciones de 2014 |
-| `nunez_sfriso_laiun_2014_tunnel_support_loads.pdf` | Artículo preservado; lectura dirigida | Método comparativo de túnel excavado y B10 |
+| `nunez_sfriso_laiun_2014_tunnel_support_loads.pdf` | Artículo preservado; lectura dirigida | Antecedente académico de túnel excavado; retirado de los contrastes de la memoria porque el caso no permite una reproducción independiente completa |
 | `schwartz_einstein_1980_tunnel_supports_vol1.pdf` | Informe preservado; lectura dirigida | Cuatro ramas de interacción; carga externa aplicable como idealización de conducto rellenado y benchmark HP97 |
 | `srinivas_1974_laminated_cylindrical_shells.pdf` | NASA TR preservado; portada y resumen verificados, lectura de ecuaciones pendiente | Fuente candidata para teorías refinada, tridimensional y delgada de cáscara cilíndrica; no habilita aún el solver |
 | `starbuck_1999_laminated_cylinders_nonaxisymmetric.pdf` | Informe OSTI preservado; lectura dirigida de PDF pp. 1–2 | Ruta de control por elasticidad anisótropa, deformación plana generalizada y tracciones de Fourier invariantes en el eje; no sustituye la teoría de cáscara delgada |
@@ -79,6 +81,7 @@ Este archivo registra procedencia e integridad. Incluye informes primarios, manu
 ## Control
 
 - Todos los archivos abren como PDF y su número de páginas fue comprobado con Poppler.
-- Los treinta y un archivos tienen número de páginas y SHA-256 verificados localmente.
+- Los treinta y dos archivos registrados en este manifiesto tienen número de
+  páginas y SHA-256 verificados localmente.
 - De los paquetes CANDE-2025 sólo se conservaron los dos manuales PDF; no se incorporaron ejecutables ni archivos auxiliares.
 - Los PDF se conservarán como fuentes; las salidas derivadas se mantendrán fuera de `sources/`.

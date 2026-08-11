@@ -176,6 +176,134 @@ for (Interface in c("fullTraction", "normalOnly")) {
   )
 }
 
+# The multiplier reproduces both prescribed-load endpoints.  For intermediate
+# values, direct integration must recover the closed response obtained by
+# linear superposition.
+MultiplierEndpointLoads <- list(
+  fullTraction = k0TangentialMultiplierLoad(
+    effectiveVertical = 100,
+    k0 = 0.5,
+    porePressure = 20,
+    tangentialMultiplier = 1
+  ),
+  normalOnly = k0TangentialMultiplierLoad(
+    effectiveVertical = 100,
+    k0 = 0.5,
+    porePressure = 20,
+    tangentialMultiplier = 0
+  )
+)
+for (Interface in names(MultiplierEndpointLoads)) {
+  MultiplierValues <- evaluateRingLoad(
+    MultiplierEndpointLoads[[Interface]],
+    Theta
+  )
+  TensorValues <- evaluateRingLoad(
+    k0TensorLoad(
+      effectiveVertical = 100,
+      k0 = 0.5,
+      porePressure = 20,
+      interface = Interface
+    ),
+    Theta
+  )
+  assertNear(
+    MultiplierValues$radialOutward,
+    TensorValues$radialOutward,
+    5e-14,
+    paste("tangential multiplier radial endpoint", Interface)
+  )
+  assertNear(
+    MultiplierValues$tangentialPositive,
+    TensorValues$tangentialPositive,
+    5e-14,
+    paste("tangential multiplier endpoint", Interface)
+  )
+}
+IntermediateMultiplier <- 0.2
+IntermediateLoad <- k0TangentialMultiplierLoad(
+  effectiveVertical = 100,
+  k0 = 0.5,
+  porePressure = 20,
+  tangentialMultiplier = IntermediateMultiplier
+)
+IntermediateValues <- evaluateRingLoad(IntermediateLoad, Theta)
+FullValues <- evaluateRingLoad(MultiplierEndpointLoads$fullTraction, Theta)
+assertNear(
+  IntermediateValues$tangentialPositive,
+  IntermediateMultiplier * FullValues$tangentialPositive,
+  5e-14,
+  "scaled tangential component"
+)
+IntermediateResponse <- solveRingDirect(
+  load = IntermediateLoad,
+  radius = Radius,
+  theta = Theta,
+  sectionRatio = 0.02,
+  integrationSteps = 4096L
+)
+IntermediateReference <- solveRingDirect(
+  load = IntermediateLoad,
+  radius = Radius,
+  theta = Theta,
+  sectionRatio = 0.02,
+  integrationSteps = 8192L
+)
+assertTrue(
+  isTRUE(IntermediateResponse$diagnostics$valid),
+  "tangential multiplier direct response"
+)
+assertTrue(
+  all(is.finite(as.matrix(IntermediateResponse$values[, c(
+    "normalForce", "bendingMoment", "shearForce"
+  )]))),
+  "tangential multiplier finite resultants"
+)
+MeanPressure <- 20 + (100 + 50) / 2
+Difference <- 100 - 50
+SectionRatio <- 0.02
+MeanMoment <- -Radius^2 * MeanPressure *
+  SectionRatio / (1 + SectionRatio)
+IntermediateClosed <- data.frame(
+  normalForce = -Radius * MeanPressure +
+    Radius * Difference * (1 + 2 * IntermediateMultiplier) / 6 *
+      cos(2 * Theta),
+  bendingMoment = MeanMoment +
+    Radius^2 * Difference * (2 + IntermediateMultiplier) / 12 *
+      cos(2 * Theta),
+  shearForce = -Radius * Difference * (2 + IntermediateMultiplier) / 6 *
+    sin(2 * Theta)
+)
+assertNear(
+  as.matrix(IntermediateResponse$values[, c(
+    "normalForce", "bendingMoment", "shearForce"
+  )]),
+  as.matrix(IntermediateClosed),
+  3e-8,
+  "tangential multiplier closed response"
+)
+assertNear(
+  as.matrix(IntermediateResponse$values[, c(
+    "normalForce", "bendingMoment", "shearForce"
+  )]),
+  as.matrix(IntermediateReference$values[, c(
+    "normalForce", "bendingMoment", "shearForce"
+  )]),
+  5e-6,
+  "tangential multiplier integration convergence"
+)
+assertError(
+  function() {
+    k0TangentialMultiplierLoad(
+      effectiveVertical = 100,
+      k0 = 0.5,
+      tangentialMultiplier = 1.01
+    )
+  },
+  "tangential multiplier upper bound",
+  "must not exceed 1"
+)
+
 # Independent n=3 field that exercises radial and tangential tractions.
 HarmonicAmplitude <- 7
 HarmonicLoad <- newRingLoad(
@@ -1232,7 +1360,7 @@ if (nzchar(OraclePath)) {
 message(
   paste0(
     "PASS: direct mechanics, Fourier, Baker, USACE, FHWA, Nunez, ",
-    "Schwartz-Einstein, CANDE, Monte Carlo"
+    "Schwartz-Einstein, CANDE, and sample aggregation"
   ),
   if (nzchar(OraclePath)) ", and Wolfram parity." else "."
 )

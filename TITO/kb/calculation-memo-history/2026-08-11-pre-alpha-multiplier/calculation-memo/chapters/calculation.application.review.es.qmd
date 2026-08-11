@@ -1,0 +1,111 @@
+# Aplicación numérica {#sec-calculation-application}
+
+## Definición del escenario
+
+La aplicación comprueba la secuencia de cálculo con un estado biaxial uniforme
+en la cota del eje. No representa la caracterización del relleno existente. La
+@tbl-calculation-inputs identifica la condición de cada valor.
+
+{{< include /_tbl/Calculation.inputs.ES.qmd >}}
+
+El perfil nominal es de $76\times25$ mm y el espesor informado es $3.0$ mm. Se
+adopta $t_b=3.0$ mm para el escenario y se interpolan las dos filas contiguas
+de la tabla 2.6 de NCSPA [@NCSPA2018, tabla 2.6]:
+
+$$
+\lambda=\frac{3.000-2.65684}{3.41630-2.65684}=0.452,
+$$
+
+$$
+A_p=(1-\lambda)(3.30200)+\lambda(4.25027)=3.73\ \mathrm{mm^2/mm},
+$$
+
+$$
+I_p=(1-\lambda)(252.36079)+\lambda(331.01869)
+=288\ \mathrm{mm^4/mm}.
+$$ {#eq-calculation-section-interpolation}
+
+Con $E_\theta=200$ GPa y $R=1.315$ m, la
+@eq-calculation-section-stiffness produce
+
+$$
+EA_\theta=7.46\times10^5\ \mathrm{kN/m},
+\qquad
+EI_\theta=57.6\ \mathrm{kN\,m^2/m},
+\qquad
+\eta_s=4.46\times10^{-5}.
+$$ {#eq-calculation-adopted-section}
+
+## Acciones perimetrales
+
+Se adopta
+
+$$
+\sigma'_{v,A}=100\ \mathrm{kPa},
+\qquad K_0=0.50,
+\qquad \Delta u_A=0,
+$$
+
+por lo que
+
+$$
+\sigma'_{h,A}=50\ \mathrm{kPa},
+\qquad p_m=75\ \mathrm{kPa},
+\qquad \Delta\sigma=50\ \mathrm{kPa}.
+$$ {#eq-calculation-example-stress}
+
+La presión normal y la tracción tangencial disponible son
+
+$$
+P_r(\theta)=-75-25\cos2\theta\ \mathrm{kPa},
+\qquad
+p_t^*(\theta)=25\sin2\theta\ \mathrm{kPa}.
+$$ {#eq-calculation-example-load}
+
+Se adopta $c_a=0$ y se evalúan los límites $\alpha_\delta=0$ y
+$\alpha_\delta=1$. Para este estado, el coeficiente mínimo que permite
+transferir íntegramente $p_t^*$ es
+
+$$
+\alpha_{\delta,req}
+=\max_\theta\frac{|p_t^*(\theta)|}{p_n'(\theta)}
+=\frac{|\sigma'_{v,A}-\sigma'_{h,A}|}
+{2\sqrt{\sigma'_{v,A}\sigma'_{h,A}}}
+=0.354.
+$$ {#eq-calculation-interface-threshold}
+
+Por lo tanto, $\alpha_\delta=1$ reproduce la proyección tangencial completa,
+mientras que $\alpha_\delta=0$ anula esa componente. Los valores intermedios
+se calculan directamente con la @eq-calculation-interface-friction.
+
+## Resultados
+
+La @tbl-calculation-extrema resume las resultantes en clave, solera y
+hastiales, además del máximo absoluto de fuerza cortante. El momento uniforme
+es $M_m=-0.0058$ kN·m/m y los máximos absolutos de $Q_\theta$ se localizan en
+$\theta=45^\circ$, $135^\circ$, $225^\circ$ y $315^\circ$ para ambos límites.
+
+{{< include /_tbl/Calculation.extrema.ES.qmd >}}
+
+Entre $\alpha_\delta=0$ y el estado con transferencia tangencial completa, la
+amplitud variable de $N_\theta$ aumenta por un factor 3 y las amplitudes de
+$M_\theta$ y $Q_\theta$ por un factor 1.5. Estos factores corresponden al
+escenario de tensiones declarado; el valor aplicable al revestimiento depende
+de $\delta$, de la adhesión y del estado de compactación.
+
+La @fig-calculation-resultants representa las mismas resultantes indicadas en
+la tabla. La circunferencia gris discontinua es la sección de referencia. Las
+curvas y las ordenadas radiales son diagramas de $N_\theta$, $M_\theta$ y
+$Q_\theta$; no representan la posición deformada del revestimiento. Se adopta
+una amplificación gráfica $A_g=2$, aplicada exclusivamente a las ordenadas; la
+lectura interactiva conserva las magnitudes físicas y sus unidades.
+
+{{< include /_fig/Calculation.resultants.ES.qmd >}}
+
+## Comprobación numérica
+
+Los límites $\alpha_\delta=0$ y $\alpha_\delta=1$ disponen de soluciones
+cerradas. La máxima diferencia absoluta entre esas soluciones y la integración
+directa es $2.4\times10^{-12}$ en las unidades de cada resultante, frente a una
+tolerancia de $10^{-7}$. El detalle de la discretización y de las seis
+comparaciones se presenta en el Apéndice B.

@@ -1,0 +1,1 @@
+Circumferential shear-force diagram $Q_\theta$ for $\alpha=1$ (solid line) and $\alpha=0$ (dashed line) in the verification scenario. The dashed grey circle is the reference section of radius $R=1.315$ m and the origin of the ordinates. Graphical amplification $A_g=2$ changes only the displayed radial length; interactive values remain in kN/m.

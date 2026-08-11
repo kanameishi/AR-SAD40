@@ -1,0 +1,17 @@
+```{r}
+#| include: false
+CAP.N <- paste(
+  readLines("_captions/fig.Calculation.normal.ES.md", warn = FALSE),
+  collapse = "\n"
+)
+CAP.M <- paste(
+  readLines("_captions/fig.Calculation.moment.ES.md", warn = FALSE),
+  collapse = "\n"
+)
+CAP.Q <- paste(
+  readLines("_captions/fig.Calculation.shear.ES.md", warn = FALSE),
+  collapse = "\n"
+)
+```
+
+{{< include /_fig/Calculation.resultants.qmd >}}

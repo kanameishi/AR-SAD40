@@ -1,0 +1,5 @@
+"quantity","published","calculated","units","status","sourceLocation"
+"deadCrownPressure",3600,3600,"lb/ft2","published","USACE 2020 D4 p. 332/PDF 346"
+"serviceThrust",UNKNOWN,5400,"lb/ft","derived service value","USACE 2020 Eq. 4-20 without factors"
+"factoredThrust",10530,10530,"lb/ft","published","USACE 2020 D4 p. 333/PDF 347"
+"modifiedDemand",11583,11583,"lb/ft","published","USACE 2020 D4 p. 333/PDF 347"

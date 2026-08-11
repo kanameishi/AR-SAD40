@@ -1,0 +1,24 @@
+---
+lang: es
+title: "Determinación de las resultantes seccionales en un revestimiento circular de acero corrugado sometido a acciones del relleno"
+subtitle: "Formulación de las acciones, respuesta en la sección transversal y tratamiento de incertidumbres"
+date: "2026-08-10"
+bibliography:
+  - bib/references.bib
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+number-sections: true
+toc-title: "Contenido"
+crossref:
+  fig-title: Figura
+  tbl-title: Tabla
+  eq-title: Ecuación
+  fig-prefix: figura
+  tbl-prefix: tabla
+  eq-prefix: ec.
+---
+
+{{< include /_index/methodology.review.ES.qmd >}}

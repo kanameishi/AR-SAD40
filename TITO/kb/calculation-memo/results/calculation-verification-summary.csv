@@ -1,0 +1,6 @@
+"reference","magnitude","evidence","result"
+"Baker (1968)","Fuerza normal y momento adimensionales","RP + DE","Errores absolutos máximos: 4.97e-4 en N y 4.23e-4 en M."
+"USACE, ejemplo D4","Presión y fuerza normal","DP + RP + DE","3600 lb/ft2, 10530 lb/ft y 11583 lb/ft reproducidos; 5400 lb/ft es derivado."
+"FHWA-RD-98-191","Presión lateral de compactación","RP","Ocho de nueve filas reproducidas a 0.1 kPa; se conserva una inconsistencia de impresión."
+"Schwartz--Einstein, HP97","Fuerza normal y momento","RP","Cuatro combinaciones reproducidas; la fuente no tabula fuerza cortante."
+"Núñez (2000)","Fuerza normal y momento","RP + DE","Diferencia relativa máxima de 1.31 % respecto de valores redondeados."

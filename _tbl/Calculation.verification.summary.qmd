@@ -1,0 +1,25 @@
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) {
+  CAP <- paste(
+    readLines("_captions/tbl.Calculation.verification.summary.md"),
+    collapse = "\n"
+  )
+}
+source("scripts/tbl/Calculation.verification.summary.R")
+TBL <- buildCalculationVerificationSummary(
+  "TITO/kb/calculation-memo/results/calculation-verification-summary.csv"
+)
+```
+
+```{r}
+#| label: tbl-calculation-verification-summary
+#| tbl-cap: !expr CAP
+#| echo: false
+TBL
+```
+
+```{r}
+#| include: false
+rm(CAP, TBL, buildCalculationVerificationSummary)
+```

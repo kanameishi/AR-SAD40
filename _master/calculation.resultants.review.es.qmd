@@ -1,0 +1,19 @@
+---
+lang: es
+title: "Comparación de diagramas de resultantes seccionales"
+subtitle: "Alternativas interactiva y estática para revisión gráfica"
+date: "2026-08-11"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    page-layout: full
+number-sections: true
+toc-title: "Contenido"
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+{{< include /_index/calculation.resultants.review.ES.qmd >}}
