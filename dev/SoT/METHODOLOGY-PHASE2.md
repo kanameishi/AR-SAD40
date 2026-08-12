@@ -2582,6 +2582,32 @@ registrado para esa comparación, la
 publicación por intercambio conserva su rollback, `Calculation` mantiene su
 estructura, y tablas, figuras y render contienen los mismos valores.
 
+G8 se ejecuta mediante tres puntos recuperables. G8.1 quedó cerrada al separar
+la carga en `scripts/setup/calculationFunctions.R`. Este archivo conserva el
+orden de las diez fuentes vigentes y no lee configuración, no ejecuta el
+productor y no crea `CalculationRun` ni `Calculation`. `setup.R` delega esa
+carga con `local = TRUE` y conserva después su default de `projectRoot`, la
+llamada histórica a `buildCalculationData()` y la asignación de
+`CalculationRun`. El uso `source(setup.R, local = E)` permanece compatible;
+los consumidores externos continúan `UNKNOWN`, por lo que el wrapper no se
+retira ni se vuelve inerte.
+
+`scripts/R/testCalculationLoading.R` comprueba separadamente la carga sin
+efectos y el wrapper compatible, tanto en el ambiente global como en uno
+explícito. La carga no modificó los nueve productos ni el estado del RNG; el
+wrapper produjo el mismo retorno y los nueve hashes G0. Las auditorías finales
+concluyeron PASS en
+`/private/tmp/ar-sad40-g8-1-r-final-audit.md` y
+`/private/tmp/ar-sad40-g8-1-compat-final-audit-v2.md`. La primera auditoría de
+compatibilidad había detectado la pérdida del ambiente explícito; el uso de
+`local = TRUE` y el nuevo caso de prueba resolvieron ese hallazgo antes del
+cierre.
+
+G8.2 sustituirá exclusivamente el interior del productor para consumir
+`calculateScenario()` y adaptar sus estados, sin modificar todavía el runner
+ni el bloque `_results`. G8.3 migrará esos dos consumidores locales a una
+llamada explícita y conservará `setup.R` como compatibilidad.
+
 #### G9 — Conectar el agregador Monte Carlo
 
 Conectar `calculateScenario()` mediante el callback `responseFunction` ya
