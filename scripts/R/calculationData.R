@@ -1,18 +1,56 @@
 if (!exists("calculateRingSection", mode = "function") ||
-    !exists("biaxialStressTangentialMultiplierLoad", mode = "function") ||
     !exists("estimateK0", mode = "function") ||
     !exists("calculateEffectiveStressState", mode = "function") ||
     !exists("interpolateCorrugatedSection", mode = "function") ||
+    !exists("buildThetaMesh", mode = "function") ||
+    !exists("calculatePerimeterActions", mode = "function") ||
     !exists("readCalculationJson", mode = "function")) {
   stop(
     paste(
       "Source scripts/setup/utils.R, scripts/R/ringDirect.R and",
       "scripts/R/ringLoads.R, scripts/R/k0Models.R and",
-      "scripts/R/stressState.R and scripts/R/corrugatedSection.R before",
-      "scripts/R/calculationData.R."
+      "scripts/R/stressState.R, scripts/R/corrugatedSection.R and",
+      "scripts/R/perimeterActions.R before scripts/R/calculationData.R."
     ),
     call. = FALSE
   )
+}
+
+.buildPerimeterLoadTable <- function(actions, cases, scenarioId, stressStateId) {
+  LIST <- lapply(seq_len(nrow(cases)), function(i) {
+    Values <- actions[[i]]$values
+    rbind(
+      data.frame(
+        scenarioId = scenarioId,
+        caseId = cases$caseId[i],
+        stressStateId = stressStateId,
+        alpha = cases$alpha[i],
+        componentId = "radial",
+        thetaIndex = seq_len(nrow(Values)) - 1L,
+        thetaRad = Values$theta,
+        thetaDeg = Values$theta * 180 / pi,
+        valueKPa = Values$radialOutward,
+        evidenceLevel = "DE",
+        stringsAsFactors = FALSE
+      ),
+      data.frame(
+        scenarioId = scenarioId,
+        caseId = cases$caseId[i],
+        stressStateId = stressStateId,
+        alpha = cases$alpha[i],
+        componentId = "tangential",
+        thetaIndex = seq_len(nrow(Values)) - 1L,
+        thetaRad = Values$theta,
+        thetaDeg = Values$theta * 180 / pi,
+        valueKPa = Values$tangentialPositive,
+        evidenceLevel = "DE",
+        stringsAsFactors = FALSE
+      )
+    )
+  })
+  OUT <- do.call(rbind, LIST)
+  rownames(OUT) <- NULL
+  OUT
 }
 
 .requireObject <- function(value, path) {
@@ -679,23 +717,21 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
     stringsAsFactors = FALSE
   )
 
-  Theta <- sort(unique(c(
-    (0:(Config$numerics$baseThetaPointCount - 1L)) * 2 * pi /
-      Config$numerics$baseThetaPointCount,
-    Config$numerics$criticalAnglesDeg * pi / 180
-  )))
+  Theta <- buildThetaMesh(
+    pointCount = Config$numerics$baseThetaPointCount,
+    criticalAnglesDeg = Config$numerics$criticalAnglesDeg
+  )
   Cases <- Config$loadCases
-  LoadsByCase <- lapply(seq_len(nrow(Cases)), function(Index) {
-    biaxialStressTangentialMultiplierLoad(
-      effectiveVertical = Stress$effectiveVerticalKPa,
-      effectiveHorizontal = Stress$effectiveHorizontalKPa,
-      waterPressureDifference = Stress$waterPressureDifferenceKPa,
-      tangentialMultiplier = Cases$alpha[Index]
+  Actions <- lapply(seq_len(nrow(Cases)), function(i) {
+    calculatePerimeterActions(
+      stressState = EffectiveState,
+      alpha = Cases$alpha[i],
+      theta = Theta
     )
   })
-  Responses <- lapply(seq_len(nrow(Cases)), function(Index) {
+  Responses <- lapply(seq_len(nrow(Cases)), function(i) {
     solveRingDirect(
-      load = LoadsByCase[[Index]],
+      load = Actions[[i]]$load,
       radius = Section$analysisRadiusM,
       theta = Theta,
       sectionRatio = Section$sectionRatio,
@@ -707,38 +743,12 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
   QuantityColumns <- c(N = "normalForce", M = "bendingMoment", Q = "shearForce")
   QuantityUnits <- c(N = "kN/m", M = "kN m/m", Q = "kN/m")
 
-  PerimeterLoads <- do.call(rbind, lapply(seq_len(nrow(Cases)), function(Index) {
-    Values <- evaluateRingLoad(LoadsByCase[[Index]], Theta)
-    rbind(
-      data.frame(
-        scenarioId = Config$scenarioId,
-        caseId = Cases$caseId[Index],
-        stressStateId = StressStateId,
-        alpha = Cases$alpha[Index],
-        componentId = "radial",
-        thetaIndex = seq_along(Theta) - 1L,
-        thetaRad = Theta,
-        thetaDeg = Theta * 180 / pi,
-        valueKPa = Values$radialOutward,
-        evidenceLevel = "DE",
-        stringsAsFactors = FALSE
-      ),
-      data.frame(
-        scenarioId = Config$scenarioId,
-        caseId = Cases$caseId[Index],
-        stressStateId = StressStateId,
-        alpha = Cases$alpha[Index],
-        componentId = "tangential",
-        thetaIndex = seq_along(Theta) - 1L,
-        thetaRad = Theta,
-        thetaDeg = Theta * 180 / pi,
-        valueKPa = Values$tangentialPositive,
-        evidenceLevel = "DE",
-        stringsAsFactors = FALSE
-      )
-    )
-  }))
-  rownames(PerimeterLoads) <- NULL
+  PerimeterLoads <- .buildPerimeterLoadTable(
+    actions = Actions,
+    cases = Cases,
+    scenarioId = Config$scenarioId,
+    stressStateId = StressStateId
+  )
 
   Resultants <- do.call(rbind, lapply(seq_len(nrow(Cases)), function(Index) {
     Values <- Responses[[Index]]$values

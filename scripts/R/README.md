@@ -18,6 +18,7 @@ source("scripts/R/ringLoads.R")
 source("scripts/R/k0Models.R")
 source("scripts/R/stressState.R")
 source("scripts/R/corrugatedSection.R")
+source("scripts/R/perimeterActions.R")
 source("scripts/R/ringInteraction.R")
 source("scripts/R/ringMonteCarlo.R")
 ```
@@ -194,6 +195,24 @@ StressState <- calculateEffectiveStressState(
   waterPressureDifferenceKPa = 0,
   horizontalIncrementKPa = NA_real_,
   horizontalIncrementStatus = "unknown-not-modeled"
+)
+
+Theta <- buildThetaMesh(
+  pointCount = 721,
+  criticalAnglesDeg = seq(0, 315, by = 45)
+)
+PerimeterActions <- calculatePerimeterActions(
+  stressState = StressState,
+  alpha = 0.5,
+  theta = Theta
+)
+
+Response <- solveRingDirect(
+  load = PerimeterActions$load,
+  radius = 1.315,
+  theta = Theta,
+  sectionRatio = 0,
+  integrationSteps = 8192L
 )
 ```
 

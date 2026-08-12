@@ -12,6 +12,7 @@ runCalculationDataTests <- function() {
   source(file.path(Root, "scripts", "R", "k0Models.R"))
   source(file.path(Root, "scripts", "R", "stressState.R"))
   source(file.path(Root, "scripts", "R", "corrugatedSection.R"))
+  source(file.path(Root, "scripts", "R", "perimeterActions.R"))
   source(file.path(Root, "scripts", "R", "calculationData.R"))
   projectRoot <- Root
   source(
@@ -644,6 +645,109 @@ runCalculationDataTests <- function() {
       waterPressureDifferenceKPa = -10
     )
   ))
+  Numerics <- validateCalculationConfig(BaselineJson)$numerics
+  Theta <- buildThetaMesh(
+    pointCount = Numerics$baseThetaPointCount,
+    criticalAnglesDeg = Numerics$criticalAnglesDeg
+  )
+  Theta.expected <- sort(unique(c(
+    (0:(Numerics$baseThetaPointCount - 1L)) * 2 * pi /
+      Numerics$baseThetaPointCount,
+    Numerics$criticalAnglesDeg * pi / 180
+  )))
+  stopifnot(
+    identical(Theta, Theta.expected),
+    length(Theta) == 728L,
+    identical(
+      buildThetaMesh(
+        pointCount = 8,
+        criticalAnglesDeg = c(270, 13, 0, 180, 90)
+      ),
+      sort(unique(c((0:7) * 2 * pi / 8, c(270, 13, 0, 180, 90) * pi / 180)))
+    )
+  )
+
+  StressStates <- list(
+    vertical = list(
+      effectiveVerticalKPa = 100,
+      effectiveHorizontalKPa = 50,
+      waterPressureDifferenceKPa = 20
+    ),
+    horizontal = list(
+      effectiveVerticalKPa = 50,
+      effectiveHorizontalKPa = 100,
+      waterPressureDifferenceKPa = 20
+    ),
+    isotropic = list(
+      effectiveVerticalKPa = 80,
+      effectiveHorizontalKPa = 80,
+      waterPressureDifferenceKPa = 20
+    )
+  )
+  Theta.control <- (0:7) * pi / 4
+  for (s in names(StressStates)) {
+    for (x in c(0, 0.5, 1)) {
+      Actions <- calculatePerimeterActions(
+        stressState = StressStates[[s]],
+        alpha = x,
+        theta = Theta.control
+      )
+      Load.expected <- biaxialStressTangentialMultiplierLoad(
+        effectiveVertical = StressStates[[s]]$effectiveVerticalKPa,
+        effectiveHorizontal = StressStates[[s]]$effectiveHorizontalKPa,
+        waterPressureDifference =
+          StressStates[[s]]$waterPressureDifferenceKPa,
+        tangentialMultiplier = x
+      )
+      stopifnot(
+        inherits(Actions$load, "ringLoad"),
+        identical(names(Actions$load), names(Load.expected)),
+        identical(Actions$load$label, Load.expected$label),
+        identical(Actions$load$source, Load.expected$source),
+        identical(Actions$load$representation, Load.expected$representation),
+        identical(Actions$load$breakpoints, Load.expected$breakpoints),
+        identical(Actions$load$metadata, Load.expected$metadata),
+        identical(Actions$values, evaluateRingLoad(Load.expected, Theta.control))
+      )
+    }
+  }
+  Actions.vertical <- calculatePerimeterActions(
+    stressState = StressStates$vertical,
+    alpha = 1,
+    theta = Theta.control
+  )$values
+  Actions.horizontal <- calculatePerimeterActions(
+    stressState = StressStates$horizontal,
+    alpha = 1,
+    theta = Theta.control
+  )$values
+  Actions.isotropic <- calculatePerimeterActions(
+    stressState = StressStates$isotropic,
+    alpha = 0.5,
+    theta = Theta.control
+  )$values
+  assertNear(
+    Actions.vertical$radialOutward[c(1L, 3L)],
+    c(-120, -70),
+    1e-14,
+    "vertically dominant radial actions"
+  )
+  assertNear(
+    Actions.horizontal$radialOutward[c(1L, 3L)],
+    c(-70, -120),
+    1e-14,
+    "horizontally dominant radial actions"
+  )
+  assertNear(
+    c(Actions.vertical$tangentialPositive[2L],
+      Actions.horizontal$tangentialPositive[2L]),
+    c(25, -25),
+    1e-14,
+    "biaxial tangential signs"
+  )
+  assertNear(Actions.isotropic$radialOutward, rep(-100, 8L), 0, "isotropic radial actions")
+  assertNear(Actions.isotropic$tangentialPositive, rep(0, 8L), 0, "isotropic tangential actions")
+
   assertError(function() {
     calculateEffectiveStressState(
       effectiveVerticalKPa = 100,
@@ -653,6 +757,22 @@ runCalculationDataTests <- function() {
       horizontalIncrementStatus = "unknown-not-modeled"
     )
   }, "must remain NA", "unknown horizontal increment")
+  assertError(function() {
+    buildThetaMesh(pointCount = 2, criticalAnglesDeg = 0)
+  }, "must be at least 3", "theta mesh point count")
+  assertError(function() {
+    buildThetaMesh(pointCount = 8.5, criticalAnglesDeg = 0)
+  }, "must be an integer", "integer theta mesh point count")
+  assertError(function() {
+    buildThetaMesh(pointCount = 8, criticalAnglesDeg = c(0, 0))
+  }, "must be unique", "theta mesh critical-angle uniqueness")
+  assertError(function() {
+    calculatePerimeterActions(
+      stressState = list(effectiveVerticalKPa = 100),
+      alpha = 0,
+      theta = Theta.control
+    )
+  }, "stressState is missing", "effective stress fields")
   assertError(function() {
     estimateK0(modelId = "adopted-constant")
   }, "missing: k0", "missing K0 branch primitive")

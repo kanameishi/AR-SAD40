@@ -2364,7 +2364,7 @@ memoria produjo `html/calculation.review.es/index.html`, SHA-256
 los nueve productos del manifiesto G0 y la línea base congelada de Fase 1 no
 cambiaron.
 
-#### G4 — Extraer malla y acciones perimetrales
+#### G4 — Extraer malla y acciones perimetrales — cerrada
 
 Separar la preparación invariante de $\theta$, la proyección biaxial y la
 adaptación a `perimeter.loads.csv`. Conservar `ringLoad` durante la
@@ -2372,6 +2372,44 @@ coexistencia.
 
 **Puerta:** misma malla, orden, signos, componentes, metadatos, breakpoints y
 filas de acciones.
+
+La puerta se cerró mediante dos funciones puras en
+`scripts/R/perimeterActions.R`:
+
+- `buildThetaMesh(pointCount, criticalAnglesDeg)` prepara una vez la malla de
+  evaluación invariante y conserva exactamente la expresión, el orden y la
+  precisión de G3;
+- `calculatePerimeterActions(stressState, alpha, theta)` delega la proyección
+  física a `biaxialStressTangentialMultiplierLoad()` y la evaluación a
+  `evaluateRingLoad()`, y devuelve el mismo `ringLoad` junto con sus ordenadas.
+
+El adaptador interno `.buildPerimeterLoadTable()` conserva en
+`calculationData.R` la responsabilidad exclusiva de materializar las filas del
+producto. No resuelve cargas ni escribe archivos. `solveRingDirect()`,
+`ringLoads.R`, la clase ligera `ringLoad`, los breakpoints y el esquema JSON no
+fueron modificados. No se introdujeron `data.table`, clases, un registro de
+cargas, gradientes espaciales ni una segunda formulación.
+
+La candidata se comparó contra `e7f807d` en entornos separados. Fueron
+idénticos la malla de 728 ordenadas y una malla con ángulo crítico adicional;
+la clase, campos, rótulo, procedencia, representación, metadatos, breakpoints y
+valores de las acciones para `alpha = 0`, `0.5` y `1`; la respuesta completa
+del integrador; y los errores históricos observados. Siete configuraciones
+integradas —caso G0, tres valores de `alpha`, tensión vertical modificada,
+`K0 = 0.6`, agua con signo, estado isotrópico y orden de casos invertido—
+produjeron los mismos nueve archivos byte a byte. Los hashes del manifiesto G0
+y la línea base congelada de Fase 1 permanecen inalterados.
+
+Las auditorías independientes concluyeron PASS en
+`/private/tmp/ar-sad40-g4-architecture-final-audit.md`,
+`/private/tmp/ar-sad40-g4-r-policy-final-audit-v2.md` y
+`/private/tmp/ar-sad40-g4-parity-final-audit.md`. Los consumidores externos
+continúan `UNKNOWN`; por ello ninguna superficie histórica fue retirada ni
+renombrada.
+
+El render final de G4 produjo `html/calculation.review.es/index.html`,
+SHA-256
+`8b61f6917052400363c1f9d9c09ca49f12911c10210c8eae2ef1c2e33a3bc9ac`.
 
 #### G5 — Exponer la respuesta conjunta de resultantes
 
