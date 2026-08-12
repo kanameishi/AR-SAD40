@@ -13,6 +13,7 @@ runCalculationDataTests <- function() {
   source(file.path(Root, "scripts", "R", "stressState.R"))
   source(file.path(Root, "scripts", "R", "corrugatedSection.R"))
   source(file.path(Root, "scripts", "R", "perimeterActions.R"))
+  source(file.path(Root, "scripts", "R", "sectionResultants.R"))
   source(file.path(Root, "scripts", "R", "calculationData.R"))
   projectRoot <- Root
   source(
@@ -748,6 +749,31 @@ runCalculationDataTests <- function() {
   assertNear(Actions.isotropic$radialOutward, rep(-100, 8L), 0, "isotropic radial actions")
   assertNear(Actions.isotropic$tangentialPositive, rep(0, 8L), 0, "isotropic tangential actions")
 
+  Actions.resultants <- calculatePerimeterActions(
+    stressState = StressStates$vertical,
+    alpha = 0.5,
+    theta = Theta.control
+  )
+  Resultants.expected <- solveRingDirect(
+    load = Actions.resultants$load,
+    radius = 1.315,
+    theta = Theta.control,
+    sectionRatio = 0.0001,
+    integrationSteps = 4096L,
+    balanceTolerance = 1e-8,
+    allowUnbalanced = FALSE
+  )
+  SectionResultants <- calculateSectionResultants(
+    load = Actions.resultants$load,
+    radius = 1.315,
+    theta = Theta.control,
+    sectionRatio = 0.0001,
+    integrationSteps = 4096L,
+    balanceTolerance = 1e-8,
+    allowUnbalanced = FALSE
+  )
+  stopifnot(identical(SectionResultants, Resultants.expected))
+
   assertError(function() {
     calculateEffectiveStressState(
       effectiveVerticalKPa = 100,
@@ -773,6 +799,13 @@ runCalculationDataTests <- function() {
       theta = Theta.control
     )
   }, "stressState is missing", "effective stress fields")
+  assertError(function() {
+    calculateSectionResultants(
+      load = Actions.resultants$load,
+      radius = 0,
+      theta = Theta.control
+    )
+  }, "must be greater than 0", "section resultant radius")
   assertError(function() {
     estimateK0(modelId = "adopted-constant")
   }, "missing: k0", "missing K0 branch primitive")

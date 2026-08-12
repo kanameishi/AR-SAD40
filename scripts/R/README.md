@@ -19,6 +19,7 @@ source("scripts/R/k0Models.R")
 source("scripts/R/stressState.R")
 source("scripts/R/corrugatedSection.R")
 source("scripts/R/perimeterActions.R")
+source("scripts/R/sectionResultants.R")
 source("scripts/R/ringInteraction.R")
 source("scripts/R/ringMonteCarlo.R")
 ```
@@ -58,7 +59,7 @@ Load <- k0TensorLoad(
   interface = "fullTraction"
 )
 
-Response <- solveRingDirect(
+Response <- calculateSectionResultants(
   load = Load,
   radius = 2,
   theta = Theta,
@@ -207,7 +208,7 @@ PerimeterActions <- calculatePerimeterActions(
   theta = Theta
 )
 
-Response <- solveRingDirect(
+Response <- calculateSectionResultants(
   load = PerimeterActions$load,
   radius = 1.315,
   theta = Theta,

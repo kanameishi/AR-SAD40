@@ -4,13 +4,15 @@ if (!exists("calculateRingSection", mode = "function") ||
     !exists("interpolateCorrugatedSection", mode = "function") ||
     !exists("buildThetaMesh", mode = "function") ||
     !exists("calculatePerimeterActions", mode = "function") ||
+    !exists("calculateSectionResultants", mode = "function") ||
     !exists("readCalculationJson", mode = "function")) {
   stop(
     paste(
       "Source scripts/setup/utils.R, scripts/R/ringDirect.R and",
       "scripts/R/ringLoads.R, scripts/R/k0Models.R and",
       "scripts/R/stressState.R, scripts/R/corrugatedSection.R and",
-      "scripts/R/perimeterActions.R before scripts/R/calculationData.R."
+      "scripts/R/perimeterActions.R and scripts/R/sectionResultants.R before",
+      "scripts/R/calculationData.R."
     ),
     call. = FALSE
   )
@@ -730,7 +732,7 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
     )
   })
   Responses <- lapply(seq_len(nrow(Cases)), function(i) {
-    solveRingDirect(
+    calculateSectionResultants(
       load = Actions[[i]]$load,
       radius = Section$analysisRadiusM,
       theta = Theta,

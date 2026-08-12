@@ -2411,13 +2411,46 @@ El render final de G4 produjo `html/calculation.review.es/index.html`,
 SHA-256
 `8b61f6917052400363c1f9d9c09ca49f12911c10210c8eae2ef1c2e33a3bc9ac`.
 
-#### G5 — Exponer la respuesta conjunta de resultantes
+#### G5 — Exponer la respuesta conjunta de resultantes — cerrada
 
 Crear `calculateSectionResultants()` como wrapper exacto de
 `solveRingDirect()`. No modificar el integrador en esta puerta.
 
 **Puerta:** clase, campos, columnas, orden, valores y diagnósticos idénticos;
 los controles analíticos, Fourier y Wolfram aplicables continúan pasando.
+
+La puerta se cerró mediante `calculateSectionResultants()` en
+`scripts/R/sectionResultants.R`. La función conserva exactamente los siete
+parámetros, su orden y sus expresiones por defecto, y devuelve directamente el
+objeto producido por `solveRingDirect()`. No reconstruye campos, no intercepta
+errores, no agrega validaciones y no modifica el integrador ni la clase
+`ringDirectResponse`.
+
+El único consumidor productivo migrado es `buildCalculationData()`; los
+controles analíticos, comparaciones y adaptadores que aún llaman directamente
+a `solveRingDirect()` se conservan como oráculos durante la coexistencia. Los
+consumidores externos permanecen `UNKNOWN`, por lo que ninguna superficie
+histórica fue retirada o renombrada.
+
+La candidata se comparó contra `db24bad` en entornos separados. Fueron
+idénticos los objetos completos para presión uniforme, tres valores de
+`alpha`, una carga armónica, una banda discontinua con breakpoint y una carga
+desbalanceada admitida; también coincidieron exactamente doce errores
+históricos. Siete variantes integradas conservaron la configuración y los
+nueve productos byte a byte, incluidos el orden de casos, los controles y las
+escalas. `ringDirect.R` y `ringLoads.R` permanecieron byte-idénticos.
+
+Las auditorías independientes concluyeron PASS en
+`/private/tmp/ar-sad40-g5-architecture-final-audit.md`,
+`/private/tmp/ar-sad40-g5-r-policy-final-audit.md` y
+`/private/tmp/ar-sad40-g5-parity-final-audit.md`. No se introdujeron
+`data.table`, clases, registros de motores, fallbacks ni controles nuevos.
+
+El render final de G5 produjo `html/calculation.review.es/index.html`,
+SHA-256
+`752efef360a6fdc585815c97d9eb5a46fd23998a1253144befb28a988da93f33`.
+Los nueve productos del manifiesto G0 y los trece archivos de la línea base
+congelada de Fase 1 permanecen idénticos.
 
 #### G6 — Consolidar extremos y controles
 
