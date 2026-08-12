@@ -42,7 +42,21 @@ runCalculationDataTests <- function() {
   TestDirectory <- tempfile("calculation-data-test-")
   dir.create(TestDirectory)
   on.exit(unlink(TestDirectory, recursive = TRUE, force = TRUE), add = TRUE)
-  BaselineJson <- readCalculationJson(file.path(Root, "calculation.json"))
+  FixturePath <- file.path(
+    Root,
+    "scripts",
+    "R",
+    "fixtures",
+    "calculation.g0.json"
+  )
+  ManifestPath <- file.path(
+    Root,
+    "scripts",
+    "R",
+    "fixtures",
+    "calculation.g0.products.json"
+  )
+  BaselineJson <- readCalculationJson(FixturePath)
   buildVariant <- function(name, change = identity) {
     Config <- change(copyObject(BaselineJson))
     ConfigPath <- file.path(TestDirectory, paste0(name, ".json"))
@@ -81,7 +95,52 @@ runCalculationDataTests <- function() {
     )
   }
 
-  Baseline <- buildVariant("baseline")
+  BaselineDirectory <- file.path(TestDirectory, "baseline")
+  buildCalculationData(FixturePath, BaselineDirectory, Root)
+  Baseline <- list(
+    configPath = FixturePath,
+    outputDirectory = BaselineDirectory,
+    calculation = loadCalculationResults(Root, BaselineDirectory)
+  )
+  Manifest <- jsonlite::fromJSON(ManifestPath)
+  Environment <- Manifest$serializationEnvironment
+  OpenSslAvailable <- requireNamespace("openssl", quietly = TRUE)
+  EnvironmentMatches <- all(
+    identical(R.version.string, Environment$rVersion),
+    identical(R.version$platform, Environment$platform),
+    identical(
+      paste(Sys.info()[c("sysname", "release", "machine")], collapse = " "),
+      Environment$system
+    ),
+    identical(Sys.getlocale(), Environment$locale),
+    identical(getOption("digits"), Environment$digits),
+    identical(getOption("scipen"), Environment$scipen),
+    identical(as.character(utils::packageVersion("jsonlite")), Environment$jsonliteVersion),
+    OpenSslAvailable,
+    OpenSslAvailable && identical(
+      as.character(utils::packageVersion("openssl")),
+      Environment$opensslVersion
+    ),
+    identical(unname(.libPaths()), unname(Environment$libraryPaths))
+  )
+  if (EnvironmentMatches) {
+    hashFile <- function(path) {
+      Connection <- file(path, "rb")
+      on.exit(close(Connection))
+      as.character(openssl::sha256(Connection))
+    }
+    ExpectedProducts <- Manifest$products
+    stopifnot(identical(
+      sort(list.files(BaselineDirectory)),
+      sort(ExpectedProducts$fileName)
+    ))
+    ActualHashes <- vapply(
+      file.path(BaselineDirectory, ExpectedProducts$fileName),
+      hashFile,
+      character(1)
+    )
+    stopifnot(identical(unname(ActualHashes), ExpectedProducts$sha256))
+  }
   Section <- readProduct(Baseline, "section.properties.csv")
   Stress <- readProduct(Baseline, "stress.state.csv")
   Inputs <- readProduct(Baseline, "calculation.inputs.csv")
@@ -199,6 +258,30 @@ runCalculationDataTests <- function() {
     Config
   })
   ThicknessSection <- readProduct(Thickness, "section.properties.csv")
+  assertNear(
+    ThicknessSection$interpolationFraction,
+    0.583519869380876,
+    1e-14,
+    "3.1 mm section interpolation"
+  )
+  assertNear(
+    ThicknessSection$areaMm2PerMm,
+    3.85533244147157,
+    1e-13,
+    "3.1 mm section area"
+  )
+  assertNear(
+    ThicknessSection$inertiaMm4PerMm,
+    298.259237335117,
+    1e-11,
+    "3.1 mm section inertia"
+  )
+  assertNear(
+    ThicknessSection$sectionRatio,
+    4.47384119920317e-05,
+    1e-18,
+    "3.1 mm section ratio"
+  )
   stopifnot(
     ThicknessSection$areaMm2PerMm != Section$areaMm2PerMm,
     ThicknessSection$inertiaMm4PerMm != Section$inertiaMm4PerMm,
@@ -226,6 +309,33 @@ runCalculationDataTests <- function() {
   stopifnot(
     length(unique(AlphaResultants$caseId)) == 2L,
     "0.5 y 1" == Alpha$calculation$actions$tangentialMultiplierText
+  )
+  FullTransfer <- BaselineResultants[
+    BaselineResultants$caseId == "alpha-1",
+    ,
+    drop = FALSE
+  ]
+  NoTransfer <- BaselineResultants[
+    BaselineResultants$caseId == "alpha-0",
+    ,
+    drop = FALSE
+  ]
+  MiddleTransfer <- AlphaResultants[
+    AlphaResultants$caseId == "middle",
+    ,
+    drop = FALSE
+  ]
+  stopifnot(
+    identical(FullTransfer$resultantId, NoTransfer$resultantId),
+    identical(FullTransfer$resultantId, MiddleTransfer$resultantId),
+    identical(FullTransfer$thetaIndex, NoTransfer$thetaIndex),
+    identical(FullTransfer$thetaIndex, MiddleTransfer$thetaIndex)
+  )
+  assertNear(
+    MiddleTransfer$value,
+    NoTransfer$value + 0.5 * (FullTransfer$value - NoTransfer$value),
+    5e-10,
+    "alpha 0.5 superposition"
   )
   AlphaControls <- tableText(buildCalculationControlsTable(
     Alpha$calculation$paths$controls
@@ -288,36 +398,111 @@ runCalculationDataTests <- function() {
     inherits(buildVariantFigure(Water), "highchart")
   )
 
-  assertNear(
-    resolveCalculationK0(list(
-      modelId = "elastic-confined",
-      poissonRatio = 0.25
-    ))$k0Applied,
-    1 / 3,
-    1e-14,
-    "elastic K0 branch"
+  expectedK0 <- function(
+    modelId,
+    frictionAngleDeg = NA_real_,
+    poissonRatio = NA_real_,
+    ocr = NA_real_,
+    ocrMaximum = NA_real_,
+    k0Input = NA_real_,
+    k0Derived = NA_real_,
+    k0EvidenceLevel = "DE",
+    sourceKey = NA_character_,
+    sourceLocator = NA_character_,
+    k0Applied,
+    domainStatus = "not-applicable"
+  ) {
+    Result <- list(
+      modelId = modelId,
+      frictionAngleDeg = frictionAngleDeg,
+      poissonRatio = poissonRatio,
+      ocr = ocr,
+      ocrMaximum = ocrMaximum,
+      k0Input = k0Input,
+      k0Derived = k0Derived,
+      domainStatus = domainStatus,
+      k0EvidenceLevel = k0EvidenceLevel,
+      sourceKey = sourceKey,
+      sourceLocator = sourceLocator
+    )
+    Result$k0Applied <- k0Applied
+    Result
+  }
+  K0Cases <- list(
+    list(
+      model = list(modelId = "adopted-constant", k0 = 0.5),
+      expected = expectedK0(
+        modelId = "adopted-constant",
+        k0Input = 0.5,
+        k0EvidenceLevel = "HA",
+        k0Applied = 0.5
+      )
+    ),
+    list(
+      model = list(modelId = "elastic-confined", poissonRatio = 0.25),
+      expected = expectedK0(
+        modelId = "elastic-confined",
+        poissonRatio = 0.25,
+        k0Derived = 1 / 3,
+        sourceKey = "ChristopherEtAl2006",
+        sourceLocator = "Section 5.4.9, Eq. 5.37",
+        k0Applied = 1 / 3
+      )
+    ),
+    list(
+      model = list(modelId = "jaky-nc", frictionAngleDeg = 30),
+      expected = expectedK0(
+        modelId = "jaky-nc",
+        frictionAngleDeg = 30,
+        k0Derived = 0.5,
+        sourceKey = "ChristopherEtAl2006",
+        sourceLocator = "Section 5.4.9, Eq. 5.38",
+        k0Applied = 0.5
+      )
+    ),
+    list(
+      model = list(
+        modelId = "mayne-kulhawy-unloading",
+        frictionAngleDeg = 30,
+        ocr = 4
+      ),
+      expected = expectedK0(
+        modelId = "mayne-kulhawy-unloading",
+        frictionAngleDeg = 30,
+        ocr = 4,
+        k0Derived = 1,
+        sourceKey = "MayneKulhawy1982",
+        sourceLocator = "Eq. 10; domain control Eqs. 11-12",
+        k0Applied = 1,
+        domainStatus = "within-domain"
+      )
+    ),
+    list(
+      model = list(
+        modelId = "mayne-kulhawy-reload",
+        frictionAngleDeg = 30,
+        ocr = 2,
+        ocrMaximum = 4
+      ),
+      expected = expectedK0(
+        modelId = "mayne-kulhawy-reload",
+        frictionAngleDeg = 30,
+        ocr = 2,
+        ocrMaximum = 4,
+        k0Derived = 0.6875,
+        sourceKey = "MayneKulhawy1982",
+        sourceLocator = "Eq. 18; domain control Eqs. 11-12",
+        k0Applied = 0.6875,
+        domainStatus = "within-domain"
+      )
+    )
   )
-  assertNear(
-    resolveCalculationK0(list(
-      modelId = "mayne-kulhawy-unloading",
-      frictionAngleDeg = 30,
-      ocr = 4
-    ))$k0Applied,
-    1,
-    1e-14,
-    "unloading K0 branch"
-  )
-  assertNear(
-    resolveCalculationK0(list(
-      modelId = "mayne-kulhawy-reload",
-      frictionAngleDeg = 30,
-      ocr = 4,
-      ocrMaximum = 4
-    ))$k0Applied,
-    1,
-    1e-14,
-    "reload K0 branch"
-  )
+  for (Case in K0Cases) {
+    stopifnot(identical(
+      do.call(resolveCalculationK0, list(Case$model)),
+      Case$expected
+    ))
+  }
 
   assertError(function() {
     Config <- copyObject(BaselineJson)

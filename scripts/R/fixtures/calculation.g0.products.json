@@ -1,0 +1,54 @@
+{
+  "anchorCommit": "4f0d9a8",
+  "serializationEnvironment": {
+    "rVersion": "R version 4.6.0 (2026-04-24)",
+    "platform": "aarch64-apple-darwin23",
+    "system": "Darwin 25.5.0 arm64",
+    "locale": "C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8",
+    "digits": 7,
+    "scipen": 0,
+    "jsonliteVersion": "2.0.0",
+    "opensslVersion": "2.4.2",
+    "libraryPaths": [
+      "/Library/Frameworks/R.framework/Versions/4.6/Resources/library"
+    ]
+  },
+  "products": [
+    {
+      "fileName": "calculation.config.json",
+      "sha256": "70d628478812f42d8f0b8468ef1a01df237a3d1ec4263069200b4937ec86848b"
+    },
+    {
+      "fileName": "calculation.inputs.csv",
+      "sha256": "193a9456492ba34e19def68f9860ffb105b0f6ceb13ce3a46d9df7bdbd3b0910"
+    },
+    {
+      "fileName": "section.properties.csv",
+      "sha256": "4b36cf593a6bdf88d94c4a202d83845a5cca81646bba79d76e661c20712f7ae9"
+    },
+    {
+      "fileName": "stress.state.csv",
+      "sha256": "ecd272d7594d78f2f8f57911c74d12b8d059fed01a480769849df5ddf3af87fc"
+    },
+    {
+      "fileName": "perimeter.loads.csv",
+      "sha256": "9d3c640574dc468a3d6be3c8282084f7c41a4e0c9ecee91a6c7ae711f226efda"
+    },
+    {
+      "fileName": "section.resultants.csv",
+      "sha256": "b2e5fae2188205367f1fb757f7a4dac1eb4c8b2853c63bfb5441896bc5f09eed"
+    },
+    {
+      "fileName": "section.extrema.csv",
+      "sha256": "6881e17589fd53c65676c2826d5c96948580f3c37d2e8a270bf2e7e0eb40f014"
+    },
+    {
+      "fileName": "numerical.controls.csv",
+      "sha256": "be43a911b0b3b3af6334e61e3ca40909b1ef3858b4d01254ee0037f93791c5e3"
+    },
+    {
+      "fileName": "display.scales.csv",
+      "sha256": "08b3222ce5b947783293a37a8c888276c729ef83ce968505e8b80f2d6198cc6b"
+    }
+  ]
+}

@@ -2199,7 +2199,7 @@ serialización.
 worktree que existía al iniciar el plan. La suite determinística y los hashes
 de la Fase 1 fueron verificados antes del commit.
 
-#### G1 — Caracterizar las superficies consumidas
+#### G1 — Caracterizar las superficies consumidas — cerrada
 
 Inventariar los consumidores locales, registrar los consumidores externos
 como `UNKNOWN` y fijar fixtures inmutables para:
@@ -2217,6 +2217,50 @@ colisiones de nombres. No se creará una grilla masiva que no corresponda a un
 consumidor o modo de falla real. La falta de un inventario externo exhaustivo
 no bloquea G2--G9 mientras se preserven archivos, firmas y efectos históricos;
 sí bloquea el retiro, renombre o promoción de esas superficies.
+
+G1 quedó cerrada sobre el commit recuperable `4f0d9a8`, sin duplicar los CSV de
+curvas. El fixture inmutable de entrada es
+`scripts/R/fixtures/calculation.g0.json`; el manifiesto
+`scripts/R/fixtures/calculation.g0.products.json` fija los SHA-256 de los nueve
+productos y la huella del entorno que habilita una comparación byte a byte.
+Fuera de esa huella, las pruebas mantienen la comparación semántica de
+esquema, tipos, orden, valores y `NA`, sin afirmar identidad de serialización.
+
+La huella registrada comprende R 4.6.0, plataforma
+`aarch64-apple-darwin23`, Darwin 25.5.0 arm64, locale
+`C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8`, opciones `digits = 7` y
+`scipen = 0`, `jsonlite` 2.0.0, `openssl` 2.4.2 y la ruta de carga
+`/Library/Frameworks/R.framework/Versions/4.6/Resources/library`.
+
+Los consumidores locales observados son:
+
+- la cadena productiva `_master/calculation.review.es.qmd` --
+  `_index/calculation.review.ES.qmd` --
+  `_results/calculation.results.es.qmd` -- `scripts/setup/setup.R` --
+  `buildCalculationData()`;
+- `runCalculationMemo.R` y el bloque `_results` como consumidores del efecto
+  histórico de `setup.R`;
+- `testCalculationData.R` como consumidor directo de
+  `buildCalculationData()`, `validateCalculationConfig()` y
+  `resolveCalculationK0()`;
+- `calculationResults.R`, los builders de tablas y figuras y la prosa numérica
+  como consumidores de los productos materializados;
+- las pruebas, benchmarks, figuras y ejemplos que consumen
+  `calculateRingSection()`, `solveRingDirect()`, `runRingMonteCarlo()`,
+  `ringLoad` y `ringDirectResponse`.
+
+Los consumidores externos permanecen `UNKNOWN`; por ello estas superficies no
+se retiran ni renombran. `perimeter.loads.csv` tiene pruebas y una ruta expuesta
+en `Calculation`, aunque no tenga hoy una inclusión visible en la memoria.
+
+`testCalculationData.R` caracteriza las cinco ramas de $K_0$, el escenario
+base, $alpha=0.5$, agua con signo, tensión vertical modificada, espesor de
+3.1 mm, publicación por intercambio y los errores de esquema, dominio,
+interpolación y control. `testRingMethod.R` conserva presión uniforme, armónico
+$n=3$, discontinuidades, balance, comparaciones directa--cerrada--Fourier y
+refinamiento. Se agregó paridad numérica por superposición para
+$\alpha=0.5$ y valores exactos para la interpolación a 3.1 mm; no se creó una
+grilla adicional.
 
 #### G2 — Extraer `estimateK0()` y el estado tensional
 
