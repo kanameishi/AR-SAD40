@@ -11,6 +11,7 @@ runCalculationDataTests <- function() {
   source(file.path(Root, "scripts", "R", "ringLoads.R"))
   source(file.path(Root, "scripts", "R", "k0Models.R"))
   source(file.path(Root, "scripts", "R", "stressState.R"))
+  source(file.path(Root, "scripts", "R", "corrugatedSection.R"))
   source(file.path(Root, "scripts", "R", "calculationData.R"))
   projectRoot <- Root
   source(
@@ -59,6 +60,11 @@ runCalculationDataTests <- function() {
     "calculation.g0.products.json"
   )
   BaselineJson <- readCalculationJson(FixturePath)
+  SectionReference <- utils::read.csv(
+    file.path(Root, BaselineJson$section$propertyTable),
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
   buildVariant <- function(name, change = identity) {
     Config <- change(copyObject(BaselineJson))
     ConfigPath <- file.path(TestDirectory, paste0(name, ".json"))
@@ -150,6 +156,68 @@ runCalculationDataTests <- function() {
   assertNear(Section$interpolationFraction, 0.451847365233192, 1e-14, "section interpolation")
   assertNear(Section$areaMm2PerMm, 3.7304717948718, 1e-13, "section area")
   assertNear(Section$inertiaMm4PerMm, 287.902153723077, 1e-11, "section inertia")
+  InterpolatedSection <- interpolateCorrugatedSection(
+    reference = SectionReference,
+    profileId = BaselineJson$section$referenceProfileId,
+    baseThicknessMm = BaselineJson$section$analysisBaseThicknessMm
+  )
+  stopifnot(
+    InterpolatedSection$lowerReferenceRowId == Section$lowerReferenceRowId,
+    InterpolatedSection$upperReferenceRowId == Section$upperReferenceRowId,
+    InterpolatedSection$sourceKey == Section$sourceKey,
+    InterpolatedSection$sourceLocator == Section$sourceLocator,
+    InterpolatedSection$domainStatus == Section$domainStatus
+  )
+  assertNear(
+    InterpolatedSection$interpolationFraction,
+    Section$interpolationFraction,
+    1e-14,
+    "pure section interpolation fraction"
+  )
+  assertNear(
+    InterpolatedSection$areaMm2PerMm,
+    Section$areaMm2PerMm,
+    1e-13,
+    "pure section area"
+  )
+  assertNear(
+    InterpolatedSection$inertiaMm4PerMm,
+    Section$inertiaMm4PerMm,
+    1e-11,
+    "pure section inertia"
+  )
+  LowerBoundary <- interpolateCorrugatedSection(
+    reference = SectionReference,
+    profileId = BaselineJson$section$referenceProfileId,
+    baseThicknessMm = min(SectionReference$baseThicknessMm)
+  )
+  UpperBoundary <- interpolateCorrugatedSection(
+    reference = SectionReference,
+    profileId = BaselineJson$section$referenceProfileId,
+    baseThicknessMm = max(SectionReference$baseThicknessMm)
+  )
+  stopifnot(
+    LowerBoundary$interpolationFraction == 0,
+    UpperBoundary$interpolationFraction == 1,
+    LowerBoundary$lowerReferenceRowId == SectionReference$referenceRowId[1L],
+    LowerBoundary$upperReferenceRowId == SectionReference$referenceRowId[2L],
+    UpperBoundary$lowerReferenceRowId == SectionReference$referenceRowId[1L],
+    UpperBoundary$upperReferenceRowId == SectionReference$referenceRowId[2L],
+    LowerBoundary$sourceKey == UpperBoundary$sourceKey,
+    LowerBoundary$sourceLocator == UpperBoundary$sourceLocator
+  )
+  assertNear(
+    c(LowerBoundary$areaMm2PerMm, UpperBoundary$areaMm2PerMm),
+    SectionReference$areaMm2PerMm,
+    0,
+    "section interpolation boundaries"
+  )
+  assertNear(
+    c(LowerBoundary$inertiaMm4PerMm, UpperBoundary$inertiaMm4PerMm),
+    SectionReference$inertiaMm4PerMm,
+    0,
+    "section inertia boundaries"
+  )
   stopifnot(
     Stress$modelId == "adopted-constant",
     Stress$k0Input == 0.5,
@@ -260,6 +328,11 @@ runCalculationDataTests <- function() {
     Config
   })
   ThicknessSection <- readProduct(Thickness, "section.properties.csv")
+  InterpolatedThickness <- interpolateCorrugatedSection(
+    reference = SectionReference,
+    profileId = BaselineJson$section$referenceProfileId,
+    baseThicknessMm = 3.1
+  )
   assertNear(
     ThicknessSection$interpolationFraction,
     0.583519869380876,
@@ -283,6 +356,27 @@ runCalculationDataTests <- function() {
     4.47384119920317e-05,
     1e-18,
     "3.1 mm section ratio"
+  )
+  assertNear(
+    InterpolatedThickness$areaMm2PerMm,
+    ThicknessSection$areaMm2PerMm,
+    1e-13,
+    "pure 3.1 mm section area"
+  )
+  assertNear(
+    InterpolatedThickness$inertiaMm4PerMm,
+    ThicknessSection$inertiaMm4PerMm,
+    1e-11,
+    "pure 3.1 mm section inertia"
+  )
+  stopifnot(
+    InterpolatedThickness$lowerReferenceRowId ==
+      ThicknessSection$lowerReferenceRowId,
+    InterpolatedThickness$upperReferenceRowId ==
+      ThicknessSection$upperReferenceRowId,
+    InterpolatedThickness$sourceKey == ThicknessSection$sourceKey,
+    InterpolatedThickness$sourceLocator == ThicknessSection$sourceLocator,
+    InterpolatedThickness$domainStatus == ThicknessSection$domainStatus
   )
   stopifnot(
     ThicknessSection$areaMm2PerMm != Section$areaMm2PerMm,
@@ -590,6 +684,50 @@ runCalculationDataTests <- function() {
     jsonlite::write_json(Config, Path, auto_unbox = TRUE)
     buildCalculationData(Path, file.path(TestDirectory, "invalid-thickness"), Root)
   }, "outside the published range", "section interpolation domain")
+  assertError(function() {
+    InvalidReference <- SectionReference
+    InvalidReference$inertiaMm4PerMm <- NULL
+    interpolateCorrugatedSection(
+      reference = InvalidReference,
+      profileId = BaselineJson$section$referenceProfileId,
+      baseThicknessMm = 3
+    )
+  }, "property table is missing", "section reference schema")
+  assertError(function() {
+    interpolateCorrugatedSection(
+      reference = SectionReference,
+      profileId = "unknown-profile",
+      baseThicknessMm = 3
+    )
+  }, "At least two rows", "section reference profile")
+  assertError(function() {
+    InvalidReference <- SectionReference
+    InvalidReference$areaMm2PerMm[1L] <- 0
+    interpolateCorrugatedSection(
+      reference = InvalidReference,
+      profileId = BaselineJson$section$referenceProfileId,
+      baseThicknessMm = 3
+    )
+  }, "must be finite and positive", "section reference values")
+  assertError(function() {
+    InvalidReference <- SectionReference
+    InvalidReference$baseThicknessMm[2L] <-
+      InvalidReference$baseThicknessMm[1L]
+    interpolateCorrugatedSection(
+      reference = InvalidReference,
+      profileId = BaselineJson$section$referenceProfileId,
+      baseThicknessMm = InvalidReference$baseThicknessMm[1L]
+    )
+  }, "must be unique", "section reference uniqueness")
+  assertError(function() {
+    InvalidReference <- SectionReference
+    InvalidReference$sourceLocator[2L] <- "different locator"
+    interpolateCorrugatedSection(
+      reference = InvalidReference,
+      profileId = BaselineJson$section$referenceProfileId,
+      baseThicknessMm = 3
+    )
+  }, "share one source and locator", "section reference provenance")
   assertError(function() {
     Config <- copyObject(BaselineJson)
     Config$loadCases[[1L]]$alpha <- 1.1

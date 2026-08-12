@@ -17,6 +17,7 @@ source("scripts/R/ringDirect.R")
 source("scripts/R/ringLoads.R")
 source("scripts/R/k0Models.R")
 source("scripts/R/stressState.R")
+source("scripts/R/corrugatedSection.R")
 source("scripts/R/ringInteraction.R")
 source("scripts/R/ringMonteCarlo.R")
 ```
@@ -80,10 +81,21 @@ membranal.
 Para una sección corrugada, use las propiedades por longitud axial proyectada:
 
 ```r
+Reference <- read.csv(
+  "data/reference/corrugation.section.properties.csv",
+  check.names = FALSE,
+  stringsAsFactors = FALSE
+)
+CorrugatedSection <- interpolateCorrugatedSection(
+  reference = Reference,
+  profileId = "ncspa-3x1",
+  baseThicknessMm = 3
+)
+
 Section <- calculateRingSection(
   youngModulus = 200000, # MPa
-  area = 3.522,          # mm2/mm
-  inertia = 1057.25,     # mm4/mm
+  area = CorrugatedSection$areaMm2PerMm,
+  inertia = CorrugatedSection$inertiaMm4PerMm,
   radius = 1315          # mm
 )
 

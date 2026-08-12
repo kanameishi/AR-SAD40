@@ -2,12 +2,14 @@ if (!exists("calculateRingSection", mode = "function") ||
     !exists("biaxialStressTangentialMultiplierLoad", mode = "function") ||
     !exists("estimateK0", mode = "function") ||
     !exists("calculateEffectiveStressState", mode = "function") ||
+    !exists("interpolateCorrugatedSection", mode = "function") ||
     !exists("readCalculationJson", mode = "function")) {
   stop(
     paste(
       "Source scripts/setup/utils.R, scripts/R/ringDirect.R and",
       "scripts/R/ringLoads.R, scripts/R/k0Models.R and",
-      "scripts/R/stressState.R before scripts/R/calculationData.R."
+      "scripts/R/stressState.R and scripts/R/corrugatedSection.R before",
+      "scripts/R/calculationData.R."
     ),
     call. = FALSE
   )
@@ -436,81 +438,35 @@ readCalculationSection <- function(config, projectRoot) {
   if (!file.exists(Path)) {
     stop("The corrugation property table is not available: ", Path, call. = FALSE)
   }
-  Data <- utils::read.csv(Path, check.names = FALSE, stringsAsFactors = FALSE)
-  Required <- c(
-    "profileId", "referenceRowId", "specifiedThicknessIn", "baseThicknessMm",
-    "areaMm2PerMm", "inertiaMm4PerMm", "evidenceLevel", "sourceKey",
-    "sourceLocator"
+  Reference <- utils::read.csv(
+    Path,
+    check.names = FALSE,
+    stringsAsFactors = FALSE
   )
-  Missing <- setdiff(Required, names(Data))
-  if (length(Missing) > 0L) {
-    stop(
-      "The corrugation property table is missing: ",
-      paste(Missing, collapse = ", "), ".",
-      call. = FALSE
-    )
-  }
-  Data <- Data[
-    Data$profileId == config$section$referenceProfileId,
-    ,
-    drop = FALSE
-  ]
-  if (nrow(Data) < 2L) {
-    stop("At least two rows are required for the reference profile.", call. = FALSE)
-  }
-  Numeric <- c(
-    "specifiedThicknessIn", "baseThicknessMm", "areaMm2PerMm",
-    "inertiaMm4PerMm"
+  CorrugatedSection <- interpolateCorrugatedSection(
+    reference = Reference,
+    profileId = config$section$referenceProfileId,
+    baseThicknessMm = config$section$analysisBaseThicknessMm
   )
-  if (any(!vapply(Data[Numeric], is.numeric, logical(1))) ||
-      any(!is.finite(as.matrix(Data[Numeric]))) ||
-      any(as.matrix(Data[Numeric]) <= 0)) {
-    stop("The selected reference properties must be finite and positive.", call. = FALSE)
-  }
-  Data <- Data[order(Data$baseThicknessMm), , drop = FALSE]
-  if (anyDuplicated(Data$baseThicknessMm) || anyDuplicated(Data$referenceRowId)) {
-    stop("Reference thicknesses and row identifiers must be unique.", call. = FALSE)
-  }
-  Thickness <- config$section$analysisBaseThicknessMm
-  if (Thickness < min(Data$baseThicknessMm) || Thickness > max(Data$baseThicknessMm)) {
-    stop("The analysis base thickness lies outside the published range.", call. = FALSE)
-  }
-  LowerIndex <- max(which(Data$baseThicknessMm <= Thickness))
-  UpperIndex <- min(which(Data$baseThicknessMm >= Thickness))
-  if (LowerIndex == UpperIndex) {
-    if (LowerIndex == 1L) UpperIndex <- 2L else LowerIndex <- LowerIndex - 1L
-  }
-  Lower <- Data[LowerIndex, , drop = FALSE]
-  Upper <- Data[UpperIndex, , drop = FALSE]
-  Fraction <- (Thickness - Lower$baseThicknessMm) /
-    (Upper$baseThicknessMm - Lower$baseThicknessMm)
-  Area <- (1 - Fraction) * Lower$areaMm2PerMm + Fraction * Upper$areaMm2PerMm
-  Inertia <- (1 - Fraction) * Lower$inertiaMm4PerMm +
-    Fraction * Upper$inertiaMm4PerMm
   Radius <- config$geometry$insideDiameterM / 2
   YoungModulusKPa <- config$material$circumferentialYoungModulusGPa * 1e6
   RingSection <- calculateRingSection(
     youngModulus = YoungModulusKPa,
-    area = Area * 1e-3,
-    inertia = Inertia * 1e-9,
+    area = CorrugatedSection$areaMm2PerMm * 1e-3,
+    inertia = CorrugatedSection$inertiaMm4PerMm * 1e-9,
     radius = Radius
   )
-  SourceKeys <- unique(c(Lower$sourceKey, Upper$sourceKey))
-  SourceLocators <- unique(c(Lower$sourceLocator, Upper$sourceLocator))
-  if (length(SourceKeys) != 1L || length(SourceLocators) != 1L) {
-    stop("Interpolation rows must share one source and locator.", call. = FALSE)
-  }
   data.frame(
     scenarioId = config$scenarioId,
     sectionId = "circumferential-section",
-    profileId = config$section$referenceProfileId,
+    profileId = CorrugatedSection$profileId,
     propertyModelId = config$section$propertyModelId,
-    analysisBaseThicknessMm = Thickness,
-    lowerReferenceRowId = Lower$referenceRowId,
-    upperReferenceRowId = Upper$referenceRowId,
-    interpolationFraction = Fraction,
-    areaMm2PerMm = Area,
-    inertiaMm4PerMm = Inertia,
+    analysisBaseThicknessMm = CorrugatedSection$analysisBaseThicknessMm,
+    lowerReferenceRowId = CorrugatedSection$lowerReferenceRowId,
+    upperReferenceRowId = CorrugatedSection$upperReferenceRowId,
+    interpolationFraction = CorrugatedSection$interpolationFraction,
+    areaMm2PerMm = CorrugatedSection$areaMm2PerMm,
+    inertiaMm4PerMm = CorrugatedSection$inertiaMm4PerMm,
     circumferentialYoungModulusGPa =
       config$material$circumferentialYoungModulusGPa,
     analysisRadiusM = Radius,
@@ -518,9 +474,9 @@ readCalculationSection <- function(config, projectRoot) {
     flexuralRigidityKnM2PerM = RingSection$flexuralRigidity,
     sectionRatio = RingSection$sectionRatio,
     evidenceLevel = "DE",
-    sourceKey = SourceKeys,
-    sourceLocator = SourceLocators,
-    domainStatus = "within-interpolation-range",
+    sourceKey = CorrugatedSection$sourceKey,
+    sourceLocator = CorrugatedSection$sourceLocator,
+    domainStatus = CorrugatedSection$domainStatus,
     stringsAsFactors = FALSE
   )
 }

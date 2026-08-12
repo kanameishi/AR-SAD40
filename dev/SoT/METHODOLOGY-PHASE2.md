@@ -1942,9 +1942,10 @@ del proyecto.
 10. Todo código R de esta migración se rige por el router canónico
     `/Users/averrik/github/agents/AGENTS.md` y, según el efecto inmediato, por
     `STYLE.md`, `PRACTICE.md`, `R.md`, `CONFIG.md`, `R-PIPELINES.md`,
-    `COMPATIBILITY.md` y `R-DATA-TABLE.md` cuando se emplee `data.table`. Esta
-    obligación se revalida después de una compactación antes de continuar una
-    mutación de código.
+    `COMPATIBILITY.md`, `GIT.md` para la publicación y `R-DATA-TABLE.md` antes
+    de cualquier uso de `data.table`. Esta obligación se revalida después de
+    una compactación antes de continuar una mutación de código; esta SoT
+    registra la decisión, pero no sustituye la lectura de esos contratos.
 11. Las funciones y parámetros usan `lowerCamelCase`; las variables locales
     con identidad estable usan `PascalCase`; los recipientes efímeros usan el
     vocabulario compacto `DT`, `AUX`, `LIST`, `OUT`, `DATA`, `COLS`, `FILES`,
@@ -2319,7 +2320,7 @@ La auditoría funcional concluyó PASS en
 interfaces y paridad concluyó PASS en
 `/private/tmp/ar-sad40-g2-r-style-audit.md`.
 
-#### G3 — Extraer propiedades seccionales
+#### G3 — Extraer propiedades seccionales — cerrada
 
 Separar la lectura de la tabla de la interpolación. Conservar
 `calculateRingSection()` como única implementación pura de
@@ -2328,6 +2329,40 @@ R^2)$; no crear una fachada seccional equivalente.
 
 **Puerta:** mismas propiedades, procedencia y errores para 3.0 y 3.1 mm; sin
 cambio en `section.properties.csv` ni en las resultantes.
+
+La puerta se cerró mediante
+`interpolateCorrugatedSection(reference, profileId, baseThicknessMm)` en
+`scripts/R/corrugatedSection.R`. La función recibe una tabla ya cargada,
+selecciona el perfil, comprueba el intervalo y la procedencia e interpola
+$A_\theta$ e $I_\theta$; no accede a archivos, configuración global, RNG ni
+objetos documentales. `readCalculationSection()` conserva su firma, la lectura
+CSV y la adaptación al producto. No se creó un segundo helper de lectura ni se
+introdujo `data.table`.
+
+`calculateRingSection()` no fue modificado. Legado `80240b9` y candidata se
+cargaron en entornos separados: los objetos seccionales para 3.0 y 3.1 mm, los
+errores de archivo o columna ausentes, perfil insuficiente, valores inválidos,
+duplicados, espesor fuera del intervalo y procedencia discordante fueron
+idénticos. Los nueve productos de ambos espesores fueron byte-idénticos; el
+caso de 3.0 mm reprodujo además el manifiesto G0.
+
+La prueba durable conserva los dos puntos interiores, los extremos publicados
+de 2.65684 y 3.41630 mm con fracciones 0 y 1, los identificadores y la
+procedencia, y los modos de falla trasladados. Los consumidores externos de
+los archivos R continúan `UNKNOWN`; por ello `readCalculationSection()` se
+preserva sin fallback duplicado.
+
+La auditoría independiente de diseño y políticas R concluyó PASS en
+`/private/tmp/ar-sad40-g3-section-design-audit.md`; la auditoría independiente
+de paridad concluyó PASS en
+`/private/tmp/ar-sad40-g3-parity-audit.md`.
+
+La corrida productiva, las pruebas de datos, mecánica, figuras y adaptador
+Monte Carlo, y la comparación aislada G2--G3 concluyeron PASS. El render de la
+memoria produjo `html/calculation.review.es/index.html`, SHA-256
+`c843e32d171093d630fe6d9e2397bc93ab60ff3bfdca0469ca71bb15b0ee6556`;
+los nueve productos del manifiesto G0 y la línea base congelada de Fase 1 no
+cambiaron.
 
 #### G4 — Extraer malla y acciones perimetrales
 

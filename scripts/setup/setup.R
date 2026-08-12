@@ -8,6 +8,7 @@ source(file.path(projectRoot, "scripts", "R", "ringDirect.R"))
 source(file.path(projectRoot, "scripts", "R", "ringLoads.R"))
 source(file.path(projectRoot, "scripts", "R", "k0Models.R"))
 source(file.path(projectRoot, "scripts", "R", "stressState.R"))
+source(file.path(projectRoot, "scripts", "R", "corrugatedSection.R"))
 source(file.path(projectRoot, "scripts", "R", "calculationData.R"))
 
 CalculationRun <- buildCalculationData(
