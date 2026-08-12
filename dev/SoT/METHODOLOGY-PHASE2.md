@@ -1950,8 +1950,10 @@ del proyecto.
     con identidad estable usan `PascalCase`; los recipientes efímeros usan el
     vocabulario compacto `DT`, `AUX`, `LIST`, `OUT`, `DATA`, `COLS`, `FILES`,
     `FILE`, `DIR`, `OK`, `MASK` o `IDX`, y las primitivas efímeras usan una
-    letra minúscula. No se codifican tipos ni estados transitorios en los
-    nombres.
+    letra minúscula. Las siglas establecidas conservan su caja convencional:
+    `modelID`, `ScenarioID`, `OpenSSLAvailable`; no se convierten
+    mecánicamente en `Id` o `Ssl`. No se codifican tipos ni estados
+    transitorios en los nombres.
 12. `data.table` no se introducirá sólo por brevedad. Si una etapa lo requiere,
     deberá declarar propiedad antes de mutar por referencia, preservar lado y
     cardinalidad de cada unión, y probar orden, tipos, ausencias, duplicados y
@@ -2072,7 +2074,7 @@ consumidores.
 
 | Función candidata | Responsabilidad | Entradas principales | Salida | Estado |
 |---|---|---|---|---|
-| `estimateK0()` | seleccionar una rama y evaluar $K_0$ | `modelId` y sólo las variables primitivas de esa rama | valor aplicado, estado de dominio y magnitudes de control | extraer de `resolveCalculationK0()`; las ecuaciones `k0*()` vigentes se preservan |
+| `estimateK0()` | seleccionar una rama y evaluar $K_0$ | `modelID` y sólo las variables primitivas de esa rama | valor aplicado, estado de dominio y magnitudes de control | extraer de `resolveCalculationK0()`; las ecuaciones `k0*()` vigentes se preservan |
 | `calculateEffectiveStressState()` | formar el estado efectivo aplicado | $\sigma'_v$, resultado de `estimateK0()`, diferencia de presión de agua y estado explícito del incremento horizontal | $\sigma'_{h,b}=K_0\sigma'_v$, componente horizontal aplicada y metadatos del incremento | nueva frontera sobre lógica hoy embebida |
 | `interpolateCorrugatedSection()` | obtener $A_\theta$ e $I_\theta$ desde una referencia ya cargada | tabla, perfil y espesor de análisis | propiedades e información de interpolación | extraer de `readCalculationSection()` |
 | `calculateRingSection()` | obtener rigideces circunferenciales | $E_\theta$, $A_\theta$, $I_\theta$ y $R$ | $EA_\theta$, $EI_\theta$ y $I_\theta/(A_\theta R^2)$ | función pura vigente; conserva la implementación y la firma |
@@ -2088,7 +2090,9 @@ consumidores.
 por formulación continuarán siendo unidades pequeñas y comprobables; durante
 la migración conservarán sus nombres existentes para no romper consumidores.
 La fachada aplicará una exclusión de tipo `oneOf`: no aceptará parámetros de
-ramas que no correspondan al `modelId` seleccionado.
+ramas que no correspondan al `modelID` seleccionado. El adaptador de
+`calculation.json` traduce expresamente la clave histórica `modelId`; esa
+ortografía no se propaga al núcleo R.
 
 `calculateSectionResultants()` devolverá siempre las tres resultantes. Un
 consumidor que necesite sólo una de ellas seleccionará su columna después de
@@ -2140,7 +2144,7 @@ parámetros derivados —los «hijos»— se calculan una vez en el orden indica
 |---|---|---|---|
 | diámetro interior y regla geométrica | $R$ | sección y resultantes | implementado |
 | tapada, estratigrafía, pesos unitarios efectivos, sobrecarga y agua | $\sigma'_v$ | estado tensional | las funciones básicas existen; la aplicación vigente ingresa $\sigma'_v$ directamente |
-| `modelId` y $K_0$ adoptado, o $\phi'$, o $\nu_g$, o $\phi'$--OCR, o $\phi'$--OCR--$\mathrm{OCR}_{\max}$ | $K_0$ | $\sigma'_h$ | implementado por ramas |
+| `modelID` y $K_0$ adoptado, o $\phi'$, o $\nu_g$, o $\phi'$--OCR, o $\phi'$--OCR--$\mathrm{OCR}_{\max}$ | $K_0$ | $\sigma'_h$ | implementado por ramas; el JSON histórico usa `modelId` |
 | $K_0$ y $\sigma'_v$ | $\sigma'_{h,b}=K_0\sigma'_v$ | acciones perimetrales | implementado |
 | modelo residual aprobado y sus primitivas | $\Delta\sigma'_{h,c}$ | estado tensional | `UNKNOWN`; no se sustituye por una constante inventada |
 | $\sigma'_v$, $\sigma'_h$, diferencia de agua y $\alpha$ | $P_r(\theta)$ y $P_t(\theta)$ | resultantes | implementado para el estado biaxial uniforme prescrito |
@@ -2292,7 +2296,7 @@ esquema JSON y dominio, y productos idénticos. `stress.state.csv` y
 `calculation.inputs.csv` permanecen idénticos.
 
 La puerta se cerró mediante `scripts/R/k0Models.R` y
-`scripts/R/stressState.R`. `estimateK0()` recibe `modelId` y exclusivamente las
+`scripts/R/stressState.R`. `estimateK0()` recibe `modelID` y exclusivamente las
 variables primitivas de la rama, devuelve el valor aplicado y los controles de
 dominio y no incorpora metadatos bibliográficos. `resolveCalculationK0()`
 permanece como adaptador compatible de evidencia. El estado tensional efectivo
@@ -2331,7 +2335,7 @@ R^2)$; no crear una fachada seccional equivalente.
 cambio en `section.properties.csv` ni en las resultantes.
 
 La puerta se cerró mediante
-`interpolateCorrugatedSection(reference, profileId, baseThicknessMm)` en
+`interpolateCorrugatedSection(reference, profileID, baseThicknessMm)` en
 `scripts/R/corrugatedSection.R`. La función recibe una tabla ya cargada,
 selecciona el perfil, comprueba el intervalo y la procedencia e interpola
 $A_\theta$ e $I_\theta$; no accede a archivos, configuración global, RNG ni
@@ -2603,10 +2607,29 @@ compatibilidad había detectado la pérdida del ambiente explícito; el uso de
 `local = TRUE` y el nuevo caso de prueba resolvieron ese hallazgo antes del
 cierre.
 
-G8.2 sustituirá exclusivamente el interior del productor para consumir
-`calculateScenario()` y adaptar sus estados, sin modificar todavía el runner
-ni el bloque `_results`. G8.3 migrará esos dos consumidores locales a una
-llamada explícita y conservará `setup.R` como compatibilidad.
+G8.2 quedó cerrada al sustituir exclusivamente el interior del productor para
+consumir `calculateScenario()` una vez por caso y adaptar sus siete estados.
+No modificó el runner ni el bloque `_results`, conservó la firma y el retorno
+de `buildCalculationData()`, la publicación por intercambio, los errores
+contractuales seleccionados y los nueve productos G0 byte a byte. Las
+reauditorías de naming, arquitectura y paridad concluyeron PASS en
+`/private/tmp/ar-sad40-g8-2-naming-scoped-reaudit.md`,
+`/private/tmp/ar-sad40-g8-2-architecture-reaudit.md` y
+`/private/tmp/ar-sad40-g8-2-parity-reaudit.md`.
+
+G8.3 migrará los dos consumidores locales a una llamada explícita y conservará
+`setup.R` como compatibilidad. La deuda de nombres identificada fuera del
+alcance de G8.2 se corregirá únicamente en el consumidor que migre esta puerta;
+las superficies Monte Carlo y la interfaz gráfica de NGR conservan puertas
+propias.
+
+Durante G8.2 se detectó una aplicación incorrecta de la política de siglas en
+las superficies puras creadas por G2, G3 y G7. La corrección pertenece a esta
+misma puerta: el núcleo y sus listas en memoria usan `modelID`, `profileID`,
+`k0ModelID`, `ScenarioID`, `sectionID` y `stressStateID`; los adaptadores
+traducen hacia las claves y columnas históricas `...Id` de `calculation.json`,
+la referencia seccional y los nueve productos G0. No se cambia el esquema
+persistido ni se presenta la corrección como una migración de datos.
 
 #### G9 — Conectar el agregador Monte Carlo
 
@@ -2633,6 +2656,14 @@ requiere ecuaciones, unidades, signos, datos, controles y casos de referencia
 propios. El paquete sólo recibirá funciones puras y pruebas; JSON, referencias
 del proyecto, CSV, Quarto, captions, tablas y figuras permanecerán en
 AR-SAD40.
+
+El 12 de agosto de 2026 se autorizaron tres investigaciones independientes,
+sin implementación: verificación normativa de la chapa corrugada con espesor
+neto; ampliación de la caracterización de $K_0$, compactación y cementación; y
+verificación de una sección de shotcrete/hormigón por metro con armadura que
+puede ser nula. Sus resultados son evidencia candidata. No habilitan funciones,
+resultados ni texto público hasta completar los ledgers, resolver los datos
+`UNKNOWN` y obtener la aceptación técnica del usuario.
 
 ### 27.9 Observables y reglas de paridad
 

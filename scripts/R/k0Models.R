@@ -15,15 +15,15 @@ if (any(!vapply(
 }
 
 estimateK0 <- function(
-  modelId,
+  modelID,
   k0 = NULL,
   frictionAngleDeg = NULL,
   poissonRatio = NULL,
   ocr = NULL,
   ocrMaximum = NULL
 ) {
-  if (!is.character(modelId) || length(modelId) != 1L || !nzchar(modelId)) {
-    stop("modelId must be one non-empty string.", call. = FALSE)
+  if (!is.character(modelID) || length(modelID) != 1L || !nzchar(modelID)) {
+    stop("modelID must be one non-empty string.", call. = FALSE)
   }
 
   LIST <- list(
@@ -34,13 +34,13 @@ estimateK0 <- function(
     ocrMaximum = ocrMaximum
   )
   BranchFields <- switch(
-    modelId,
+    modelID,
     "adopted-constant" = "k0",
     "elastic-confined" = "poissonRatio",
     "jaky-nc" = "frictionAngleDeg",
     "mayne-kulhawy-unloading" = c("frictionAngleDeg", "ocr"),
     "mayne-kulhawy-reload" = c("frictionAngleDeg", "ocr", "ocrMaximum"),
-    stop("Unsupported K0 modelId: ", modelId, ".", call. = FALSE)
+    stop("Unsupported K0 modelID: ", modelID, ".", call. = FALSE)
   )
   Missing <- BranchFields[vapply(LIST[BranchFields], is.null, logical(1))]
   Unexpected <- setdiff(
@@ -65,7 +65,7 @@ estimateK0 <- function(
   }
 
   OUT <- list(
-    modelId = modelId,
+    modelID = modelID,
     frictionAngleDeg = NA_real_,
     poissonRatio = NA_real_,
     ocr = NA_real_,
@@ -78,23 +78,23 @@ estimateK0 <- function(
     ocrLimit = NA_real_
   )
 
-  if (modelId == "adopted-constant") {
+  if (modelID == "adopted-constant") {
     .assertFiniteScalar(k0, "k0", minimum = 0)
     OUT$k0Input <- k0
     OUT$k0Applied <- k0
-  } else if (modelId == "elastic-confined") {
+  } else if (modelID == "elastic-confined") {
     OUT$poissonRatio <- poissonRatio
     OUT$k0Derived <- k0ElasticConfined(
       poissonRatio = poissonRatio
     )
     OUT$k0Applied <- OUT$k0Derived
-  } else if (modelId == "jaky-nc") {
+  } else if (modelID == "jaky-nc") {
     OUT$frictionAngleDeg <- frictionAngleDeg
     OUT$k0Derived <- k0NormallyConsolidated(
       frictionAngleDeg = frictionAngleDeg
     )
     OUT$k0Applied <- OUT$k0Derived
-  } else if (modelId == "mayne-kulhawy-unloading") {
+  } else if (modelID == "mayne-kulhawy-unloading") {
     Domain <- checkK0PassiveDomain(
       frictionAngleDeg = frictionAngleDeg,
       ocrMaximum = ocr
@@ -112,7 +112,7 @@ estimateK0 <- function(
     OUT$domainStatus <- "within-domain"
     OUT$passiveCoefficient <- Domain$passiveCoefficient
     OUT$ocrLimit <- Domain$ocrLimit
-  } else if (modelId == "mayne-kulhawy-reload") {
+  } else if (modelID == "mayne-kulhawy-reload") {
     Domain <- checkK0PassiveDomain(
       frictionAngleDeg = frictionAngleDeg,
       ocrMaximum = ocrMaximum

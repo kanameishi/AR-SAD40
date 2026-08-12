@@ -115,7 +115,7 @@ runCalculationDataTests <- function() {
   )
   Manifest <- jsonlite::fromJSON(ManifestPath)
   Environment <- Manifest$serializationEnvironment
-  OpenSslAvailable <- requireNamespace("openssl", quietly = TRUE)
+  OpenSSLAvailable <- requireNamespace("openssl", quietly = TRUE)
   EnvironmentMatches <- all(
     identical(R.version.string, Environment$rVersion),
     identical(R.version$platform, Environment$platform),
@@ -127,8 +127,8 @@ runCalculationDataTests <- function() {
     identical(getOption("digits"), Environment$digits),
     identical(getOption("scipen"), Environment$scipen),
     identical(as.character(utils::packageVersion("jsonlite")), Environment$jsonliteVersion),
-    OpenSslAvailable,
-    OpenSslAvailable && identical(
+    OpenSSLAvailable,
+    OpenSSLAvailable && identical(
       as.character(utils::packageVersion("openssl")),
       Environment$opensslVersion
     ),
@@ -161,12 +161,12 @@ runCalculationDataTests <- function() {
   assertNear(Section$inertiaMm4PerMm, 287.902153723077, 1e-11, "section inertia")
   InterpolatedSection <- interpolateCorrugatedSection(
     reference = SectionReference,
-    profileId = BaselineJson$section$referenceProfileId,
+    profileID = BaselineJson$section$referenceProfileId,
     baseThicknessMm = BaselineJson$section$analysisBaseThicknessMm
   )
   stopifnot(
-    InterpolatedSection$lowerReferenceRowId == Section$lowerReferenceRowId,
-    InterpolatedSection$upperReferenceRowId == Section$upperReferenceRowId,
+    InterpolatedSection$lowerReferenceRowID == Section$lowerReferenceRowId,
+    InterpolatedSection$upperReferenceRowID == Section$upperReferenceRowId,
     InterpolatedSection$sourceKey == Section$sourceKey,
     InterpolatedSection$sourceLocator == Section$sourceLocator,
     InterpolatedSection$domainStatus == Section$domainStatus
@@ -191,21 +191,21 @@ runCalculationDataTests <- function() {
   )
   LowerBoundary <- interpolateCorrugatedSection(
     reference = SectionReference,
-    profileId = BaselineJson$section$referenceProfileId,
+    profileID = BaselineJson$section$referenceProfileId,
     baseThicknessMm = min(SectionReference$baseThicknessMm)
   )
   UpperBoundary <- interpolateCorrugatedSection(
     reference = SectionReference,
-    profileId = BaselineJson$section$referenceProfileId,
+    profileID = BaselineJson$section$referenceProfileId,
     baseThicknessMm = max(SectionReference$baseThicknessMm)
   )
   stopifnot(
     LowerBoundary$interpolationFraction == 0,
     UpperBoundary$interpolationFraction == 1,
-    LowerBoundary$lowerReferenceRowId == SectionReference$referenceRowId[1L],
-    LowerBoundary$upperReferenceRowId == SectionReference$referenceRowId[2L],
-    UpperBoundary$lowerReferenceRowId == SectionReference$referenceRowId[1L],
-    UpperBoundary$upperReferenceRowId == SectionReference$referenceRowId[2L],
+    LowerBoundary$lowerReferenceRowID == SectionReference$referenceRowId[1L],
+    LowerBoundary$upperReferenceRowID == SectionReference$referenceRowId[2L],
+    UpperBoundary$lowerReferenceRowID == SectionReference$referenceRowId[1L],
+    UpperBoundary$upperReferenceRowID == SectionReference$referenceRowId[2L],
     LowerBoundary$sourceKey == UpperBoundary$sourceKey,
     LowerBoundary$sourceLocator == UpperBoundary$sourceLocator
   )
@@ -333,7 +333,7 @@ runCalculationDataTests <- function() {
   ThicknessSection <- readProduct(Thickness, "section.properties.csv")
   InterpolatedThickness <- interpolateCorrugatedSection(
     reference = SectionReference,
-    profileId = BaselineJson$section$referenceProfileId,
+    profileID = BaselineJson$section$referenceProfileId,
     baseThicknessMm = 3.1
   )
   assertNear(
@@ -373,9 +373,9 @@ runCalculationDataTests <- function() {
     "pure 3.1 mm section inertia"
   )
   stopifnot(
-    InterpolatedThickness$lowerReferenceRowId ==
+    InterpolatedThickness$lowerReferenceRowID ==
       ThicknessSection$lowerReferenceRowId,
-    InterpolatedThickness$upperReferenceRowId ==
+    InterpolatedThickness$upperReferenceRowID ==
       ThicknessSection$upperReferenceRowId,
     InterpolatedThickness$sourceKey == ThicknessSection$sourceKey,
     InterpolatedThickness$sourceLocator == ThicknessSection$sourceLocator,
@@ -498,7 +498,7 @@ runCalculationDataTests <- function() {
   )
 
   expectedK0 <- function(
-    modelId,
+    modelID,
     frictionAngleDeg = NA_real_,
     poissonRatio = NA_real_,
     ocr = NA_real_,
@@ -512,7 +512,7 @@ runCalculationDataTests <- function() {
     domainStatus = "not-applicable"
   ) {
     OUT <- list(
-      modelId = modelId,
+      modelId = modelID,
       frictionAngleDeg = frictionAngleDeg,
       poissonRatio = poissonRatio,
       ocr = ocr,
@@ -531,7 +531,7 @@ runCalculationDataTests <- function() {
     list(
       model = list(modelId = "adopted-constant", k0 = 0.5),
       expected = expectedK0(
-        modelId = "adopted-constant",
+        modelID = "adopted-constant",
         k0Input = 0.5,
         k0EvidenceLevel = "HA",
         k0Applied = 0.5
@@ -540,7 +540,7 @@ runCalculationDataTests <- function() {
     list(
       model = list(modelId = "elastic-confined", poissonRatio = 0.25),
       expected = expectedK0(
-        modelId = "elastic-confined",
+        modelID = "elastic-confined",
         poissonRatio = 0.25,
         k0Derived = 1 / 3,
         sourceKey = "ChristopherEtAl2006",
@@ -551,7 +551,7 @@ runCalculationDataTests <- function() {
     list(
       model = list(modelId = "jaky-nc", frictionAngleDeg = 30),
       expected = expectedK0(
-        modelId = "jaky-nc",
+        modelID = "jaky-nc",
         frictionAngleDeg = 30,
         k0Derived = 0.5,
         sourceKey = "ChristopherEtAl2006",
@@ -566,7 +566,7 @@ runCalculationDataTests <- function() {
         ocr = 4
       ),
       expected = expectedK0(
-        modelId = "mayne-kulhawy-unloading",
+        modelID = "mayne-kulhawy-unloading",
         frictionAngleDeg = 30,
         ocr = 4,
         k0Derived = 1,
@@ -584,7 +584,7 @@ runCalculationDataTests <- function() {
         ocrMaximum = 4
       ),
       expected = expectedK0(
-        modelId = "mayne-kulhawy-reload",
+        modelID = "mayne-kulhawy-reload",
         frictionAngleDeg = 30,
         ocr = 2,
         ocrMaximum = 4,
@@ -603,12 +603,13 @@ runCalculationDataTests <- function() {
     LIST$modelId <- NULL
     Estimated <- do.call(
       estimateK0,
-      c(list(modelId = Case$model$modelId), LIST)
+      c(list(modelID = Case$model$modelId), LIST)
     )
     CoreFields <- c(
-      "modelId", "frictionAngleDeg", "poissonRatio", "ocr", "ocrMaximum",
+      "frictionAngleDeg", "poissonRatio", "ocr", "ocrMaximum",
       "k0Input", "k0Derived", "k0Applied", "domainStatus"
     )
+    stopifnot(identical(Estimated$modelID, Case$expected$modelId))
     stopifnot(identical(
       unname(Estimated[CoreFields]),
       unname(Case$expected[CoreFields])
@@ -622,7 +623,7 @@ runCalculationDataTests <- function() {
   Unloading <- do.call(
     estimateK0,
     c(
-      list(modelId = K0Cases[[4L]]$model$modelId),
+      list(modelID = K0Cases[[4L]]$model$modelId),
       K0Cases[[4L]]$model[setdiff(names(K0Cases[[4L]]$model), "modelId")]
     )
   )
@@ -777,11 +778,11 @@ runCalculationDataTests <- function() {
 
   Config.scenario <- validateCalculationConfig(copyObject(BaselineJson))
   Context.scenario <- list(
-    k0ModelId = "adopted-constant",
+    k0ModelID = "adopted-constant",
     horizontalIncrementKPa = NA_real_,
     horizontalIncrementStatus = "unknown-not-modeled",
     sectionReference = SectionReference,
-    profileId = Config.scenario$section$referenceProfileId,
+    profileID = Config.scenario$section$referenceProfileId,
     youngModulusKPa =
       Config.scenario$material$circumferentialYoungModulusGPa * 1e6,
     radiusM = Config.scenario$geometry$insideDiameterM / 2,
@@ -807,7 +808,7 @@ runCalculationDataTests <- function() {
     context = Context.scenario
   )
   K0State.expected <- estimateK0(
-    modelId = Context.scenario$k0ModelId,
+    modelID = Context.scenario$k0ModelID,
     k0 = Realization.scenario$k0
   )
   StressState.expected <- calculateEffectiveStressState(
@@ -820,7 +821,7 @@ runCalculationDataTests <- function() {
   )
   CorrugatedSection.expected <- interpolateCorrugatedSection(
     reference = Context.scenario$sectionReference,
-    profileId = Context.scenario$profileId,
+    profileID = Context.scenario$profileID,
     baseThicknessMm = Realization.scenario$baseThicknessMm
   )
   SectionRigidity.expected <- calculateRingSection(
@@ -920,17 +921,17 @@ runCalculationDataTests <- function() {
     )
   }, "context is missing: theta", "scenario context fields")
   assertError(function() {
-    estimateK0(modelId = "adopted-constant")
+    estimateK0(modelID = "adopted-constant")
   }, "missing: k0", "missing K0 branch primitive")
   assertError(function() {
     estimateK0(
-      modelId = "adopted-constant",
+      modelID = "adopted-constant",
       k0 = 0.5,
       frictionAngleDeg = 30
     )
   }, "unsupported parameters", "exclusive direct K0 branch")
   assertError(function() {
-    estimateK0(modelId = "adopted-constant", k0 = -0.1)
+    estimateK0(modelID = "adopted-constant", k0 = -0.1)
   }, "must be at least 0", "negative adopted K0")
 
   assertError(function() {
@@ -955,14 +956,14 @@ runCalculationDataTests <- function() {
     InvalidReference$inertiaMm4PerMm <- NULL
     interpolateCorrugatedSection(
       reference = InvalidReference,
-      profileId = BaselineJson$section$referenceProfileId,
+      profileID = BaselineJson$section$referenceProfileId,
       baseThicknessMm = 3
     )
   }, "property table is missing", "section reference schema")
   assertError(function() {
     interpolateCorrugatedSection(
       reference = SectionReference,
-      profileId = "unknown-profile",
+      profileID = "unknown-profile",
       baseThicknessMm = 3
     )
   }, "At least two rows", "section reference profile")
@@ -971,7 +972,7 @@ runCalculationDataTests <- function() {
     InvalidReference$areaMm2PerMm[1L] <- 0
     interpolateCorrugatedSection(
       reference = InvalidReference,
-      profileId = BaselineJson$section$referenceProfileId,
+      profileID = BaselineJson$section$referenceProfileId,
       baseThicknessMm = 3
     )
   }, "must be finite and positive", "section reference values")
@@ -981,7 +982,7 @@ runCalculationDataTests <- function() {
       InvalidReference$baseThicknessMm[1L]
     interpolateCorrugatedSection(
       reference = InvalidReference,
-      profileId = BaselineJson$section$referenceProfileId,
+      profileID = BaselineJson$section$referenceProfileId,
       baseThicknessMm = InvalidReference$baseThicknessMm[1L]
     )
   }, "must be unique", "section reference uniqueness")
@@ -990,7 +991,7 @@ runCalculationDataTests <- function() {
     InvalidReference$sourceLocator[2L] <- "different locator"
     interpolateCorrugatedSection(
       reference = InvalidReference,
-      profileId = BaselineJson$section$referenceProfileId,
+      profileID = BaselineJson$section$referenceProfileId,
       baseThicknessMm = 3
     )
   }, "share one source and locator", "section reference provenance")

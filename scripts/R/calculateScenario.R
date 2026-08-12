@@ -13,8 +13,8 @@ calculateScenario <- function(realization, context) {
     "baseThicknessMm", "alpha"
   )
   Fields.context <- c(
-    "k0ModelId", "horizontalIncrementKPa", "horizontalIncrementStatus",
-    "sectionReference", "profileId", "youngModulusKPa", "radiusM",
+    "k0ModelID", "horizontalIncrementKPa", "horizontalIncrementStatus",
+    "sectionReference", "profileID", "youngModulusKPa", "radiusM",
     "theta", "integrationSteps", "balanceTolerance"
   )
   Fields.missing <- setdiff(Fields.realization, names(realization))
@@ -43,7 +43,7 @@ calculateScenario <- function(realization, context) {
   K0State <- do.call(
     estimateK0,
     c(
-      list(modelId = context[["k0ModelId", exact = TRUE]]),
+      list(modelID = context[["k0ModelID", exact = TRUE]]),
       LIST
     )
   )
@@ -60,7 +60,7 @@ calculateScenario <- function(realization, context) {
   )
   CorrugatedSection <- interpolateCorrugatedSection(
     reference = context[["sectionReference", exact = TRUE]],
-    profileId = context[["profileId", exact = TRUE]],
+    profileID = context[["profileID", exact = TRUE]],
     baseThicknessMm = realization[["baseThicknessMm", exact = TRUE]]
   )
   SectionRigidity <- calculateRingSection(

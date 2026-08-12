@@ -91,7 +91,7 @@ Reference <- read.csv(
 )
 CorrugatedSection <- interpolateCorrugatedSection(
   reference = Reference,
-  profileId = "ncspa-3x1",
+  profileID = "ncspa-3x1",
   baseThicknessMm = 3
 )
 
@@ -187,7 +187,7 @@ independiente y conserva como desconocido el incremento horizontal residual:
 
 ```r
 K0 <- estimateK0(
-  modelId = "jaky-nc",
+  modelID = "jaky-nc",
   frictionAngleDeg = 30
 )
 
@@ -229,11 +229,11 @@ SectionReference <- utils::read.csv(
   stringsAsFactors = FALSE
 )
 Context <- list(
-  k0ModelId = "jaky-nc",
+  k0ModelID = "jaky-nc",
   horizontalIncrementKPa = NA_real_,
   horizontalIncrementStatus = "unknown-not-modeled",
   sectionReference = SectionReference,
-  profileId = "ncspa-3x1",
+  profileID = "ncspa-3x1",
   youngModulusKPa = 200e6,
   radiusM = 1.315,
   theta = Theta,

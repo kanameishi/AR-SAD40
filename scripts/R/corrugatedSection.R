@@ -6,14 +6,14 @@ if (!exists(".assertFiniteScalar", mode = "function")) {
 
 interpolateCorrugatedSection <- function(
   reference,
-  profileId,
+  profileID,
   baseThicknessMm
 ) {
   if (!is.data.frame(reference)) {
     stop("reference must be one data frame.", call. = FALSE)
   }
-  if (!is.character(profileId) || length(profileId) != 1L || !nzchar(profileId)) {
-    stop("profileId must be one non-empty string.", call. = FALSE)
+  if (!is.character(profileID) || length(profileID) != 1L || !nzchar(profileID)) {
+    stop("profileID must be one non-empty string.", call. = FALSE)
   }
   .assertFiniteScalar(
     baseThicknessMm,
@@ -38,7 +38,7 @@ interpolateCorrugatedSection <- function(
   }
 
   ProfileRows <- reference[
-    reference$profileId == profileId,
+    reference$profileId == profileID,
     ,
     drop = FALSE
   ]
@@ -89,10 +89,10 @@ interpolateCorrugatedSection <- function(
   }
 
   list(
-    profileId = profileId,
+    profileID = profileID,
     analysisBaseThicknessMm = baseThicknessMm,
-    lowerReferenceRowId = LowerRow$referenceRowId,
-    upperReferenceRowId = UpperRow$referenceRowId,
+    lowerReferenceRowID = LowerRow$referenceRowId,
+    upperReferenceRowID = UpperRow$referenceRowId,
     interpolationFraction = Fraction,
     areaMm2PerMm =
       (1 - Fraction) * LowerRow$areaMm2PerMm +

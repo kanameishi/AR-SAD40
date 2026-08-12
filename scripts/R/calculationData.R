@@ -5,27 +5,29 @@ if (!exists("calculateRingSection", mode = "function") ||
     !exists("buildThetaMesh", mode = "function") ||
     !exists("calculatePerimeterActions", mode = "function") ||
     !exists("calculateSectionResultants", mode = "function") ||
+    !exists("calculateScenario", mode = "function") ||
     !exists("readCalculationJson", mode = "function")) {
   stop(
     paste(
       "Source scripts/setup/utils.R, scripts/R/ringDirect.R and",
       "scripts/R/ringLoads.R, scripts/R/k0Models.R and",
       "scripts/R/stressState.R, scripts/R/corrugatedSection.R and",
-      "scripts/R/perimeterActions.R and scripts/R/sectionResultants.R before",
+      "scripts/R/perimeterActions.R, scripts/R/sectionResultants.R and",
+      "scripts/R/calculateScenario.R before",
       "scripts/R/calculationData.R."
     ),
     call. = FALSE
   )
 }
 
-.buildPerimeterLoadTable <- function(actions, cases, scenarioId, stressStateId) {
+.buildPerimeterLoadTable <- function(actions, cases, scenarioID, stressStateID) {
   LIST <- lapply(seq_len(nrow(cases)), function(i) {
     Values <- actions[[i]]$values
     rbind(
       data.frame(
-        scenarioId = scenarioId,
+        scenarioId = scenarioID,
         caseId = cases$caseId[i],
-        stressStateId = stressStateId,
+        stressStateId = stressStateID,
         alpha = cases$alpha[i],
         componentId = "radial",
         thetaIndex = seq_len(nrow(Values)) - 1L,
@@ -36,9 +38,9 @@ if (!exists("calculateRingSection", mode = "function") ||
         stringsAsFactors = FALSE
       ),
       data.frame(
-        scenarioId = scenarioId,
+        scenarioId = scenarioID,
         caseId = cases$caseId[i],
-        stressStateId = stressStateId,
+        stressStateId = stressStateID,
         alpha = cases$alpha[i],
         componentId = "tangential",
         thetaIndex = seq_len(nrow(Values)) - 1L,
@@ -146,18 +148,18 @@ if (!exists("calculateRingSection", mode = "function") ||
     optional = c("k0", "frictionAngleDeg", "poissonRatio", "ocr", "ocrMaximum"),
     path = Path
   )
-  ModelId <- .readText(model, "modelId", Path)
+  ModelID <- .readText(model, "modelId", Path)
   BranchFields <- switch(
-    ModelId,
+    ModelID,
     "adopted-constant" = "k0",
     "elastic-confined" = "poissonRatio",
     "jaky-nc" = "frictionAngleDeg",
     "mayne-kulhawy-unloading" = c("frictionAngleDeg", "ocr"),
     "mayne-kulhawy-reload" = c("frictionAngleDeg", "ocr", "ocrMaximum"),
-    stop("Unsupported K0 modelId: ", ModelId, ".", call. = FALSE)
+    stop("Unsupported K0 modelId: ", ModelID, ".", call. = FALSE)
   )
   .requireFields(model, c("modelId", BranchFields), path = Path)
-  Result <- list(modelId = ModelId)
+  Result <- list(modelId = ModelID)
   if ("k0" %in% BranchFields) {
     Result$k0 <- .readNumber(model, "k0", Path, minimum = 0)
   }
@@ -431,61 +433,116 @@ validateCalculationConfig <- function(config) {
   )
 }
 
+.adaptCalculationK0State <- function(k0State) {
+  ModelID <- k0State[["modelID", exact = TRUE]]
+  OUT <- list(
+    modelId = ModelID,
+    frictionAngleDeg = k0State[["frictionAngleDeg", exact = TRUE]],
+    poissonRatio = k0State[["poissonRatio", exact = TRUE]],
+    ocr = k0State[["ocr", exact = TRUE]],
+    ocrMaximum = k0State[["ocrMaximum", exact = TRUE]],
+    k0Input = k0State[["k0Input", exact = TRUE]],
+    k0Derived = k0State[["k0Derived", exact = TRUE]],
+    domainStatus = k0State[["domainStatus", exact = TRUE]],
+    k0EvidenceLevel = "DE",
+    sourceKey = NA_character_,
+    sourceLocator = NA_character_
+  )
+  if (ModelID == "adopted-constant") {
+    OUT$k0EvidenceLevel <- "HA"
+  } else if (ModelID == "elastic-confined") {
+    OUT$sourceKey <- "ChristopherEtAl2006"
+    OUT$sourceLocator <- "Section 5.4.9, Eq. 5.37"
+  } else if (ModelID == "jaky-nc") {
+    OUT$sourceKey <- "ChristopherEtAl2006"
+    OUT$sourceLocator <- "Section 5.4.9, Eq. 5.38"
+  } else if (ModelID == "mayne-kulhawy-unloading") {
+    OUT$sourceKey <- "MayneKulhawy1982"
+    OUT$sourceLocator <- "Eq. 10; domain control Eqs. 11-12"
+  } else if (ModelID == "mayne-kulhawy-reload") {
+    OUT$sourceKey <- "MayneKulhawy1982"
+    OUT$sourceLocator <- "Eq. 18; domain control Eqs. 11-12"
+  }
+  OUT$k0Applied <- k0State[["k0Applied", exact = TRUE]]
+  OUT
+}
+
+.readCalculationSectionReference <- function(config, projectRoot) {
+  Path <- file.path(
+    projectRoot,
+    config[["section", exact = TRUE]][["propertyTable", exact = TRUE]]
+  )
+  if (!file.exists(Path)) {
+    stop("The corrugation property table is not available: ", Path, call. = FALSE)
+  }
+  utils::read.csv(
+    Path,
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+}
+
+.buildCalculationSectionTable <- function(
+  config,
+  corrugatedSection,
+  sectionRigidity
+) {
+  Radius <-
+    config[["geometry", exact = TRUE]][["insideDiameterM", exact = TRUE]] /
+      2
+  data.frame(
+    scenarioId = config[["scenarioId", exact = TRUE]],
+    sectionId = "circumferential-section",
+    profileId = corrugatedSection[["profileID", exact = TRUE]],
+    propertyModelId =
+      config[["section", exact = TRUE]][["propertyModelId", exact = TRUE]],
+    analysisBaseThicknessMm =
+      corrugatedSection[["analysisBaseThicknessMm", exact = TRUE]],
+    lowerReferenceRowId =
+      corrugatedSection[["lowerReferenceRowID", exact = TRUE]],
+    upperReferenceRowId =
+      corrugatedSection[["upperReferenceRowID", exact = TRUE]],
+    interpolationFraction =
+      corrugatedSection[["interpolationFraction", exact = TRUE]],
+    areaMm2PerMm = corrugatedSection[["areaMm2PerMm", exact = TRUE]],
+    inertiaMm4PerMm = corrugatedSection[["inertiaMm4PerMm", exact = TRUE]],
+    circumferentialYoungModulusGPa =
+      config[["material", exact = TRUE]][[
+        "circumferentialYoungModulusGPa",
+        exact = TRUE
+      ]],
+    analysisRadiusM = Radius,
+    extensionalRigidityKnPerM =
+      sectionRigidity[["extensionalRigidity", exact = TRUE]],
+    flexuralRigidityKnM2PerM =
+      sectionRigidity[["flexuralRigidity", exact = TRUE]],
+    sectionRatio = sectionRigidity[["sectionRatio", exact = TRUE]],
+    evidenceLevel = "DE",
+    sourceKey = corrugatedSection[["sourceKey", exact = TRUE]],
+    sourceLocator = corrugatedSection[["sourceLocator", exact = TRUE]],
+    domainStatus = corrugatedSection[["domainStatus", exact = TRUE]],
+    stringsAsFactors = FALSE
+  )
+}
+
 resolveCalculationK0 <- function(model) {
-  ModelId <- model[["modelId", exact = TRUE]]
-  ModelFields <- intersect(
+  ModelID <- model[["modelId", exact = TRUE]]
+  Fields.model <- intersect(
     names(model),
     c("k0", "frictionAngleDeg", "poissonRatio", "ocr", "ocrMaximum")
   )
   K0State <- do.call(
     estimateK0,
-    c(list(modelId = ModelId), model[ModelFields])
+    c(list(modelID = ModelID), model[Fields.model])
   )
-  OUT <- list(
-    modelId = K0State$modelId,
-    frictionAngleDeg = K0State$frictionAngleDeg,
-    poissonRatio = K0State$poissonRatio,
-    ocr = K0State$ocr,
-    ocrMaximum = K0State$ocrMaximum,
-    k0Input = K0State$k0Input,
-    k0Derived = K0State$k0Derived,
-    domainStatus = K0State$domainStatus,
-    k0EvidenceLevel = "DE",
-    sourceKey = NA_character_,
-    sourceLocator = NA_character_
-  )
-  if (K0State$modelId == "adopted-constant") {
-    OUT$k0EvidenceLevel <- "HA"
-  } else if (K0State$modelId == "elastic-confined") {
-    OUT$sourceKey <- "ChristopherEtAl2006"
-    OUT$sourceLocator <- "Section 5.4.9, Eq. 5.37"
-  } else if (K0State$modelId == "jaky-nc") {
-    OUT$sourceKey <- "ChristopherEtAl2006"
-    OUT$sourceLocator <- "Section 5.4.9, Eq. 5.38"
-  } else if (K0State$modelId == "mayne-kulhawy-unloading") {
-    OUT$sourceKey <- "MayneKulhawy1982"
-    OUT$sourceLocator <- "Eq. 10; domain control Eqs. 11-12"
-  } else if (K0State$modelId == "mayne-kulhawy-reload") {
-    OUT$sourceKey <- "MayneKulhawy1982"
-    OUT$sourceLocator <- "Eq. 18; domain control Eqs. 11-12"
-  }
-  OUT$k0Applied <- K0State$k0Applied
-  OUT
+  .adaptCalculationK0State(K0State)
 }
 
 readCalculationSection <- function(config, projectRoot) {
-  Path <- file.path(projectRoot, config$section$propertyTable)
-  if (!file.exists(Path)) {
-    stop("The corrugation property table is not available: ", Path, call. = FALSE)
-  }
-  Reference <- utils::read.csv(
-    Path,
-    check.names = FALSE,
-    stringsAsFactors = FALSE
-  )
+  Reference <- .readCalculationSectionReference(config, projectRoot)
   CorrugatedSection <- interpolateCorrugatedSection(
     reference = Reference,
-    profileId = config$section$referenceProfileId,
+    profileID = config$section$referenceProfileId,
     baseThicknessMm = config$section$analysisBaseThicknessMm
   )
   Radius <- config$geometry$insideDiameterM / 2
@@ -496,36 +553,60 @@ readCalculationSection <- function(config, projectRoot) {
     inertia = CorrugatedSection$inertiaMm4PerMm * 1e-9,
     radius = Radius
   )
+  .buildCalculationSectionTable(
+    config = config,
+    corrugatedSection = CorrugatedSection,
+    sectionRigidity = RingSection
+  )
+}
+
+.buildCalculationStressTable <- function(
+  config,
+  k0State,
+  stressState,
+  stressStateID
+) {
   data.frame(
-    scenarioId = config$scenarioId,
-    sectionId = "circumferential-section",
-    profileId = CorrugatedSection$profileId,
-    propertyModelId = config$section$propertyModelId,
-    analysisBaseThicknessMm = CorrugatedSection$analysisBaseThicknessMm,
-    lowerReferenceRowId = CorrugatedSection$lowerReferenceRowId,
-    upperReferenceRowId = CorrugatedSection$upperReferenceRowId,
-    interpolationFraction = CorrugatedSection$interpolationFraction,
-    areaMm2PerMm = CorrugatedSection$areaMm2PerMm,
-    inertiaMm4PerMm = CorrugatedSection$inertiaMm4PerMm,
-    circumferentialYoungModulusGPa =
-      config$material$circumferentialYoungModulusGPa,
-    analysisRadiusM = Radius,
-    extensionalRigidityKnPerM = RingSection$extensionalRigidity,
-    flexuralRigidityKnM2PerM = RingSection$flexuralRigidity,
-    sectionRatio = RingSection$sectionRatio,
+    scenarioId = config[["scenarioId", exact = TRUE]],
+    stressStateId = stressStateID,
+    modelId = k0State[["modelId", exact = TRUE]],
+    statePointId =
+      config[["stressState", exact = TRUE]][["statePointId", exact = TRUE]],
+    layerId = NA_character_,
+    thetaIndex = NA_integer_,
+    thetaRad = NA_real_,
+    depthM = NA_real_,
+    effectiveVerticalKPa =
+      stressState[["effectiveVerticalKPa", exact = TRUE]],
+    frictionAngleDeg = k0State[["frictionAngleDeg", exact = TRUE]],
+    poissonRatio = k0State[["poissonRatio", exact = TRUE]],
+    ocr = k0State[["ocr", exact = TRUE]],
+    ocrMaximum = k0State[["ocrMaximum", exact = TRUE]],
+    k0Input = k0State[["k0Input", exact = TRUE]],
+    k0Derived = k0State[["k0Derived", exact = TRUE]],
+    k0Applied = k0State[["k0Applied", exact = TRUE]],
+    horizontalIncrementKPa =
+      stressState[["horizontalIncrementKPa", exact = TRUE]],
+    horizontalIncrementStatus =
+      stressState[["horizontalIncrementStatus", exact = TRUE]],
+    effectiveHorizontalKPa =
+      stressState[["effectiveHorizontalKPa", exact = TRUE]],
+    waterPressureDifferenceKPa =
+      stressState[["waterPressureDifferenceKPa", exact = TRUE]],
+    domainStatus = k0State[["domainStatus", exact = TRUE]],
+    k0EvidenceLevel = k0State[["k0EvidenceLevel", exact = TRUE]],
     evidenceLevel = "DE",
-    sourceKey = CorrugatedSection$sourceKey,
-    sourceLocator = CorrugatedSection$sourceLocator,
-    domainStatus = CorrugatedSection$domainStatus,
+    sourceKey = k0State[["sourceKey", exact = TRUE]],
+    sourceLocator = k0State[["sourceLocator", exact = TRUE]],
     stringsAsFactors = FALSE
   )
 }
 
 .inputRow <- function(
-  scenarioId,
-  caseId,
-  groupId,
-  parameterId,
+  scenarioID,
+  caseID,
+  groupID,
+  parameterID,
   symbol,
   numericValue = NA_real_,
   textValue = NA_character_,
@@ -534,10 +615,10 @@ readCalculationSection <- function(config, projectRoot) {
   conditionCode
 ) {
   data.frame(
-    scenarioId = scenarioId,
-    caseId = caseId,
-    groupId = groupId,
-    parameterId = parameterId,
+    scenarioId = scenarioID,
+    caseId = caseID,
+    groupId = groupID,
+    parameterId = parameterID,
     symbol = symbol,
     numericValue = numericValue,
     textValue = textValue,
@@ -549,22 +630,22 @@ readCalculationSection <- function(config, projectRoot) {
 }
 
 .buildCalculationInputs <- function(config) {
-  Id <- config$scenarioId
+  ScenarioID <- config$scenarioId
   Rows <- list(
-    .inputRow(Id, NA, "geometry", "inside-diameter", "D_i", config$geometry$insideDiameterM, unit = "m", evidenceLevel = "PN", conditionCode = "provided-nominal"),
-    .inputRow(Id, NA, "geometry", "analysis-radius-rule", "radiusRule", textValue = config$geometry$analysisRadiusRule, evidenceLevel = "HA", conditionCode = "adopted-rule"),
-    .inputRow(Id, NA, "section", "nominal-corrugation-pitch", "pitch", config$section$nominalCorrugationPitchMm, unit = "mm", evidenceLevel = "PN", conditionCode = "provided-nominal"),
-    .inputRow(Id, NA, "section", "nominal-corrugation-depth", "depth", config$section$nominalCorrugationDepthMm, unit = "mm", evidenceLevel = "PN", conditionCode = "provided-nominal"),
-    .inputRow(Id, NA, "section", "reported-thickness", "t_0", config$section$reportedThicknessMm, unit = "mm", evidenceLevel = "PN", conditionCode = "provided-nominal"),
-    .inputRow(Id, NA, "section", "analysis-base-thickness", "t_b", config$section$analysisBaseThicknessMm, unit = "mm", evidenceLevel = "HA", conditionCode = "adopted-base-thickness"),
-    .inputRow(Id, NA, "section", "reference-profile", "profileId", textValue = config$section$referenceProfileId, evidenceLevel = "HA", conditionCode = "selected-reference"),
-    .inputRow(Id, NA, "section", "property-model", "propertyModelId", textValue = config$section$propertyModelId, evidenceLevel = "HA", conditionCode = "adopted-model"),
-    .inputRow(Id, NA, "material", "circumferential-young-modulus", "E_theta", config$material$circumferentialYoungModulusGPa, unit = "GPa", evidenceLevel = "HA", conditionCode = "adopted-value"),
-    .inputRow(Id, NA, "stress-state", "state-point", "statePointId", textValue = config$stressState$statePointId, evidenceLevel = "HA", conditionCode = "analytical-scenario"),
-    .inputRow(Id, NA, "stress-state", "effective-vertical", "sigma'_v,A", config$stressState$effectiveVerticalKPa, unit = "kPa", evidenceLevel = "HA", conditionCode = "analytical-scenario"),
-    .inputRow(Id, NA, "stress-state", "water-pressure-difference", "Delta u_A", config$stressState$waterPressureDifferenceKPa, unit = "kPa", evidenceLevel = "HA", conditionCode = "analytical-scenario"),
-    .inputRow(Id, NA, "stress-state", "horizontal-increment-mode", "horizontalIncrementMode", textValue = config$stressState$horizontalIncrementMode, evidenceLevel = "HA", conditionCode = "unknown-not-modeled"),
-    .inputRow(Id, NA, "stress-state", "k0-model", "modelId", textValue = config$stressState$k0Model$modelId, evidenceLevel = "HA", conditionCode = "selected-branch")
+    .inputRow(ScenarioID, NA, "geometry", "inside-diameter", "D_i", config$geometry$insideDiameterM, unit = "m", evidenceLevel = "PN", conditionCode = "provided-nominal"),
+    .inputRow(ScenarioID, NA, "geometry", "analysis-radius-rule", "radiusRule", textValue = config$geometry$analysisRadiusRule, evidenceLevel = "HA", conditionCode = "adopted-rule"),
+    .inputRow(ScenarioID, NA, "section", "nominal-corrugation-pitch", "pitch", config$section$nominalCorrugationPitchMm, unit = "mm", evidenceLevel = "PN", conditionCode = "provided-nominal"),
+    .inputRow(ScenarioID, NA, "section", "nominal-corrugation-depth", "depth", config$section$nominalCorrugationDepthMm, unit = "mm", evidenceLevel = "PN", conditionCode = "provided-nominal"),
+    .inputRow(ScenarioID, NA, "section", "reported-thickness", "t_0", config$section$reportedThicknessMm, unit = "mm", evidenceLevel = "PN", conditionCode = "provided-nominal"),
+    .inputRow(ScenarioID, NA, "section", "analysis-base-thickness", "t_b", config$section$analysisBaseThicknessMm, unit = "mm", evidenceLevel = "HA", conditionCode = "adopted-base-thickness"),
+    .inputRow(ScenarioID, NA, "section", "reference-profile", "profileId", textValue = config$section$referenceProfileId, evidenceLevel = "HA", conditionCode = "selected-reference"),
+    .inputRow(ScenarioID, NA, "section", "property-model", "propertyModelId", textValue = config$section$propertyModelId, evidenceLevel = "HA", conditionCode = "adopted-model"),
+    .inputRow(ScenarioID, NA, "material", "circumferential-young-modulus", "E_theta", config$material$circumferentialYoungModulusGPa, unit = "GPa", evidenceLevel = "HA", conditionCode = "adopted-value"),
+    .inputRow(ScenarioID, NA, "stress-state", "state-point", "statePointId", textValue = config$stressState$statePointId, evidenceLevel = "HA", conditionCode = "analytical-scenario"),
+    .inputRow(ScenarioID, NA, "stress-state", "effective-vertical", "sigma'_v,A", config$stressState$effectiveVerticalKPa, unit = "kPa", evidenceLevel = "HA", conditionCode = "analytical-scenario"),
+    .inputRow(ScenarioID, NA, "stress-state", "water-pressure-difference", "Delta u_A", config$stressState$waterPressureDifferenceKPa, unit = "kPa", evidenceLevel = "HA", conditionCode = "analytical-scenario"),
+    .inputRow(ScenarioID, NA, "stress-state", "horizontal-increment-mode", "horizontalIncrementMode", textValue = config$stressState$horizontalIncrementMode, evidenceLevel = "HA", conditionCode = "unknown-not-modeled"),
+    .inputRow(ScenarioID, NA, "stress-state", "k0-model", "modelId", textValue = config$stressState$k0Model$modelId, evidenceLevel = "HA", conditionCode = "selected-branch")
   )
   Model <- config$stressState$k0Model
   ModelValues <- c("k0", "frictionAngleDeg", "poissonRatio", "ocr", "ocrMaximum")
@@ -576,7 +657,7 @@ readCalculationSection <- function(config, projectRoot) {
     ocrMaximum = "OCR_max"
   )
   Units <- c(k0 = "-", frictionAngleDeg = "deg", poissonRatio = "-", ocr = "-", ocrMaximum = "-")
-  ParameterIds <- c(
+  ParameterIDs <- c(
     k0 = "k0-value",
     frictionAngleDeg = "friction-angle",
     poissonRatio = "poisson-ratio",
@@ -585,10 +666,10 @@ readCalculationSection <- function(config, projectRoot) {
   )
   for (Name in intersect(ModelValues, names(Model))) {
     Rows[[length(Rows) + 1L]] <- .inputRow(
-      Id,
+      ScenarioID,
       NA,
       "stress-state",
-      ParameterIds[[Name]],
+      ParameterIDs[[Name]],
       Symbols[[Name]],
       Model[[Name]],
       unit = Units[[Name]],
@@ -598,7 +679,7 @@ readCalculationSection <- function(config, projectRoot) {
   }
   for (Index in seq_len(nrow(config$loadCases))) {
     Rows[[length(Rows) + 1L]] <- .inputRow(
-      Id,
+      ScenarioID,
       config$loadCases$caseId[Index],
       "load-case",
       "tangential-multiplier",
@@ -611,14 +692,14 @@ readCalculationSection <- function(config, projectRoot) {
   Rows <- c(
     Rows,
     list(
-      .inputRow(Id, NA, "numerics", "base-theta-point-count", "n_theta", config$numerics$baseThetaPointCount, evidenceLevel = "HA", conditionCode = "numerical-setting"),
-      .inputRow(Id, NA, "numerics", "critical-angles", "theta_c", textValue = paste(config$numerics$criticalAnglesDeg, collapse = "; "), unit = "deg", evidenceLevel = "HA", conditionCode = "numerical-setting"),
-      .inputRow(Id, NA, "numerics", "integration-steps", "n_int", config$numerics$integrationSteps, evidenceLevel = "HA", conditionCode = "numerical-setting"),
-      .inputRow(Id, NA, "numerics", "balance-tolerance", "epsilon_b", config$numerics$balanceTolerance, evidenceLevel = "HA", conditionCode = "numerical-setting"),
-      .inputRow(Id, NA, "numerics", "closed-form-tolerance", "epsilon_c", config$numerics$closedFormTolerance, evidenceLevel = "HA", conditionCode = "numerical-setting"),
-      .inputRow(Id, NA, "graphics", "graphic-amplification", "A_g", config$graphics$graphicAmplification, evidenceLevel = "HA", conditionCode = "display-setting"),
-      .inputRow(Id, NA, "graphics", "radial-fraction", "f_r", config$graphics$radialFraction, evidenceLevel = "HA", conditionCode = "display-setting"),
-      .inputRow(Id, NA, "graphics", "ordinate-count", "n_o", config$graphics$ordinateCount, evidenceLevel = "HA", conditionCode = "display-setting")
+      .inputRow(ScenarioID, NA, "numerics", "base-theta-point-count", "n_theta", config$numerics$baseThetaPointCount, evidenceLevel = "HA", conditionCode = "numerical-setting"),
+      .inputRow(ScenarioID, NA, "numerics", "critical-angles", "theta_c", textValue = paste(config$numerics$criticalAnglesDeg, collapse = "; "), unit = "deg", evidenceLevel = "HA", conditionCode = "numerical-setting"),
+      .inputRow(ScenarioID, NA, "numerics", "integration-steps", "n_int", config$numerics$integrationSteps, evidenceLevel = "HA", conditionCode = "numerical-setting"),
+      .inputRow(ScenarioID, NA, "numerics", "balance-tolerance", "epsilon_b", config$numerics$balanceTolerance, evidenceLevel = "HA", conditionCode = "numerical-setting"),
+      .inputRow(ScenarioID, NA, "numerics", "closed-form-tolerance", "epsilon_c", config$numerics$closedFormTolerance, evidenceLevel = "HA", conditionCode = "numerical-setting"),
+      .inputRow(ScenarioID, NA, "graphics", "graphic-amplification", "A_g", config$graphics$graphicAmplification, evidenceLevel = "HA", conditionCode = "display-setting"),
+      .inputRow(ScenarioID, NA, "graphics", "radial-fraction", "f_r", config$graphics$radialFraction, evidenceLevel = "HA", conditionCode = "display-setting"),
+      .inputRow(ScenarioID, NA, "graphics", "ordinate-count", "n_o", config$graphics$ordinateCount, evidenceLevel = "HA", conditionCode = "display-setting")
     )
   )
   do.call(rbind, Rows)
@@ -627,7 +708,7 @@ readCalculationSection <- function(config, projectRoot) {
 .buildSectionExtremaTable <- function(
   summaries,
   cases,
-  scenarioId,
+  scenarioID,
   units
 ) {
   Statistics <- c(
@@ -638,7 +719,7 @@ readCalculationSection <- function(config, projectRoot) {
   LIST <- lapply(seq_len(nrow(cases)), function(i) {
     Summary <- summaries[[i]]
     data.frame(
-      scenarioId = scenarioId,
+      scenarioId = scenarioID,
       caseId = cases$caseId[i],
       alpha = cases$alpha[i],
       resultantId = Summary$resultant,
@@ -657,6 +738,40 @@ readCalculationSection <- function(config, projectRoot) {
   OUT
 }
 
+.buildSectionResultantTable <- function(
+  responses,
+  cases,
+  scenarioID,
+  sectionID,
+  stressStateID,
+  columns,
+  units
+) {
+  LIST <- lapply(seq_len(nrow(cases)), function(i) {
+    Values <- responses[[i]]$values
+    do.call(rbind, lapply(names(columns), function(s) {
+      data.frame(
+        scenarioId = scenarioID,
+        caseId = cases$caseId[i],
+        sectionId = sectionID,
+        stressStateId = stressStateID,
+        alpha = cases$alpha[i],
+        resultantId = s,
+        thetaIndex = seq_len(nrow(Values)) - 1L,
+        thetaRad = Values$theta,
+        thetaDeg = Values$thetaDeg,
+        value = Values[[columns[[s]]]],
+        unit = units[[s]],
+        evidenceLevel = "DE",
+        stringsAsFactors = FALSE
+      )
+    }))
+  })
+  OUT <- do.call(rbind, LIST)
+  rownames(OUT) <- NULL
+  OUT
+}
+
 .buildResultantControlTable <- function(
   responses,
   cases,
@@ -664,7 +779,7 @@ readCalculationSection <- function(config, projectRoot) {
   section,
   theta,
   numerics,
-  scenarioId,
+  scenarioID,
   units
 ) {
   Columns <- c(N = "normalForce", M = "bendingMoment", Q = "shearForce")
@@ -685,7 +800,7 @@ readCalculationSection <- function(config, projectRoot) {
           Response.closed$values[[Columns[[s]]]]
       ))
       data.frame(
-        scenarioId = scenarioId,
+        scenarioId = scenarioID,
         caseId = cases$caseId[i],
         alpha = cases$alpha[i],
         controlId = "closed-form-resultants",
@@ -713,7 +828,7 @@ readCalculationSection <- function(config, projectRoot) {
 
 .buildDisplayScaleTable <- function(
   resultants,
-  scenarioId,
+  scenarioID,
   radius,
   graphics,
   units
@@ -722,7 +837,7 @@ readCalculationSection <- function(config, projectRoot) {
     AUX <- resultants[resultants$resultantId == s, , drop = FALSE]
     Maximum <- max(abs(AUX$value))
     data.frame(
-      scenarioId = scenarioId,
+      scenarioId = scenarioID,
       resultantId = s,
       referenceRadiusM = radius,
       displayScale = graphics$radialFraction * radius / Maximum,
@@ -790,109 +905,117 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
   ConfigPath <- normalizePath(configPath, mustWork = TRUE)
   ProjectRoot <- normalizePath(projectRoot, mustWork = TRUE)
   Config <- validateCalculationConfig(readCalculationJson(ConfigPath))
-  Section <- readCalculationSection(Config, ProjectRoot)
-  K0State <- resolveCalculationK0(Config$stressState$k0Model)
-  EffectiveState <- calculateEffectiveStressState(
-    effectiveVerticalKPa = Config$stressState$effectiveVerticalKPa,
-    k0State = K0State,
-    waterPressureDifferenceKPa =
-      Config$stressState$waterPressureDifferenceKPa,
+  Config.section <- Config[["section", exact = TRUE]]
+  Config.stress <- Config[["stressState", exact = TRUE]]
+  Config.numerics <- Config[["numerics", exact = TRUE]]
+  ScenarioID <- Config[["scenarioId", exact = TRUE]]
+  Cases <- Config[["loadCases", exact = TRUE]]
+  Model <- Config.stress[["k0Model", exact = TRUE]]
+  Reference <- .readCalculationSectionReference(Config, ProjectRoot)
+  Radius <-
+    Config[["geometry", exact = TRUE]][["insideDiameterM", exact = TRUE]] /
+      2
+  Theta <- buildThetaMesh(
+    pointCount = Config.numerics[["baseThetaPointCount", exact = TRUE]],
+    criticalAnglesDeg = Config.numerics[["criticalAnglesDeg", exact = TRUE]]
+  )
+  Fields.k0 <- c(
+    "k0", "frictionAngleDeg", "poissonRatio", "ocr", "ocrMaximum"
+  )
+  Realization.common <- c(
+    list(
+      effectiveVerticalKPa =
+        Config.stress[["effectiveVerticalKPa", exact = TRUE]],
+      waterPressureDifferenceKPa =
+        Config.stress[["waterPressureDifferenceKPa", exact = TRUE]],
+      baseThicknessMm =
+        Config.section[["analysisBaseThicknessMm", exact = TRUE]]
+    ),
+    Model[intersect(Fields.k0, names(Model))]
+  )
+  Context <- list(
+    k0ModelID = Model[["modelId", exact = TRUE]],
     horizontalIncrementKPa = NA_real_,
     horizontalIncrementStatus =
-      Config$stressState$horizontalIncrementMode
+      Config.stress[["horizontalIncrementMode", exact = TRUE]],
+    sectionReference = Reference,
+    profileID = Config.section[["referenceProfileId", exact = TRUE]],
+    youngModulusKPa =
+      Config[["material", exact = TRUE]][[
+        "circumferentialYoungModulusGPa",
+        exact = TRUE
+      ]] * 1e6,
+    radiusM = Radius,
+    theta = Theta,
+    integrationSteps = Config.numerics[["integrationSteps", exact = TRUE]],
+    balanceTolerance = Config.numerics[["balanceTolerance", exact = TRUE]]
   )
-  StressStateId <- paste0(Config$scenarioId, "-", Config$stressState$statePointId)
-  Stress <- data.frame(
-    scenarioId = Config$scenarioId,
-    stressStateId = StressStateId,
-    modelId = K0State$modelId,
-    statePointId = Config$stressState$statePointId,
-    layerId = NA_character_,
-    thetaIndex = NA_integer_,
-    thetaRad = NA_real_,
-    depthM = NA_real_,
-    effectiveVerticalKPa = EffectiveState$effectiveVerticalKPa,
-    frictionAngleDeg = K0State$frictionAngleDeg,
-    poissonRatio = K0State$poissonRatio,
-    ocr = K0State$ocr,
-    ocrMaximum = K0State$ocrMaximum,
-    k0Input = K0State$k0Input,
-    k0Derived = K0State$k0Derived,
-    k0Applied = K0State$k0Applied,
-    horizontalIncrementKPa = EffectiveState$horizontalIncrementKPa,
-    horizontalIncrementStatus = EffectiveState$horizontalIncrementStatus,
-    effectiveHorizontalKPa = EffectiveState$effectiveHorizontalKPa,
-    waterPressureDifferenceKPa =
-      EffectiveState$waterPressureDifferenceKPa,
-    domainStatus = K0State$domainStatus,
-    k0EvidenceLevel = K0State$k0EvidenceLevel,
-    evidenceLevel = "DE",
-    sourceKey = K0State$sourceKey,
-    sourceLocator = K0State$sourceLocator,
-    stringsAsFactors = FALSE
-  )
+  Scenarios <- lapply(seq_len(nrow(Cases)), function(i) {
+    AUX <- Realization.common
+    AUX$alpha <- Cases[["alpha", exact = TRUE]][i]
+    calculateScenario(
+      realization = AUX,
+      context = Context
+    )
+  })
+  names(Scenarios) <- Cases[["caseId", exact = TRUE]]
 
-  Theta <- buildThetaMesh(
-    pointCount = Config$numerics$baseThetaPointCount,
-    criticalAnglesDeg = Config$numerics$criticalAnglesDeg
+  Scenario <- Scenarios[[1L]]
+  K0State <- .adaptCalculationK0State(
+    Scenario[["k0State", exact = TRUE]]
   )
-  Cases <- Config$loadCases
-  Actions <- lapply(seq_len(nrow(Cases)), function(i) {
-    calculatePerimeterActions(
-      stressState = EffectiveState,
-      alpha = Cases$alpha[i],
-      theta = Theta
-    )
+  Section <- .buildCalculationSectionTable(
+    config = Config,
+    corrugatedSection = Scenario[["corrugatedSection", exact = TRUE]],
+    sectionRigidity = Scenario[["sectionRigidity", exact = TRUE]]
+  )
+  StressStateID <- paste0(
+    ScenarioID,
+    "-",
+    Config.stress[["statePointId", exact = TRUE]]
+  )
+  Stress <- .buildCalculationStressTable(
+    config = Config,
+    k0State = K0State,
+    stressState = Scenario[["stressState", exact = TRUE]],
+    stressStateID = StressStateID
+  )
+  Actions <- lapply(Scenarios, function(x) {
+    x[["perimeterActions", exact = TRUE]]
   })
-  Responses <- lapply(seq_len(nrow(Cases)), function(i) {
-    calculateSectionResultants(
-      load = Actions[[i]]$load,
-      radius = Section$analysisRadiusM,
-      theta = Theta,
-      sectionRatio = Section$sectionRatio,
-      integrationSteps = Config$numerics$integrationSteps,
-      balanceTolerance = Config$numerics$balanceTolerance
-    )
+  Responses <- lapply(Scenarios, function(x) {
+    x[["sectionResultants", exact = TRUE]]
   })
-  names(Responses) <- Cases$caseId
-  QuantityColumns <- c(N = "normalForce", M = "bendingMoment", Q = "shearForce")
-  QuantityUnits <- c(N = "kN/m", M = "kN m/m", Q = "kN/m")
+  Summaries <- lapply(Scenarios, function(x) {
+    x[["resultantExtrema", exact = TRUE]]
+  })
+  Columns.resultant <- c(
+    N = "normalForce",
+    M = "bendingMoment",
+    Q = "shearForce"
+  )
+  Units.resultant <- c(N = "kN/m", M = "kN m/m", Q = "kN/m")
 
   PerimeterLoads <- .buildPerimeterLoadTable(
     actions = Actions,
     cases = Cases,
-    scenarioId = Config$scenarioId,
-    stressStateId = StressStateId
+    scenarioID = ScenarioID,
+    stressStateID = StressStateID
   )
-
-  Resultants <- do.call(rbind, lapply(seq_len(nrow(Cases)), function(Index) {
-    Values <- Responses[[Index]]$values
-    do.call(rbind, lapply(names(QuantityColumns), function(ResultantId) {
-      data.frame(
-        scenarioId = Config$scenarioId,
-        caseId = Cases$caseId[Index],
-        sectionId = Section$sectionId,
-        stressStateId = StressStateId,
-        alpha = Cases$alpha[Index],
-        resultantId = ResultantId,
-        thetaIndex = seq_len(nrow(Values)) - 1L,
-        thetaRad = Values$theta,
-        thetaDeg = Values$thetaDeg,
-        value = Values[[QuantityColumns[[ResultantId]]]],
-        unit = QuantityUnits[[ResultantId]],
-        evidenceLevel = "DE",
-        stringsAsFactors = FALSE
-      )
-    }))
-  }))
-  rownames(Resultants) <- NULL
-
-  Summaries <- lapply(Responses, summarizeSectionResultants)
+  Resultants <- .buildSectionResultantTable(
+    responses = Responses,
+    cases = Cases,
+    scenarioID = ScenarioID,
+    sectionID = Section[["sectionId", exact = TRUE]],
+    stressStateID = StressStateID,
+    columns = Columns.resultant,
+    units = Units.resultant
+  )
   Extrema <- .buildSectionExtremaTable(
     summaries = Summaries,
     cases = Cases,
-    scenarioId = Config$scenarioId,
-    units = QuantityUnits
+    scenarioID = ScenarioID,
+    units = Units.resultant
   )
   Controls <- .buildResultantControlTable(
     responses = Responses,
@@ -900,16 +1023,16 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
     stressState = Stress,
     section = Section,
     theta = Theta,
-    numerics = Config$numerics,
-    scenarioId = Config$scenarioId,
-    units = QuantityUnits
+    numerics = Config.numerics,
+    scenarioID = ScenarioID,
+    units = Units.resultant
   )
   DisplayScales <- .buildDisplayScaleTable(
     resultants = Resultants,
-    scenarioId = Config$scenarioId,
-    radius = Section$analysisRadiusM,
-    graphics = Config$graphics,
-    units = QuantityUnits
+    scenarioID = ScenarioID,
+    radius = Section[["analysisRadiusM", exact = TRUE]],
+    graphics = Config[["graphics", exact = TRUE]],
+    units = Units.resultant
   )
 
   Products <- list(
