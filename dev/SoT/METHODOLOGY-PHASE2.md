@@ -844,8 +844,9 @@ No deben inferirse dentro del código ni de la prosa:
 - ninguna cita o referencia cruzada sin resolver;
 - cuerpo organizado como procedimiento de cálculo, con fórmulas operativas y
   aplicación;
-- Apéndice A con síntesis suficiente de los desarrollos y remisión al documento
-  metodológico; Apéndice B con contrastes completos y trazables;
+- Apéndice A autónomo, con los desarrollos necesarios hasta las ecuaciones
+  finales de la memoria; contrastes bibliográficos y CANDE excluidos del
+  ensamblado ejecutivo y conservados en la línea académica;
 - resultados numéricos reproducibles desde datos declarados;
 - diagramas consistentes con las tablas fuente;
 - cuantiles puntuales y de extremos tratados como objetos distintos;
@@ -856,13 +857,12 @@ No deben inferirse dentro del código ni de la prosa:
 
 ## 17. Próxima acción
 
-Ejecutar F2.7: entregar y revisar la memoria actualizada en
-`html/calculation.review.es/index.html` y conservar
-`html/calculation.resultants.review.es/index.html` como antecedente de la
-selección gráfica. Aplicar únicamente las observaciones del usuario y no
-promover el candidato a las rutas públicas antes de una aprobación explícita.
-Los cambios de NGR permanecen sin `stage`, `commit` ni `push` hasta recibir una
-instrucción específica para esas operaciones.
+Entregar para revisión la memoria determinística parametrizada en
+`html/calculation.review.es/index.html`. No promover el candidato ni iniciar
+la simulación de Monte Carlo antes de la aceptación del usuario y de una
+definición explícita de variables, marginales y dependencias. La caracterización
+de la presión residual de compactación y la rama `measured` de $K_0$
+permanecen pendientes de evidencia y esquema propios.
 
 ## 18. Registro de decisiones
 
@@ -1206,20 +1206,23 @@ El símbolo `alpha(y)` empleado en el Apéndice A.3 para una coordenada angular
 era un abuso de notación. Se reemplazó por `theta_1(y)` y `theta_2(y)`; estas
 coordenadas geométricas no tienen relación con el multiplicador `alpha`.
 
-### 22.2 Diagnóstico de reproducibilidad vigente
+### 22.2 Estado de reproducibilidad después de K0.7
 
-La memoria todavía no satisface el requisito de actualización automática al
-cambiar las entradas:
+El diagnóstico previo identificó valores duplicados en el productor, la prosa
+y los productos de presentación. K0.7 cerró ese defecto para la corrida
+determinística activa:
 
-- `scripts/R/runCalculationMemo.R` contiene valores numéricos del escenario;
-- el resumen, la aplicación y las conclusiones repiten parte de esos valores;
-- tablas y figuras leen CSV, pero desde
-  `TITO/kb/calculation-memo/results/`; y
-- el antiguo Apéndice B contiene tablas de comparación escritas directamente
-  en Markdown.
+- `calculation.json` contiene las entradas adoptadas;
+- `scripts/R/calculationData.R` genera los productos canónicos;
+- `scripts/setup/calculationResults.R` carga una representación documental
+  estable;
+- resumen, aplicación, conclusiones, tablas y figuras consumen esa
+  representación o sus CSV; y
+- el antiguo Apéndice B y sus tablas de contraste permanecen fuera del
+  ensamblado de la memoria.
 
-Por consiguiente, los builders actuales demuestran la presentación, pero no
-constituyen aún un contrato único de datos para la memoria.
+Los capítulos metodológicos conservan ecuaciones generales y valores
+publicados necesarios para definirlas; no duplican entradas del escenario.
 
 ### 22.3 Fuente única de entradas y productos materializados
 
@@ -1248,20 +1251,19 @@ scripts/
     calculationResults.R
 ```
 
-`calculation.json` será la única fuente de los datos adoptados para la corrida.
+`calculation.json` es la única fuente de los datos adoptados para la corrida.
 Los valores tabulados de una publicación no son datos del proyecto y se
 conservarán separadamente en `data/reference/`, con clave bibliográfica y
 localización en la fuente. `data/calculation/` contendrá únicamente productos
 generados. `data/benchmarks/` pertenecerá a la línea académica y no será
 consumido por la memoria ejecutiva.
 
-Los nombres definitivos deben conservar la política PSHA: namespace semántico
-en inglés y tokens separados por puntos. No se migrará ningún archivo hasta
-aprobar el contrato de columnas de cada producto.
+Los productos implementados conservan la política PSHA: namespace semántico en
+inglés y tokens separados por puntos. Sus esquemas se registran en 26.6.
 
 ### 22.4 Contrato mínimo de `calculation.json`
 
-La primera versión incluirá solamente:
+La primera versión incluye solamente:
 
 1. `schemaVersion` e identificador del escenario;
 2. geometría conocida y regla adoptada para el radio de análisis;
@@ -1283,9 +1285,9 @@ enteros positivos. `K0` no se restringirá artificialmente al intervalo
 
 ### 22.5 Productor R y actualización automática
 
-El cálculo se concentrará en una función de producción, por ejemplo
-`buildCalculationData(config, outputDirectory)`, alojada en `scripts/R/`. Esa
-función:
+El cálculo se concentra en
+`buildCalculationData(configPath, outputDirectory, projectRoot)`, alojada en
+`scripts/R/calculationData.R`. Esa función:
 
 1. leerá y validará `calculation.json`;
 2. leerá las propiedades tabuladas necesarias desde `data/reference/`;
@@ -1295,19 +1297,19 @@ función:
 6. fallará antes del render si falta una entrada o un control no se satisface.
 
 Como la corrida determinística actual es pequeña, `scripts/setup/setup.R` la
-regenerará al inicio de cada render. Esta decisión evita resultados obsoletos
+regenera al inicio de cada render. Esta decisión evita resultados obsoletos
 sin introducir una caché o un sistema de dependencias prematuro. El productor
 también conservará una interfaz ejecutable mediante `Rscript` para pruebas y
 uso fuera de Quarto.
 
-`scripts/setup/utils.R` poseerá únicamente lectura con esquema, formateo y
+`scripts/setup/utils.R` posee únicamente lectura, formateo y
 resolución de rutas. No contendrá ecuaciones mecánicas. Los builders de tablas
 y figuras leerán los CSV con columnas explícitas; no calcularán resultantes ni
 repetirán valores del JSON.
 
 ### 22.6 Composición documental mínima
 
-Se adopta el principio de `_results/` del scaffold PSHA sin reproducir toda su
+Se adoptó el principio de `_results/` del scaffold PSHA sin reproducir toda su
 separación temática:
 
 - la metodología y las fórmulas generales permanecen en capítulos Markdown
@@ -1560,3 +1562,861 @@ La siguiente revisión de `_chapters/specifications.inspection.es.md` debe:
 
 No se crearán claves bibliográficas, criterios de aceptación ni requisitos de
 seguridad por inferencia.
+
+## 26. Diseño de la estimación del coeficiente de empuje en reposo
+
+Esta sección sustituye, para $K_0$, el contrato preliminar de entrada directa
+descrito en 22.4. K0.3--K0.6 establecieron las formulaciones, variables
+primitivas, dominios y controles; K0.7 incorporó ese diseño al contrato
+determinístico de la memoria sin introducir distribuciones probabilísticas.
+
+### 26.1 Decisión técnica
+
+El cálculo estructural consume $\sigma'_h(z)$. En las ramas basadas en una
+formulación geotécnica,
+
+$$
+K_0^{(m)}(z)=f_m\!\left[\mathbf{x}_m(z)\right],
+\qquad
+\sigma_h'^{(m)}(z)=K_0^{(m)}(z)\,\sigma'_v(z),
+$$
+
+donde $m$ identifica la formulación y $\mathbf{x}_m$ contiene sólo sus
+variables primitivas. $K_0$ se materializa como resultado derivado; no se
+muestrea de manera independiente de $\phi'$, $\nu_g$, OCR o
+$\mathrm{OCR}_{\max}$ cuando esas variables lo determinan.
+
+Una medición directa puede constituir una rama observada. Un valor constante
+adoptado se admite únicamente como escenario analítico explícito. El valor
+$K_0=0.50$ de la aplicación vigente pertenece a esta última categoría: no es
+una estimación del relleno existente y sus resultados se conservarán sin
+cambios durante el desarrollo del nuevo módulo.
+
+### 26.2 Formulaciones inicialmente habilitables
+
+| Identificador conceptual | Expresión | Variables primitivas | Dominio y función |
+|---|---|---|---|
+| `elastic.confined` | $K_0=\nu_g/(1-\nu_g)$ | $\nu_g$ | referencia constitutiva elástica isótropa con deformación lateral impedida; no representa por sí sola historia tensional ni compactación |
+| `jaky.nc` | $K_{0,NC}=1-\sin\phi'$ | $\phi'$ | carga primaria; suelos no cohesivos y suelos cohesivos normalmente consolidados |
+| `mayne.kulhawy.unloading` | $K_{0,OC}=(1-\sin\phi')\,\mathrm{OCR}^{\sin\phi'}$ | $\phi'$, OCR | descarga primaria desde la rama de compresión virgen; los ajustes estudiados fueron generalmente para $\mathrm{OCR}<15$ |
+| `mayne.kulhawy.reload` | ecuación de descarga--recarga indicada abajo | $\phi'$, OCR, $\mathrm{OCR}_{\max}$ | recarga con historia máxima identificable; opción condicionada por la limitada evidencia de recarga |
+| `measured` | valor medido y su incertidumbre | medición y metadatos | rama preferente cuando exista un ensayo o una medición representativa |
+| `adopted.constant` | valor declarado | $K_0$ adoptado | comprobación o sensibilidad; no se presenta como correlación ni dato del proyecto |
+
+La comparación académica conservará, sin convertirla en otra rama
+probabilística, la forma de 1944 transcrita por Michalowski:
+
+$$
+K_{0,\mathrm{J\acute{a}ky\,1944}}
+=(1-\sin\phi')
+\frac{1+\frac{2}{3}\sin^2\phi'}{1+\sin\phi'}.
+$$
+
+La forma abreviada $1-\sin\phi'$ fue adoptada por Jáky en 1948. La revisión
+de Michalowski muestra que la derivación original parte de un campo tensional
+de un prisma de arena que no representa una trayectoria general de
+deformación lateral nula. En la memoria, la forma abreviada se utiliza como
+correlación respaldada por datos; la forma de 1944 y la crítica de su
+derivación pertenecen al documento metodológico.
+
+Mayne y Kulhawy definen
+
+$$
+\mathrm{OCR}=\frac{\sigma'_{v,\max}}{\sigma'_v},
+\qquad
+\mathrm{OCR}_{\max}
+=\frac{\sigma'_{v,\max}}{\sigma'_{v,\min}},
+$$
+
+y para descarga seguida de recarga proponen
+
+$$
+K_0=(1-\sin\phi')\left[
+\frac{\mathrm{OCR}}
+{\mathrm{OCR}_{\max}^{\,1-\sin\phi'}}
++\frac{3}{4}\left(
+1-\frac{\mathrm{OCR}}{\mathrm{OCR}_{\max}}
+\right)
+\right].
+$$
+
+Cuando $\mathrm{OCR}=\mathrm{OCR}_{\max}$, esta expresión recupera la rama de
+descarga primaria. Cuando
+$\mathrm{OCR}=\mathrm{OCR}_{\max}=1$, recupera la relación normalmente
+consolidada. La fuente primaria dispuso de una base considerablemente menor
+para recarga que para carga primaria y descarga; la relación no se adoptará
+por defecto sin una historia tensional que permita definir
+$\mathrm{OCR}_{\max}$.
+
+La rama de descarga se controla frente a la movilización pasiva:
+
+$$
+K_p=\frac{1+\sin\phi'}{1-\sin\phi'},
+\qquad
+\mathrm{OCR}_{\lim}
+=\left[
+\frac{1+\sin\phi'}{(1-\sin\phi')^2}
+\right]^{1/\sin\phi'}.
+$$
+
+Al alcanzar este límite, la hipótesis de estado en reposo queda fuera de su
+dominio. La implementación informará esa condición; no recortará $K_0$ de
+manera silenciosa. El coeficiente pasivo de Rankine se utiliza aquí sólo como
+control del dominio de la correlación original; no constituye una ley de
+interfaz ni una capacidad general del relleno contra el revestimiento.
+
+### 26.3 Discrepancia documental resuelta
+
+FHWA NHI-05-037, ecuación 5.39, imprime el segundo término de la relación de
+recarga como
+$(3/4)\,\mathrm{OCR}/\mathrm{OCR}_{\max}$. La ecuación 18 del artículo
+primario de Mayne y Kulhawy contiene
+$(3/4)(1-\mathrm{OCR}/\mathrm{OCR}_{\max})$.
+
+La expresión del manual no recupera la relación normalmente consolidada para
+$\mathrm{OCR}=\mathrm{OCR}_{\max}=1$; produce
+$1.75(1-\sin\phi')$. La fuente primaria sí satisface ese límite y gobierna el
+procedimiento. La transcripción FHWA queda registrada como discrepancia y no
+se implementará.
+
+La fuente primaria fue preservada en
+`TITO/kb/sources/mayne_kulhawy_1982_k0_ocr_relationships.pdf`; su SHA-256 es
+`3e6cf544178882cb9acb2d48c53a4c9908c851dc8903d32e047334734a178e60`.
+La clave bibliográfica es `MayneKulhawy1982`. El artículo de Michalowski fue
+preservado en
+`TITO/kb/sources/michalowski_2005_coefficient_earth_pressure_at_rest.pdf`, con
+SHA-256
+`ba20eb1b9a953068a55858f448431c925aa9a65162e371ba54ef732486716b2e` y clave
+`Michalowski2005`.
+
+### 26.4 Compactación e historia tensional
+
+El coeficiente en reposo y la tensión horizontal residual de compactación no
+son el mismo objeto. La relación operativa más general puede escribirse como
+
+$$
+\sigma'_h(z)=K_{0,b}(z)\,\sigma'_v(z)
++\Delta\sigma'_{h,c}(z),
+$$
+
+pero esta forma no autoriza sumar indiscriminadamente dos modelos. Se
+mantendrán dos rutas excluyentes:
+
+1. representar la historia mediante una formulación aplicable de $K_0$, sin
+   agregar otra vez el efecto de carga--descarga; o
+2. adoptar un estado base y un modelo independiente, documentado y aplicable,
+   para $\Delta\sigma'_{h,c}(z)$.
+
+La acción temporal de compactación de FHWA-RD-98-191 continúa siendo una carga
+por etapa. No define un $K_0$ permanente ni una fracción universal retenida.
+La distribución residual aplicable a un revestimiento circular flexible
+permanece `UNKNOWN`; antes de cuantificarla deben recuperarse y evaluarse las
+fuentes específicas de presión residual, la movilidad de la estructura y la
+secuencia real de colocación.
+
+### 26.5 Arquitectura editorial
+
+La memoria incorporará una subsección compacta titulada «Estimación del
+coeficiente de empuje en reposo» dentro de
+`TITO/kb/calculation-memo/chapters/calculation.actions.review.es.md`, después
+de la tensión vertical efectiva y antes de proyectar el estado tensional sobre
+el contorno. Esa subsección contendrá:
+
+1. la definición efectiva y la salida $\sigma'_h$;
+2. una tabla de selección de ramas;
+3. las fórmulas finales correspondientes a la rama adoptada;
+4. el control de dominio; y
+5. la separación respecto de la presión residual de compactación.
+
+No se crea otro capítulo de la memoria ni otro apéndice mientras la extensión
+operativa pueda mantenerse en esa subsección. La comparación detallada por
+autores, la forma original de Jáky, las regresiones auxiliares, las
+discrepancias documentales y los límites experimentales se redactarán, cuando
+se inicie esa etapa, en el candidato académico independiente:
+
+```text
+TITO/kb/paper-candidate/chapters/methodology.k0.estimation.es.md
+```
+
+La Fase 1 congelada no se modifica. Un desarrollo sólo pasará al Apéndice A si
+la memoria necesita una transformación matemática concreta para obtener una
+de sus fórmulas operativas; el apéndice no repetirá el estado de la práctica.
+
+### 26.6 Contrato de datos implementado
+
+`calculation.json`, con `schemaVersion = 1.0.0`, es la fuente única de entradas
+adoptadas de la corrida. Cada estado selecciona exactamente una rama de
+$K_0$ y declara sólo sus variables primitivas. Los identificadores son:
+
+| `modelId` | Variables declaradas | Estado |
+|---|---|---|
+| `adopted-constant` | `k0` | implementado para comprobación o sensibilidad |
+| `elastic-confined` | `poissonRatio` | implementado |
+| `jaky-nc` | `frictionAngleDeg` | implementado |
+| `mayne-kulhawy-unloading` | `frictionAngleDeg`, `ocr` | implementado |
+| `mayne-kulhawy-reload` | `frictionAngleDeg`, `ocr`, `ocrMaximum` | implementado |
+| `measured` | medición y metadatos | diferido hasta definir su evidencia y esquema |
+
+El validador aplica una exclusión equivalente a `oneOf`: rechaza campos de
+otra rama, entradas ausentes, dominios inválidos y la rama `measured` todavía
+no habilitada. La procedencia de cada formulación reside en el registro del
+modelo en R; no es un texto editable del JSON.
+
+El estado lateral materializado distingue tres magnitudes:
+
+- `k0Input`: valor primitivo de una rama directa;
+- `k0Derived`: resultado de una formulación; y
+- `k0Applied`: valor que forma la tensión horizontal efectiva.
+
+La salida primaria es `effectiveHorizontalKPa`. Las acciones perimetrales la
+consumen una sola vez y no recalculan $K_0$. Para el estado biaxial uniforme
+vigente, `stress.state.csv` contiene una fila; no repite el mismo estado en
+cada ordenada angular. Las columnas no aplicables son nulas.
+
+La presión residual de compactación no se sustituye por cero. El modo
+`unknown-not-modeled` produce `horizontalIncrementKPa = NA` y conserva ese
+estado explícito hasta disponer de una formulación sustentada. La diferencia
+de presión de agua es una magnitud con signo y se incorpora una única vez en
+la transformación de acciones.
+
+La corrida genera de manera coherente los siguientes productos bajo
+`data/calculation/`:
+
+```text
+calculation.config.json
+calculation.inputs.csv
+section.properties.csv
+stress.state.csv
+perimeter.loads.csv
+section.resultants.csv
+section.extrema.csv
+numerical.controls.csv
+display.scales.csv
+```
+
+`calculation.config.json` es la instantánea exacta de la entrada. El CSV de
+entradas no contiene magnitudes derivadas. `section.properties.csv` conserva
+las rigideces obtenidas de la tabla publicada en `data/reference/`;
+`numerical.controls.csv` identifica controles matemáticos internos y no
+benchmarks externos. Este último materializa `alpha` como magnitud numérica;
+ningún consumidor la reconstruye a partir de `caseId`, que es un identificador
+opaco.
+
+La publicación se realiza por intercambio de directorios: el productor escribe
+y comprueba el conjunto completo en staging, preserva temporalmente el conjunto
+anterior, renombra el staging a la ruta canónica y restaura el anterior si el
+intercambio falla. Una corrida inválida no mezcla productos nuevos y previos.
+
+### 26.7 Secuencia de trabajo
+
+1. **K0.1 — Evidencia básica.** Cerrada para Jaky, elasticidad confinada y
+   Mayne--Kulhawy. La fuente primaria y la discrepancia FHWA están registradas.
+2. **K0.2 — Alcance de modelos: cerrado.** La memoria habilita elasticidad
+   confinada, Jáky para carga primaria y Mayne--Kulhawy para descarga y
+   recarga. Brooker--Ireland, Mesri--Hayat y un modelo cuantitativo de presión
+   residual permanecen fuera del módulo operativo.
+3. **K0.3 — Redacción: cerrada.** La subsección operativa vive en
+   `calculation.actions.review.es.md`; la revisión por autores y la
+   discrepancia FHWA viven en el capítulo académico independiente. La Fase 1
+   no fue editada.
+4. **K0.4 — Prototipo R: cerrado.** `k0NormallyConsolidated()`,
+   `k0ElasticConfined()`, `k0MayneKulhawyUnloading()`,
+   `k0MayneKulhawyReload()` y `checkK0PassiveDomain()` implementan las ramas y
+   el control adoptados. `resolveCalculationK0()` selecciona explícitamente la
+   rama declarada; no se crearon clases ni una jerarquía de modelos.
+5. **K0.5 — Controles numéricos: cerrado.** `testRingMethod.R` comprueba el
+   límite NC, las identidades de borde, un estado intermedio de recarga,
+   $K_0>1$, el límite pasivo y los dominios escalares. Los valores se
+   clasifican como controles internos, no como resultados publicados.
+6. **K0.6 — Auditoría: cerrada.** Se verificaron ecuaciones, unidades,
+   dominios, citas, atribuciones y ausencia de doble contabilización de
+   compactación sobre la implementación y el HTML regenerado. Los dictámenes
+   técnico, editorial y de continuidad están en
+   `/private/tmp/k0-implementation-technical-audit.md`,
+   `/private/tmp/k0-implementation-editorial-audit.md` y
+   `/private/tmp/k0-implementation-continuity-audit.md`.
+7. **K0.7 — Parametrización: cerrada.** `calculation.json` gobierna la corrida,
+   `stress.state.csv` materializa el estado lateral y la memoria consume los
+   productos canónicos mediante un único bloque `_results`, tablas y figuras
+   delgadas.
+
+### 26.8 Puertas verificadas al cerrar K0.7
+
+- cada ecuación activa tiene fuente primaria o institucional leída y
+  localizador exacto;
+- cada rama define suelo, trayectoria de carga, variables y dominio;
+- la versión errónea de FHWA 5.39 no aparece en código ni prosa operativa;
+- $K_0$ sólo es una entrada directa en las ramas `measured` y
+  `adopted.constant`;
+- no se muestrean simultáneamente $K_0$ y sus variables determinantes;
+- no se suman una relación de historia tensional y una presión residual que
+  representen el mismo fenómeno;
+- $K_0>1$ no se rechaza por una restricción global; gobiernan los controles de
+  dominio de la formulación;
+- los resultados actuales del escenario $K_0=0.50$ se conservan como control;
+- la salida primaria $\sigma'_h$ alimenta una sola vez la proyección de
+  acciones; y
+- la Fase 1 conserva sus hashes.
+
+La prueba `scripts/R/testCalculationData.R` verifica además cambios
+controlados de tensión vertical, $K_0$, espesor, $\alpha$ y presión de agua;
+equivalencia entre una rama adoptada y Jáky para $\phi'=30^\circ$; rechazo de
+ramas mezcladas, espesores fuera de la tabla, controles incumplidos y esquemas
+incompatibles; y ausencia de bloques de Monte Carlo en el JSON. La perturbación
+de $\alpha$ utiliza deliberadamente un `caseId` no numérico y atraviesa tablas
+y figura. Una falla de control conserva íntegra la publicación anterior.
+
+### 26.9 Estado de implementación
+
+K0.3--K0.7 están cerrados para la corrida determinística. La aplicación
+conserva el valor adoptado $K_0=0.50$; las ramas derivadas no sustituyen esa
+hipótesis sin datos del relleno. El incremento residual de compactación
+permanece físicamente no caracterizado y no se incluye en la respuesta.
+
+`runCalculationMemo.R`, `testCalculationData.R`, `testRingMethod.R` y
+`testCalculationFigures.R` concluyeron PASS. El render normal con `qrt` produjo
+`html/calculation.review.es/index.html`, SHA-256
+`d7bb53bb2ec5faa70b3db22d6c2f652e0e6bcfd1934a63a4d09035c48a03d563`.
+Los hashes de master, index y HTML congelados de Fase 1 permanecen,
+respectivamente, en
+`ae3db1c42fe7626c8233ac3fb4c77da7743172bdfff3b51ef762c139cf27d1ef`,
+`0eee73a9c7e7ed90104a7b3074e3e93bbd57254a568ba302861135a3568b4baa` y
+`0d46a5f6e437056adf809ef57ec16975631af6b2bad0206bf5c572f8fce4cb54`.
+
+Las auditorías finales concluyeron PASS: técnica en
+`/private/tmp/k0-7-final-technical-audit.md`, editorial y de artefacto en
+`/private/tmp/k0-7-final-editorial-artifact-audit-v2.md`, y de continuidad y
+reproducibilidad en
+`/private/tmp/k0-7-final-reproducibility-audit-v3.md`.
+
+La siguiente etapa probabilística permanece detenida hasta aprobar variables,
+distribuciones y dependencias. K0.7 no ejecutó Monte Carlo ni asignó
+probabilidades de modelo.
+
+## 27. Arquitectura funcional del cálculo y migración por paridad
+
+Esta sección es la fuente de verdad para la reestructuración del código R
+solicitada el 12 de agosto de 2026. En este contexto, una SoT es el registro
+duradero que gobierna las fronteras funcionales, los datos que atraviesan cada
+etapa, los observables que deben conservarse, las puertas de sustitución y las
+decisiones todavía no resueltas. No es un diagrama aspiracional separado de la
+implementación.
+
+Esta etapa documenta el plan. No reemplaza todavía ninguna función del cálculo
+vigente, no modifica sus resultados y no habilita una simulación Monte Carlo
+del proyecto.
+
+### 27.1 Decisiones rectoras
+
+1. El cálculo determinístico auditado y sus productos vigentes constituyen el
+   oráculo de comportamiento. Permanecerán ejecutables y sin cambios durante
+   la coexistencia.
+2. La migración seguirá un proceso de «barco de Teseo»: se extraerá una
+   frontera por vez, se comparará el objeto candidato contra el oráculo con las
+   mismas entradas y sólo entonces se redirigirá su consumidor.
+3. $N_\theta(\theta)$, $M_\theta(\theta)$ y $Q_\theta(\theta)$ se resolverán en
+   una única función. Las tres resultantes pertenecen al mismo sistema de
+   equilibrio y compatibilidad y comparten acciones, malla angular, constantes
+   de cierre y diagnósticos. No se crearán tres procedimientos de solución
+   independientes.
+4. $K_0$, el estado tensional, las propiedades seccionales, las acciones
+   perimetrales, las resultantes y sus extremos serán etapas independientes y
+   componibles.
+5. El camino invocado una vez por realización será determinístico y no tendrá
+   lectura o escritura de archivos, formato editorial, figuras, generación
+   aleatoria ni selección de distribuciones.
+6. No se crearán clases nuevas, una jerarquía general de modelos de suelo, una
+   teoría ortótropa general ni una infraestructura de ejecución genérica. Las
+   listas, vectores y tablas simples son suficientes para las fronteras
+   observadas.
+7. Las clases ligeras existentes `ringLoad` y `ringDirectResponse` se
+   conservarán durante la coexistencia porque tienen consumidores activos. Su
+   eventual retiro requerirá inventario y paridad propios.
+8. La recuperación de tensiones en la chapa y la respuesta de juntas y pernos
+   son módulos posteriores que consumen las resultantes. Sus fronteras se
+   reservan ahora, pero no se implementarán hasta aprobar los modelos
+   mecánicos y los datos que hoy permanecen `UNKNOWN`.
+9. El nombre de la futura librería R permanece `UNKNOWN`. Bautizarla antes de
+   estabilizar las superficies de llamada produciría una migración adicional
+   sin beneficio técnico.
+
+### 27.2 Sistema vigente que se preserva como oráculo
+
+La memoria ejecuta actualmente:
+
+```text
+calculation.json
+  -> validateCalculationConfig()
+  -> readCalculationSection()
+  -> resolveCalculationK0()
+  -> biaxialStressTangentialMultiplierLoad()
+  -> solveRingDirect()
+  -> N(theta), M(theta), Q(theta) y diagnósticos
+  -> extremos, controles, productos CSV y memoria
+```
+
+Los hechos arquitectónicos relevantes son:
+
+- `solveRingDirect()` ya resuelve conjuntamente las tres resultantes y es el
+  núcleo mecánico de producción;
+- `runRingMonteCarlo()` recibe realizaciones ya materializadas y no selecciona
+  distribuciones, dependencias ni probabilidades;
+- `buildCalculationData()` concentra validación, lectura de referencias,
+  derivaciones, solución, controles, adaptación tabular y publicación;
+- `scripts/setup/setup.R` combina la carga de funciones con la ejecución y la
+  escritura de productos; y
+- no existen funciones aprobadas para tensiones locales de la chapa, demanda
+  de una junta o respuesta de pernos.
+
+La principal deuda no está en el número de líneas de `solveRingDirect()`, sino
+en la concentración de cálculo, adaptación editorial e I/O dentro de
+`buildCalculationData()` y en el efecto de escritura implícito de `setup.R`.
+
+#### 27.2.1 Identidad observada de la línea base
+
+La línea base fue inspeccionada inicialmente en la rama `main`, con
+`HEAD = d498910d6c98fab8723cc88585bc8dffe483f976`, R 4.6.0 y `jsonlite` 2.0.0.
+El árbol contenía trabajo modificado y sin seguimiento; por ello ese `HEAD` no
+permitía por sí solo recuperar el cálculo auditado. La puerta G0 resolvió esta
+condición mediante el commit `4f0d9a8`, publicado en `origin/main`, que
+incorpora al historial el alcance determinístico observado y constituye su
+ancla recuperable.
+
+| Objeto | SHA-256 observado |
+|---|---|
+| `calculation.json` | `70d628478812f42d8f0b8468ef1a01df237a3d1ec4263069200b4937ec86848b` |
+| `data/reference/corrugation.section.properties.csv` | `ac7991f21dcaf805346ebb35bd3eb5a92ab9c1fd7caf3cd7f043ba72d7904539` |
+| `scripts/R/ringDirect.R` | `dd2d0fec24bbaf9c4cafda0df3d4c35b7595d4fd0a9c5f7a01d65eaa70d8f26c` |
+| `scripts/R/ringLoads.R` | `d73c5ea4b284b044b27aa622513d88a8fc45da1c0773b0c67230c6746516bce6` |
+| `scripts/R/calculationData.R` | `4e0077f1daadbdc845a10cde806f4861e2e57940d611967b76fd637e3408cfea` |
+| `scripts/R/ringMonteCarlo.R` | `ae6f48cd5643bba4488b46defbf668674280ce9f89ed063d72ce41780da246ce` |
+| `scripts/R/calculationMonteCarloOutput.R` | `b057be7318058ab57c290ed4dcdd383fdd7175b1b6b2fbe57432e0ba782f8f12` |
+| `scripts/setup/setup.R` | `d2ae892c477c486753b6d101869cc10190dc41041febd6507ae7eab4c8eeef61` |
+| `scripts/setup/utils.R` | `061cd9a5a0144193606dee507c2de26128273992e02c7b3db6791ab566bd740f` |
+| `scripts/setup/calculationResults.R` | `ed81d335cc579edc3c89bad7a4cc899b5a46da7816bf344e784fdf46e72c6345` |
+| `scripts/R/testRingMethod.R` | `a45207e35fd41e8b0e15faf2a38b0632b9efc6da30f989eeb2c7ee5771169679` |
+| `scripts/R/testCalculationData.R` | `c40a156599f348f614aa8837b49f4ba90667ca75828603bc20ea6af4587bbc1a` |
+| `scripts/R/testCalculationMonteCarloOutput.R` | `b08c913300a4f62284cde6948cfee419ff6e91a83b9edb7daad6bb86a19f718b` |
+| `scripts/R/testCalculationFigures.R` | `0d2b09555473951034bb87cb542c10aaf7420e3a3e3efc1c342237e049a6d994` |
+| `html/calculation.review.es/index.html` | `d7bb53bb2ec5faa70b3db22d6c2f652e0e6bcfd1934a63a4d09035c48a03d563` |
+
+Los nueve productos canónicos de `data/calculation/` también integraron la
+instantánea de G0. Sus hashes observados son:
+
+| Producto | Filas con cabecera | SHA-256 observado |
+|---|---:|---|
+| `calculation.config.json` | 52 | `70d628478812f42d8f0b8468ef1a01df237a3d1ec4263069200b4937ec86848b` |
+| `calculation.inputs.csv` | 26 | `193a9456492ba34e19def68f9860ffb105b0f6ceb13ce3a46d9df7bdbd3b0910` |
+| `section.properties.csv` | 2 | `4b36cf593a6bdf88d94c4a202d83845a5cca81646bba79d76e661c20712f7ae9` |
+| `stress.state.csv` | 2 | `ecd272d7594d78f2f8f57911c74d12b8d059fed01a480769849df5ddf3af87fc` |
+| `perimeter.loads.csv` | 2913 | `9d3c640574dc468a3d6be3c8282084f7c41a4e0c9ecee91a6c7ae711f226efda` |
+| `section.resultants.csv` | 4369 | `b2e5fae2188205367f1fb757f7a4dac1eb4c8b2853c63bfb5441896bc5f09eed` |
+| `section.extrema.csv` | 19 | `6881e17589fd53c65676c2826d5c96948580f3c37d2e8a270bf2e7e0eb40f014` |
+| `numerical.controls.csv` | 7 | `be43a911b0b3b3af6334e61e3ca40909b1ef3858b4d01254ee0037f93791c5e3` |
+| `display.scales.csv` | 4 | `08b3222ce5b947783293a37a8c888276c729ef83ce968505e8b80f2d6198cc6b` |
+
+### 27.3 Capas objetivo
+
+La arquitectura mínima tiene cuatro capas. Cada una conoce únicamente a la
+inmediatamente anterior:
+
+```text
+funciones puras del dominio
+  -> composición de una realización
+     -> adaptadores de configuración y productos de AR-SAD40
+        -> tablas, figuras y documento Quarto
+```
+
+1. **Núcleo de dominio.** Evalúa ecuaciones y controles con objetos en
+   memoria. No conoce rutas, JSON, CSV, Quarto ni gráficos.
+2. **Composición determinística.** Encadena las etapas para una realización y
+   devuelve cada estado intermedio en una lista simple y auditable.
+3. **Adaptadores del proyecto.** Ejecutan las operaciones explícitas de lectura
+   y escritura solicitadas por el runner: validan `calculation.json`, cargan
+   referencias, agregan IDs, unidades y trazabilidad, y publican los productos
+   declarados.
+4. **Documento.** Lee productos terminados y prepara tablas, figuras y texto;
+   no vuelve a implementar ecuaciones.
+
+El runner será el único orquestador de los efectos; los adaptadores ejecutarán
+las lecturas y escrituras que aquél les solicite. La carga del núcleo no
+regenerará datos. Durante la coexistencia, `scripts/setup/setup.R` conservará
+su efecto histórico para consumidores todavía no inventariados y no se usará
+como superficie nueva.
+
+### 27.4 Contratos funcionales propuestos
+
+Los nombres siguientes son la superficie candidata que se probará en
+coexistencia. Respetan `lowerCamelCase`; una función interna conservará un
+punto inicial. Ningún nombre se promoverá a un paquete antes de inventariar sus
+consumidores.
+
+| Función candidata | Responsabilidad | Entradas principales | Salida | Estado |
+|---|---|---|---|---|
+| `estimateK0()` | seleccionar una rama y evaluar $K_0$ | `modelId` y sólo las variables primitivas de esa rama | valor aplicado, estado de dominio y magnitudes de control | extraer de `resolveCalculationK0()`; las ecuaciones `k0*()` vigentes se preservan |
+| `calculateEffectiveStressState()` | formar el estado efectivo aplicado | $\sigma'_v$, resultado de `estimateK0()`, diferencia de presión de agua y estado explícito del incremento horizontal | $\sigma'_{h,b}=K_0\sigma'_v$, componente horizontal aplicada y metadatos del incremento | nueva frontera sobre lógica hoy embebida |
+| `interpolateCorrugatedSection()` | obtener $A_\theta$ e $I_\theta$ desde una referencia ya cargada | tabla, perfil y espesor de análisis | propiedades e información de interpolación | extraer de `readCalculationSection()` |
+| `calculateRingSection()` | obtener rigideces circunferenciales | $E_\theta$, $A_\theta$, $I_\theta$ y $R$ | $EA_\theta$, $EI_\theta$ y $I_\theta/(A_\theta R^2)$ | función pura vigente; conserva la implementación y la firma |
+| `calculatePerimeterActions()` | proyectar el estado tensional sobre el contorno | estado tensional, $\alpha$ y $\theta$ | $P_r(\theta)$, $P_t(\theta)$ y representación compatible con el motor | envolver la proyección biaxial vigente |
+| `calculateSectionResultants()` | resolver equilibrio y compatibilidad | acciones, $R$, razón seccional, malla y parámetros numéricos | una única tabla con $N_\theta$, $M_\theta$, $Q_\theta$ y diagnósticos | envolver `solveRingDirect()`; no se divide por resultante |
+| `summarizeSectionResultants()` | localizar extremos espaciales | respuesta conjunta de resultantes | mínimos, máximos y máximos absolutos, con signo y ángulo | consolidar tres implementaciones duplicadas |
+| `calculateScenario()` | componer una realización | una fila de primitivas y un contexto invariante | etapas anteriores, resultantes, extremos y diagnósticos | nueva función delgada; no contiene ecuaciones propias |
+| `calculateSheetNormalStress()` | recuperar tensión normal global por flexo-compresión | $N_\theta$, $M_\theta$, propiedades netas y coordenadas de fibra | campo de tensión por ángulo y fibra | futuro; modelo de recuperación pendiente |
+| `calculateJointDemand()` | transformar las resultantes en acciones transmitidas por una junta | resultantes en la junta, ancho tributario y geometría | acciones de la unión | futuro; transferencia pendiente |
+| `calculateBoltResponse()` | distribuir la acción de junta en el grupo de pernos | acción de junta, disposición, áreas y modelo de reparto | fuerza por perno y componentes nominales de tensión | futuro; modelo y datos pendientes |
+
+`estimateK0()` será la fachada única solicitada para el cálculo. Las funciones
+por formulación continuarán siendo unidades pequeñas y comprobables; durante
+la migración conservarán sus nombres existentes para no romper consumidores.
+La fachada aplicará una exclusión de tipo `oneOf`: no aceptará parámetros de
+ramas que no correspondan al `modelId` seleccionado.
+
+`calculateSectionResultants()` devolverá siempre las tres resultantes. Un
+consumidor que necesite sólo una de ellas seleccionará su columna después de
+resolver, sin volver a ejecutar el equilibrio.
+
+La separación entre `calculateJointDemand()` y `calculateBoltResponse()` es
+intencional. La resultante circunferencial no se transforma directamente en
+una tensión de perno sin definir primero el ancho tributario, la geometría de
+la junta, la excentricidad y el reparto entre pernos.
+
+### 27.5 Hoja de cálculo ejecutable por etapas
+
+La composición debe poder leerse y auditarse como una planilla o un notebook,
+sin ocultar resultados intermedios:
+
+```r
+K0 <- estimateK0(...)
+StressState <- calculateEffectiveStressState(...)
+CorrugatedSection <- interpolateCorrugatedSection(...)
+SectionRigidity <- calculateRingSection(...)
+PerimeterActions <- calculatePerimeterActions(...)
+SectionResultants <- calculateSectionResultants(...)
+ResultantExtrema <- summarizeSectionResultants(SectionResultants)
+```
+
+Cuando sus metodologías estén aprobadas, se agregarán aguas abajo:
+
+```r
+SheetNormalStress <- calculateSheetNormalStress(...)
+JointDemand <- calculateJointDemand(...)
+BoltResponse <- calculateBoltResponse(...)
+```
+
+`calculateScenario()` ejecutará exactamente esas mismas funciones y devolverá
+una lista nombrada con cada etapa. El ejemplo secuencial y el orquestador no
+serán dos implementaciones: ambos llamarán al mismo núcleo.
+
+### 27.6 Parámetros invariantes, primitivos y derivados
+
+El contexto de una corrida se prepara una sola vez y contiene únicamente
+invariantes: geometría conocida, malla angular, ángulos críticos, parámetros
+numéricos, tabla de propiedades ya leída, modelos seleccionados, unidades y
+convenciones de signo. Será una lista simple, no una clase.
+
+Cada realización contiene sólo variables primitivas de las ramas activas. Los
+parámetros derivados —los «hijos»— se calculan una vez en el orden indicado:
+
+| Padres | Parámetro derivado | Consumidor | Estado actual |
+|---|---|---|---|
+| diámetro interior y regla geométrica | $R$ | sección y resultantes | implementado |
+| tapada, estratigrafía, pesos unitarios efectivos, sobrecarga y agua | $\sigma'_v$ | estado tensional | las funciones básicas existen; la aplicación vigente ingresa $\sigma'_v$ directamente |
+| `modelId` y $K_0$ adoptado, o $\phi'$, o $\nu_g$, o $\phi'$--OCR, o $\phi'$--OCR--$\mathrm{OCR}_{\max}$ | $K_0$ | $\sigma'_h$ | implementado por ramas |
+| $K_0$ y $\sigma'_v$ | $\sigma'_{h,b}=K_0\sigma'_v$ | acciones perimetrales | implementado |
+| modelo residual aprobado y sus primitivas | $\Delta\sigma'_{h,c}$ | estado tensional | `UNKNOWN`; no se sustituye por una constante inventada |
+| $\sigma'_v$, $\sigma'_h$, diferencia de agua y $\alpha$ | $P_r(\theta)$ y $P_t(\theta)$ | resultantes | implementado para el estado biaxial uniforme prescrito |
+| espesor original y un modelo o medición de pérdida por corrosión | espesor neto $t_{net}$ | propiedades netas | `UNKNOWN`; hoy se usa un espesor de análisis adoptado |
+| perfil, referencia y espesor de análisis o neto | $A_\theta$, $I_\theta$ y futuras coordenadas de fibra | rigideces y tensiones | $A_\theta$ e $I_\theta$ implementados dentro del intervalo publicado; coordenadas de fibra `UNKNOWN` |
+| $E_\theta$, $A_\theta$, $I_\theta$ y $R$ | $EA_\theta$, $EI_\theta$, $I_\theta/(A_\theta R^2)$ | resultantes | implementado |
+| $P_r$, $P_t$, $R$, razón seccional y malla | $N_\theta$, $M_\theta$, $Q_\theta$ | extremos y módulos posteriores | implementado y auditado |
+| $N_\theta$, $M_\theta$ y sección neta | tensión normal de chapa | evaluación posterior | `UNKNOWN` hasta aprobar recuperación global/local |
+| resultantes en junta, geometría y ancho tributario | acción de junta | pernos | `UNKNOWN` |
+| acción de junta y disposición de pernos | fuerza y tensión nominal por perno | evaluación posterior | `UNKNOWN` |
+
+Regla de propagación: una realización no contendrá simultáneamente un hijo y
+los padres que lo determinan. En particular, no se muestrearán juntos:
+
+- $K_0$ y $\phi'$, $\nu_g$, OCR o $\mathrm{OCR}_{\max}$ dentro de una misma
+  rama;
+- $\sigma'_h$ y el par $K_0$--$\sigma'_v$;
+- $A_\theta$, $I_\theta$ o la razón seccional y el espesor del cual se
+  derivan;
+- el espesor neto y una pérdida de corrosión que lo determine; ni
+- tensiones de chapa, acciones de junta o respuestas de pernos, porque son
+  salidas del cálculo.
+
+### 27.7 Contrato para Monte Carlo
+
+La especificación probabilística permanecerá separada del cálculo mecánico:
+
+1. una etapa aprobada y auditable genera las realizaciones primitivas;
+2. `calculateScenario(realization, context)` evalúa cada fila sin RNG ni I/O;
+3. el agregador conserva matrices de $N$, $M$ y $Q$, además de extremos por
+   realización;
+4. los cuantiles puntuales por ángulo y los cuantiles de extremos espaciales se
+   materializan como productos distintos; y
+5. la publicación ocurre una vez terminada la corrida.
+
+La malla, las referencias y los datos conocidos se prepararán una sola vez.
+Dentro del bucle no se leerán JSON o CSV, no se construirán tablas o figuras y
+no se escribirán artefactos. Este contrato permite miles de llamadas sin
+convertir el runner documental en el camino crítico.
+
+`runRingMonteCarlo()` ya recibe realizaciones materializadas y mantiene fuera
+la selección de distribuciones; ese contrato se conservará inicialmente. La
+función de respuesta pasará a adaptar `calculateScenario()` a
+`ringDirectResponse` hasta que todos sus consumidores hayan migrado.
+
+La integración directa con 8192 pasos puede dominar el tiempo de una corrida.
+No se reemplazará silenciosamente por la solución cerrada ni se introducirá un
+operador precalculado antes de medir el costo. Si se habilitan varios métodos,
+el método será una entrada explícita con dominio declarado y paridad propia;
+no habrá un selector automático oculto.
+
+Continúan `UNKNOWN` la política ante realizaciones fuera de dominio, las
+distribuciones, dependencias, probabilidades de modelo, semilla, tamaño de
+muestra y criterio de convergencia. El comportamiento inicial por paridad será
+detenerse ante el primer error; descartar realizaciones silenciosamente queda
+prohibido.
+
+### 27.8 Migración «barco de Teseo»
+
+La compatibilidad del núcleo mecánico seguirá coexistencia acotada de nivel 2.
+Los productos determinísticos seguirán paridad de nivel 1. Cada puerta se
+implementará en un cambio recuperable separado y conservará el entry point
+vigente hasta aprobar la candidata.
+
+#### G0 — Congelar un oráculo recuperable — cerrada
+
+Se clasificó el alcance, se preservó el trabajo ajeno, se registraron los
+hashes de 27.2.1 y se creó la instantánea recuperable `4f0d9a8`. Antes de
+afirmar paridad byte a byte en una futura ejecución deberán registrarse además
+sistema operativo y arquitectura, locale, opciones R relevantes, ruta de
+carga, versiones de dependencias y orden de ejecución que gobiernen esa
+serialización.
+
+**Puerta satisfecha:** el cálculo vigente puede restaurarse sin depender del
+worktree que existía al iniciar el plan. La suite determinística y los hashes
+de la Fase 1 fueron verificados antes del commit.
+
+#### G1 — Caracterizar las superficies consumidas
+
+Inventariar los consumidores locales, registrar los consumidores externos
+como `UNKNOWN` y fijar fixtures inmutables para:
+
+- el escenario vigente con $\alpha=0$ y $\alpha=1$;
+- $\alpha=0.5$, agua con signo, tensión vertical modificada y espesor de
+  3.1 mm;
+- las ramas de $K_0$ adoptada, elástica, Jáky, descarga y recarga;
+- presión uniforme, un armónico, una carga con discontinuidad si se toca la
+  integración y los controles directo--cerrado--Fourier aplicables; y
+- los errores de esquema, dominio, balance e interpolación ya comprobados.
+
+El legado y la candidata se cargarán en entornos separados para evitar
+colisiones de nombres. No se creará una grilla masiva que no corresponda a un
+consumidor o modo de falla real. La falta de un inventario externo exhaustivo
+no bloquea G2--G9 mientras se preserven archivos, firmas y efectos históricos;
+sí bloquea el retiro, renombre o promoción de esas superficies.
+
+#### G2 — Extraer `estimateK0()` y el estado tensional
+
+Separar la selección de rama de la adaptación documental y luego extraer
+`calculateEffectiveStressState()`. El productor continuará entrando por
+`buildCalculationData()`.
+
+**Puerta:** mismos valores, estados de dominio y errores para todas las ramas;
+`stress.state.csv` y `calculation.inputs.csv` permanecen idénticos.
+
+#### G3 — Extraer propiedades seccionales
+
+Separar la lectura de la tabla de la interpolación. Conservar
+`calculateRingSection()` como única implementación pura de
+$E_\theta,A_\theta,I_\theta,R \mapsto EA_\theta,EI_\theta,I_\theta/(A_\theta
+R^2)$; no crear una fachada seccional equivalente.
+
+**Puerta:** mismas propiedades, procedencia y errores para 3.0 y 3.1 mm; sin
+cambio en `section.properties.csv` ni en las resultantes.
+
+#### G4 — Extraer malla y acciones perimetrales
+
+Separar la preparación invariante de $\theta$, la proyección biaxial y la
+adaptación a `perimeter.loads.csv`. Conservar `ringLoad` durante la
+coexistencia.
+
+**Puerta:** misma malla, orden, signos, componentes, metadatos, breakpoints y
+filas de acciones.
+
+#### G5 — Exponer la respuesta conjunta de resultantes
+
+Crear `calculateSectionResultants()` como wrapper exacto de
+`solveRingDirect()`. No modificar el integrador en esta puerta.
+
+**Puerta:** clase, campos, columnas, orden, valores y diagnósticos idénticos;
+los controles analíticos, Fourier y Wolfram aplicables continúan pasando.
+
+#### G6 — Consolidar extremos y controles
+
+Hacer que la corrida determinística y Monte Carlo usen una única
+`summarizeSectionResultants()`. Separar los controles cerrados y las escalas
+gráficas del cálculo físico.
+
+**Puerta:** mismos desempates —primer índice de la malla—, extremos, signos,
+ángulos, unidades y seis controles vigentes.
+
+#### G7 — Componer una realización pura
+
+Crear la secuencia visible de 27.5 y `calculateScenario()` con una realización
+y un contexto en memoria.
+
+**Puerta:** cada estado intermedio y la respuesta final coinciden con la
+corrida determinística individual; la función no accede al sistema de
+archivos, al RNG ni a objetos globales.
+
+#### G8 — Reducir el productor y migrar explícitamente la ejecución
+
+Reducir `buildCalculationData()` a validación, adaptación, llamada al núcleo y
+publicación. El entry point final será `runCalculationMemo.R`, que invocará
+explícitamente el único productor. El render llamará ese mismo productor desde
+su bloque `_results` y después cargará sus productos.
+
+Retirar de `setup.R` su escritura implícita es un cambio de interfaz
+intencional, no una paridad invisible. Antes de realizarlo se migrarán y
+probarán sus dos consumidores locales observados —`runCalculationMemo.R` y
+`_results/calculation.results.es.qmd`—. Mientras los consumidores externos
+permanezcan `UNKNOWN`, el efecto histórico se conservará mediante una
+superficie de compatibilidad explícita o el archivo no se retirará.
+
+**Puerta:** runner y render alcanzan el mismo productor único; el cambio de
+interfaz de `setup.R` tiene una prueba y una relación final declaradas; los
+nueve productos son byte-idénticos en el entorno completo requerido por G0 y
+registrado para esa comparación, la
+publicación por intercambio conserva su rollback, `Calculation` mantiene su
+estructura, y tablas, figuras y render contienen los mismos valores.
+
+#### G9 — Conectar el agregador Monte Carlo
+
+Conectar `calculateScenario()` mediante el callback `responseFunction` ya
+aceptado por `runRingMonteCarlo()`, sin acoplar el agregador a AR-SAD40 ni
+modificar su interfaz. Sólo se modificará el agregador si aparece un requisito
+real que el callback no pueda expresar.
+
+**Puerta:** los callbacks legado y candidato reciben los mismos draws y la
+misma malla, y producen el mismo orden de muestras, curvas y extremos para un
+lote pequeño de control. Ese lote sigue siendo una prueba de software, no un
+resultado probabilístico del proyecto.
+
+#### G10 — Incorporar módulos posteriores y promover a librería
+
+Esta puerta se divide en tres aprobaciones independientes:
+
+1. recuperación de tensión normal de chapa;
+2. acción de junta y respuesta de pernos; y
+3. promoción del núcleo estable a un paquete R bautizado por el usuario.
+
+Ningún submódulo se incorporará para completar una estructura vacía. Cada uno
+requiere ecuaciones, unidades, signos, datos, controles y casos de referencia
+propios. El paquete sólo recibirá funciones puras y pruebas; JSON, referencias
+del proyecto, CSV, Quarto, captions, tablas y figuras permanecerán en
+AR-SAD40.
+
+### 27.9 Observables y reglas de paridad
+
+| Superficie | Observable | Regla de comparación |
+|---|---|---|
+| $K_0$ | rama, primitivas, valor, estado de dominio y errores | identidad de estructura y valores para iguales entradas |
+| sección | perfil, filas de referencia, fracción, $A$, $I$, $EA$, $EI$ y razón seccional | identidad mientras se preserve el mismo cálculo y orden |
+| acciones | malla, $P_r$, $P_t$, signos, metadatos y orden | identidad estructural y numérica |
+| motor | clase, campos, malla, $N$, $M$, $Q$ y diagnósticos | identidad cuando la candidata llama al mismo motor con iguales argumentos |
+| extremos | estadístico, signo, ángulo y regla de desempate | identidad |
+| productos | nombres, esquemas, tipos, `NA`, filas, IDs, unidades y orden | byte a byte sólo en el entorno completo requerido por G0 y registrado para la ejecución comparada; si éste difiere, comparar tablas y declarar la diferencia de serialización |
+| publicación | intercambio completo y restauración ante falla | misma prueba de falla inyectada |
+| ejecución | entry point, efectos de `setup.R` y productores alcanzados | cambio intencional auditado en G8; no se presenta como paridad pura |
+| memoria | valores, tablas, datos de figuras, citas y referencias cruzadas | pruebas integradas; el HTML no se convierte en contrato byte-exacto |
+| Fase 1 | master, index, capítulos y HTML congelados | hashes exactos vigentes |
+
+Las tolerancias actuales pertenecen a controles matemáticos concretos; no son
+una tolerancia genérica de refactor. Mientras no cambien algoritmo, orden de
+evaluación, precisión ni entorno se exigirá identidad. Si una etapa posterior
+cambia el integrador o su orden numérico, la tolerancia de equivalencia será
+`UNKNOWN` hasta que una solución cerrada, Fourier, Wolfram u otro oráculo
+competente la establezca. Una diferencia funcional deliberada se aprobará y
+probará separadamente; nunca se ocultará dentro de una tolerancia.
+
+### 27.10 Puertas técnicas de los módulos futuros
+
+#### 27.10.1 Tensión normal de la chapa
+
+`calculateSheetNormalStress()` estará limitada a la recuperación por
+flexo-compresión a partir de $N_\theta$ y $M_\theta$. No incorporará
+silenciosamente el efecto de $Q_\theta$ ni una verificación de capacidad.
+Antes de implementarla deben aprobarse:
+
+- la convención de signos y las fibras de evaluación;
+- las propiedades de la sección neta y su relación con la corrosión;
+- la correspondencia entre la sección corrugada equivalente y la tensión
+  local que se pretende verificar;
+- las coordenadas o módulos resistentes necesarios; y
+- un caso de referencia que compruebe la recuperación.
+
+El tratamiento local de $Q_\theta$ permanece `UNKNOWN` y, si corresponde,
+pertenecerá a una función separada de tensión cortante.
+
+#### 27.10.2 Junta y pernos
+
+No se calculará una «tensión del perno» dividiendo directamente
+$N_\theta$ por un número de pernos. Antes deben definirse:
+
+- orientación y tipo de junta;
+- ancho tributario de la resultante;
+- número, separación y disposición de pernos;
+- excentricidad del solape;
+- mecanismo de transferencia y reparto entre filas; y
+- componentes de fuerza y áreas resistentes asociadas a la tensión nominal
+  que se informará.
+
+`calculateJointDemand()` resolverá la primera transformación y
+`calculateBoltResponse()` la segunda. Ambas terminarán en demanda; la
+verificación resistente y la capacidad permanecen fuera de esta arquitectura
+hasta una etapa posterior.
+
+### 27.11 Estructura de archivos candidata
+
+La extracción podrá materializarse gradualmente con una responsabilidad por
+archivo, sin renombrar primero los archivos consumidos:
+
+```text
+scripts/R/k0Models.R
+scripts/R/stressState.R
+scripts/R/corrugatedSection.R
+scripts/R/perimeterActions.R
+scripts/R/sectionResultants.R
+scripts/R/calculationScenario.R
+scripts/R/calculationProducts.R
+scripts/R/sheetStress.R       # futuro, sólo después de aprobación
+scripts/R/boltedJoint.R       # futuro, sólo después de aprobación
+```
+
+`ringDirect.R`, `ringLoads.R` y `ringMonteCarlo.R` continuarán como oráculos o
+wrappers durante la coexistencia. `calculationProducts.R` y el runner son
+adaptadores de AR-SAD40 y no forman parte del núcleo que se promoverá a la
+futura librería.
+
+### 27.12 Condiciones para promover el núcleo a un paquete R
+
+La promoción comienza únicamente cuando:
+
+1. las interfaces hayan permanecido estables dentro de AR-SAD40;
+2. el usuario haya aprobado nombre, repositorio y superficie pública;
+3. los consumidores locales y externos estén inventariados;
+4. unidades, signos, dominios, errores y salidas estén documentados;
+5. fixtures y controles conserven su clasificación de evidencia;
+6. una instalación temporal, las pruebas y `R CMD check` concluyan
+   correctamente;
+7. AR-SAD40 reproduzca sus productos primero contra el paquete candidato y
+   luego contra la superficie final; y
+8. el código legado se retire sólo después de la aceptación explícita de la
+   relación final paquete--consumidor.
+
+La siguiente acción ejecutiva de este plan es G1. El motor no se editará hasta
+que los consumidores locales y los fixtures de caracterización de esa puerta
+queden registrados.
