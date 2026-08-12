@@ -1,10 +1,13 @@
 if (!exists("calculateRingSection", mode = "function") ||
     !exists("biaxialStressTangentialMultiplierLoad", mode = "function") ||
+    !exists("estimateK0", mode = "function") ||
+    !exists("calculateEffectiveStressState", mode = "function") ||
     !exists("readCalculationJson", mode = "function")) {
   stop(
     paste(
       "Source scripts/setup/utils.R, scripts/R/ringDirect.R and",
-      "scripts/R/ringLoads.R before scripts/R/calculationData.R."
+      "scripts/R/ringLoads.R, scripts/R/k0Models.R and",
+      "scripts/R/stressState.R before scripts/R/calculationData.R."
     ),
     call. = FALSE
   )
@@ -387,73 +390,45 @@ validateCalculationConfig <- function(config) {
 }
 
 resolveCalculationK0 <- function(model) {
-  Empty <- NA_real_
-  Result <- list(
-    modelId = model$modelId,
-    frictionAngleDeg = Empty,
-    poissonRatio = Empty,
-    ocr = Empty,
-    ocrMaximum = Empty,
-    k0Input = Empty,
-    k0Derived = Empty,
-    domainStatus = "not-applicable",
+  ModelId <- model[["modelId", exact = TRUE]]
+  ModelFields <- intersect(
+    names(model),
+    c("k0", "frictionAngleDeg", "poissonRatio", "ocr", "ocrMaximum")
+  )
+  K0State <- do.call(
+    estimateK0,
+    c(list(modelId = ModelId), model[ModelFields])
+  )
+  OUT <- list(
+    modelId = K0State$modelId,
+    frictionAngleDeg = K0State$frictionAngleDeg,
+    poissonRatio = K0State$poissonRatio,
+    ocr = K0State$ocr,
+    ocrMaximum = K0State$ocrMaximum,
+    k0Input = K0State$k0Input,
+    k0Derived = K0State$k0Derived,
+    domainStatus = K0State$domainStatus,
     k0EvidenceLevel = "DE",
     sourceKey = NA_character_,
     sourceLocator = NA_character_
   )
-  if (model$modelId == "adopted-constant") {
-    Result$k0Input <- model$k0
-    Result$k0Applied <- model$k0
-    Result$k0EvidenceLevel <- "HA"
-  } else if (model$modelId == "elastic-confined") {
-    Result$poissonRatio <- model$poissonRatio
-    Result$k0Derived <- k0ElasticConfined(model$poissonRatio)
-    Result$k0Applied <- Result$k0Derived
-    Result$sourceKey <- "ChristopherEtAl2006"
-    Result$sourceLocator <- "Section 5.4.9, Eq. 5.37"
-  } else if (model$modelId == "jaky-nc") {
-    Result$frictionAngleDeg <- model$frictionAngleDeg
-    Result$k0Derived <- k0NormallyConsolidated(model$frictionAngleDeg)
-    Result$k0Applied <- Result$k0Derived
-    Result$sourceKey <- "ChristopherEtAl2006"
-    Result$sourceLocator <- "Section 5.4.9, Eq. 5.38"
-  } else if (model$modelId == "mayne-kulhawy-unloading") {
-    Domain <- checkK0PassiveDomain(model$frictionAngleDeg, model$ocr)
-    if (!Domain$valid) {
-      stop("The selected K0 unloading state reaches the passive limit.", call. = FALSE)
-    }
-    Result$frictionAngleDeg <- model$frictionAngleDeg
-    Result$ocr <- model$ocr
-    Result$k0Derived <- k0MayneKulhawyUnloading(
-      model$frictionAngleDeg,
-      model$ocr
-    )
-    Result$k0Applied <- Result$k0Derived
-    Result$domainStatus <- "within-domain"
-    Result$sourceKey <- "MayneKulhawy1982"
-    Result$sourceLocator <- "Eq. 10; domain control Eqs. 11-12"
-  } else if (model$modelId == "mayne-kulhawy-reload") {
-    Domain <- checkK0PassiveDomain(model$frictionAngleDeg, model$ocrMaximum)
-    if (!Domain$valid) {
-      stop("The selected K0 reload state reaches the passive limit.", call. = FALSE)
-    }
-    Result$frictionAngleDeg <- model$frictionAngleDeg
-    Result$ocr <- model$ocr
-    Result$ocrMaximum <- model$ocrMaximum
-    Result$k0Derived <- k0MayneKulhawyReload(
-      model$frictionAngleDeg,
-      model$ocr,
-      model$ocrMaximum
-    )
-    Result$k0Applied <- Result$k0Derived
-    Result$domainStatus <- "within-domain"
-    Result$sourceKey <- "MayneKulhawy1982"
-    Result$sourceLocator <- "Eq. 18; domain control Eqs. 11-12"
+  if (K0State$modelId == "adopted-constant") {
+    OUT$k0EvidenceLevel <- "HA"
+  } else if (K0State$modelId == "elastic-confined") {
+    OUT$sourceKey <- "ChristopherEtAl2006"
+    OUT$sourceLocator <- "Section 5.4.9, Eq. 5.37"
+  } else if (K0State$modelId == "jaky-nc") {
+    OUT$sourceKey <- "ChristopherEtAl2006"
+    OUT$sourceLocator <- "Section 5.4.9, Eq. 5.38"
+  } else if (K0State$modelId == "mayne-kulhawy-unloading") {
+    OUT$sourceKey <- "MayneKulhawy1982"
+    OUT$sourceLocator <- "Eq. 10; domain control Eqs. 11-12"
+  } else if (K0State$modelId == "mayne-kulhawy-reload") {
+    OUT$sourceKey <- "MayneKulhawy1982"
+    OUT$sourceLocator <- "Eq. 18; domain control Eqs. 11-12"
   }
-  if (!is.finite(Result$k0Applied) || Result$k0Applied < 0) {
-    stop("The selected K0 branch did not produce a finite non-negative value.", call. = FALSE)
-  }
-  Result
+  OUT$k0Applied <- K0State$k0Applied
+  OUT
 }
 
 readCalculationSection <- function(config, projectRoot) {
@@ -708,7 +683,15 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
   Config <- validateCalculationConfig(readCalculationJson(ConfigPath))
   Section <- readCalculationSection(Config, ProjectRoot)
   K0State <- resolveCalculationK0(Config$stressState$k0Model)
-  EffectiveHorizontal <- K0State$k0Applied * Config$stressState$effectiveVerticalKPa
+  EffectiveState <- calculateEffectiveStressState(
+    effectiveVerticalKPa = Config$stressState$effectiveVerticalKPa,
+    k0State = K0State,
+    waterPressureDifferenceKPa =
+      Config$stressState$waterPressureDifferenceKPa,
+    horizontalIncrementKPa = NA_real_,
+    horizontalIncrementStatus =
+      Config$stressState$horizontalIncrementMode
+  )
   StressStateId <- paste0(Config$scenarioId, "-", Config$stressState$statePointId)
   Stress <- data.frame(
     scenarioId = Config$scenarioId,
@@ -719,7 +702,7 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
     thetaIndex = NA_integer_,
     thetaRad = NA_real_,
     depthM = NA_real_,
-    effectiveVerticalKPa = Config$stressState$effectiveVerticalKPa,
+    effectiveVerticalKPa = EffectiveState$effectiveVerticalKPa,
     frictionAngleDeg = K0State$frictionAngleDeg,
     poissonRatio = K0State$poissonRatio,
     ocr = K0State$ocr,
@@ -727,10 +710,11 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
     k0Input = K0State$k0Input,
     k0Derived = K0State$k0Derived,
     k0Applied = K0State$k0Applied,
-    horizontalIncrementKPa = NA_real_,
-    horizontalIncrementStatus = Config$stressState$horizontalIncrementMode,
-    effectiveHorizontalKPa = EffectiveHorizontal,
-    waterPressureDifferenceKPa = Config$stressState$waterPressureDifferenceKPa,
+    horizontalIncrementKPa = EffectiveState$horizontalIncrementKPa,
+    horizontalIncrementStatus = EffectiveState$horizontalIncrementStatus,
+    effectiveHorizontalKPa = EffectiveState$effectiveHorizontalKPa,
+    waterPressureDifferenceKPa =
+      EffectiveState$waterPressureDifferenceKPa,
     domainStatus = K0State$domainStatus,
     k0EvidenceLevel = K0State$k0EvidenceLevel,
     evidenceLevel = "DE",

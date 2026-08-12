@@ -15,6 +15,8 @@ La documentación matemática y de fuentes está en
 ```r
 source("scripts/R/ringDirect.R")
 source("scripts/R/ringLoads.R")
+source("scripts/R/k0Models.R")
+source("scripts/R/stressState.R")
 source("scripts/R/ringInteraction.R")
 source("scripts/R/ringMonteCarlo.R")
 ```
@@ -161,6 +163,25 @@ K0.reloading <- k0MayneKulhawyReload(
 Domain <- checkK0PassiveDomain(
   frictionAngleDeg = 30,
   ocrMaximum = 4
+)
+```
+
+La fachada determinística selecciona una sola formulación a partir de sus
+variables primitivas. El estado tensional efectivo se forma en una etapa
+independiente y conserva como desconocido el incremento horizontal residual:
+
+```r
+K0 <- estimateK0(
+  modelId = "jaky-nc",
+  frictionAngleDeg = 30
+)
+
+StressState <- calculateEffectiveStressState(
+  effectiveVerticalKPa = 100,
+  k0State = K0,
+  waterPressureDifferenceKPa = 0,
+  horizontalIncrementKPa = NA_real_,
+  horizontalIncrementStatus = "unknown-not-modeled"
 )
 ```
 

@@ -1939,6 +1939,24 @@ del proyecto.
 9. El nombre de la futura librería R permanece `UNKNOWN`. Bautizarla antes de
    estabilizar las superficies de llamada produciría una migración adicional
    sin beneficio técnico.
+10. Todo código R de esta migración se rige por el router canónico
+    `/Users/averrik/github/agents/AGENTS.md` y, según el efecto inmediato, por
+    `STYLE.md`, `PRACTICE.md`, `R.md`, `CONFIG.md`, `R-PIPELINES.md`,
+    `COMPATIBILITY.md` y `R-DATA-TABLE.md` cuando se emplee `data.table`. Esta
+    obligación se revalida después de una compactación antes de continuar una
+    mutación de código.
+11. Las funciones y parámetros usan `lowerCamelCase`; las variables locales
+    con identidad estable usan `PascalCase`; los recipientes efímeros usan el
+    vocabulario compacto `DT`, `AUX`, `LIST`, `OUT`, `DATA`, `COLS`, `FILES`,
+    `FILE`, `DIR`, `OK`, `MASK` o `IDX`, y las primitivas efímeras usan una
+    letra minúscula. No se codifican tipos ni estados transitorios en los
+    nombres.
+12. `data.table` no se introducirá sólo por brevedad. Si una etapa lo requiere,
+    deberá declarar propiedad antes de mutar por referencia, preservar lado y
+    cardinalidad de cada unión, y probar orden, tipos, ausencias, duplicados y
+    atributos. Mientras el cálculo vigente use `data.frame`, la migración por
+    paridad conservará esa representación salvo una puerta deliberada y
+    comprobada.
 
 ### 27.2 Sistema vigente que se preserva como oráculo
 
@@ -2262,14 +2280,44 @@ refinamiento. Se agregó paridad numérica por superposición para
 $\alpha=0.5$ y valores exactos para la interpolación a 3.1 mm; no se creó una
 grilla adicional.
 
-#### G2 — Extraer `estimateK0()` y el estado tensional
+#### G2 — Extraer `estimateK0()` y el estado tensional — cerrada
 
 Separar la selección de rama de la adaptación documental y luego extraer
 `calculateEffectiveStressState()`. El productor continuará entrando por
 `buildCalculationData()`.
 
-**Puerta:** mismos valores, estados de dominio y errores para todas las ramas;
-`stress.state.csv` y `calculation.inputs.csv` permanecen idénticos.
+**Puerta:** mismos valores y estados para las cinco ramas, mismos errores de
+esquema JSON y dominio, y productos idénticos. `stress.state.csv` y
+`calculation.inputs.csv` permanecen idénticos.
+
+La puerta se cerró mediante `scripts/R/k0Models.R` y
+`scripts/R/stressState.R`. `estimateK0()` recibe `modelId` y exclusivamente las
+variables primitivas de la rama, devuelve el valor aplicado y los controles de
+dominio y no incorpora metadatos bibliográficos. `resolveCalculationK0()`
+permanece como adaptador compatible de evidencia. El estado tensional efectivo
+conserva `horizontalIncrementKPa = NA_real_` cuando el incremento residual es
+`unknown-not-modeled`; no sustituye ese desconocimiento por cero. La diferencia
+de presión de agua conserva su signo y sólo se transporta hacia las acciones
+perimetrales.
+
+Legado `4f0d9a8` y candidata se cargaron en entornos separados. Las cinco ramas
+válidas, el error de límite pasivo y los nueve productos de cada rama resultaron
+idénticos; bajo la huella G0 la comparación de productos fue byte a byte. Las
+pruebas integradas reprodujeron también los nueve SHA-256 canónicos.
+
+Existe una diferencia intencional limitada a llamadas directas malformadas de
+la nueva fachada: `estimateK0()` informa modelo no admitido, primitiva faltante,
+parámetro ajeno a la rama o valor adoptado fuera de dominio mediante errores
+explícitos. El legado producía en esos casos errores incidentales de R. Esta
+diferencia no modifica el esquema JSON —que continúa validándose en
+`.normaliseK0Model()`—, los errores declarados de dominio, ningún consumidor
+local observado ni los productos. Por ello no se presenta como paridad total
+de errores fuera del contrato normalizado.
+
+La auditoría funcional concluyó PASS en
+`/private/tmp/ar-sad40-g2-functional-audit.md`; la auditoría de políticas R,
+interfaces y paridad concluyó PASS en
+`/private/tmp/ar-sad40-g2-r-style-audit.md`.
 
 #### G3 — Extraer propiedades seccionales
 

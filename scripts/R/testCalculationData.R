@@ -9,6 +9,8 @@ runCalculationDataTests <- function() {
   source(file.path(Root, "scripts", "setup", "utils.R"))
   source(file.path(Root, "scripts", "R", "ringDirect.R"))
   source(file.path(Root, "scripts", "R", "ringLoads.R"))
+  source(file.path(Root, "scripts", "R", "k0Models.R"))
+  source(file.path(Root, "scripts", "R", "stressState.R"))
   source(file.path(Root, "scripts", "R", "calculationData.R"))
   projectRoot <- Root
   source(
@@ -412,7 +414,7 @@ runCalculationDataTests <- function() {
     k0Applied,
     domainStatus = "not-applicable"
   ) {
-    Result <- list(
+    OUT <- list(
       modelId = modelId,
       frictionAngleDeg = frictionAngleDeg,
       poissonRatio = poissonRatio,
@@ -425,8 +427,8 @@ runCalculationDataTests <- function() {
       sourceKey = sourceKey,
       sourceLocator = sourceLocator
     )
-    Result$k0Applied <- k0Applied
-    Result
+    OUT$k0Applied <- k0Applied
+    OUT
   }
   K0Cases <- list(
     list(
@@ -498,11 +500,78 @@ runCalculationDataTests <- function() {
     )
   )
   for (Case in K0Cases) {
+    Resolved <- resolveCalculationK0(Case$model)
+    stopifnot(identical(Resolved, Case$expected))
+    LIST <- Case$model
+    LIST$modelId <- NULL
+    Estimated <- do.call(
+      estimateK0,
+      c(list(modelId = Case$model$modelId), LIST)
+    )
+    CoreFields <- c(
+      "modelId", "frictionAngleDeg", "poissonRatio", "ocr", "ocrMaximum",
+      "k0Input", "k0Derived", "k0Applied", "domainStatus"
+    )
     stopifnot(identical(
-      do.call(resolveCalculationK0, list(Case$model)),
-      Case$expected
+      unname(Estimated[CoreFields]),
+      unname(Case$expected[CoreFields])
     ))
+    stopifnot(!any(c(
+      "k0EvidenceLevel",
+      "sourceKey",
+      "sourceLocator"
+    ) %in% names(Estimated)))
   }
+  Unloading <- do.call(
+    estimateK0,
+    c(
+      list(modelId = K0Cases[[4L]]$model$modelId),
+      K0Cases[[4L]]$model[setdiff(names(K0Cases[[4L]]$model), "modelId")]
+    )
+  )
+  assertNear(Unloading$passiveCoefficient, 3, 1e-14, "unloading passive coefficient")
+  assertNear(Unloading$ocrLimit, 36, 1e-12, "unloading OCR limit")
+
+  EffectiveState <- calculateEffectiveStressState(
+    effectiveVerticalKPa = 100,
+    k0State = list(k0Applied = 1.5),
+    waterPressureDifferenceKPa = -10,
+    horizontalIncrementKPa = NA_real_,
+    horizontalIncrementStatus = "unknown-not-modeled"
+  )
+  stopifnot(identical(
+    EffectiveState,
+    list(
+      effectiveVerticalKPa = 100,
+      baseEffectiveHorizontalKPa = 150,
+      horizontalIncrementKPa = NA_real_,
+      horizontalIncrementStatus = "unknown-not-modeled",
+      effectiveHorizontalKPa = 150,
+      waterPressureDifferenceKPa = -10
+    )
+  ))
+  assertError(function() {
+    calculateEffectiveStressState(
+      effectiveVerticalKPa = 100,
+      k0State = list(k0Applied = 0.5),
+      waterPressureDifferenceKPa = 0,
+      horizontalIncrementKPa = 0,
+      horizontalIncrementStatus = "unknown-not-modeled"
+    )
+  }, "must remain NA", "unknown horizontal increment")
+  assertError(function() {
+    estimateK0(modelId = "adopted-constant")
+  }, "missing: k0", "missing K0 branch primitive")
+  assertError(function() {
+    estimateK0(
+      modelId = "adopted-constant",
+      k0 = 0.5,
+      frictionAngleDeg = 30
+    )
+  }, "unsupported parameters", "exclusive direct K0 branch")
+  assertError(function() {
+    estimateK0(modelId = "adopted-constant", k0 = -0.1)
+  }, "must be at least 0", "negative adopted K0")
 
   assertError(function() {
     Config <- copyObject(BaselineJson)
