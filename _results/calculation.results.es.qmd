@@ -1,6 +1,17 @@
 ```{r}
 #| include: false
 projectRoot <- normalizePath(".", mustWork = TRUE)
-source(file.path(projectRoot, "scripts", "setup", "setup.R"))
-source(file.path(projectRoot, "scripts", "setup", "calculationResults.R"))
+source(
+  file.path(projectRoot, "scripts", "setup", "calculationFunctions.R"),
+  local = TRUE
+)
+invisible(buildCalculationData(
+  configPath = file.path(projectRoot, "calculation.json"),
+  outputDirectory = file.path(projectRoot, "data", "calculation"),
+  projectRoot = projectRoot
+))
+source(
+  file.path(projectRoot, "scripts", "setup", "calculationResults.R"),
+  local = TRUE
+)
 ```

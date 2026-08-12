@@ -1296,11 +1296,14 @@ El cálculo se concentra en
 5. escribirá los CSV sólo después de completar correctamente el cálculo; y
 6. fallará antes del render si falta una entrada o un control no se satisface.
 
-Como la corrida determinística actual es pequeña, `scripts/setup/setup.R` la
-regenera al inicio de cada render. Esta decisión evita resultados obsoletos
-sin introducir una caché o un sistema de dependencias prematuro. El productor
-también conservará una interfaz ejecutable mediante `Rscript` para pruebas y
-uso fuera de Quarto.
+Como la corrida determinística actual es pequeña, el bloque
+`_results/calculation.results.es.qmd` carga las funciones sin efectos y llama
+explícitamente al productor al inicio de cada render. El entry point
+`scripts/R/runCalculationMemo.R` ejecuta la misma llamada para pruebas y uso
+fuera de Quarto. Esta decisión evita resultados obsoletos sin introducir una
+caché o un sistema de dependencias prematuro. `scripts/setup/setup.R` conserva
+el efecto histórico únicamente como superficie de compatibilidad para
+consumidores externos todavía `UNKNOWN`.
 
 `scripts/setup/utils.R` posee únicamente lectura, formateo y
 resolución de rutas. No contendrá ecuaciones mecánicas. Los builders de tablas
@@ -2617,11 +2620,21 @@ reauditorías de naming, arquitectura y paridad concluyeron PASS en
 `/private/tmp/ar-sad40-g8-2-architecture-reaudit.md` y
 `/private/tmp/ar-sad40-g8-2-parity-reaudit.md`.
 
-G8.3 migrará los dos consumidores locales a una llamada explícita y conservará
-`setup.R` como compatibilidad. La deuda de nombres identificada fuera del
-alcance de G8.2 se corregirá únicamente en el consumidor que migre esta puerta;
-las superficies Monte Carlo y la interfaz gráfica de NGR conservan puertas
-propias.
+G8.3 quedó cerrada al migrar los dos consumidores locales a una llamada
+explícita del productor. `runCalculationMemo.R` y
+`_results/calculation.results.es.qmd` cargan `calculationFunctions.R` sin
+efectos y llaman una vez a `buildCalculationData()`; el bloque documental
+carga después `calculationResults.R` para formar `Calculation`. `setup.R`
+permanece byte-idéntico y conserva `CalculationRun` como compatibilidad para
+consumidores externos todavía `UNKNOWN`.
+
+La corrección de nombres de G8.3 se limitó a los parámetros y locales internos
+de `calculationResults.R`; las columnas históricas `...Id` y el objeto
+`Calculation` permanecieron idénticos. Las seis pruebas pertinentes, el render,
+los nueve productos G0 y la línea base congelada de Fase 1 concluyeron sin
+cambios. La auditoría independiente final concluyó PASS en
+`/private/tmp/ar-sad40-g8-3-final-audit.md`. Las superficies Monte Carlo y la
+interfaz gráfica de NGR conservan puertas propias.
 
 Durante G8.2 se detectó una aplicación incorrecta de la política de siglas en
 las superficies puras creadas por G2, G3 y G7. La corrección pertenece a esta

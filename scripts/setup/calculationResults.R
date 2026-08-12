@@ -102,7 +102,7 @@ loadCalculationResults <- function(
       nrow(Controls) == 0L || nrow(Scales) != 3L) {
     stop("The calculation products have incompatible row counts.", call. = FALSE)
   }
-  ScenarioIds <- unique(c(
+  ScenarioIDs <- unique(c(
     SectionData$scenarioId,
     StressData$scenarioId,
     Resultants$scenarioId,
@@ -110,7 +110,7 @@ loadCalculationResults <- function(
     Controls$scenarioId,
     Scales$scenarioId
   ))
-  if (length(ScenarioIds) != 1L || ScenarioIds != Config$scenarioId) {
+  if (length(ScenarioIDs) != 1L || ScenarioIDs != Config$scenarioId) {
     stop("The calculation products do not share the configured scenarioId.", call. = FALSE)
   }
   if (!all(Controls$pass)) {
@@ -137,19 +137,19 @@ loadCalculationResults <- function(
     stop("The section product does not resolve to two reference rows.", call. = FALSE)
   }
 
-  valueAt <- function(caseId, resultantId, angle) {
+  valueAt <- function(caseID, resultantID, angle) {
     Data <- Resultants[
-      Resultants$caseId == caseId & Resultants$resultantId == resultantId,
+      Resultants$caseId == caseID & Resultants$resultantId == resultantID,
       ,
       drop = FALSE
     ]
     Data$value[which.min(abs(Data$thetaRad - angle))]
   }
-  extremumAt <- function(caseId, resultantId, statisticId, field = "value") {
+  extremumAt <- function(caseID, resultantID, statisticID, field = "value") {
     Data <- ExtremaData[
-      ExtremaData$caseId == caseId &
-        ExtremaData$resultantId == resultantId &
-        ExtremaData$statisticId == statisticId,
+      ExtremaData$caseId == caseID &
+        ExtremaData$resultantId == resultantID &
+        ExtremaData$statisticId == statisticID,
       ,
       drop = FALSE
     ]
@@ -158,35 +158,35 @@ loadCalculationResults <- function(
     }
     Data[[field]][1L]
   }
-  CaseRows <- lapply(seq_len(nrow(Config$loadCases)), function(Index) {
-    CaseId <- Config$loadCases$caseId[Index]
-    Alpha <- Config$loadCases$alpha[Index]
-    MomentMinimum <- extremumAt(CaseId, "M", "minimum")
-    MomentMaximum <- extremumAt(CaseId, "M", "maximum")
+  CaseRows <- lapply(seq_len(nrow(Config$loadCases)), function(i) {
+    CaseID <- Config$loadCases$caseId[i]
+    Alpha <- Config$loadCases$alpha[i]
+    MomentMinimum <- extremumAt(CaseID, "M", "minimum")
+    MomentMaximum <- extremumAt(CaseID, "M", "maximum")
     data.frame(
-      caseId = CaseId,
+      caseId = CaseID,
       prescription = paste0(
         "Componente tangencial: α = ",
         formatC(Alpha, format = "f", digits = 2)
       ),
       tangentialMultiplier = Alpha,
-      normalCrownInvert = valueAt(CaseId, "N", 0),
-      normalSidewalls = valueAt(CaseId, "N", pi / 2),
-      normalMinimum = extremumAt(CaseId, "N", "minimum"),
-      normalMaximum = extremumAt(CaseId, "N", "maximum"),
-      momentCrownInvert = valueAt(CaseId, "M", 0),
-      momentSidewalls = valueAt(CaseId, "M", pi / 2),
+      normalCrownInvert = valueAt(CaseID, "N", 0),
+      normalSidewalls = valueAt(CaseID, "N", pi / 2),
+      normalMinimum = extremumAt(CaseID, "N", "minimum"),
+      normalMaximum = extremumAt(CaseID, "N", "maximum"),
+      momentCrownInvert = valueAt(CaseID, "M", 0),
+      momentSidewalls = valueAt(CaseID, "M", pi / 2),
       momentMinimum = MomentMinimum,
       momentMaximum = MomentMaximum,
-      maximumAbsoluteShear = extremumAt(CaseId, "Q", "absolute-maximum"),
+      maximumAbsoluteShear = extremumAt(CaseID, "Q", "absolute-maximum"),
       meanMoment = (MomentMinimum + MomentMaximum) / 2,
       stringsAsFactors = FALSE
     )
   })
   Extrema <- do.call(rbind, CaseRows)
 
-  CaseParagraphs <- vapply(seq_len(nrow(Extrema)), function(Index) {
-    Row <- Extrema[Index, , drop = FALSE]
+  CaseParagraphs <- vapply(seq_len(nrow(Extrema)), function(i) {
+    Row <- Extrema[i, , drop = FALSE]
     paste0(
       "Para $\\alpha=", formatCalculationGeneral(Row$tangentialMultiplier, 4L),
       "$ se obtiene\n\n$$\n",

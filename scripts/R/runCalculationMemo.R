@@ -1,14 +1,22 @@
 # Regenerates the deterministic products consumed by the calculation memo.
 
-arguments <- commandArgs(trailingOnly = FALSE)
-fileArgument <- grep("^--file=", arguments, value = TRUE)
-if (length(fileArgument) != 1L) {
+Arguments <- commandArgs(trailingOnly = FALSE)
+FileArgument <- grep("^--file=", Arguments, value = TRUE)
+if (length(FileArgument) != 1L) {
   stop("Run with Rscript scripts/R/runCalculationMemo.R.", call. = FALSE)
 }
 
-scriptPath <- normalizePath(sub("^--file=", "", fileArgument))
-projectRoot <- normalizePath(file.path(dirname(scriptPath), "..", ".."))
-source(file.path(projectRoot, "scripts", "setup", "setup.R"))
+ScriptPath <- normalizePath(sub("^--file=", "", FileArgument))
+projectRoot <- normalizePath(file.path(dirname(ScriptPath), "..", ".."))
+source(
+  file.path(projectRoot, "scripts", "setup", "calculationFunctions.R"),
+  local = TRUE
+)
+invisible(buildCalculationData(
+  configPath = file.path(projectRoot, "calculation.json"),
+  outputDirectory = file.path(projectRoot, "data", "calculation"),
+  projectRoot = projectRoot
+))
 
 cat(
   "PASS: calculation.json and data/calculation are consistent.\n"
