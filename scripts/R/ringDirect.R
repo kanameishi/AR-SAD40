@@ -567,29 +567,39 @@ compareRingRefinement <- function(
   )
 }
 
-summarizeRingGrid <- function(response) {
+summarizeSectionResultants <- function(response) {
   if (!inherits(response, "ringDirectResponse")) {
     stop("response must be returned by solveRingDirect().", call. = FALSE)
   }
-  Quantities <- c(
+  Columns <- c(
     N = "normalForce",
     M = "bendingMoment",
     Q = "shearForce"
   )
 
-  do.call(rbind, lapply(names(Quantities), function(Name) {
-    Column <- Quantities[[Name]]
-    Value <- response$values[[Column]]
-    Indices <- c(which.min(Value), which.max(Value), which.max(abs(Value)))
-    Signed <- Value[Indices]
+  LIST <- lapply(names(Columns), function(s) {
+    x <- response$values[[Columns[[s]]]]
+    IDX <- c(which.min(x), which.max(x), which.max(abs(x)))
+    Values.signed <- x[IDX]
     data.frame(
-      resultant = Name,
+      resultant = s,
       statistic = c("minimum", "maximum", "absoluteMaximum"),
-      value = c(Signed[1L], Signed[2L], abs(Signed[3L])),
-      signedValue = Signed,
-      theta = response$values$theta[Indices],
-      thetaDeg = response$values$thetaDeg[Indices],
+      value = c(
+        Values.signed[1L],
+        Values.signed[2L],
+        abs(Values.signed[3L])
+      ),
+      signedValue = Values.signed,
+      theta = response$values$theta[IDX],
+      thetaDeg = response$values$thetaDeg[IDX],
       stringsAsFactors = FALSE
     )
-  }))
+  })
+  OUT <- do.call(rbind, LIST)
+  rownames(OUT) <- NULL
+  OUT
+}
+
+summarizeRingGrid <- function(response) {
+  summarizeSectionResultants(response)
 }

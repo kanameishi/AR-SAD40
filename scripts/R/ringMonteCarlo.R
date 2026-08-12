@@ -35,23 +35,14 @@ if (!exists("solveRingDirect", mode = "function")) {
   as.integer(quantileType)
 }
 
-.responseExtrema <- function(values, sampleId) {
-  Columns <- c(N = "normalForce", M = "bendingMoment", Q = "shearForce")
-  do.call(rbind, lapply(names(Columns), function(Resultant) {
-    Value <- values[[Columns[[Resultant]]]]
-    Indices <- c(which.min(Value), which.max(Value), which.max(abs(Value)))
-    Signed <- Value[Indices]
-    data.frame(
-      sampleId = sampleId,
-      resultant = Resultant,
-      statistic = c("minimum", "maximum", "absoluteMaximum"),
-      value = c(Signed[1L], Signed[2L], abs(Signed[3L])),
-      signedValue = Signed,
-      theta = values$theta[Indices],
-      thetaDeg = values$thetaDeg[Indices],
-      stringsAsFactors = FALSE
-    )
-  }))
+.responseExtrema <- function(response, sampleId) {
+  OUT <- summarizeSectionResultants(response)
+  OUT$sampleId <- sampleId
+  OUT <- OUT[, c(
+    "sampleId", "resultant", "statistic", "value", "signedValue",
+    "theta", "thetaDeg"
+  )]
+  OUT
 }
 
 runRingMonteCarlo <- function(
@@ -127,7 +118,7 @@ runRingMonteCarlo <- function(
     Curves$N[SampleId, ] <- Values$normalForce
     Curves$M[SampleId, ] <- Values$bendingMoment
     Curves$Q[SampleId, ] <- Values$shearForce
-    Extrema[[SampleId]] <- .responseExtrema(Values, SampleId)
+    Extrema[[SampleId]] <- .responseExtrema(Response, SampleId)
     Diagnostics[[SampleId]] <- Response$diagnostics
   }
 

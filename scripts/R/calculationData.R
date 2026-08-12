@@ -624,6 +624,119 @@ readCalculationSection <- function(config, projectRoot) {
   do.call(rbind, Rows)
 }
 
+.buildSectionExtremaTable <- function(
+  summaries,
+  cases,
+  scenarioId,
+  units
+) {
+  Statistics <- c(
+    minimum = "minimum",
+    maximum = "maximum",
+    absoluteMaximum = "absolute-maximum"
+  )
+  LIST <- lapply(seq_len(nrow(cases)), function(i) {
+    Summary <- summaries[[i]]
+    data.frame(
+      scenarioId = scenarioId,
+      caseId = cases$caseId[i],
+      alpha = cases$alpha[i],
+      resultantId = Summary$resultant,
+      statisticId = unname(Statistics[Summary$statistic]),
+      value = Summary$value,
+      signedValue = Summary$signedValue,
+      thetaRad = Summary$theta,
+      thetaDeg = Summary$thetaDeg,
+      unit = unname(units[Summary$resultant]),
+      evidenceLevel = "DE",
+      stringsAsFactors = FALSE
+    )
+  })
+  OUT <- do.call(rbind, LIST)
+  rownames(OUT) <- NULL
+  OUT
+}
+
+.buildResultantControlTable <- function(
+  responses,
+  cases,
+  stressState,
+  section,
+  theta,
+  numerics,
+  scenarioId,
+  units
+) {
+  Columns <- c(N = "normalForce", M = "bendingMoment", Q = "shearForce")
+  LIST <- lapply(seq_len(nrow(cases)), function(i) {
+    Response.closed <- solveBiaxialTangentialMultiplierClosed(
+      effectiveVertical = stressState$effectiveVerticalKPa,
+      effectiveHorizontal = stressState$effectiveHorizontalKPa,
+      waterPressureDifference = stressState$waterPressureDifferenceKPa,
+      radius = section$analysisRadiusM,
+      tangentialMultiplier = cases$alpha[i],
+      theta = theta,
+      sectionRatio = section$sectionRatio
+    )
+    Response.direct <- responses[[i]]
+    do.call(rbind, lapply(names(Columns), function(s) {
+      Error <- max(abs(
+        Response.direct$values[[Columns[[s]]]] -
+          Response.closed$values[[Columns[[s]]]]
+      ))
+      data.frame(
+        scenarioId = scenarioId,
+        caseId = cases$caseId[i],
+        alpha = cases$alpha[i],
+        controlId = "closed-form-resultants",
+        resultantId = s,
+        metricId = "maximum-absolute-difference",
+        observedValue = Error,
+        comparison = "<=",
+        limitValue = numerics$closedFormTolerance,
+        unit = units[[s]],
+        pass = Error <= numerics$closedFormTolerance,
+        thetaPointCount = length(theta),
+        integrationSteps = numerics$integrationSteps,
+        evidenceLevel = "CI",
+        stringsAsFactors = FALSE
+      )
+    }))
+  })
+  OUT <- do.call(rbind, LIST)
+  rownames(OUT) <- NULL
+  if (!all(OUT$pass)) {
+    stop("One or more closed-form numerical controls failed.", call. = FALSE)
+  }
+  OUT
+}
+
+.buildDisplayScaleTable <- function(
+  resultants,
+  scenarioId,
+  radius,
+  graphics,
+  units
+) {
+  do.call(rbind, lapply(names(units), function(s) {
+    AUX <- resultants[resultants$resultantId == s, , drop = FALSE]
+    Maximum <- max(abs(AUX$value))
+    data.frame(
+      scenarioId = scenarioId,
+      resultantId = s,
+      referenceRadiusM = radius,
+      displayScale = graphics$radialFraction * radius / Maximum,
+      maximumAbsoluteValue = Maximum,
+      resultantUnit = units[[s]],
+      radialFraction = graphics$radialFraction,
+      graphicAmplification = graphics$graphicAmplification,
+      ordinateCount = graphics$ordinateCount,
+      evidenceLevel = "DE",
+      stringsAsFactors = FALSE
+    )
+  }))
+}
+
 .writeCalculationProducts <- function(products, configPath, outputDirectory) {
   Parent <- dirname(outputDirectory)
   if (!dir.exists(Parent)) dir.create(Parent, recursive = TRUE)
@@ -774,89 +887,30 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
   }))
   rownames(Resultants) <- NULL
 
-  Extrema <- do.call(rbind, lapply(seq_len(nrow(Cases)), function(Index) {
-    Values <- Responses[[Index]]$values
-    do.call(rbind, lapply(names(QuantityColumns), function(ResultantId) {
-      Column <- Values[[QuantityColumns[[ResultantId]]]]
-      Indices <- c(which.min(Column), which.max(Column), which.max(abs(Column)))
-      Statistics <- c("minimum", "maximum", "absolute-maximum")
-      Signed <- Column[Indices]
-      data.frame(
-        scenarioId = Config$scenarioId,
-        caseId = Cases$caseId[Index],
-        alpha = Cases$alpha[Index],
-        resultantId = ResultantId,
-        statisticId = Statistics,
-        value = c(Signed[1L], Signed[2L], abs(Signed[3L])),
-        signedValue = Signed,
-        thetaRad = Values$theta[Indices],
-        thetaDeg = Values$thetaDeg[Indices],
-        unit = QuantityUnits[[ResultantId]],
-        evidenceLevel = "DE",
-        stringsAsFactors = FALSE
-      )
-    }))
-  }))
-  rownames(Extrema) <- NULL
-
-  Controls <- do.call(rbind, lapply(seq_len(nrow(Cases)), function(Index) {
-    Closed <- solveBiaxialTangentialMultiplierClosed(
-      effectiveVertical = Stress$effectiveVerticalKPa,
-      effectiveHorizontal = Stress$effectiveHorizontalKPa,
-      waterPressureDifference = Stress$waterPressureDifferenceKPa,
-      radius = Section$analysisRadiusM,
-      tangentialMultiplier = Cases$alpha[Index],
-      theta = Theta,
-      sectionRatio = Section$sectionRatio
-    )
-    Direct <- Responses[[Index]]
-    do.call(rbind, lapply(names(QuantityColumns), function(ResultantId) {
-      Error <- max(abs(
-        Direct$values[[QuantityColumns[[ResultantId]]]] -
-          Closed$values[[QuantityColumns[[ResultantId]]]]
-      ))
-      data.frame(
-        scenarioId = Config$scenarioId,
-        caseId = Cases$caseId[Index],
-        alpha = Cases$alpha[Index],
-        controlId = "closed-form-resultants",
-        resultantId = ResultantId,
-        metricId = "maximum-absolute-difference",
-        observedValue = Error,
-        comparison = "<=",
-        limitValue = Config$numerics$closedFormTolerance,
-        unit = QuantityUnits[[ResultantId]],
-        pass = Error <= Config$numerics$closedFormTolerance,
-        thetaPointCount = length(Theta),
-        integrationSteps = Config$numerics$integrationSteps,
-        evidenceLevel = "CI",
-        stringsAsFactors = FALSE
-      )
-    }))
-  }))
-  rownames(Controls) <- NULL
-  if (!all(Controls$pass)) {
-    stop("One or more closed-form numerical controls failed.", call. = FALSE)
-  }
-
-  DisplayScales <- do.call(rbind, lapply(names(QuantityColumns), function(ResultantId) {
-    Current <- Resultants[Resultants$resultantId == ResultantId, , drop = FALSE]
-    Maximum <- max(abs(Current$value))
-    data.frame(
-      scenarioId = Config$scenarioId,
-      resultantId = ResultantId,
-      referenceRadiusM = Section$analysisRadiusM,
-      displayScale = Config$graphics$radialFraction *
-        Section$analysisRadiusM / Maximum,
-      maximumAbsoluteValue = Maximum,
-      resultantUnit = QuantityUnits[[ResultantId]],
-      radialFraction = Config$graphics$radialFraction,
-      graphicAmplification = Config$graphics$graphicAmplification,
-      ordinateCount = Config$graphics$ordinateCount,
-      evidenceLevel = "DE",
-      stringsAsFactors = FALSE
-    )
-  }))
+  Summaries <- lapply(Responses, summarizeSectionResultants)
+  Extrema <- .buildSectionExtremaTable(
+    summaries = Summaries,
+    cases = Cases,
+    scenarioId = Config$scenarioId,
+    units = QuantityUnits
+  )
+  Controls <- .buildResultantControlTable(
+    responses = Responses,
+    cases = Cases,
+    stressState = Stress,
+    section = Section,
+    theta = Theta,
+    numerics = Config$numerics,
+    scenarioId = Config$scenarioId,
+    units = QuantityUnits
+  )
+  DisplayScales <- .buildDisplayScaleTable(
+    resultants = Resultants,
+    scenarioId = Config$scenarioId,
+    radius = Section$analysisRadiusM,
+    graphics = Config$graphics,
+    units = QuantityUnits
+  )
 
   Products <- list(
     "calculation.inputs.csv" = .buildCalculationInputs(Config),

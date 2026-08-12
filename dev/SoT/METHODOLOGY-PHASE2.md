@@ -2452,7 +2452,7 @@ SHA-256
 Los nueve productos del manifiesto G0 y los trece archivos de la línea base
 congelada de Fase 1 permanecen idénticos.
 
-#### G6 — Consolidar extremos y controles
+#### G6 — Consolidar extremos y controles — cerrada
 
 Hacer que la corrida determinística y Monte Carlo usen una única
 `summarizeSectionResultants()`. Separar los controles cerrados y las escalas
@@ -2460,6 +2460,49 @@ gráficas del cálculo físico.
 
 **Puerta:** mismos desempates —primer índice de la malla—, extremos, signos,
 ángulos, unidades y seis controles vigentes.
+
+La puerta se cerró mediante `summarizeSectionResultants(response)`, ubicada
+junto a `ringDirectResponse` en `scripts/R/ringDirect.R`. La función localiza
+en una respuesta conjunta los mínimos, máximos y máximos absolutos de `N`, `M`
+y `Q`; conserva el signo y el ángulo de la ordenada elegida y mantiene como
+desempate el primer índice de la malla. No conoce unidades, casos, muestras,
+tolerancias, archivos ni opciones gráficas. `summarizeRingGrid()` conserva su
+nombre y firma histórica y delega en esta única implementación.
+
+La corrida determinística adapta el resumen mediante
+`.buildSectionExtremaTable()`. Monte Carlo usa la misma función para cada
+realización y agrega después `sampleId`; no cambia la generación de cuantiles
+ni incorpora distribuciones. Los contrastes contra la solución cerrada y las
+escalas de representación permanecen fuera del resumen físico, aislados en
+`.buildResultantControlTable()` y `.buildDisplayScaleTable()`.
+
+La candidata se comparó contra `7ca14f2` en entornos separados. Un fixture con
+empates verificó exactamente el primer índice, el signo y los ángulos; tres
+respuestas físicas verificaron `alpha = 0`, `0.5` y `1`. La corrida Monte Carlo
+de control, sus tres tablas, seis variantes determinísticas y los nueve
+productos resultaron idénticos. Una tolerancia cerrada de `1e-16` conservó el
+mismo error y no dejó un directorio parcial. Los tres productos propios de la
+puerta mantuvieron sus hashes G0:
+
+- `section.extrema.csv`:
+  `6881e17589fd53c65676c2826d5c96948580f3c37d2e8a270bf2e7e0eb40f014`;
+- `numerical.controls.csv`:
+  `be43a911b0b3b3af6334e61e3ca40909b1ef3858b4d01254ee0037f93791c5e3`;
+- `display.scales.csv`:
+  `08b3222ce5b947783293a37a8c888276c729ef83ce968505e8b80f2d6198cc6b`.
+
+Las auditorías independientes concluyeron PASS en
+`/private/tmp/ar-sad40-g6-architecture-final-audit.md`,
+`/private/tmp/ar-sad40-g6-r-policy-final-audit-v2.md` y
+`/private/tmp/ar-sad40-g6-parity-final-audit.md`. No se introdujeron
+`data.table`, clases, registros, políticas probabilísticas ni cambios al
+integrador, Fourier o las formulaciones de carga.
+
+El render final de G6 produjo `html/calculation.review.es/index.html`,
+SHA-256
+`81951d0f0d50b9a0bff09ae5faee869fe1eeecc97b1694f21cc1176c8033805e`.
+Los nueve productos G0 y los trece archivos de la línea base congelada de
+Fase 1 permanecen idénticos.
 
 #### G7 — Componer una realización pura
 

@@ -68,7 +68,7 @@ Response <- calculateSectionResultants(
 )
 
 stopifnot(Response$diagnostics$valid)
-summarizeRingGrid(Response)
+summarizeSectionResultants(Response)
 ```
 
 `sectionRatio` es

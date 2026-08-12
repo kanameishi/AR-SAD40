@@ -216,6 +216,39 @@ assertNear(
 )
 assertNear(Uniform$values$bendingMoment, 0, 2e-8, "uniform pressure M")
 assertNear(Uniform$values$shearForce, 0, 2e-8, "uniform pressure Q")
+Theta.tied <- c(0, pi / 2, pi, 3 * pi / 2)
+Values.tied <- data.frame(
+  theta = Theta.tied,
+  thetaDeg = Theta.tied * 180 / pi,
+  normalForce = c(-5, 5, -5, 5),
+  bendingMoment = c(7, -7, 7, -7),
+  shearForce = c(0, 3, -3, 3)
+)
+Response.tied <- list(values = Values.tied)
+class(Response.tied) <- "ringDirectResponse"
+Summary.expected <- data.frame(
+  resultant = rep(c("N", "M", "Q"), each = 3L),
+  statistic = rep(c("minimum", "maximum", "absoluteMaximum"), 3L),
+  value = c(-5, 5, 5, -7, 7, 7, -3, 3, 3),
+  signedValue = c(-5, 5, -5, -7, 7, 7, -3, 3, 3),
+  theta = c(0, pi / 2, 0, pi / 2, 0, 0, pi, pi / 2, pi / 2),
+  thetaDeg = c(0, 90, 0, 90, 0, 0, 180, 90, 90),
+  stringsAsFactors = FALSE
+)
+Summary.actual <- summarizeSectionResultants(Response.tied)
+assertTrue(
+  identical(Summary.actual, Summary.expected),
+  "section resultant extrema and first-index ties"
+)
+assertTrue(
+  identical(summarizeRingGrid(Response.tied), Summary.actual),
+  "historical grid summary compatibility"
+)
+assertError(
+  function() summarizeSectionResultants(list()),
+  "section resultant summary class",
+  "solveRingDirect"
+)
 UniformCombined <- solveRingDirect(
   load = combineRingLoads(list(
     scaleRingLoad(UniformLoad, 0.4),
