@@ -1,6 +1,6 @@
 # Manifest de fuentes metodológicas recuperadas
 
-Fecha de verificación: 11 de agosto de 2026.
+Fecha de verificación: 12 de agosto de 2026.
 
 Este archivo registra procedencia e integridad. Incluye informes primarios, manuales, artículos, tesis, índices o vistas previas oficiales; la presencia de una fuente no implica que su método sea aplicable al problema.
 
@@ -13,6 +13,9 @@ Este archivo registra procedencia e integridad. Incluye informes primarios, manu
 | `cande_original_final_report.pdf` | Katona et al. (1976), *CANDE: A Modern Approach for the Structural Design and Analysis of Buried Culverts*, [USDOT ROSA P](https://rosap.ntl.bts.gov/view/dot/29891/dot_29891_DS1.pdf) | 480 | `5d590e9eb52c27a95df7c7206647834f70d2eb43d83351d78e25f26e8e5f3df6` |
 | `cande_2025_solutions_formulations.pdf` | Katona (2025), *CANDE-2025: Culvert Analysis and Design — Solution Methods and Formulations*, [sitio oficial de CANDE](https://www.candeforculverts.com/download.html) | 292 | `8ebe8e27595d82ab3c4bbbeab940cc0773d98ddc5beb90c74e490e657f1c0da9` |
 | `cande_2025_tutorial_applications.pdf` | McGrath et al., actualizado por Katona (2025), *CANDE-2025: Culvert Analysis and Design — Tutorial of Applications*, [sitio oficial de CANDE](https://www.candeforculverts.com/download.html) | 403 | `b78d7e2c0e0dccb08a67c0ffe32b88e69f814f081ba537b5c0f121b31e9f4ea5` |
+| `cirsoc_200_24_concrete_technology.pdf` | INTI-CIRSOC (2024), *Reglamento Argentino de Tecnología del Hormigón*, CIRSOC 200-24, [texto oficial](https://www.inti.gob.ar/assets/uploads/files/cirsoc/02-Reglamento-tramite-de-aprobacion/reglamento-CIRSOC-200-24.pdf) | 392 | `b2a81ed7bc82dd9a0d848f0f9466d0be0c565be6297d2f5a8ec44277b8c24cc5` |
+| `cirsoc_201_25_concrete_structures.pdf` | INTI-CIRSOC (2025), *Reglamento Argentino de Estructuras de Hormigón*, CIRSOC 201-25, [texto oficial](https://icomunicacion.inti.gob.ar/2025/cirsoc/Reglamento_CIRSOC_201-25.pdf) | 656 | `cecd21d7cfb1f514c854ee1d578aa66854f60c0593f2d23bab8000588f0378a3` |
+| `cirsoc_804_4_2023_buried_structures_tunnel_linings.pdf` | INTI-CIRSOC (2023), *Reglamento Argentino para el Diseño de Puentes Carreteros: Estructuras enterradas y revestimientos para túneles*, CIRSOC 804-4, [texto oficial](https://www.inti.gob.ar/assets/uploads/files/cirsoc/06-reglamentos-2da-generacion/area800/1/06_Area800_07-A-Reglamento-CIRSOC-804-4-2023_APROBADO.pdf) | 120 | `bb9fc4427498f6c2c93751e50ef74e85496bb40d34def7b3defc361596192413` |
 | `comsol_6_3_corrugated_sheet.pdf` | COMSOL (2025), *Corrugated Sheet*, modelo de verificación de rigidez homogenizada, [COMSOL](https://cds.comsol.com/model/download/1417811/models.sme.corrugated_sheet.pdf) | 32 | `95fb328ef617cb7fdca5dd5157393ea393f1232fd5b79be6e66919051b8108b7` |
 | `csa_g401_14_archived.pdf` | CSA Group (2014), *Corrugated Steel Pipe Products*, G401-14, copia archivada abierta, [CSPI](https://archive.cspi.ca/sites/default/files/download/CSA%20G401-14.pdf) | 105 | `b173f628c03f3258dcf21ce10e64abe070a38e3d7aad31cfc6393b96a4787903` |
 | `cspi_handbook_ch06_structural_design.pdf` | CSPI, *Handbook of Steel Drainage & Highway Construction Products*, cap. 6, “Structural Design”, [CSPI](https://www.cspi.ca/sites/default/files/download/handbook_chapter06.pdf) | 106 | `f5fc7eb96f98287d7119605917c7dc57af3ad9534aad0d1932743fc0c43eac24` |
@@ -35,6 +38,7 @@ Este archivo registra procedencia e integridad. Incluye informes primarios, manu
 | `nq58239_corrugated_metal_culvert_thesis.pdf` | Taleb (2000), *Behavior of Large-Span Metal and Reinforced Concrete Culverts under Earth and Live Loadings*, [Library and Archives Canada](https://www.collectionscanada.gc.ca/obj/s4/f2/dsk3/ftp04/NQ58239.pdf) | 314 | `6de745e8396200f11fcbad25f749813f93a4c69694513f810ede677bb61d22ad` |
 | `nunez_2000_tunnel_support_loads.pdf` | Núñez (2000), *Excavaciones y túneles en el Pampeano*, captura del PDF oficial de SAIG, [Internet Archive](https://web.archive.org/web/20160501075011id_/http://saig.org.ar/wp-content/uploads/2015/02/ART-20.pdf) | 16 | `d005db4143bf4d0b7c1175b1f68a151e3544b5df3fe95c42c7172e830cd48e7e` |
 | `nunez_sfriso_laiun_2014_tunnel_support_loads.pdf` | Núñez, Sfriso y Laiún (2014), *Fifteen years of experience with the estimation of structural loadings acting on temporary supports of tunnels in Buenos Aires*, [texto completo](https://dxi97tvbmhbca.cloudfront.net/upload/user/image/ASfriso_JLaiun_WTC_Nunez_NATM_support_201420200228194514862.pdf) | 8 | `99e2bd3009015f4ac50948b38fcf398324e178509d18dde15360db1fcc68398a` |
+| `resolution_sop_11_2026_cirsoc.pdf` | Secretaría de Obras Públicas (2026), Resolución 11/2026, RESOL-2026-11-APN-SOP#MEC, [texto oficial](https://www.inti.gob.ar/assets/uploads/files/cirsoc/resoluciones-legales/03/RESOL-2026-11-APN-SOP-MEC_CIRSOC.pdf) | 4 | `305435256d04b61df97044c7fe8895fdc3024cbede9c589d417e9cde254f6e76` |
 | `schwartz_einstein_1980_tunnel_supports_vol1.pdf` | Schwartz y Einstein (1980), *Improved Design of Tunnel Supports, Volume 1*, [USDOT ROSA P](https://rosap.ntl.bts.gov/view/dot/11562/dot_11562_DS1.pdf) | 446 | `64fcd551e8c359c561c97bafd40667cc1958a51b31c0d38af7f95fd0f4f0ea39` |
 | `srinivas_1974_laminated_cylindrical_shells.pdf` | Srinivas (1974), *Analysis of Laminated, Composite, Circular Cylindrical Shells with General Boundary Conditions*, NASA TR R-412, [NASA NTRS](https://ntrs.nasa.gov/citations/19740013439) | 78 | `147226be90c06f8a1f7d719116f27059d99c551f3f0c8884326ba330974a9b89` |
 | `starbuck_1999_laminated_cylinders_nonaxisymmetric.pdf` | Starbuck (1999), *Stress Analysis of Laminated Composite Cylinders under Non-Axisymmetric Loading*, [OSTI](https://www.osti.gov/biblio/9069) | 12 | `2571634e32d83595f8de4bb54b645b4b7abab144c797b280487270a595575dd9` |
@@ -54,6 +58,9 @@ Este archivo registra procedencia e integridad. Incluye informes primarios, manu
 | `cande_original_final_report.pdf` | Informe preservado; lectura dirigida | Discrepancia del dominio de CANDE Nivel 1 |
 | `cande_2025_solutions_formulations.pdf` | Manual preservado; lectura dirigida | Burns–Richard, FE 2D, propiedades de pared y límite 2D/3D |
 | `cande_2025_tutorial_applications.pdf` | Tutorial preservado; lectura dirigida | Benchmarks B1 y B2 |
+| `cirsoc_200_24_concrete_technology.pdf` | Reglamento oficial preservado; lectura dirigida de los artículos 6.5 y 9.4 | Tecnología, ejecución y aceptación del hormigón proyectado; distingue resistencia efectiva y resistencia especificada equivalente |
+| `cirsoc_201_25_concrete_structures.pdf` | Reglamento oficial preservado; lectura dirigida de alcance, definiciones y capítulos seccionales citados en G10 | Ruta candidata para flexocompresión y corte; su aplicabilidad al revestimiento circular permanece **UNKNOWN** |
+| `cirsoc_804_4_2023_buried_structures_tunnel_linings.pdf` | Reglamento oficial preservado; lectura dirigida del capítulo 12 | Reglamento específico de estructuras enterradas y revestimientos para túneles; artículos aplicables al caso permanecen **UNKNOWN** |
 | `comsol_6_3_corrugated_sheet.pdf` | Manual preservado; lectura dirigida, pp. 4–15 | Matrices $A$, $D$ y de corte para una celda simétrica; casos de deformación y tablas de control para homogenización |
 | `csa_g401_14_archived.pdf` | Norma recuperada; lectura dirigida | Terminología de costuras únicamente; vigencia **UNKNOWN** |
 | `cspi_handbook_ch06_structural_design.pdf` | PDF preservado; lectura no documentada aquí | No incorporado al registro actual |
@@ -76,6 +83,7 @@ Este archivo registra procedencia e integridad. Incluye informes primarios, manu
 | `nq58239_corrugated_metal_culvert_thesis.pdf` | PDF preservado; lectura no documentada aquí | No incorporado al registro actual |
 | `nunez_2000_tunnel_support_loads.pdf` | Artículo recuperado; lectura dirigida | Contraste literal con las ecuaciones de 2014 |
 | `nunez_sfriso_laiun_2014_tunnel_support_loads.pdf` | Artículo preservado; lectura dirigida | Antecedente académico de túnel excavado; retirado de los contrastes de la memoria porque el caso no permite una reproducción independiente completa |
+| `resolution_sop_11_2026_cirsoc.pdf` | Resolución oficial preservada; lectura íntegra de sus cuatro artículos | Vigencia nacional de CIRSOC 200-24 y CIRSOC 201-25 desde el día posterior a su publicación; adhesión jurisdiccional y adopción contractual permanecen **UNKNOWN** |
 | `schwartz_einstein_1980_tunnel_supports_vol1.pdf` | Informe preservado; lectura dirigida | Cuatro ramas de interacción; carga externa aplicable como idealización de conducto rellenado y benchmark HP97 |
 | `srinivas_1974_laminated_cylindrical_shells.pdf` | NASA TR preservado; portada y resumen verificados, lectura de ecuaciones pendiente | Fuente candidata para teorías refinada, tridimensional y delgada de cáscara cilíndrica; no habilita aún el solver |
 | `starbuck_1999_laminated_cylinders_nonaxisymmetric.pdf` | Informe OSTI preservado; lectura dirigida de PDF pp. 1–2 | Ruta de control por elasticidad anisótropa, deformación plana generalizada y tracciones de Fourier invariantes en el eje; no sustituye la teoría de cáscara delgada |
@@ -85,7 +93,7 @@ Este archivo registra procedencia e integridad. Incluye informes primarios, manu
 ## Control
 
 - Todos los archivos abren como PDF y su número de páginas fue comprobado con Poppler.
-- Los treinta y cuatro archivos registrados en este manifiesto tienen número de
+- Los treinta y ocho archivos registrados en este manifiesto tienen número de
   páginas y SHA-256 verificados localmente.
 - De los paquetes CANDE-2025 sólo se conservaron los dos manuales PDF; no se incorporaron ejecutables ni archivos auxiliares.
 - Los PDF se conservarán como fuentes; las salidas derivadas se mantendrán fuera de `sources/`.

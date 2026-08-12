@@ -1,7 +1,7 @@
 # Fuente de verdad — memoria de cálculo ejecutiva, Fase 2
 
-**Estado:** memoria profesional revisada y auditada; pendiente de revisión del usuario
-**Fecha de corte:** 2026-08-11
+**Estado:** G0--G9 cerradas y publicadas; G10.1 cerrada, pendiente de aceptación técnica de ramas implementables
+**Fecha de corte:** 2026-08-12
 **Aceptación:** usuario
 **Producto aprobado de referencia:** documento metodológico de Fase 1, futuro paper
 
@@ -18,7 +18,8 @@ Después de una compactación o al retomar el trabajo:
 2. leer `.codex-task.md`;
 3. leer esta nota completa;
 4. comprobar el estado real de Git y los archivos nombrados aquí;
-5. continuar desde «Próxima acción», sin repetir trabajo aprobado.
+5. continuar desde la última sección declarada vigente —actualmente 28.6—,
+   sin repetir trabajo aprobado.
 
 `dev/SoT/ACTIVE.md` apunta a `dev/plan/lfs-bootstrap/active.md` y pertenece a
 un flujo histórico de LFS. No debe modificarse ni interpretarse como selector
@@ -855,14 +856,13 @@ No deben inferirse dentro del código ni de la prosa:
 - ninguna dependencia de FORM/FOSM;
 - ninguna promoción pública sin aprobación del usuario.
 
-## 17. Próxima acción
+## 17. Próxima acción histórica
 
-Entregar para revisión la memoria determinística parametrizada en
-`html/calculation.review.es/index.html`. No promover el candidato ni iniciar
-la simulación de Monte Carlo antes de la aceptación del usuario y de una
-definición explícita de variables, marginales y dependencias. La caracterización
-de la presión residual de compactación y la rama `measured` de $K_0$
-permanecen pendientes de evidencia y esquema propios.
+Esta sección registró la acción vigente al cerrar K0.7 y fue sustituida por la
+sección 28. No gobierna el trabajo actual. La memoria determinística permanece
+en `html/calculation.review.es/index.html`; la simulación probabilística del
+caso continúa condicionada a una definición explícita de variables,
+marginales y dependencias.
 
 ## 18. Registro de decisiones
 
@@ -1153,11 +1153,12 @@ recuperación de tensiones desde `N_theta` y `M_theta`, el tratamiento local de
 FORM y FOSM permanecen excluidos. La próxima decisión técnica corresponde a
 las etapas 1--4; no se asignarán distribuciones antes de resolverlas.
 
-### 21.7 Próxima acción
+### 21.7 Próxima acción histórica
 
-Revisar con el usuario el HTML de la memoria y acordar las etapas 1--4 del plan
-probabilístico antes de asignar distribuciones. La promoción a rutas públicas
-continúa sujeta a la aprobación explícita del usuario.
+Esta acción quedó sustituida primero por la sección 22 y finalmente por la
+sección 28. Se conserva para documentar la frontera probabilística: no se
+asignarán distribuciones antes de acordar las variables, marginales y
+dependencias.
 
 ### 21.8 Artefacto de revisión
 
@@ -2511,7 +2512,7 @@ SHA-256
 Los nueve productos G0 y los trece archivos de la línea base congelada de
 Fase 1 permanecen idénticos.
 
-#### G7 — Componer una realización pura
+#### G7 — Componer una realización pura — cerrada
 
 Crear la secuencia visible de 27.5 y `calculateScenario()` con una realización
 y un contexto en memoria.
@@ -2568,7 +2569,7 @@ SHA-256
 Los nueve productos G0 y los trece archivos de la línea base congelada de
 Fase 1 permanecen idénticos.
 
-#### G8 — Reducir el productor y migrar explícitamente la ejecución
+#### G8 — Reducir el productor y migrar explícitamente la ejecución — cerrada
 
 Reducir `buildCalculationData()` a validación, adaptación, llamada al núcleo y
 publicación. El entry point final será `runCalculationMemo.R`, que invocará
@@ -2645,7 +2646,7 @@ adaptadores conservaron las claves y columnas históricas `...Id` de
 una restricción acotada de G8.2, no una excepción permanente a la política de
 nombres.
 
-#### G9 — Conectar el agregador Monte Carlo
+#### G9 — Conectar el agregador Monte Carlo — cerrada
 
 Conectar `calculateScenario()` mediante el callback `responseFunction` ya
 aceptado por `runRingMonteCarlo()`, sin acoplar el agregador a AR-SAD40 ni
@@ -2696,9 +2697,11 @@ La ejecución Wolfram permanece `UNKNOWN` porque no existe un kernel configurado
 los cambios nominales en `.wl` y `.nb` no se presentan como una comprobación
 ejecutada.
 
-#### G10 — Incorporar módulos posteriores y promover a librería
+#### G10 — Alcance histórico, ampliado por la sección 28
 
-Esta puerta se divide en tres aprobaciones independientes:
+Esta definición registró el alcance antes de abrir las investigaciones
+geotécnica y de hormigón proyectado. La sección 28 la sustituye y divide G10
+en siete puertas. Las tres aprobaciones originales eran:
 
 1. recuperación de tensión normal de chapa;
 2. acción de junta y respuesta de pernos; y
@@ -2789,16 +2792,17 @@ scripts/R/stressState.R
 scripts/R/corrugatedSection.R
 scripts/R/perimeterActions.R
 scripts/R/sectionResultants.R
-scripts/R/calculationScenario.R
-scripts/R/calculationProducts.R
+scripts/R/calculateScenario.R
+scripts/R/calculationData.R       # adaptador y productor de AR-SAD40
 scripts/R/sheetStress.R       # futuro, sólo después de aprobación
 scripts/R/boltedJoint.R       # futuro, sólo después de aprobación
 ```
 
 `ringDirect.R`, `ringLoads.R` y `ringMonteCarlo.R` continuarán como oráculos o
-wrappers durante la coexistencia. `calculationProducts.R` y el runner son
+wrappers durante la coexistencia. `calculationData.R` y el runner son
 adaptadores de AR-SAD40 y no forman parte del núcleo que se promoverá a la
-futura librería.
+futura librería. No se creará `calculationProducts.R` sin una responsabilidad
+real que no pueda permanecer en el productor vigente.
 
 ### 27.12 Condiciones para promover el núcleo a un paquete R
 
@@ -2816,6 +2820,227 @@ La promoción comienza únicamente cuando:
 8. el código legado se retire sólo después de la aceptación explícita de la
    relación final paquete--consumidor.
 
-La siguiente acción ejecutiva de este plan es G1. El motor no se editará hasta
-que los consumidores locales y los fixtures de caracterización de esa puerta
-queden registrados.
+G0--G9 están cerradas. Esta declaración abrió G10.1; la sección 28.5 registra
+su cierre y la acción vigente. Ningún módulo resistente se implementará antes
+de que su evidencia, dominio, variables, unidades, signos y controles alcancen
+la puerta indicada allí.
+
+## 28. Estado vigente y ejecución de G10
+
+Esta sección sustituye las frases de «próxima acción» anteriores y gobierna la
+continuación solicitada el 12 de agosto de 2026. El commit `cdb6a93`, publicado
+en `origin/main`, cierra G9: el esquema activo es 2.0.0, los identificadores
+propios usan `ID`, el productor determinístico y el agregador por realizaciones
+consumen `calculateScenario()` y no se han definido distribuciones ni ejecutado
+una simulación probabilística del caso.
+
+### 28.1 Alcance de G10
+
+G10 incorpora únicamente módulos cuya formulación y evidencia hayan sido
+aprobadas. Se divide en siete puertas independientes:
+
+1. **G10.1 — evidencia:** cerrar por auditoría cruzada las ramas de chapa,
+   $K_0$/compactación/cementación y shotcrete;
+2. **G10.2 — chapa:** recuperar tensiones globales desde las resultantes y,
+   en una puerta separada, efectuar las verificaciones resistentes admitidas;
+3. **G10.3 — estado horizontal del relleno:** ampliar las funciones existentes
+   sólo cuando una formulación de compactación o cementación tenga dominio,
+   entradas y consumidor definidos;
+4. **G10.4 — shotcrete/hormigón:** verificar una franja por flexocompresión y
+   corte únicamente después de resolver la aplicabilidad normativa y la
+   clasificación de la sección;
+5. **G10.5 — juntas y pernos:** transformar las resultantes en acciones de
+   junta y luego en demanda por perno después de definir geometría y mecanismo
+   de transferencia; y
+6. **G10.6 — librería:** promover sólo el núcleo estable después de aprobar su
+   nombre, superficie pública y relación final con AR-SAD40; y
+7. **G10.7 — documentación y control Wolfram:** después de implementar las
+   ramas aceptadas, comprobar su incorporación a la metodología interna y
+   recuperar un notebook legible para contrastar un escenario fijo contra R.
+
+Las puertas 2--5 no forman una entrega indivisible. Cada una conserva sus
+propios datos `UNKNOWN`, controles y decisión de aceptación. No se crearán
+clases generales, despachadores multirreglamento, ramas vacías ni funciones sin
+un consumidor real.
+
+### 28.2 G10.1 — cierre de evidencia
+
+Las tres investigaciones preliminares son candidatos internos; no constituyen
+texto público ni especificaciones de implementación.
+
+| Rama | Estado de cierre | Resultado y límites vigentes |
+|---|---|---|
+| chapa corrugada | `PASS` de auditoría cruzada | candidata preservada; producto, articulado normativo, criterio de curvatura, condición longitudinal, modelo de corte y datos resistentes permanecen `UNKNOWN` |
+| $K_0$, compactación y cementación | `PASS` de auditoría cruzada | funciones vigentes confirmadas; persistencia FHWA, presión residual aplicable y rama cuantitativa de cementación permanecen `UNKNOWN` |
+| shotcrete/hormigón | `PASS` de auditoría cruzada | candidata preservada; aplicabilidad reglamentaria, jurisdicción, clasificación de la sección y datos resistentes del caso permanecen `UNKNOWN` |
+
+Una rama alcanza G10.1 sólo con un documento candidato corregido, una auditoría
+independiente `PASS`, un registro de ecuaciones y una lista explícita de datos
+que siguen `UNKNOWN`. El `PASS` autoriza presentar la formulación al usuario;
+no equivale por sí mismo a adoptarla para el caso ni a publicarla en la memoria.
+
+El registro compacto de ecuaciones, entradas, unidades, dominio y controles de
+las tres ramas está en `TITO/kb/research/g10.equations.register.es.md`.
+
+#### 28.2.1 Chapa corrugada — evidencia cerrada
+
+La investigación corregida y su auditoría independiente se preservan en:
+
+- `TITO/kb/research/g10.corrugated.steel.verification.es.md`; y
+- `TITO/kb/research/g10.corrugated.steel.verification.audit.es.md`.
+
+La auditoría concluyó `PASS`: la recuperación lineal desde $N_\theta$ y
+$M_\theta$ queda condicionada por un control respaldado de curvatura; no se
+inventó un umbral; $Q_\theta$ permanece como resultante sin una distribución
+de corte aprobada; y la tensión equivalente queda bloqueada hasta cerrar la
+condición longitudinal. El ejemplo USACE 1997 sólo se admite como reproducción
+histórica de su corriente SI y conserva sus discrepancias imperiales.
+
+Permanecen `UNKNOWN` la familia exacta del producto, la base normativa y su
+articulado vigente, la geometría y orientación de la corrugación, el criterio
+de viga curva, el mapa de espesor neto, el grado de acero, el modelo local de
+corte, la condición longitudinal y los estados límite obligatorios. Por ello,
+G10.2 está documentada pero no habilitada para implementación.
+
+#### 28.2.2 Estado horizontal y compactación — evidencia cerrada
+
+La investigación corregida y su auditoría independiente se preservan en:
+
+- `TITO/kb/research/g10.k0.compaction.es.md`; y
+- `TITO/kb/research/g10.k0.compaction.audit.es.md`.
+
+La auditoría concluyó `PASS`: $K_0$, la acción equivalente FHWA, una eventual
+tensión residual y la interacción suelo--conducto permanecen como objetos
+distintos. La regla de persistencia o transición entre incrementos FHWA es
+`UNKNOWN`; ocho filas de la tabla 5.5 se reproducen y la novena discrepancia se
+conserva sin corrección silenciosa. No se proponen distribuciones de Monte
+Carlo ni una corrección genérica por cementación.
+
+Esta rama no exige una nueva implementación. `estimateK0()`,
+`calculateEffectiveStressState()`, `fhwaCompactionPressure()` y
+`fhwaCompactionBandLoad()` ya materializan las responsabilidades admisibles.
+No se creará un helper duplicado ni se ampliará la API sin un consumidor real
+y una formulación aplicable. La presión residual, la secuencia constructiva
+acumulativa y la cementación cuantitativa permanecen diferidas.
+
+#### 28.2.3 Hormigón proyectado — evidencia cerrada
+
+La investigación corregida y su auditoría independiente se preservan en:
+
+- `TITO/kb/research/g10.shotcrete.section.verification.es.md`; y
+- `TITO/kb/research/g10.shotcrete.section.verification.audit.es.md`.
+
+La auditoría concluyó `PASS` para la trazabilidad reglamentaria, la
+clasificación explícita de la sección, la separación entre resistencia
+efectiva de producción y resistencia especificada equivalente de una
+estructura existente, la distinción de vía húmeda y vía seca, el sistema
+N--mm--MPa y los controles numéricos B1--B2. Las cuatro fuentes oficiales se
+preservaron y registraron en `TITO/kb/MANIFEST.md`.
+
+Este cierre no selecciona una norma para el proyecto. Permanecen `UNKNOWN`:
+
+- la jurisdicción, adhesión y base contractual aplicables;
+- la aplicación de CIRSOC 201-25 al revestimiento frente a su exclusión de
+  cáscaras delgadas y la función específica de CIRSOC 804-4;
+- la clasificación reglamentaria de la sección y sus mínimos;
+- el proceso de colocación, la función estructural y la condición compuesta o
+  independiente respecto de la chapa;
+- el espesor resistente, las armaduras y su detallado;
+- la resistencia especificada equivalente y su evidencia estadística; y
+- las acciones de cálculo y servicio que alimentarán las verificaciones.
+
+Por estas condiciones, G10.4 está documentada pero bloqueada para
+implementación y resultados del caso hasta la aceptación técnica del dominio
+y la resolución de sus entradas obligatorias.
+
+### 28.3 G10.2 — secuencia mínima para la chapa
+
+La recuperación de demanda y la comprobación resistente son operaciones
+distintas:
+
+1. definir la sección neta y la geometría radial efectiva;
+2. recuperar la tensión circunferencial debida a $N_\theta$ y $M_\theta$ con
+   el modelo de sección aprobado;
+3. mantener $Q_\theta$ como resultante mientras no exista una distribución de
+   flujo cortante aplicable;
+4. cerrar la condición constitutiva longitudinal antes de calcular una tensión
+   equivalente; y
+5. evaluar estados límite sólo con la norma, edición, clase de producto,
+   factores y propiedades resistentes aprobados.
+
+La primera función candidata no mezclará demanda y capacidad. Si se aprueba la
+recuperación global, `calculateSheetNormalStress()` devolverá tensiones y
+metadatos del modelo; una comprobación resistente posterior consumirá ese
+resultado. No se informará un factor de seguridad global cuando falte un estado
+límite obligatorio.
+
+### 28.4 G10.3 y G10.4 — extensiones independientes
+
+La ampliación geotécnica conservará una sola familia de funciones para la
+acción FHWA existente. La acción equivalente de construcción, una presión
+residual y una rama de $K_0$ continúan siendo objetos diferentes; no se sumarán
+ni transformarán entre sí sin una relación sustentada. No se asignarán
+distribuciones de Monte Carlo durante esta puerta.
+
+El módulo de shotcrete será una rama estructural alternativa o adicional sólo
+después de decidir si actúa como sección autónoma o compuesta con la chapa. La
+acción compuesta requiere otra formulación y no se inferirá. Una sección con
+armadura nula no se clasificará automáticamente como hormigón simple: la clase
+reglamentaria, los mínimos y el detallado gobiernan la selección.
+
+### 28.5 Orden de ejecución y aceptación
+
+1. corregir y reauditar las tres investigaciones de G10.1;
+2. registrar en esta SoT únicamente los hallazgos que alcancen `PASS`;
+3. presentar al usuario las formulaciones candidatas, sus límites y los datos
+   `UNKNOWN` que modifican el resultado;
+4. implementar una sola rama aprobada por vez mediante funciones puras,
+   fixtures y paridad contra controles independientes;
+5. conectar su producto a la memoria mediante el productor explícito, sin
+   cálculo embebido en Markdown;
+6. ejecutar pruebas, render, auditorías y control de la Fase 1; y
+7. publicar un punto recuperable antes de iniciar la rama siguiente.
+
+G10.1 está cerrada: las tres candidatas y sus auditorías independientes
+alcanzaron `PASS`, y el registro de ecuaciones fue materializado. La próxima
+acción vigente es presentar las formulaciones, límites y datos `UNKNOWN` al
+usuario. G10.2 y G10.4 comienzan sólo después de su aceptación técnica; G10.3
+no requiere código nuevo con la evidencia actual.
+
+### 28.6 G10.7 — metodología y control independiente Wolfram
+
+G10.7 comienza únicamente después de cerrar las implementaciones de G10 que el
+usuario haya aceptado. Tiene dos productos acotados:
+
+1. una auditoría de correspondencia entre cada función implementada y la
+   metodología interna: ecuaciones, variables, unidades, signos, dominio,
+   datos `UNKNOWN`, controles y fuentes; y
+2. un único notebook Wolfram de lectura secuencial que evalúe un escenario
+   fijo y compare resultados declarados con R.
+
+La auditoría puede proponer texto candidato en `TITO/kb/paper-candidate/` o en
+la investigación interna de G10. No editará la Fase 1 congelada ni promoverá
+prosa a la memoria sin aprobación explícita. El notebook no será una segunda
+implementación de producción: reutilizará sólo el material Wolfram vigente que
+supere el inventario, fijará todas sus entradas, no muestreará distribuciones y
+comparará magnitudes físicamente equivalentes mediante una tolerancia definida
+por cada control. R continúa siendo la fuente ejecutable de producción.
+
+Antes de editar el notebook se debe registrar un inventario `KEEP`, `REUSE`,
+`DELETE` o `UNKNOWN` de los artefactos Wolfram existentes, junto con las
+entradas, salidas y oráculos del escenario fijo. El plan delegado de esta
+puerta se conserva en
+`TITO/kb/research/g10.wolfram.methodology.followup.plan.es.md`. Su inventario
+propone reutilizar selectivamente `soT.nb`; retirar el stack monolítico sólo
+después de aceptar el reemplazo y migrar sus consumidores; y resolver como
+`UNKNOWN` el destino de `testRingNotebook.wl`. El nombre candidato del cuaderno
+nuevo es `calculationScenario.nb` y requiere aprobación antes de sustituir
+archivos vigentes.
+
+El escenario candidato es la fixture determinística
+`verification-biaxial-uniform`; no alcanza por sí sola para completar chapa,
+shotcrete o pernos. El notebook importará una única fixture R que ya contenga
+todas las entradas aprobadas, calculará independientemente y sólo al final
+importará los resultados R para compararlos. La presencia de `wolframscript`
+no demuestra disponibilidad de kernel/licencia; la ejecución efectiva
+permanece `UNKNOWN` hasta una prueba controlada.
