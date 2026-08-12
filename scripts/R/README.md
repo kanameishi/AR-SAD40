@@ -3,9 +3,11 @@
 R es la implementación canónica. El notebook Wolfram se conserva sólo como
 oráculo interno y Fourier como comparador modal independiente.
 
-El producto de este prototipo son los resultantes $N(\theta)$, $M(\theta)$ y
-$Q(\theta)$ y sus extremos/envolventes. No recupera $\sigma$, $\tau$,
-capacidades ni demandas de pernos.
+El producto del cálculo vigente son los resultantes $N(\theta)$, $M(\theta)$ y
+$Q(\theta)$ y sus extremos/envolventes. Existe además una recuperación
+condicional de tensión normal equivalente para una sección neta suministrada
+explícitamente. El cálculo no infiere esa sección, no obtiene tensión local a
+partir de $Q$, y no calcula capacidades ni demandas de pernos.
 
 La documentación matemática y de fuentes está en
 [`TITO/kb/metodologia-anillo-enterrado.md`](../../TITO/kb/metodologia-anillo-enterrado.md).
@@ -20,6 +22,7 @@ source("scripts/R/stressState.R")
 source("scripts/R/corrugatedSection.R")
 source("scripts/R/perimeterActions.R")
 source("scripts/R/sectionResultants.R")
+source("scripts/R/sheetStress.R")
 source("scripts/R/calculateScenario.R")
 source("scripts/R/ringInteraction.R")
 source("scripts/R/ringMonteCarlo.R")
@@ -105,9 +108,44 @@ Section <- calculateRingSection(
 Section$sectionRatio
 ```
 
-La función devuelve $EA$, $EI$, `sectionRatio`, $\bar t$ y $\bar E$ en el
-sistema coherente de unidades ingresado. El comparador Fourier acepta el mismo
-cociente con `uniformMoment = "section"`.
+`calculateRingSection()` devuelve $EA$, $EI$, `sectionRatio`, $\bar t$ y
+$\bar E$ en el sistema coherente de unidades ingresado. El comparador Fourier
+acepta el mismo cociente con `uniformMoment = "section"`.
+
+## Recuperación condicional de tensión normal
+
+`calculateSheetNormalStress()` evalúa exclusivamente la aproximación lineal
+de sección homogeneizada. Las propiedades netas, las coordenadas firmadas de
+las fibras y el criterio de aplicabilidad frente a la curvatura son entradas;
+la función no los deduce de la rigidez equivalente ni de la profundidad
+nominal de la corrugación.
+
+```r
+Stress <- calculateSheetNormalStress(
+  resultants = data.frame(
+    theta = 0,
+    thetaDeg = 0,
+    normalForce = -60,       # kN/m; tracción positiva
+    bendingMoment = 0.02     # kN m/m
+  ),
+  netSection = list(
+    areaMm2PerMm = 4,
+    inertiaMm4PerMm = 300,
+    positiveFiberCoordinateMm = 12.5,
+    negativeFiberCoordinateMm = -12.5
+  ),
+  recoveryBasis = list(
+    modelID = "linear-homogenized",
+    criterionID = "straight-section-control",
+    applicabilityStatus = "satisfied"
+  )
+)
+```
+
+La coordenada de fibra es positiva radialmente hacia afuera y un momento
+positivo comprime esa fibra. Si la aplicabilidad es `unknown` o
+`not-satisfied`, las tensiones se devuelven como `NA`; no se activa de manera
+implícita una formulación alternativa.
 
 ## Cargas arbitrarias
 
@@ -390,6 +428,7 @@ Resultados principales:
 
 ```sh
 Rscript scripts/R/testRingMethod.R
+Rscript scripts/R/testSheetStress.R
 Rscript scripts/R/testCalculationData.R
 Rscript scripts/R/testCalculationFigures.R
 Rscript scripts/R/runRingBenchmarks.R

@@ -1,6 +1,6 @@
 # Fuente de verdad — memoria de cálculo ejecutiva, Fase 2
 
-**Estado:** G0--G9 cerradas y publicadas; G10.1 cerrada, pendiente de aceptación técnica de ramas implementables
+**Estado:** G0--G9 y G10.1 publicadas; G10.2 implementada y auditada, pendiente de publicación
 **Fecha de corte:** 2026-08-12
 **Aceptación:** usuario
 **Producto aprobado de referencia:** documento metodológico de Fase 1, futuro paper
@@ -835,6 +835,10 @@ No deben inferirse dentro del código ni de la prosa:
 10. si `scripts/fig/*.D`, escrito por el usuario, designa un formato adicional.
     La convención observada y auditada del repositorio es `scripts/fig/*.R`;
     no se creará `.D` sin confirmación;
+11. sección metálica neta del revestimiento existente, incluidas coordenadas
+    firmadas de fibras y regla de agregación de corrosión o picado; y
+12. criterio respaldado que habilite la recuperación lineal de tensión frente
+    a la curvatura de la sección corrugada.
 
 ## 16. Puertas de aceptación
 
@@ -852,7 +856,9 @@ No deben inferirse dentro del código ni de la prosa:
 - diagramas consistentes con las tablas fuente;
 - cuantiles puntuales y de extremos tratados como objetos distintos;
 - lenguaje profesional para audiencia experta;
-- ningún cálculo de tensiones, capacidad o pernos en esta fase;
+- ninguna tensión del revestimiento existente sin sección neta y criterio de
+  aplicabilidad declarados; ninguna capacidad de chapa, junta o perno en
+  G10.2;
 - ninguna dependencia de FORM/FOSM;
 - ninguna promoción pública sin aprobación del usuario.
 
@@ -875,8 +881,10 @@ marginales y dependencias.
   desarrollos y el Apéndice B documenta los benchmarks.
 - **2026-08-10:** Monte Carlo es el único marco de propagación probabilística;
   FORM y FOSM quedan excluidos.
-- **2026-08-10:** la etapa termina en `N_theta`, `M_theta` y `Q_theta`; las
-  tensiones y verificaciones resistentes quedan para una fase posterior.
+- **2026-08-10:** la memoria determinística cerrada en esa fecha termina en
+  `N_theta`, `M_theta` y `Q_theta`. La decisión fue ampliada el 12 de agosto
+  mediante G10.2 para admitir una recuperación condicional interna; el
+  escenario público no produce tensiones mientras falten sus entradas.
 - **2026-08-10:** la rigidez circunferencial del perfil corrugado se incorpora
   mediante `EA_theta` y `EI_theta`; no se desarrolla una clase ortótropa
   general.
@@ -1115,10 +1123,11 @@ Magnitudes por caracterizar:
 - espesor actual, pérdida por corrosión y su variación espacial; y
 - dependencias entre las variables anteriores.
 
-Las tensiones de la chapa y las demandas de pernos son salidas futuras, no
-variables aleatorias de entrada. Antes de obtenerlas deben adoptarse la
-recuperación de tensiones desde `N_theta` y `M_theta`, el tratamiento local de
-`Q_theta`, la sección neta corrugada y la transferencia a juntas y pernos.
+Las tensiones de la chapa y las demandas de pernos son salidas, no variables
+aleatorias de entrada. G10.2 adoptó una recuperación normal condicional desde
+`N_theta` y `M_theta`; antes de aplicarla al caso deben definirse la sección
+neta y la base de curvatura. El tratamiento local de `Q_theta` y la
+transferencia a juntas y pernos permanecen `UNKNOWN`.
 
 ### 21.6 Plan de ejecución probabilística
 
@@ -1937,9 +1946,10 @@ del proyecto.
    conservarán durante la coexistencia porque tienen consumidores activos. Su
    eventual retiro requerirá inventario y paridad propios.
 8. La recuperación de tensiones en la chapa y la respuesta de juntas y pernos
-   son módulos posteriores que consumen las resultantes. Sus fronteras se
-   reservan ahora, pero no se implementarán hasta aprobar los modelos
-   mecánicos y los datos que hoy permanecen `UNKNOWN`.
+   son módulos posteriores que consumen las resultantes. G10.2 habilitó la
+   recuperación normal como función condicional; su conexión al caso continúa
+   bloqueada por las entradas `UNKNOWN`. Juntas y pernos permanecen sólo como
+   fronteras reservadas.
 9. El nombre de la futura librería R permanece `UNKNOWN`. Bautizarla antes de
    estabilizar las superficies de llamada produciría una migración adicional
    sin beneficio técnico.
@@ -1990,8 +2000,9 @@ Los hechos arquitectónicos relevantes son:
   derivaciones, solución, controles, adaptación tabular y publicación;
 - `scripts/setup/setup.R` combina la carga de funciones con la ejecución y la
   escritura de productos; y
-- no existen funciones aprobadas para tensiones locales de la chapa, demanda
-  de una junta o respuesta de pernos.
+- al cierre de G9 no existían funciones aprobadas para tensiones locales de la
+  chapa, demanda de una junta o respuesta de pernos. G10.2 agregó después una
+  recuperación normal equivalente y condicional, sin modificar este oráculo.
 
 La principal deuda no está en el número de líneas de `solveRingDirect()`, sino
 en la concentración de cálculo, adaptación editorial e I/O dentro de
@@ -2086,7 +2097,7 @@ consumidores.
 | `calculateSectionResultants()` | resolver equilibrio y compatibilidad | acciones, $R$, razón seccional, malla y parámetros numéricos | una única tabla con $N_\theta$, $M_\theta$, $Q_\theta$ y diagnósticos | envolver `solveRingDirect()`; no se divide por resultante |
 | `summarizeSectionResultants()` | localizar extremos espaciales | respuesta conjunta de resultantes | mínimos, máximos y máximos absolutos, con signo y ángulo | consolidar tres implementaciones duplicadas |
 | `calculateScenario()` | componer una realización | una fila de primitivas y un contexto invariante | etapas anteriores, resultantes, extremos y diagnósticos | nueva función delgada; no contiene ecuaciones propias |
-| `calculateSheetNormalStress()` | recuperar tensión normal global por flexo-compresión | $N_\theta$, $M_\theta$, propiedades netas y coordenadas de fibra | campo de tensión por ángulo y fibra | futuro; modelo de recuperación pendiente |
+| `calculateSheetNormalStress()` | recuperar tensión normal equivalente por flexo-compresión | $N_\theta$, $M_\theta$, propiedades netas, coordenadas firmadas de fibra y base de aplicabilidad | campo de tensión por ángulo y fibra, o `NA` cuando la base no habilita el modelo | implementada condicionalmente en G10.2; no conectada al escenario actual |
 | `calculateJointDemand()` | transformar las resultantes en acciones transmitidas por una junta | resultantes en la junta, ancho tributario y geometría | acciones de la unión | futuro; transferencia pendiente |
 | `calculateBoltResponse()` | distribuir la acción de junta en el grupo de pernos | acción de junta, disposición, áreas y modelo de reparto | fuerza por perno y componentes nominales de tensión | futuro; modelo y datos pendientes |
 
@@ -2122,7 +2133,8 @@ SectionResultants <- calculateSectionResultants(...)
 ResultantExtrema <- summarizeSectionResultants(SectionResultants)
 ```
 
-Cuando sus metodologías estén aprobadas, se agregarán aguas abajo:
+Cuando las entradas y dominios de cada módulo estén aprobados, se agregarán
+aguas abajo. La primera función existe ya como frontera condicional:
 
 ```r
 SheetNormalStress <- calculateSheetNormalStress(...)
@@ -2130,9 +2142,11 @@ JointDemand <- calculateJointDemand(...)
 BoltResponse <- calculateBoltResponse(...)
 ```
 
-`calculateScenario()` ejecutará exactamente esas mismas funciones y devolverá
-una lista nombrada con cada etapa. El ejemplo secuencial y el orquestador no
-serán dos implementaciones: ambos llamarán al mismo núcleo.
+`calculateScenario()` ejecuta actualmente hasta `ResultantExtrema`. Cuando se
+aprueben las entradas netas, incorporará `calculateSheetNormalStress()` como
+etapa aguas abajo; no duplicará su ecuación. Mientras tanto, la función queda
+disponible para controles sintéticos y no altera las siete salidas vigentes de
+una realización.
 
 ### 27.6 Parámetros invariantes, primitivos y derivados
 
@@ -2156,7 +2170,7 @@ parámetros derivados —los «hijos»— se calculan una vez en el orden indica
 | perfil, referencia y espesor de análisis o neto | $A_\theta$, $I_\theta$ y futuras coordenadas de fibra | rigideces y tensiones | $A_\theta$ e $I_\theta$ implementados dentro del intervalo publicado; coordenadas de fibra `UNKNOWN` |
 | $E_\theta$, $A_\theta$, $I_\theta$ y $R$ | $EA_\theta$, $EI_\theta$, $I_\theta/(A_\theta R^2)$ | resultantes | implementado |
 | $P_r$, $P_t$, $R$, razón seccional y malla | $N_\theta$, $M_\theta$, $Q_\theta$ | extremos y módulos posteriores | implementado y auditado |
-| $N_\theta$, $M_\theta$ y sección neta | tensión normal de chapa | evaluación posterior | `UNKNOWN` hasta aprobar recuperación global/local |
+| $N_\theta$, $M_\theta$, sección neta, fibras y base de aplicabilidad | tensión normal equivalente de chapa | evaluación posterior | función condicional implementada; resultado del revestimiento actual `UNKNOWN` |
 | resultantes en junta, geometría y ancho tributario | acción de junta | pernos | `UNKNOWN` |
 | acción de junta y disposición de pernos | fuerza y tensión nominal por perno | evaluación posterior | `UNKNOWN` |
 
@@ -2748,17 +2762,19 @@ probará separadamente; nunca se ocultará dentro de una tolerancia.
 
 #### 27.10.1 Tensión normal de la chapa
 
-`calculateSheetNormalStress()` estará limitada a la recuperación por
-flexo-compresión a partir de $N_\theta$ y $M_\theta$. No incorporará
-silenciosamente el efecto de $Q_\theta$ ni una verificación de capacidad.
-Antes de implementarla deben aprobarse:
+`calculateSheetNormalStress()` está limitada a la recuperación por
+flexo-compresión a partir de $N_\theta$ y $M_\theta$. No incorpora
+silenciosamente el efecto de $Q_\theta$ ni una verificación de capacidad. La
+función fue habilitada como cálculo condicional: recibe explícitamente las
+propiedades netas, las coordenadas de las fibras y una base de aplicabilidad.
+La convención de signos, las dos fibras y el control sintético de
+flexo-compresión están definidos. Para conectarla al escenario deben aprobarse:
 
-- la convención de signos y las fibras de evaluación;
 - las propiedades de la sección neta y su relación con la corrosión;
-- la correspondencia entre la sección corrugada equivalente y la tensión
-  local que se pretende verificar;
-- las coordenadas o módulos resistentes necesarios; y
-- un caso de referencia que compruebe la recuperación.
+- las coordenadas reales de las fibras netas;
+- la correspondencia entre la tensión equivalente homogeneizada y la magnitud
+  que se pretende verificar; y
+- el criterio respaldado de aplicabilidad frente a la curvatura.
 
 El tratamiento local de $Q_\theta$ permanece `UNKNOWN` y, si corresponde,
 pertenecerá a una función separada de tensión cortante.
@@ -2794,7 +2810,7 @@ scripts/R/perimeterActions.R
 scripts/R/sectionResultants.R
 scripts/R/calculateScenario.R
 scripts/R/calculationData.R       # adaptador y productor de AR-SAD40
-scripts/R/sheetStress.R       # futuro, sólo después de aprobación
+scripts/R/sheetStress.R       # recuperación condicional de G10.2
 scripts/R/boltedJoint.R       # futuro, sólo después de aprobación
 ```
 
@@ -2832,7 +2848,10 @@ continuación solicitada el 12 de agosto de 2026. El commit `cdb6a93`, publicado
 en `origin/main`, cierra G9: el esquema activo es 2.0.0, los identificadores
 propios usan `ID`, el productor determinístico y el agregador por realizaciones
 consumen `calculateScenario()` y no se han definido distribuciones ni ejecutado
-una simulación probabilística del caso.
+una simulación probabilística del caso. El commit `4eb4b11`, también publicado
+en `origin/main`, cierra G10.1 y preserva mediante Git LFS las cuatro fuentes
+CIRSOC autorizadas. G10.2 se implementó después sobre esa base y permanece
+desconectada del escenario hasta resolver sus entradas obligatorias.
 
 ### 28.1 Alcance de G10
 
@@ -2900,7 +2919,9 @@ Permanecen `UNKNOWN` la familia exacta del producto, la base normativa y su
 articulado vigente, la geometría y orientación de la corrugación, el criterio
 de viga curva, el mapa de espesor neto, el grado de acero, el modelo local de
 corte, la condición longitudinal y los estados límite obligatorios. Por ello,
-G10.2 está documentada pero no habilitada para implementación.
+el usuario habilitó G10.2 únicamente para implementar la recuperación mecánica
+condicional; esos datos continúan bloqueando su aplicación al revestimiento y
+toda comprobación resistente.
 
 #### 28.2.2 Estado horizontal y compactación — evidencia cerrada
 
@@ -2968,11 +2989,24 @@ distintas:
 5. evaluar estados límite sólo con la norma, edición, clase de producto,
    factores y propiedades resistentes aprobados.
 
-La primera función candidata no mezclará demanda y capacidad. Si se aprueba la
-recuperación global, `calculateSheetNormalStress()` devolverá tensiones y
-metadatos del modelo; una comprobación resistente posterior consumirá ese
-resultado. No se informará un factor de seguridad global cuando falte un estado
-límite obligatorio.
+La primera función no mezcla demanda y capacidad.
+`calculateSheetNormalStress()` implementa
+
+$$
+\sigma_\theta=\frac{N_\theta}{\bar A_n}
+-1000\frac{M_\theta y}{\bar I_n},
+$$
+
+para $N_\theta$ en kN/m, $M_\theta$ en kN·m/m, $\bar A_n$ en
+mm²/mm, $\bar I_n$ en mm⁴/mm y $y$ en mm; la tensión se obtiene en MPa.
+La convención adoptada es $N_\theta>0$ a tracción, $y>0$ radialmente hacia
+afuera y $M_\theta>0$ comprimiendo la fibra positiva. La función devuelve
+`NA` cuando la aplicabilidad del modelo lineal es `unknown` o
+`not-satisfied`; no infiere una formulación de viga curva.
+
+Una comprobación resistente posterior podrá consumir este resultado sólo
+después de cerrar la sección neta y la base normativa. No se informará un
+factor de seguridad global cuando falte un estado límite obligatorio.
 
 ### 28.4 G10.3 y G10.4 — extensiones independientes
 
@@ -2996,16 +3030,19 @@ reglamentaria, los mínimos y el detallado gobiernan la selección.
    `UNKNOWN` que modifican el resultado;
 4. implementar una sola rama aprobada por vez mediante funciones puras,
    fixtures y paridad contra controles independientes;
-5. conectar su producto a la memoria mediante el productor explícito, sin
-   cálculo embebido en Markdown;
-6. ejecutar pruebas, render, auditorías y control de la Fase 1; y
+5. conectar su producto a la memoria mediante el productor explícito sólo si
+   existen todas las entradas obligatorias; de lo contrario registrar el
+   bloqueo sin cálculo embebido en Markdown;
+6. ejecutar pruebas y auditorías, y efectuar render únicamente si cambia el
+   producto documental; controlar en todos los casos la Fase 1; y
 7. publicar un punto recuperable antes de iniciar la rama siguiente.
 
 G10.1 está cerrada: las tres candidatas y sus auditorías independientes
-alcanzaron `PASS`, y el registro de ecuaciones fue materializado. La próxima
-acción vigente es presentar las formulaciones, límites y datos `UNKNOWN` al
-usuario. G10.2 y G10.4 comienzan sólo después de su aceptación técnica; G10.3
-no requiere código nuevo con la evidencia actual.
+alcanzaron `PASS`, y el registro de ecuaciones fue materializado. El usuario
+aceptó G10.2 para la chapa el 12 de agosto de 2026. Esa aceptación habilita la
+función mecánica condicional, no adopta una norma ni completa los datos del
+caso. G10.4 continúa bloqueada; G10.3 no requiere código nuevo con la evidencia
+actual.
 
 ### 28.6 G10.7 — metodología y control independiente Wolfram
 
