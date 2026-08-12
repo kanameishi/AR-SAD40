@@ -2513,6 +2513,54 @@ y un contexto en memoria.
 corrida determinística individual; la función no accede al sistema de
 archivos, al RNG ni a objetos globales.
 
+La puerta se cerró mediante `calculateScenario(realization, context)` en
+`scripts/R/calculateScenario.R`. La realización contiene las primitivas que
+pueden variar entre evaluaciones y el contexto contiene la geometría, la malla,
+la referencia seccional ya cargada y los parámetros numéricos invariantes. La
+función compone, en este orden, `estimateK0()`,
+`calculateEffectiveStressState()`, `interpolateCorrugatedSection()`,
+`calculateRingSection()`, `calculatePerimeterActions()`,
+`calculateSectionResultants()` y `summarizeSectionResultants()`. Su retorno
+expone los siete estados con los nombres `k0State`, `stressState`,
+`corrugatedSection`, `sectionRigidity`, `perimeterActions`,
+`sectionResultants` y `resultantExtrema`.
+
+La implementación no lee ni escribe archivos, no genera números aleatorios,
+no consulta opciones o rutas de sesión y no modifica sus argumentos. Las
+validaciones nuevas se limitan a la frontera de las dos listas nombradas; las
+restricciones físicas y los mensajes de error continúan bajo responsabilidad
+de las funciones que ya los resolvían. No se introdujeron clases, registros,
+despacho, `data.table` ni ecuaciones alternativas.
+
+La candidata se comparó contra `8d68814` en entornos R separados. Tres
+realizaciones cubrieron la rama constante, Jaky normalmente consolidado y la
+recarga de Mayne--Kulhawy, con variaciones de agua, espesor y `alpha`. Cada
+estado intermedio, las cargas evaluadas, los diagnósticos, las resultantes y
+los extremos fueron idénticos. También se preservaron los errores de dominio
+pasivo, espesor fuera de la tabla y `alpha > 1`, los argumentos recibidos, el
+estado del RNG y la ausencia de archivos temporales.
+
+Como control de la futura conexión, `calculateScenario()` se usó desde el
+callback vigente de Monte Carlo con y sin conservación de curvas; objetos,
+orden de muestras y productos fueron idénticos a la secuencia anterior. Esta
+prueba no conecta todavía el agregador ni define una simulación del proyecto.
+Asimismo, seis variantes integradas conservaron byte a byte los nueve
+productos G0. `buildCalculationData()` y `runRingMonteCarlo()` permanecen sin
+cambios; sus migraciones continúan reservadas para G8 y G9.
+
+Las auditorías independientes concluyeron PASS en
+`/private/tmp/ar-sad40-g7-architecture-final-audit.md`,
+`/private/tmp/ar-sad40-g7-r-policy-final-audit-v2.md` y
+`/private/tmp/ar-sad40-g7-parity-final-audit.md`. La auditoría de política R
+detectó inicialmente dos calificadores temporales en la prueba; fueron
+reclasificados como expectativas y la reauditoría quedó sin hallazgos.
+
+El render final de G7 produjo `html/calculation.review.es/index.html`,
+SHA-256
+`cabccb0cbdc05cceaf76d061fd4be285cd1e48acec358ea233d5a007dc7bc1d6`.
+Los nueve productos G0 y los trece archivos de la línea base congelada de
+Fase 1 permanecen idénticos.
+
 #### G8 — Reducir el productor y migrar explícitamente la ejecución
 
 Reducir `buildCalculationData()` a validación, adaptación, llamada al núcleo y

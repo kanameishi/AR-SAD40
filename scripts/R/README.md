@@ -20,6 +20,7 @@ source("scripts/R/stressState.R")
 source("scripts/R/corrugatedSection.R")
 source("scripts/R/perimeterActions.R")
 source("scripts/R/sectionResultants.R")
+source("scripts/R/calculateScenario.R")
 source("scripts/R/ringInteraction.R")
 source("scripts/R/ringMonteCarlo.R")
 ```
@@ -215,6 +216,42 @@ Response <- calculateSectionResultants(
   sectionRatio = 0,
   integrationSteps = 8192L
 )
+```
+
+La misma secuencia puede evaluarse para una realización mediante un contexto
+preparado una sola vez. La función no lee archivos ni genera valores
+aleatorios:
+
+```r
+SectionReference <- utils::read.csv(
+  "data/reference/corrugation.section.properties.csv",
+  check.names = FALSE,
+  stringsAsFactors = FALSE
+)
+Context <- list(
+  k0ModelId = "jaky-nc",
+  horizontalIncrementKPa = NA_real_,
+  horizontalIncrementStatus = "unknown-not-modeled",
+  sectionReference = SectionReference,
+  profileId = "ncspa-3x1",
+  youngModulusKPa = 200e6,
+  radiusM = 1.315,
+  theta = Theta,
+  integrationSteps = 8192L,
+  balanceTolerance = 1e-9
+)
+Realization <- list(
+  frictionAngleDeg = 30,
+  effectiveVerticalKPa = 100,
+  waterPressureDifferenceKPa = 0,
+  baseThicknessMm = 3,
+  alpha = 0.5
+)
+Scenario <- calculateScenario(
+  realization = Realization,
+  context = Context
+)
+Scenario$resultantExtrema
 ```
 
 El límite pasivo identifica la frontera de aplicación de la relación en

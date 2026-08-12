@@ -14,6 +14,7 @@ runCalculationDataTests <- function() {
   source(file.path(Root, "scripts", "R", "corrugatedSection.R"))
   source(file.path(Root, "scripts", "R", "perimeterActions.R"))
   source(file.path(Root, "scripts", "R", "sectionResultants.R"))
+  source(file.path(Root, "scripts", "R", "calculateScenario.R"))
   source(file.path(Root, "scripts", "R", "calculationData.R"))
   projectRoot <- Root
   source(
@@ -774,6 +775,106 @@ runCalculationDataTests <- function() {
   )
   stopifnot(identical(SectionResultants, Resultants.expected))
 
+  Config.scenario <- validateCalculationConfig(copyObject(BaselineJson))
+  Context.scenario <- list(
+    k0ModelId = "adopted-constant",
+    horizontalIncrementKPa = NA_real_,
+    horizontalIncrementStatus = "unknown-not-modeled",
+    sectionReference = SectionReference,
+    profileId = Config.scenario$section$referenceProfileId,
+    youngModulusKPa =
+      Config.scenario$material$circumferentialYoungModulusGPa * 1e6,
+    radiusM = Config.scenario$geometry$insideDiameterM / 2,
+    theta = buildThetaMesh(
+      pointCount = Config.scenario$numerics$baseThetaPointCount,
+      criticalAnglesDeg = Config.scenario$numerics$criticalAnglesDeg
+    ),
+    integrationSteps = Config.scenario$numerics$integrationSteps,
+    balanceTolerance = Config.scenario$numerics$balanceTolerance
+  )
+  Realization.scenario <- list(
+    k0 = Config.scenario$stressState$k0Model$k0,
+    effectiveVerticalKPa = Config.scenario$stressState$effectiveVerticalKPa,
+    waterPressureDifferenceKPa =
+      Config.scenario$stressState$waterPressureDifferenceKPa,
+    baseThicknessMm = Config.scenario$section$analysisBaseThicknessMm,
+    alpha = 0.5
+  )
+  Context.expected <- copyObject(Context.scenario)
+  Realization.expected <- copyObject(Realization.scenario)
+  Scenario <- calculateScenario(
+    realization = Realization.scenario,
+    context = Context.scenario
+  )
+  K0State.expected <- estimateK0(
+    modelId = Context.scenario$k0ModelId,
+    k0 = Realization.scenario$k0
+  )
+  StressState.expected <- calculateEffectiveStressState(
+    effectiveVerticalKPa = Realization.scenario$effectiveVerticalKPa,
+    k0State = K0State.expected,
+    waterPressureDifferenceKPa =
+      Realization.scenario$waterPressureDifferenceKPa,
+    horizontalIncrementKPa = Context.scenario$horizontalIncrementKPa,
+    horizontalIncrementStatus = Context.scenario$horizontalIncrementStatus
+  )
+  CorrugatedSection.expected <- interpolateCorrugatedSection(
+    reference = Context.scenario$sectionReference,
+    profileId = Context.scenario$profileId,
+    baseThicknessMm = Realization.scenario$baseThicknessMm
+  )
+  SectionRigidity.expected <- calculateRingSection(
+    youngModulus = Context.scenario$youngModulusKPa,
+    area = CorrugatedSection.expected$areaMm2PerMm * 1e-3,
+    inertia = CorrugatedSection.expected$inertiaMm4PerMm * 1e-9,
+    radius = Context.scenario$radiusM
+  )
+  PerimeterActions.expected <- calculatePerimeterActions(
+    stressState = StressState.expected,
+    alpha = Realization.scenario$alpha,
+    theta = Context.scenario$theta
+  )
+  SectionResultants.expected <- calculateSectionResultants(
+    load = PerimeterActions.expected$load,
+    radius = Context.scenario$radiusM,
+    theta = Context.scenario$theta,
+    sectionRatio = SectionRigidity.expected$sectionRatio,
+    integrationSteps = Context.scenario$integrationSteps,
+    balanceTolerance = Context.scenario$balanceTolerance
+  )
+  ResultantExtrema.expected <- summarizeSectionResultants(
+    SectionResultants.expected
+  )
+  stopifnot(
+    identical(names(Scenario), c(
+      "k0State", "stressState", "corrugatedSection", "sectionRigidity",
+      "perimeterActions", "sectionResultants", "resultantExtrema"
+    )),
+    identical(Scenario$k0State, K0State.expected),
+    identical(Scenario$stressState, StressState.expected),
+    identical(Scenario$corrugatedSection, CorrugatedSection.expected),
+    identical(Scenario$sectionRigidity, SectionRigidity.expected),
+    identical(
+      Scenario$perimeterActions$values,
+      PerimeterActions.expected$values
+    ),
+    identical(
+      Scenario$perimeterActions$load$metadata,
+      PerimeterActions.expected$load$metadata
+    ),
+    identical(
+      Scenario$sectionResultants$values,
+      SectionResultants.expected$values
+    ),
+    identical(
+      Scenario$sectionResultants$diagnostics,
+      SectionResultants.expected$diagnostics
+    ),
+    identical(Scenario$resultantExtrema, ResultantExtrema.expected),
+    identical(Context.scenario, Context.expected),
+    identical(Realization.scenario, Realization.expected)
+  )
+
   assertError(function() {
     calculateEffectiveStressState(
       effectiveVerticalKPa = 100,
@@ -806,6 +907,18 @@ runCalculationDataTests <- function() {
       theta = Theta.control
     )
   }, "must be greater than 0", "section resultant radius")
+  assertError(function() {
+    calculateScenario(
+      realization = Realization.scenario[names(Realization.scenario) != "alpha"],
+      context = Context.scenario
+    )
+  }, "realization is missing: alpha", "scenario realization fields")
+  assertError(function() {
+    calculateScenario(
+      realization = Realization.scenario,
+      context = Context.scenario[names(Context.scenario) != "theta"]
+    )
+  }, "context is missing: theta", "scenario context fields")
   assertError(function() {
     estimateK0(modelId = "adopted-constant")
   }, "missing: k0", "missing K0 branch primitive")

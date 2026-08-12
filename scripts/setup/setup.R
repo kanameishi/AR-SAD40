@@ -11,6 +11,7 @@ source(file.path(projectRoot, "scripts", "R", "stressState.R"))
 source(file.path(projectRoot, "scripts", "R", "corrugatedSection.R"))
 source(file.path(projectRoot, "scripts", "R", "perimeterActions.R"))
 source(file.path(projectRoot, "scripts", "R", "sectionResultants.R"))
+source(file.path(projectRoot, "scripts", "R", "calculateScenario.R"))
 source(file.path(projectRoot, "scripts", "R", "calculationData.R"))
 
 CalculationRun <- buildCalculationData(
