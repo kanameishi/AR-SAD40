@@ -1,6 +1,6 @@
 # Fuente de verdad — memoria de cálculo ejecutiva, Fase 2
 
-**Estado:** G0--G10.2 cerradas y publicadas; auditoría metodológica G10.7 `PASS`; notebook pendiente
+**Estado:** G0--G10.2 cerradas y publicadas; G10.7 tiene notebook candidato ejecutado y auditado; revisión del usuario pendiente
 **Fecha de corte:** 2026-08-12
 **Aceptación:** usuario
 **Producto aprobado de referencia:** documento metodológico de Fase 1, futuro paper
@@ -3061,8 +3061,9 @@ El primer producto concluyó `PASS` después de corregir la derivación, las
 conversiones dimensionales, el esquema real de salida y el tratamiento de la
 función desconectada. Su auditoría se conserva en
 `TITO/kb/research/g10.sheet.stress.correspondence.audit.es.md`. El segundo
-producto no ha sido construido ni ejecutado; por ello G10.7 completa permanece
-abierta.
+producto fue construido como candidato, ejecutado con Wolfram 15.0.1 y obtuvo
+`PASS` en sus dos auditorías independientes; G10.7 permanece abierta hasta la
+revisión del usuario y la consolidación de los artefactos Wolfram vigentes.
 
 La auditoría puede proponer texto candidato en `TITO/kb/paper-candidate/` o en
 la investigación interna de G10. No editará la Fase 1 congelada ni promoverá
@@ -3072,24 +3073,85 @@ supere el inventario, fijará todas sus entradas, no muestreará distribuciones 
 comparará magnitudes físicamente equivalentes mediante una tolerancia definida
 por cada control. R continúa siendo la fuente ejecutable de producción.
 
-Antes de editar el notebook se debe registrar un inventario `KEEP`, `REUSE`,
+Antes de editar el notebook se registró un inventario `KEEP`, `REUSE`,
 `DELETE` o `UNKNOWN` de los artefactos Wolfram existentes, junto con las
-entradas, salidas y oráculos del escenario fijo. El plan delegado de esta
-puerta se conserva en
+entradas, salidas y oráculos del escenario fijo. El plan de esta puerta se
+conserva en
 `TITO/kb/research/g10.wolfram.methodology.followup.plan.es.md`. Su inventario
-propone reutilizar selectivamente `soT.nb`; retirar el stack monolítico sólo
+propone reutilizar selectivamente `soT.nb`; retirar el conjunto monolítico sólo
 después de aceptar el reemplazo y migrar sus consumidores; y resolver como
-`UNKNOWN` el destino de `testRingNotebook.wl`. El nombre candidato del cuaderno
-nuevo es `calculationScenario.nb` y requiere aprobación antes de sustituir
-archivos vigentes.
+`UNKNOWN` el destino de `testRingNotebook.wl`. El cuaderno candidato se
+materializó en `scripts/wolfram/calculationScenario.nb`. Ningún archivo
+vigente fue sustituido o retirado.
 
 El escenario candidato es la fixture determinística
 `verification-biaxial-uniform`; no alcanza por sí sola para completar chapa,
 shotcrete o pernos. El notebook importará una única fixture R que ya contenga
 todas las entradas aprobadas, calculará independientemente y sólo al final
-importará los resultados R para compararlos. La presencia de `wolframscript`
-no demuestra disponibilidad de kernel/licencia; la ejecución efectiva
-permanece `UNKNOWN` hasta una prueba controlada.
+importará los resultados R para compararlos. La superficie Wolfram autorizada
+por el usuario es exclusivamente un notebook `.nb` nativo, organizado como
+una hoja de cálculo secuencial con texto, definiciones, celdas y resultados.
+No se empleará `wolframscript` ni se creará un archivo `.wl` como superficie
+de uso. El kernel nativo observado es
+`/Applications/Wolfram.app/Contents/MacOS/WolframKernel`, versión 15.0.1.
+
+### 28.7 Candidato `calculationScenario.nb`
+
+El notebook importa `calculation.json` y la tabla seccional referenciada,
+reconstruye independientemente el estado de tensiones efectivas, las
+propiedades circunferenciales, las acciones perimetrales y las curvas completas
+de $N_\theta$, $M_\theta$ y $Q_\theta$ para `alpha-1` y `alpha-0`. Los CSV de R
+se leen sólo después de terminar el cálculo Wolfram.
+
+La solución cerrada es la serie comparada con R. La integración mediante
+`NDSolveValue` y la descomposición de Fourier en los modos $n=0$ y $n=2$ son
+controles independientes. La malla contiene 728 ángulos y conserva los puntos
+críticos del escenario. Los extremos repetidos por simetría se informan como
+conjuntos de posiciones equivalentes; no se fuerza la elección angular
+producida por ruido numérico de otro motor.
+
+La ejecución completa de las trece celdas obtuvo:
+
+- diferencia máxima entre acciones Wolfram y R:
+  $9.95\times10^{-14}$ kPa;
+- diferencia máxima entre resultantes cerradas Wolfram y R:
+  $2.41\times10^{-12}$ en las unidades de cada resultante, frente al límite
+  $10^{-7}$;
+- diferencia máxima de la integración directa respecto de la solución
+  cerrada: $1.48\times10^{-6}$, frente a su límite independiente $10^{-4}$;
+- métrica máxima de equilibrio de la integración directa:
+  $1.32\times10^{-13}$, frente al límite $10^{-9}$;
+- residuo máximo del control independiente de presión uniforme en el límite
+  puramente membranal $\eta=0$: $5.39\times10^{-8}$, frente al límite
+  independiente $10^{-4}$;
+- diferencias máximas de $1.34\times10^{-12}$ para los valores y los valores
+  firmados de los 18 extremos contrastados con R, frente al límite $10^{-7}$;
+  y
+- `overallPass = True` con Wolfram 15.0.1.
+
+El notebook adopta como representante de un extremo repetido el primer índice
+entre las posiciones equivalentes dentro de la tolerancia. El ángulo informado
+por R puede ser otro miembro del mismo conjunto debido al ruido numérico; en
+ese caso se comprueban tanto la pertenencia al conjunto como el valor firmado
+de la solución Wolfram en el ángulo R. También se exige igualdad de unidades,
+identificadores de escenario y caso, rama y dominio de $K_0$, y estados
+`UNKNOWN` o no aplicables.
+
+La recuperación de tensión normal circunferencial se presenta, pero permanece
+sin evaluar para este escenario: faltan la sección neta, las coordenadas
+firmadas de las fibras interior y exterior y el criterio aprobado de
+aplicabilidad frente a la curvatura. No se utiliza $Q_\theta$ para inferir una
+tensión y no se calculan resistencia, utilización, tensión longitudinal, von
+Mises, juntas o pernos.
+
+No se modificaron `calculation.json`, `data/calculation/`, la memoria pública,
+la Fase 1 ni el plan Mai.1--Mai.10. Las auditorías matemática y de usabilidad
+concluyeron `PASS` en
+`/private/tmp/ar-sad40-g10-7-notebook-math-audit.md` y
+`/private/tmp/ar-sad40-g10-7-notebook-usability-audit.md` para el SHA-256
+`3631fe64b25ffd4bbb6a114e519a6e4336a5577511b1ff2e2d9b778a77e01659`.
+La revisión del notebook por el usuario gobierna su aceptación; hasta entonces
+no se retira ningún artefacto Wolfram anterior.
 
 ## 29. Plan posterior — Mai (2013) y deterioro de conductos corrugados
 
