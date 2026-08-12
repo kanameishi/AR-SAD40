@@ -34,7 +34,7 @@ NetSection <- list(
 )
 RecoveryBasis <- list(
   modelID = "linear-homogenized",
-  criterionID = "straight-section-control",
+  criterionID = "synthetic-straight-section-control",
   applicabilityStatus = "satisfied"
 )
 

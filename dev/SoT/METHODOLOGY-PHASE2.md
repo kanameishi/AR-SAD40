@@ -1,6 +1,6 @@
 # Fuente de verdad — memoria de cálculo ejecutiva, Fase 2
 
-**Estado:** G0--G9 y G10.1 publicadas; G10.2 implementada y auditada, pendiente de publicación
+**Estado:** G0--G10.2 cerradas y publicadas; auditoría metodológica G10.7 `PASS`; notebook pendiente
 **Fecha de corte:** 2026-08-12
 **Aceptación:** usuario
 **Producto aprobado de referencia:** documento metodológico de Fase 1, futuro paper
@@ -2002,7 +2002,8 @@ Los hechos arquitectónicos relevantes son:
   escritura de productos; y
 - al cierre de G9 no existían funciones aprobadas para tensiones locales de la
   chapa, demanda de una junta o respuesta de pernos. G10.2 agregó después una
-  recuperación normal equivalente y condicional, sin modificar este oráculo.
+  recuperación normal circunferencial homogeneizada y condicional, sin
+  modificar este oráculo.
 
 La principal deuda no está en el número de líneas de `solveRingDirect()`, sino
 en la concentración de cálculo, adaptación editorial e I/O dentro de
@@ -2097,7 +2098,7 @@ consumidores.
 | `calculateSectionResultants()` | resolver equilibrio y compatibilidad | acciones, $R$, razón seccional, malla y parámetros numéricos | una única tabla con $N_\theta$, $M_\theta$, $Q_\theta$ y diagnósticos | envolver `solveRingDirect()`; no se divide por resultante |
 | `summarizeSectionResultants()` | localizar extremos espaciales | respuesta conjunta de resultantes | mínimos, máximos y máximos absolutos, con signo y ángulo | consolidar tres implementaciones duplicadas |
 | `calculateScenario()` | componer una realización | una fila de primitivas y un contexto invariante | etapas anteriores, resultantes, extremos y diagnósticos | nueva función delgada; no contiene ecuaciones propias |
-| `calculateSheetNormalStress()` | recuperar tensión normal equivalente por flexo-compresión | $N_\theta$, $M_\theta$, propiedades netas, coordenadas firmadas de fibra y base de aplicabilidad | campo de tensión por ángulo y fibra, o `NA` cuando la base no habilita el modelo | implementada condicionalmente en G10.2; no conectada al escenario actual |
+| `calculateSheetNormalStress()` | recuperar tensión normal circunferencial homogeneizada por flexocompresión | $N_\theta$, $M_\theta$, propiedades netas, coordenadas firmadas de fibra y base de aplicabilidad | campo de tensión por ángulo y fibra, o `NA` cuando la base no habilita el modelo | implementada condicionalmente en G10.2; no conectada al escenario actual |
 | `calculateJointDemand()` | transformar las resultantes en acciones transmitidas por una junta | resultantes en la junta, ancho tributario y geometría | acciones de la unión | futuro; transferencia pendiente |
 | `calculateBoltResponse()` | distribuir la acción de junta en el grupo de pernos | acción de junta, disposición, áreas y modelo de reparto | fuerza por perno y componentes nominales de tensión | futuro; modelo y datos pendientes |
 
@@ -2170,7 +2171,7 @@ parámetros derivados —los «hijos»— se calculan una vez en el orden indica
 | perfil, referencia y espesor de análisis o neto | $A_\theta$, $I_\theta$ y futuras coordenadas de fibra | rigideces y tensiones | $A_\theta$ e $I_\theta$ implementados dentro del intervalo publicado; coordenadas de fibra `UNKNOWN` |
 | $E_\theta$, $A_\theta$, $I_\theta$ y $R$ | $EA_\theta$, $EI_\theta$, $I_\theta/(A_\theta R^2)$ | resultantes | implementado |
 | $P_r$, $P_t$, $R$, razón seccional y malla | $N_\theta$, $M_\theta$, $Q_\theta$ | extremos y módulos posteriores | implementado y auditado |
-| $N_\theta$, $M_\theta$, sección neta, fibras y base de aplicabilidad | tensión normal equivalente de chapa | evaluación posterior | función condicional implementada; resultado del revestimiento actual `UNKNOWN` |
+| $N_\theta$, $M_\theta$, sección neta, fibras y base de aplicabilidad | tensión normal circunferencial homogeneizada de chapa | evaluación posterior | función condicional implementada; resultado del revestimiento actual `UNKNOWN` |
 | resultantes en junta, geometría y ancho tributario | acción de junta | pernos | `UNKNOWN` |
 | acción de junta y disposición de pernos | fuerza y tensión nominal por perno | evaluación posterior | `UNKNOWN` |
 
@@ -2772,7 +2773,7 @@ flexo-compresión están definidos. Para conectarla al escenario deben aprobarse
 
 - las propiedades de la sección neta y su relación con la corrosión;
 - las coordenadas reales de las fibras netas;
-- la correspondencia entre la tensión equivalente homogeneizada y la magnitud
+- la correspondencia entre la tensión normal circunferencial homogeneizada y la magnitud
   que se pretende verificar; y
 - el criterio respaldado de aplicabilidad frente a la curvatura.
 
@@ -2850,8 +2851,9 @@ propios usan `ID`, el productor determinístico y el agregador por realizaciones
 consumen `calculateScenario()` y no se han definido distribuciones ni ejecutado
 una simulación probabilística del caso. El commit `4eb4b11`, también publicado
 en `origin/main`, cierra G10.1 y preserva mediante Git LFS las cuatro fuentes
-CIRSOC autorizadas. G10.2 se implementó después sobre esa base y permanece
-desconectada del escenario hasta resolver sus entradas obligatorias.
+CIRSOC autorizadas. El commit `f45aecd`, publicado en `origin/main`, cierra
+G10.2. La función permanece desconectada del escenario hasta resolver sus
+entradas obligatorias.
 
 ### 28.1 Alcance de G10
 
@@ -3055,6 +3057,13 @@ usuario haya aceptado. Tiene dos productos acotados:
 2. un único notebook Wolfram de lectura secuencial que evalúe un escenario
    fijo y compare resultados declarados con R.
 
+El primer producto concluyó `PASS` después de corregir la derivación, las
+conversiones dimensionales, el esquema real de salida y el tratamiento de la
+función desconectada. Su auditoría se conserva en
+`TITO/kb/research/g10.sheet.stress.correspondence.audit.es.md`. El segundo
+producto no ha sido construido ni ejecutado; por ello G10.7 completa permanece
+abierta.
+
 La auditoría puede proponer texto candidato en `TITO/kb/paper-candidate/` o en
 la investigación interna de G10. No editará la Fase 1 congelada ni promoverá
 prosa a la memoria sin aprobación explícita. El notebook no será una segunda
@@ -3081,3 +3090,97 @@ todas las entradas aprobadas, calculará independientemente y sólo al final
 importará los resultados R para compararlos. La presencia de `wolframscript`
 no demuestra disponibilidad de kernel/licencia; la ejecución efectiva
 permanece `UNKNOWN` hasta una prueba controlada.
+
+## 29. Plan posterior — Mai (2013) y deterioro de conductos corrugados
+
+Esta sección se incorpora después del cierre de G10.2 y de la auditoría
+metodológica de G10.7. No reemplaza esas puertas ni habilita por sí sola
+resultados resistentes. La fuente, su extracción completa y el análisis se
+preservan en:
+
+- `TITO/kb/sources/mai_2013_deteriorated_corrugated_steel_culverts_thesis.pdf`;
+- `TITO/kb/research/g10.mai.2013.thesis.extraction.en.md`;
+- `TITO/kb/research/g10.mai.2013.deterioration.analysis.es.md`; y
+- `TITO/kb/research/g10.mai.2013.deterioration.audit.es.md`.
+
+La extracción contiene 233 bloques consecutivos, uno por página física del
+PDF. El archivo fuente tiene SHA-256
+`4af68ba05cd52a4281937401c998348cad1119327edb5f697d686bca4a3bbc25`.
+La auditoría independiente concluyó `PASS` después de corregir la dirección de
+una comparación porcentual, reservar $z$ para profundidad y distinguir la
+Ecuación (4-1) impresa de una transformación algebraica derivada.
+
+### 29.1 Dictamen de aplicabilidad
+
+Mai aporta condicionalmente a la transición entre inspección y modelo
+mecánico:
+
+1. documenta calibración y estados de lectura de mediciones ultrasónicas;
+2. conserva por separado $EA$ y $EI$ al representar una corrugación mediante
+   propiedades circunferenciales equivalentes;
+3. recupera $N$ y $M$ desde deformaciones de valle y cresta dentro del rango
+   elástico; y
+4. muestra perforación, plastificación localizada y pandeo de ligamentos como
+   mecanismos que una tensión global homogeneizada no verifica.
+
+La tesis no cierra el criterio de aplicabilidad por curvatura, la distribución
+local asociada a $Q_\theta$, la condición longitudinal, una norma vigente, un
+modelo general de perforación o una distribución probabilística del espesor.
+Sus casos CANDE y de carga superficial son antecedentes académicos; no forman
+parte del procedimiento de producción ni del reporte ejecutivo.
+
+### 29.2 Secuencia Mai.1--Mai.10
+
+1. **Mai.1 — datos de deterioro:** separar espesor nominal, observación
+   $t_{\rm measured}(\theta,x_L)$, estado de lectura, fracción perforada,
+   espesor de cálculo y pérdida futura. No descontar dos veces la corrosión
+   histórica ya medida.
+2. **Mai.2 — calidad de medición:** distinguir medido, perforado, no medible
+   por degradación superficial y no accesible. La falta de acceso permanece
+   `UNKNOWN`; no se convierte automáticamente en espesor nulo.
+3. **Mai.3 — reducción espacial:** mantener $x_L$ como coordenada de
+   inspección. El modelo mecánico sigue siendo plano y sin variación
+   longitudinal de cargas; hasta aprobar una regla de redistribución se
+   evalúan estaciones independientes o una envolvente, no un promedio
+   longitudinal implícito.
+4. **Mai.4 — contrastes seccionales:** materializar por separado los controles
+   M1 de la Tabla 2.1 y M2 de la Tabla E.1. Los valores tabulados son datos de
+   referencia; los ajustes y extrapolaciones se clasifican como derivados.
+5. **Mai.5 — correspondencia con G10.2:** incorporar las Ecuaciones (4-2) a
+   (4-5) como antecedente experimental de recuperación elástica. No modificar
+   la puerta vigente de curvatura ni introducir $Q_\theta$, tensión
+   longitudinal, von Mises o resistencia local.
+6. **Mai.6 — perforación y continuidad:** si existen perforaciones o ligamentos
+   aislados, la tensión global puede informarse sólo como diagnóstico; la
+   verificación resistente permanece incompleta hasta evaluar estabilidad
+   local y continuidad del camino de carga.
+7. **Mai.7 — mecanismos y límites:** reservar la evidencia de CSP1 sobre
+   plastificación, pandeo local y causalidad no resuelta para la metodología
+   académica o el futuro paper.
+8. **Mai.8 — contrastes:** conservar M1--M6 en el apéndice metodológico con su
+   clase de evidencia. No presentar CANDE como método empleado por AR-SAD40.
+9. **Mai.9 — incertidumbre:** agregar al inventario de Monte Carlo espesor
+   observado, error de medición, fracción perforada, estado de lectura y regla
+   de agregación. Sus distribuciones y dependencias permanecen `UNKNOWN`; antes
+   de aprobarlas se ejecutan sensibilidades determinísticas.
+10. **Mai.10 — auditoría:** comprobar símbolos, unidades, signos, reproducción
+    de M1--M2, tratamiento de las discrepancias de la fuente, ausencia de
+    promedios longitudinales implícitos y trazabilidad a `[@Mai2013]`.
+
+### 29.3 Puertas de ejecución
+
+La ejecución de Mai.1--Mai.10 requiere, en este orden:
+
+1. aprobar el esquema de datos de inspección y la nomenclatura de estados;
+2. recibir o definir la forma de los datos del proyecto sin inventar valores;
+3. aprobar la regla que transforma el campo medido en propiedades por sección
+   plana;
+4. implementar primero productores determinísticos y los contrastes M1--M2;
+5. conectar G10.2 sólo si la sección neta, las fibras y el criterio de
+   curvatura están completos; y
+6. incorporar texto a la memoria o al futuro paper únicamente después de la
+   revisión técnica y editorial del usuario.
+
+No se modifica `calculation.json`, no se ejecuta Monte Carlo, no se generan
+tensiones del revestimiento existente y no se altera la Fase 1 durante esta
+etapa de planificación.

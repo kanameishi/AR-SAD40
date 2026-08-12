@@ -52,12 +52,12 @@
 - La memoria y el escenario determinístico vigentes terminan en
   `N_theta(theta)`, `M_theta(theta)` y `Q_theta(theta)`, sus extremos y sus
   envolventes. G10.2 admite una función pura y condicional para recuperar la
-  tensión normal equivalente desde `N_theta` y `M_theta` cuando la sección
-  neta, las fibras y la aplicabilidad frente a la curvatura se suministran
-  explícitamente. No inferir esos datos del espesor equivalente ni presentar
-  tensiones del revestimiento existente mientras continúen `UNKNOWN`. La
-  resistencia de la chapa, la capacidad de juntas y las solicitaciones de
-  pernos permanecen fuera de esta puerta.
+  tensión normal circunferencial homogeneizada desde `N_theta` y `M_theta`
+  cuando la sección neta, las fibras y la aplicabilidad frente a la curvatura
+  se suministran explícitamente. No inferir esos datos del espesor equivalente
+  ni presentar tensiones del revestimiento existente mientras continúen
+  `UNKNOWN`. La resistencia de la chapa, la capacidad de juntas y las
+  solicitaciones de pernos permanecen fuera de esta puerta.
 - El problema es plano, sin variación longitudinal de cargas. No introducir
   una teoría general de láminas ortótropas ni clases de software que no sean
   necesarias para las rigideces circunferenciales del perfil corrugado.

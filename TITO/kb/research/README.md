@@ -22,8 +22,28 @@ El estado vigente y el orden de ejecución están en
 | $K_0$ y compactación | `g10.k0.compaction.es.md` | `g10.k0.compaction.audit.es.md` | evidencia `PASS`; no requiere código nuevo con el dominio actual |
 | hormigón proyectado | `g10.shotcrete.section.verification.es.md` | `g10.shotcrete.section.verification.audit.es.md` | evidencia `PASS`; implementación bloqueada por aplicabilidad y datos `UNKNOWN` |
 
+## Mai (2013) y deterioro
+
+- `g10.mai.2013.thesis.extraction.en.md` conserva la extracción integral de
+  las 233 páginas con localizadores por página física;
+- `g10.mai.2013.deterioration.analysis.es.md` clasifica la evidencia y define
+  el plan Mai.1--Mai.10; y
+- `g10.mai.2013.deterioration.audit.es.md` documenta el `FAIL` inicial, sus
+  tres correcciones y el `PASS` final.
+
+El dictamen es **aporta condicionalmente**: la fuente sustenta mediciones de
+espesor, propiedades $EA/EI$, recuperación elástica y límites por deterioro,
+pero no habilita distribuciones probabilísticas, resistencia local ni
+resultados del revestimiento existente. El orden de incorporación está en la
+sección 29 de la SoT.
+
 `g10.equations.register.es.md` reúne las ecuaciones candidatas, entradas,
 unidades, dominios y controles. No reemplaza los informes ni sus fuentes.
+
+`g10.sheet.stress.correspondence.audit.es.md` documenta el `FAIL` inicial y el
+`PASS` final de la correspondencia entre G10.2, su implementación R y el plan
+Wolfram. La función está implementada pero no produce tensiones del escenario
+vigente mientras sus entradas netas permanezcan `UNKNOWN`.
 
 `g10.wolfram.methodology.followup.plan.es.md` define la puerta diferida G10.7:
 auditoría de correspondencia metodológica y recuperación de un único notebook

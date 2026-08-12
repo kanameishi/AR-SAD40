@@ -72,7 +72,7 @@ Este archivo registra procedencia e integridad. Incluye informes primarios, manu
 | `liu_2021_corrugated_steel_culverts_thesis.pdf` | Tesis preservada; lectura dirigida | Homogeneización y benchmark B6 |
 | `liu_et_al_2016_cmp_experiment_fe.pdf` | Artículo preservado; lectura dirigida | Benchmark B4 y límite del modelo 2D |
 | `liu_et_al_2023_3d_fe_surface_load_tests.pdf` | Artículo preservado; lectura dirigida | Benchmark B8 y alcance de la validación 3D |
-| `mai_2013_deteriorated_corrugated_steel_culverts_thesis.pdf` | Tesis preservada; lectura dirigida | Benchmark B7 |
+| `mai_2013_deteriorated_corrugated_steel_culverts_thesis.pdf` | Tesis completa preservada; extracción integral por página y lectura visual dirigida de ecuaciones, tablas y figuras críticas | Deterioro, medición ultrasónica, propiedades seccionales, recuperación elástica y contrastes M1--M6 |
 | `mayne_kulhawy_1982_k0_ocr_relationships.pdf` | Artículo primario completo preservado; lectura dirigida de pp. 852--869, ecs. 2, 10--12 y 14--18 | Relaciones para carga primaria, descarga y recarga; control por movilización pasiva; fuente primaria que resuelve la transcripción de FHWA 5.39 |
 | `mcgrath_2025_gravity_flow_conduits_preview.pdf` | Vista previa oficial; lectura dirigida | Mapa de capítulos únicamente; ecuaciones **UNKNOWN** |
 | `michalowski_2005_coefficient_earth_pressure_at_rest.pdf` | Artículo primario completo preservado; lectura dirigida de pp. 1429--1432, ecs. 1 y 8 | Forma abreviada y forma de 1944 de Jáky; crítica de la derivación original; referencia secundaria al ajuste de Brooker--Ireland |

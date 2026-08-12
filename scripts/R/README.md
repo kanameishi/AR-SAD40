@@ -5,9 +5,9 @@ oráculo interno y Fourier como comparador modal independiente.
 
 El producto del cálculo vigente son los resultantes $N(\theta)$, $M(\theta)$ y
 $Q(\theta)$ y sus extremos/envolventes. Existe además una recuperación
-condicional de tensión normal equivalente para una sección neta suministrada
-explícitamente. El cálculo no infiere esa sección, no obtiene tensión local a
-partir de $Q$, y no calcula capacidades ni demandas de pernos.
+condicional de tensión normal circunferencial homogeneizada para una sección
+neta suministrada explícitamente. El cálculo no infiere esa sección, no obtiene
+tensión local a partir de $Q$, y no calcula capacidades ni demandas de pernos.
 
 La documentación matemática y de fuentes está en
 [`TITO/kb/metodologia-anillo-enterrado.md`](../../TITO/kb/metodologia-anillo-enterrado.md).
@@ -136,16 +136,20 @@ Stress <- calculateSheetNormalStress(
   ),
   recoveryBasis = list(
     modelID = "linear-homogenized",
-    criterionID = "straight-section-control",
+    criterionID = "synthetic-straight-section-control",
     applicabilityStatus = "satisfied"
   )
 )
 ```
 
 La coordenada de fibra es positiva radialmente hacia afuera y un momento
-positivo comprime esa fibra. Si la aplicabilidad es `unknown` o
-`not-satisfied`, las tensiones se devuelven como `NA`; no se activa de manera
-implícita una formulación alternativa.
+positivo comprime esa fibra. El identificador del ejemplo corresponde a un
+control sintético y no constituye un criterio de aplicabilidad aprobado. El
+usuario de la función suministra el criterio y su estado; la función no
+evalúa la curvatura.
+
+Si la aplicabilidad es `unknown` o `not-satisfied`, las tensiones se devuelven
+como `NA`; no se activa de manera implícita una formulación alternativa.
 
 ## Cargas arbitrarias
 

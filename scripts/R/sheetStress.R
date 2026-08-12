@@ -1,4 +1,4 @@
-# Recover equivalent circumferential normal stress from section resultants.
+# Recover homogenized circumferential normal stress from section resultants.
 #
 # Units and signs:
 #   normalForce    : kN/m, positive in tension;
