@@ -13,12 +13,47 @@ source("scripts/fig/ringParametric.R")
   }
   Curves <- utils::read.csv(pathCurves, check.names = FALSE)
   Scales <- utils::read.csv(pathScales, check.names = FALSE)
-  if (!"tangentialMultiplier" %in% names(Curves)) {
+  RequiredCurves <- c(
+    "caseId", "alpha", "resultantId", "thetaIndex", "thetaRad", "thetaDeg",
+    "value", "unit", "evidenceLevel"
+  )
+  RequiredScales <- c(
+    "resultantId", "displayScale", "maximumAbsoluteValue", "resultantUnit",
+    "radialFraction"
+  )
+  if (length(setdiff(RequiredCurves, names(Curves))) > 0L ||
+      length(setdiff(RequiredScales, names(Scales))) > 0L) {
     stop(
-      "The calculation curves require tangentialMultiplier.",
+      "The calculation result files have an invalid schema.",
       call. = FALSE
     )
   }
+  Curves <- data.frame(
+    case = Curves$caseId,
+    stage = "Estado biaxial uniforme",
+    model = "Acciones prescritas",
+    prescription = paste0(
+      "Componente tangencial: α = ",
+      formatC(Curves$alpha, format = "f", digits = 2)
+    ),
+    tangentialMultiplier = Curves$alpha,
+    resultant = Curves$resultantId,
+    thetaIndex = Curves$thetaIndex,
+    theta = Curves$thetaRad,
+    thetaDeg = Curves$thetaDeg,
+    value = Curves$value,
+    unit = Curves$unit,
+    evidenceLevel = Curves$evidenceLevel,
+    stringsAsFactors = FALSE
+  )
+  Scales <- data.frame(
+    resultant = Scales$resultantId,
+    displayScale = Scales$displayScale,
+    maximumAbsoluteValue = Scales$maximumAbsoluteValue,
+    unit = Scales$resultantUnit,
+    radialFraction = Scales$radialFraction,
+    stringsAsFactors = FALSE
+  )
   Multipliers <- tapply(
     Curves$tangentialMultiplier,
     Curves$case,
@@ -51,7 +86,8 @@ buildCalculationResultants <- function(
   pathCurves,
   pathScales,
   radius,
-  graphicAmplification = 1
+  graphicAmplification = 1,
+  raysPerCircle = 36L
 ) {
   Geometry <- .readResultantGeometry(
     pathCurves,
@@ -62,7 +98,7 @@ buildCalculationResultants <- function(
   buildRingStaticPlot(
     geometry = Geometry,
     baselineRadius = radius,
-    raysPerCircle = 36L
+    raysPerCircle = raysPerCircle
   )
 }
 
@@ -71,6 +107,7 @@ buildCalculationResultantsInteractive <- function(
   pathScales,
   radius,
   graphicAmplification = 1,
+  raysPerCircle = 36L,
   resultant = c("N", "M", "Q")
 ) {
   Geometry <- .readResultantGeometry(
@@ -94,7 +131,7 @@ buildCalculationResultantsInteractive <- function(
   Rays <- prepareRingRays(
     geometry = Geometry,
     baselineRadius = radius,
-    raysPerCircle = 36L,
+    raysPerCircle = raysPerCircle,
     phaseDegByCase = stats::setNames(
       ((seq_along(Cases) - 1L) * 5) %% 10,
       Cases

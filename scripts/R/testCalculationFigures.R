@@ -3,28 +3,43 @@ source("scripts/fig/Calculation.envelopes.R")
 source("scripts/fig/Calculation.extrema.quantiles.R")
 source("scripts/fig/Calculation.compaction.stages.R")
 
-GraphicAmplification <- 2
+PathCurves <- "data/calculation/section.resultants.csv"
+PathScales <- "data/calculation/display.scales.csv"
+ScaleData <- utils::read.csv(PathScales, check.names = FALSE)
+Radius <- unique(ScaleData$referenceRadiusM)
+OrdinateCount <- unique(ScaleData$ordinateCount)
+GraphicAmplification <- unique(ScaleData$graphicAmplification)
+RadialFraction <- unique(ScaleData$radialFraction)
+stopifnot(
+  length(Radius) == 1L,
+  length(OrdinateCount) == 1L,
+  length(GraphicAmplification) == 1L,
+  length(RadialFraction) == 1L
+)
 resultants <- buildCalculationResultants(
-  "TITO/kb/calculation-memo/results/ring-curves.csv",
-  "TITO/kb/calculation-memo/results/ring-display-scales.csv",
-  1.315,
-  graphicAmplification = GraphicAmplification
+  PathCurves,
+  PathScales,
+  Radius,
+  graphicAmplification = GraphicAmplification,
+  raysPerCircle = OrdinateCount
 )
 stopifnot(inherits(resultants, "ggplot"))
 stopifnot(identical(resultants$coordinates$ratio, 1))
 stopifnot(length(resultants$layers) == 4L)
 rays <- resultants$layers[[2L]]$data
 stopifnot(inherits(resultants$layers[[2L]]$geom, "GeomSegment"))
-stopifnot(nrow(rays) == 6L * 36L)
-sectionResidual <- abs(rays$xSection^2 + rays$ySection^2 - 1.315^2)
-stopifnot(max(sectionResidual) < 1e-12 * 1.315^2)
+stopifnot(nrow(rays) == 6L * OrdinateCount)
+sectionResidual <- abs(rays$xSection^2 + rays$ySection^2 - Radius^2)
+stopifnot(max(sectionResidual) < 1e-12 * Radius^2)
 rayLengths <- sqrt(
   (rays$x - rays$xSection)^2 + (rays$y - rays$ySection)^2
 )
 expectedLengths <- abs(rays$displayScale * rays$value)
 stopifnot(max(abs(rayLengths - expectedLengths)) < 1e-12)
 stopifnot(all(rays$graphicAmplification == GraphicAmplification))
-stopifnot(all(abs(rays$radialFraction - 0.5) < 1e-14))
+stopifnot(all(abs(
+  rays$radialFraction - GraphicAmplification * RadialFraction
+) < 1e-14))
 stopifnot(all(abs(
   rays$displayScale - GraphicAmplification * rays$baseDisplayScale
 ) < 1e-14))
@@ -38,10 +53,11 @@ stopifnot(all(vapply(curveGroups, function(current) {
 }, logical(1))))
 
 Interactive <- buildCalculationResultantsInteractive(
-  "TITO/kb/calculation-memo/results/ring-curves.csv",
-  "TITO/kb/calculation-memo/results/ring-display-scales.csv",
-  1.315,
-  graphicAmplification = GraphicAmplification
+  PathCurves,
+  PathScales,
+  Radius,
+  graphicAmplification = GraphicAmplification,
+  raysPerCircle = OrdinateCount
 )
 stopifnot(inherits(Interactive, "highchart"))
 stopifnot(is.null(Interactive$x$hc_opts$chart$width))
@@ -78,19 +94,19 @@ stopifnot(all(vapply(Interactive$x$hc_opts$xAxis, function(x) {
   is.character(x$title$text) && length(x$title$text) == 1L
 }, logical(1))))
 Geometry <- .readResultantGeometry(
-  "TITO/kb/calculation-memo/results/ring-curves.csv",
-  "TITO/kb/calculation-memo/results/ring-display-scales.csv",
-  1.315,
+  PathCurves,
+  PathScales,
+  Radius,
   graphicAmplification = GraphicAmplification
 )
 stopifnot(identical(
   unique(as.character(Geometry$case)),
-  c("tangential-alpha-1", "tangential-alpha-0")
+  c("alpha-1", "alpha-0")
 ))
 Baseline <- buildRingComparisonPlot(
   geometry = Geometry,
-  baselineRadius = 1.315,
-  raysPerCircle = 36L,
+  baselineRadius = Radius,
+  raysPerCircle = OrdinateCount,
   subtitle = paste0(
     "Multiplicador tangencial α; amplificación gráfica Ag = ",
     GraphicAmplification,
@@ -134,8 +150,8 @@ for (CurrentSeries in RaySeries) {
 Cases <- unique(Geometry$case)
 PhasedRays <- prepareRingRays(
   geometry = Geometry,
-  baselineRadius = 1.315,
-  raysPerCircle = 36L,
+  baselineRadius = Radius,
+  raysPerCircle = OrdinateCount,
   phaseDegByCase = stats::setNames(c(0, 5), Cases)
 )
 SignSeries <- nrow(unique(PhasedRays[c("case", "resultant", "sign")]))
@@ -169,7 +185,7 @@ quantiles <- do.call(rbind, lapply(c(0.05, 0.50, 0.95), function(probability) {
 }))
 quantilePath <- tempfile(fileext = ".csv")
 utils::write.csv(quantiles, quantilePath, row.names = FALSE)
-envelope <- buildCalculationEnvelopes(quantilePath, "M", 0.02, 1.315)
+envelope <- buildCalculationEnvelopes(quantilePath, "M", 0.02, Radius)
 stopifnot(inherits(envelope, "highchart"))
 
 extrema <- expand.grid(
@@ -190,24 +206,46 @@ utils::write.csv(extrema, extremaPath, row.names = FALSE)
 extremaChart <- buildCalculationExtremaQuantiles(extremaPath)
 stopifnot(inherits(extremaChart, "shiny.tag"))
 
-stages <- utils::read.csv(
-  "TITO/kb/calculation-memo/results/ring-curves.csv",
-  check.names = FALSE
-)
-stages$stage <- ifelse(
-  stages$case == "tangential-alpha-1",
-  "Etapa 1",
-  "Etapa 2"
+CanonicalCurves <- utils::read.csv(PathCurves, check.names = FALSE)
+stages <- data.frame(
+  case = CanonicalCurves$caseId,
+  stage = ifelse(CanonicalCurves$alpha == 1, "Etapa 1", "Etapa 2"),
+  model = "mathematical-control",
+  prescription = paste0(
+    "Componente tangencial: α = ",
+    formatC(CanonicalCurves$alpha, format = "f", digits = 2)
+  ),
+  resultant = CanonicalCurves$resultantId,
+  thetaIndex = CanonicalCurves$thetaIndex,
+  theta = CanonicalCurves$thetaRad,
+  thetaDeg = CanonicalCurves$thetaDeg,
+  value = CanonicalCurves$value,
+  unit = CanonicalCurves$unit,
+  evidenceLevel = CanonicalCurves$evidenceLevel,
+  stringsAsFactors = FALSE
 )
 stagePath <- tempfile(fileext = ".csv")
+stageScalePath <- tempfile(fileext = ".csv")
 utils::write.csv(stages, stagePath, row.names = FALSE)
+utils::write.csv(
+  data.frame(
+    resultant = ScaleData$resultantId,
+    displayScale = ScaleData$displayScale,
+    maximumAbsoluteValue = ScaleData$maximumAbsoluteValue,
+    unit = ScaleData$resultantUnit,
+    radialFraction = ScaleData$radialFraction,
+    stringsAsFactors = FALSE
+  ),
+  stageScalePath,
+  row.names = FALSE
+)
 stageChart <- buildCalculationCompactionStages(
   stagePath,
-  "TITO/kb/calculation-memo/results/ring-display-scales.csv",
+  stageScalePath,
   "N",
-  1.315
+  Radius
 )
 stopifnot(inherits(stageChart, "highchart"))
 
-unlink(c(quantilePath, extremaPath, stagePath))
+unlink(c(quantilePath, extremaPath, stagePath, stageScalePath))
 cat("PASS: calculation figure builders.\n")

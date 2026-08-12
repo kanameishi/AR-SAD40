@@ -29,6 +29,91 @@ k0ElasticConfined <- function(poissonRatio) {
   poissonRatio / (1 - poissonRatio)
 }
 
+# Mayne and Kulhawy (1982), Eqs. 11-12. The Rankine coefficient is used
+# only to identify the limit of the at-rest unloading relationship.
+checkK0PassiveDomain <- function(frictionAngleDeg, ocrMaximum) {
+  .assertFiniteScalar(
+    frictionAngleDeg,
+    "frictionAngleDeg",
+    minimum = 0,
+    strict = TRUE
+  )
+  if (frictionAngleDeg >= 90) {
+    stop("frictionAngleDeg must be less than 90 degrees.", call. = FALSE)
+  }
+  .assertFiniteScalar(ocrMaximum, "ocrMaximum", minimum = 1)
+
+  FrictionSine <- sin(frictionAngleDeg * pi / 180)
+  if (FrictionSine >= 1) {
+    stop(
+      "frictionAngleDeg is too close to 90 degrees for finite evaluation.",
+      call. = FALSE
+    )
+  }
+
+  PassiveCoefficient <- (1 + FrictionSine) / (1 - FrictionSine)
+  OcrLimit <- exp(
+    (log1p(FrictionSine) - 2 * log1p(-FrictionSine)) / FrictionSine
+  )
+  Valid <- ocrMaximum < OcrLimit
+
+  list(
+    valid = Valid,
+    domainStatus = if (Valid) {
+      "withinDomain"
+    } else {
+      "passiveLimitReached"
+    },
+    passiveCoefficient = PassiveCoefficient,
+    ocrLimit = OcrLimit
+  )
+}
+
+# Mayne and Kulhawy (1982), Eq. 10: primary unloading from virgin
+# compression. The function rejects the passive limit instead of clipping K0.
+k0MayneKulhawyUnloading <- function(frictionAngleDeg, ocr) {
+  .assertFiniteScalar(ocr, "ocr", minimum = 1)
+  Domain <- checkK0PassiveDomain(frictionAngleDeg, ocr)
+  if (!Domain$valid) {
+    stop(
+      "ocr reaches the passive limit of the at-rest unloading relationship.",
+      call. = FALSE
+    )
+  }
+
+  BaseK0 <- k0NormallyConsolidated(frictionAngleDeg)
+  FrictionSine <- 1 - BaseK0
+  BaseK0 * ocr^FrictionSine
+}
+
+# Mayne and Kulhawy (1982), Eq. 18. FHWA NHI-05-037 Eq. 5.39 omits
+# the complement in the second term and is not implemented here.
+k0MayneKulhawyReload <- function(frictionAngleDeg, ocr, ocrMaximum) {
+  .assertFiniteScalar(ocr, "ocr", minimum = 1)
+  .assertFiniteScalar(ocrMaximum, "ocrMaximum", minimum = 1)
+  if (ocr > ocrMaximum) {
+    stop("ocr must not exceed ocrMaximum during reloading.", call. = FALSE)
+  }
+
+  Domain <- checkK0PassiveDomain(frictionAngleDeg, ocrMaximum)
+  if (!Domain$valid) {
+    stop(
+      paste0(
+        "ocrMaximum reaches the passive limit of the at-rest ",
+        "unloading-reloading relationship."
+      ),
+      call. = FALSE
+    )
+  }
+
+  BaseK0 <- k0NormallyConsolidated(frictionAngleDeg)
+  FrictionSine <- 1 - BaseK0
+  BaseK0 * (
+    ocr / ocrMaximum^(1 - FrictionSine) +
+      3 / 4 * (1 - ocr / ocrMaximum)
+  )
+}
+
 layeredEffectiveVerticalStress <- function(
   depth,
   layerBottom,
@@ -149,6 +234,58 @@ k0TensorLoad <- function(
   )
 }
 
+# Projection of a prescribed biaxial effective-stress state on the circular
+# boundary. The horizontal stress is supplied explicitly so downstream
+# actions do not have to reconstruct K0.
+biaxialStressTangentialMultiplierLoad <- function(
+  effectiveVertical,
+  effectiveHorizontal,
+  waterPressureDifference = 0,
+  tangentialMultiplier
+) {
+  .assertFiniteScalar(effectiveVertical, "effectiveVertical", minimum = 0)
+  .assertFiniteScalar(effectiveHorizontal, "effectiveHorizontal", minimum = 0)
+  .assertFiniteScalar(waterPressureDifference, "waterPressureDifference")
+  .assertFiniteScalar(
+    tangentialMultiplier,
+    "tangentialMultiplier",
+    minimum = 0
+  )
+  if (tangentialMultiplier > 1) {
+    stop(
+      "tangentialMultiplier must not exceed 1.",
+      call. = FALSE
+    )
+  }
+
+  EffectiveMean <- (effectiveVertical + effectiveHorizontal) / 2
+  Difference <- effectiveVertical - effectiveHorizontal
+
+  newRingLoad(
+    radial = function(theta) {
+      -waterPressureDifference - EffectiveMean -
+        Difference * cos(2 * theta) / 2
+    },
+    tangential = function(theta) {
+      tangentialMultiplier * Difference * sin(2 * theta) / 2
+    },
+    label = paste0(
+      "Biaxial stress field with tangential multiplier alpha = ",
+      format(tangentialMultiplier, trim = TRUE)
+    ),
+    source = "derived projection of a prescribed biaxial stress state",
+    representation = "scaledTangentialProjection",
+    metadata = list(
+      evidenceLevel = "assumption",
+      effectiveVertical = effectiveVertical,
+      effectiveHorizontal = effectiveHorizontal,
+      waterPressureDifference = waterPressureDifference,
+      tangentialMultiplier = tangentialMultiplier,
+      tangentialReference = "biaxial stress projection"
+    )
+  )
+}
+
 # Analyst-selected fraction of the projected tangential component.
 #
 # This is a prescribed-load model.  It does not solve interface slip or a
@@ -178,71 +315,45 @@ k0TangentialMultiplierLoad <- function(
   }
 
   EffectiveHorizontal <- k0 * effectiveVertical + horizontalIncrement
-  EffectiveMean <- (effectiveVertical + EffectiveHorizontal) / 2
-  Difference <- effectiveVertical - EffectiveHorizontal
-
-  effectiveNormal <- function(theta) {
-    EffectiveMean + Difference * cos(2 * theta) / 2
-  }
-  candidateTangential <- function(theta) {
-    Difference * sin(2 * theta) / 2
-  }
-
-  newRingLoad(
-    radial = function(theta) {
-      -porePressure - effectiveNormal(theta)
-    },
-    tangential = function(theta) {
-      tangentialMultiplier * candidateTangential(theta)
-    },
-    label = paste0(
-      "K0 stress field with tangential multiplier alpha = ",
-      format(tangentialMultiplier, trim = TRUE)
-    ),
-    source = "derived stress projection with analyst-selected multiplier",
-    representation = "scaledTangentialProjection",
-    metadata = list(
-      evidenceLevel = "assumption",
-      effectiveVertical = effectiveVertical,
-      effectiveHorizontal = EffectiveHorizontal,
-      porePressure = porePressure,
-      horizontalIncrement = horizontalIncrement,
-      tangentialMultiplier = tangentialMultiplier,
-      tangentialReference = "biaxial stress projection"
-    )
+  Load <- biaxialStressTangentialMultiplierLoad(
+    effectiveVertical = effectiveVertical,
+    effectiveHorizontal = EffectiveHorizontal,
+    waterPressureDifference = porePressure,
+    tangentialMultiplier = tangentialMultiplier
   )
+  Load$label <- sub("Biaxial", "K0", Load$label, fixed = TRUE)
+  Load$source <- "derived stress projection with analyst-selected multiplier"
+  Load$metadata$k0 <- k0
+  Load$metadata$horizontalIncrement <- horizontalIncrement
+  Load
 }
 
-solveK0Closed <- function(
+solveBiaxialTangentialMultiplierClosed <- function(
   effectiveVertical,
-  k0,
-  porePressure,
+  effectiveHorizontal,
+  waterPressureDifference,
   radius,
+  tangentialMultiplier,
   theta = (0:720) * 2 * pi / 721,
-  interface = c("fullTraction", "normalOnly"),
-  horizontalIncrement = 0,
   sectionRatio = 0
 ) {
   .assertFiniteScalar(radius, "radius", minimum = 0, strict = TRUE)
   .assertFiniteScalar(sectionRatio, "sectionRatio", minimum = 0)
   .assertTheta(theta)
-  Interface <- match.arg(interface)
-  Load <- k0TensorLoad(
+  Load <- biaxialStressTangentialMultiplierLoad(
     effectiveVertical = effectiveVertical,
-    k0 = k0,
-    porePressure = porePressure,
-    horizontalIncrement = horizontalIncrement,
-    interface = Interface
+    effectiveHorizontal = effectiveHorizontal,
+    waterPressureDifference = waterPressureDifference,
+    tangentialMultiplier = tangentialMultiplier
   )
-  State <- Load$metadata
-  MeanPressure <- porePressure +
-    (effectiveVertical + State$effectiveHorizontal) / 2
-  Difference <- effectiveVertical - State$effectiveHorizontal
-  Factors <- if (Interface == "fullTraction") {
-    c(normal = 1 / 2, moment = 1 / 4, shear = 1 / 2)
-  } else {
-    c(normal = 1 / 6, moment = 1 / 6, shear = 1 / 3)
-  }
+  MeanPressure <- waterPressureDifference +
+    (effectiveVertical + effectiveHorizontal) / 2
+  Difference <- effectiveVertical - effectiveHorizontal
+  Factors <- c(
+    normal = (1 + 2 * tangentialMultiplier) / 6,
+    moment = (2 + tangentialMultiplier) / 12,
+    shear = (2 + tangentialMultiplier) / 6
+  )
   MeanNormal <- -radius * MeanPressure
   UniformCoupling <- radius * sectionRatio / (1 + sectionRatio)
   MeanMoment <- UniformCoupling * MeanNormal
@@ -289,8 +400,8 @@ solveK0Closed <- function(
       closureMetric = 0,
       residualType = "none",
       characteristicPressure = max(
-        porePressure + effectiveVertical,
-        porePressure + Load$metadata$effectiveHorizontal
+        abs(waterPressureDifference + effectiveVertical),
+        abs(waterPressureDifference + effectiveHorizontal)
       ),
       compatibility = c(
         momentCosOne = 0,
@@ -308,6 +419,28 @@ solveK0Closed <- function(
   )
   class(Result) <- "ringDirectResponse"
   Result
+}
+
+solveK0Closed <- function(
+  effectiveVertical,
+  k0,
+  porePressure,
+  radius,
+  theta = (0:720) * 2 * pi / 721,
+  interface = c("fullTraction", "normalOnly"),
+  horizontalIncrement = 0,
+  sectionRatio = 0
+) {
+  Interface <- match.arg(interface)
+  solveBiaxialTangentialMultiplierClosed(
+    effectiveVertical = effectiveVertical,
+    effectiveHorizontal = k0 * effectiveVertical + horizontalIncrement,
+    waterPressureDifference = porePressure,
+    radius = radius,
+    tangentialMultiplier = if (Interface == "fullTraction") 1 else 0,
+    theta = theta,
+    sectionRatio = sectionRatio
+  )
 }
 
 usaceCrownPressure <- function(unitWeight, coverCrown) {

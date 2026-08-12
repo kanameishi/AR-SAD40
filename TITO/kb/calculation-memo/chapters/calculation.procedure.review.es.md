@@ -8,7 +8,7 @@ interfaz; las hipótesis incompatibles se evalúan por separado.
 |---:|---|---|---|---|
 | 0 | geometría, unidades y convenciones | definir casos, etapas y alternativas | registro de estados | separar datos confirmados, parámetros nominales e hipótesis |
 | 1 | estratigrafía, pesos unitarios, agua y tapada | integrar tensiones verticales y presión intersticial | $\sigma'_v(\theta)$, $u(\theta)$ | clave, eje, fondo y continuidad entre estratos |
-| 2 | condición del relleno e historia tensional | seleccionar una relación de $K_0$ o una presión residual | $\sigma'_h(\theta)$ | no duplicar dependencias ni sumar ramas incompatibles |
+| 2 | condición del relleno, $\phi'$, $\nu_g$ e historia tensional | obtener $K_0$ de la rama aplicable y, como alternativa separada, evaluar una eventual tensión residual de compactación | $K_0(\theta)$ y $\sigma'_h(\theta)$ | no ingresar simultáneamente $K_0$ y sus variables determinantes ni duplicar la compactación |
 | 3 | tensiones verticales, laterales, agua y multiplicador $\alpha$ | transformar el estado tensional y escalar la componente tangencial proyectada | $P_r(\theta)$ y $P_t(\theta)$ | $0\leq\alpha\leq1$, equilibrio global y signos |
 | 4 | equipo, tongadas y secuencia | definir acciones temporales y su eventual retención documentada | acciones por etapa | no presumir retención permanente |
 | 5 | $R$, $E_\theta$, $A_p$, $I_p$ | calcular rigideces circunferenciales | $EA_\theta$, $EI_\theta$, $\eta_s$ | unidades y procedencia |

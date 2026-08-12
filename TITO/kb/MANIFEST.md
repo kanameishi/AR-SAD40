@@ -25,7 +25,9 @@ Este archivo registra procedencia e integridad. Incluye informes primarios, manu
 | `liu_et_al_2016_cmp_experiment_fe.pdf` | Liu et al. (2016), *Comparative Experimental Study and FE Analysis of Corrugated Steel Pipe Culverts with Different Stiffness*, [editor](https://opencivilengineeringjournal.com/VOLUME/10/PAGE/549/PDF/) | 15 | `77250ae4a20d40c7696068648aadac58e8447a1da1620f30341a5d84dbdabc59` |
 | `liu_et_al_2023_3d_fe_surface_load_tests.pdf` | Liu et al. (2023), *Numerical Investigation of the Structural Behavior of Corrugated Steel Culverts under Surface Load Tests Using Three-Dimensional Finite Element Analyses*, [Queen’s University](https://qspace.library.queensu.ca/bitstreams/43e0fd9e-2c38-4b71-8f0a-3c205345dc84/download) | 32 | `8d4d573dc5c45d36d9bfe3cc5c76c25b662162290d8be510dff3be72628fffcf` |
 | `mai_2013_deteriorated_corrugated_steel_culverts_thesis.pdf` | Mai (2013), *Assessment of Deteriorated Corrugated Steel Culverts*, [Library and Archives Canada](https://www.collectionscanada.gc.ca/obj/thesescanada/vol2/OKQ/TC-OKQ-7780.pdf) | 233 | `4af68ba05cd52a4281937401c998348cad1119327edb5f697d686bca4a3bbc25` |
+| `mayne_kulhawy_1982_k0_ocr_relationships.pdf` | Mayne y Kulhawy (1982), *K₀–OCR Relationships in Soil*, [copia institucional del autor](https://geosystems.ce.gatech.edu/files/2024/04/Mayne-Kulhawy-1982a-259b53d2ce7f130d.pdf) | 18 | `3e6cf544178882cb9acb2d48c53a4c9908c851dc8903d32e047334734a178e60` |
 | `mcgrath_2025_gravity_flow_conduits_preview.pdf` | McGrath (2025), *Analysis and Design of Gravity Flow Conduits and Buried Bridges*, vista previa oficial, [CRC Press](https://api.pageplace.de/preview/DT0400.9781498747837_A49917973/preview-9781498747837_A49917973.pdf) | 25 | `9cf0676d8aee44e32e39c768c72ae631b30cd19c055f5b9dd3f9ac42dd05ea7f` |
+| `michalowski_2005_coefficient_earth_pressure_at_rest.pdf` | Michalowski (2005), *Coefficient of Earth Pressure at Rest*, [copia académica de texto completo](https://engineering.purdue.edu/~frosch/ftp/Talbott/11%20-%20References/files/Coefficient%20of%20Earth%20Pressure%20at%20Rest.pdf) | 5 | `ba20eb1b9a953068a55858f448431c925aa9a65162e371ba54ef732486716b2e` |
 | `ncspa_csp_design_manual_2e.pdf` | NCSPA (2018), *Corrugated Steel Pipe Design Manual*, 2.ª ed., [NCSPA](https://ncspa.org/wp-content/uploads/2022/08/NCSPA-CSP-Design-Manual-2nd-Edition-042018SECURED-1.pdf) | 588 | `7a9ae9a09a37cfe7e7b05e227505c407efaac605d2774d25c11d558f63a02ce5` |
 | `nettles_1994_basic_mechanics_laminated_plates.pdf` | Nettles (1994), *Basic Mechanics of Laminated Composite Plates*, NASA RP-1351, [NASA NTRS](https://ntrs.nasa.gov/citations/19950009349) | 107 | `a1dba312026a7495abd9183fd89d32f8fdf220b1bc7a1a36ff6af98a0bd69ed9` |
 | `nchrp_2023_corrugated_metal_load_rating.pdf` | Anderson et al. (2023), *Load Rating for Corrugated Metal Culverts under Shallow Cover Depths*, [USDOT ROSA P](https://rosap.ntl.bts.gov/view/dot/68707/dot_68707_DS1.pdf) | 222 | `c6110a8946cc8c7421af9fa82d43585416ff888bb425432f25124239656636a5` |
@@ -57,14 +59,16 @@ Este archivo registra procedencia e integridad. Incluye informes primarios, manu
 | `cspi_handbook_ch06_structural_design.pdf` | PDF preservado; lectura no documentada aquí | No incorporado al registro actual |
 | `fhwa_1999_pipe_interaction_backfill_envelope.pdf` | Informe preservado; lectura dirigida | Sensibilidad a relleno, compactación e instalación |
 | `fhwa_rd_03_048_interface_coulomb.pdf` | Informe oficial preservado; lectura dirigida del cap. 3, sec. 3.2.3, ec. 3.3 | Resistencia al corte de una interfaz mediante adhesión y fricción, con coeficiente `tan(delta)` |
-| `fhwa_nhi_05_037_geotechnical_aspects_pavements.pdf` | Manual oficial preservado; lectura dirigida p. impresa 5-83/PDF p. 261 | Definición de $K_0$, estimadores elástico/Jaky y efecto de carga-descarga-recarga; la Ec. 5.39 no se codifica sin resolver su transcripción |
+| `fhwa_nhi_05_037_geotechnical_aspects_pavements.pdf` | Manual oficial preservado; lectura dirigida p. impresa 5-83/PDF p. 261 | Definición de $K_0$ y estimadores elástico/Jaky; la Ec. 5.39 difiere de la Ec. 18 primaria de Mayne--Kulhawy, no recupera el límite NC y queda excluida de la implementación |
 | `jcss_2006_soil_properties.pdf` | Documento preservado; lectura dirigida | Taxonomía de incertidumbre y reglas de admisibilidad |
 | `korolev_1981_anisotropic_plates_shells.pdf` | Traducción NASA preservada; lectura dirigida del índice y cap. 11, pp. impresas 155–159/PDF pp. 165–169 | Fuente clásica candidata para equilibrio, cinemática y ecuaciones de cáscara cilíndrica anisótropa; el cap. 12 usa series trigonométricas, pero sus ecuaciones aún no están promovidas |
 | `liu_2021_corrugated_steel_culverts_thesis.pdf` | Tesis preservada; lectura dirigida | Homogeneización y benchmark B6 |
 | `liu_et_al_2016_cmp_experiment_fe.pdf` | Artículo preservado; lectura dirigida | Benchmark B4 y límite del modelo 2D |
 | `liu_et_al_2023_3d_fe_surface_load_tests.pdf` | Artículo preservado; lectura dirigida | Benchmark B8 y alcance de la validación 3D |
 | `mai_2013_deteriorated_corrugated_steel_culverts_thesis.pdf` | Tesis preservada; lectura dirigida | Benchmark B7 |
+| `mayne_kulhawy_1982_k0_ocr_relationships.pdf` | Artículo primario completo preservado; lectura dirigida de pp. 852--869, ecs. 2, 10--12 y 14--18 | Relaciones para carga primaria, descarga y recarga; control por movilización pasiva; fuente primaria que resuelve la transcripción de FHWA 5.39 |
 | `mcgrath_2025_gravity_flow_conduits_preview.pdf` | Vista previa oficial; lectura dirigida | Mapa de capítulos únicamente; ecuaciones **UNKNOWN** |
+| `michalowski_2005_coefficient_earth_pressure_at_rest.pdf` | Artículo primario completo preservado; lectura dirigida de pp. 1429--1432, ecs. 1 y 8 | Forma abreviada y forma de 1944 de Jáky; crítica de la derivación original; referencia secundaria al ajuste de Brooker--Ireland |
 | `ncspa_csp_design_manual_2e.pdf` | Manual preservado; lectura dirigida | Capacidad de costura por unidad de longitud |
 | `nettles_1994_basic_mechanics_laminated_plates.pdf` | NASA RP preservada; portada y alcance verificados, lectura constitutiva pendiente | Fuente candidata para definiciones y unidades de $A$, $B$ y $D$; no es una teoría de cilindro |
 | `nchrp_2023_corrugated_metal_load_rating.pdf` | Informe preservado; lectura dirigida | Homogeneización de tres rigideces y benchmark B5 |
@@ -81,7 +85,7 @@ Este archivo registra procedencia e integridad. Incluye informes primarios, manu
 ## Control
 
 - Todos los archivos abren como PDF y su número de páginas fue comprobado con Poppler.
-- Los treinta y dos archivos registrados en este manifiesto tienen número de
+- Los treinta y cuatro archivos registrados en este manifiesto tienen número de
   páginas y SHA-256 verificados localmente.
 - De los paquetes CANDE-2025 sólo se conservaron los dos manuales PDF; no se incorporaron ejecutables ni archivos auxiliares.
 - Los PDF se conservarán como fuentes; las salidas derivadas se mantendrán fuera de `sources/`.

@@ -8,32 +8,42 @@ en la cota del eje. No representa la caracterización del relleno existente. La
 
 {{< include /_tbl/Calculation.inputs.ES.qmd >}}
 
-El perfil nominal es de $76\times25$ mm y el espesor informado es $3.0$ mm. Se
-adopta $t_b=3.0$ mm para el escenario y se interpolan las dos filas contiguas
-de la tabla 2.6 de NCSPA [@NCSPA2018, tabla 2.6]:
+El perfil nominal es de $`r Calculation$section$nominalProfile`$ mm y el
+espesor informado es
+$`r formatCalculationGeneral(Calculation$section$reportedThicknessMm)`$ mm. Se
+adopta
+$t_b=`r formatCalculationGeneral(Calculation$section$analysisBaseThicknessMm)`$ mm para
+el escenario y se interpolan las dos filas contiguas de la tabla 2.6 de NCSPA
+[@NCSPA2018, tabla 2.6]:
 
 $$
-\lambda=\frac{3.000-2.65684}{3.41630-2.65684}=0.452,
+\lambda=\frac{`r formatCalculationFixed(Calculation$section$analysisBaseThicknessMm, 3L)`-`r formatCalculationFixed(Calculation$section$lowerThicknessMm, 5L)`}{`r formatCalculationFixed(Calculation$section$upperThicknessMm, 5L)`-`r formatCalculationFixed(Calculation$section$lowerThicknessMm, 5L)`}
+=`r formatCalculationFixed(Calculation$section$interpolationFraction, 3L)`,
 $$
 
 $$
-A_p=(1-\lambda)(3.30200)+\lambda(4.25027)=3.73\ \mathrm{mm^2/mm},
+A_p=(1-\lambda)(`r formatCalculationFixed(Calculation$section$lowerAreaMm2PerMm, 5L)`)
++\lambda(`r formatCalculationFixed(Calculation$section$upperAreaMm2PerMm, 5L)`)
+=`r formatCalculationFixed(Calculation$section$areaMm2PerMm, 2L)`\ \mathrm{mm^2/mm},
 $$
 
 $$
-I_p=(1-\lambda)(252.36079)+\lambda(331.01869)
-=288\ \mathrm{mm^4/mm}.
+I_p=(1-\lambda)(`r formatCalculationFixed(Calculation$section$lowerInertiaMm4PerMm, 5L)`)
++\lambda(`r formatCalculationFixed(Calculation$section$upperInertiaMm4PerMm, 5L)`)
+=`r formatCalculationFixed(Calculation$section$inertiaMm4PerMm, 0L)`\ \mathrm{mm^4/mm}.
 $$ {#eq-calculation-section-interpolation}
 
-Con $E_\theta=200$ GPa y $R=1.315$ m, la
+Con
+$E_\theta=`r formatCalculationGeneral(Calculation$section$circumferentialYoungModulusGPa)`$
+GPa y $R=`r formatCalculationGeneral(Calculation$geometry$radiusM)`$ m, la
 @eq-calculation-section-stiffness produce
 
 $$
-EA_\theta=7.46\times10^5\ \mathrm{kN/m},
+EA_\theta=`r formatCalculationScientificLatex(Calculation$section$extensionalRigidityKnPerM, 3L)`\ \mathrm{kN/m},
 \qquad
-EI_\theta=57.6\ \mathrm{kN\,m^2/m},
+EI_\theta=`r formatCalculationFixed(Calculation$section$flexuralRigidityKnM2PerM, 1L)`\ \mathrm{kN\,m^2/m},
 \qquad
-\eta_s=4.46\times10^{-5}.
+\eta_s=`r formatCalculationScientificLatex(Calculation$section$sectionRatio, 3L)`.
 $$ {#eq-calculation-adopted-section}
 
 ## Acciones perimetrales
@@ -41,63 +51,74 @@ $$ {#eq-calculation-adopted-section}
 Se adopta
 
 $$
-\sigma'_{v,A}=100\ \mathrm{kPa},
-\qquad K_0=0.50,
-\qquad \Delta u_A=0,
+\sigma'_{v,A}=`r formatCalculationGeneral(Calculation$stress$effectiveVerticalKPa)`\ \mathrm{kPa},
+\qquad K_0=`r formatCalculationGeneral(Calculation$stress$k0Applied)`,
+\qquad \Delta u_A=`r formatCalculationGeneral(Calculation$stress$waterPressureDifferenceKPa)`\ \mathrm{kPa}.
 $$
 
-por lo que
+`r Calculation$k0DescriptionMarkdown` En este escenario no se incorpora un
+incremento horizontal residual por compactación; esa magnitud permanece sin
+caracterizar.
+
+Por consiguiente,
 
 $$
-\sigma'_{h,A}=50\ \mathrm{kPa},
-\qquad p_m=75\ \mathrm{kPa},
-\qquad \Delta\sigma=50\ \mathrm{kPa}.
+\sigma'_{h,A}=`r formatCalculationGeneral(Calculation$stress$effectiveHorizontalKPa)`\ \mathrm{kPa},
+\qquad p_m=`r formatCalculationGeneral(Calculation$actions$meanPressureKPa)`\ \mathrm{kPa},
+\qquad \Delta\sigma=`r formatCalculationGeneral(Calculation$actions$stressDifferenceKPa)`\ \mathrm{kPa}.
 $$ {#eq-calculation-example-stress}
 
 La presión normal y la tracción tangencial disponible son
 
 $$
-P_r(\theta)=-75-25\cos2\theta\ \mathrm{kPa},
+P_r(\theta)=`r formatCalculationGeneral(Calculation$actions$radialConstantKPa)``r formatCalculationSigned(Calculation$actions$radialHarmonicKPa)`\cos2\theta\ \mathrm{kPa},
 \qquad
-p_t^*(\theta)=25\sin2\theta\ \mathrm{kPa}.
+p_t^*(\theta)=`r formatCalculationGeneral(Calculation$actions$tangentialHarmonicKPa)`\sin2\theta\ \mathrm{kPa}.
 $$ {#eq-calculation-example-load}
 
-Se evalúan $\alpha=0$ y $\alpha=1$. El primer valor omite la componente
-tangencial y el segundo incorpora por completo $p_t^*$. Los estados
-intermedios se calculan mediante la
+Se evalúan
+`r Calculation$actions$tangentialMultiplierMarkdown`. Los valores 0 y 1
+definen, respectivamente, la omisión y la incorporación completa de la
+componente $p_t^*$; los estados intermedios se calculan mediante la
 @eq-calculation-tangential-multiplier.
 
 ## Resultados
 
 La @tbl-calculation-extrema resume las resultantes en la clave, el fondo y los
-puntos laterales del diámetro horizontal, además del máximo absoluto de fuerza cortante. El momento uniforme
-es $M_m=-0.0058$ kN·m/m y los máximos absolutos de $Q_\theta$ se localizan en
-$\theta=45^\circ$, $135^\circ$, $225^\circ$ y $315^\circ$ para ambos límites.
+puntos laterales del diámetro horizontal, además del máximo absoluto de fuerza
+cortante. El momento uniforme es
+$M_m=`r formatCalculationFixed(Calculation$extrema$meanMoment[1L], 4L)`$
+kN·m/m.
 
 {{< include /_tbl/Calculation.extrema.ES.qmd >}}
 
-Entre $\alpha=0$ y $\alpha=1$, la
-amplitud variable de $N_\theta$ aumenta por un factor 3 y las amplitudes de
-$M_\theta$ y $Q_\theta$ por un factor 1.5. Estos factores corresponden al
-escenario de tensiones declarado; la selección de $\alpha$ para el
-revestimiento existente requiere una hipótesis de transferencia tangencial
-compatible con el relleno y el procedimiento constructivo.
+```{r}
+#| echo: false
+#| results: asis
+if (nzchar(Calculation$endpointComparisonMarkdown)) {
+  cat(Calculation$endpointComparisonMarkdown)
+}
+```
 
 La @fig-calculation-normal presenta $N_\theta$; la
 @fig-calculation-moment, $M_\theta$; y la @fig-calculation-shear,
-$Q_\theta$. Los tres diagramas representan las mismas resultantes indicadas
-en la tabla y cada figura contiene un único diagrama. La circunferencia gris
-discontinua es la sección de referencia. Las curvas y las ordenadas radiales
-no representan la posición deformada del revestimiento. Se adopta una
-amplificación gráfica $A_g=2$, aplicada exclusivamente a las ordenadas; la
-lectura interactiva conserva las magnitudes físicas y sus unidades.
+$Q_\theta$. Los tres diagramas representan las mismas resultantes indicadas en
+la tabla y cada figura contiene un único diagrama. La circunferencia gris
+discontinua es la sección de referencia. Las curvas y las ordenadas radiales no
+representan la posición deformada del revestimiento. Se adopta una
+amplificación gráfica
+$A_g=`r formatCalculationGeneral(Calculation$display$graphicAmplification)`$,
+aplicada exclusivamente a las ordenadas; la lectura interactiva conserva las
+magnitudes físicas y sus unidades.
 
 {{< include /_fig/Calculation.resultants.ES.qmd >}}
 
 ## Comprobación numérica
 
-Los límites $\alpha=0$ y $\alpha=1$ disponen de soluciones
-cerradas. La máxima diferencia absoluta entre esas soluciones y la integración
-directa es $2.4\times10^{-12}$ en las unidades de cada resultante, frente a una
-tolerancia de $10^{-7}$. Las soluciones cerradas empleadas en esta comprobación
-se presentan en el Apéndice A.5.
+Los casos declarados disponen de soluciones cerradas. La máxima diferencia
+absoluta entre esas soluciones y la integración directa es
+$`r formatCalculationScientificLatex(Calculation$numerics$maximumControlDifference, 2L)`$
+en las unidades de cada resultante, frente a una tolerancia de
+$`r formatCalculationScientificLatex(Calculation$numerics$controlTolerance[1L], 2L)`$.
+Las soluciones cerradas empleadas en esta comprobación se presentan en el
+Apéndice A.5.

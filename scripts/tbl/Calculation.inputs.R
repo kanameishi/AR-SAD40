@@ -1,88 +1,108 @@
-buildCalculationInputsTable <- function(path) {
-  if (!file.exists(path)) {
-    stop("The calculation-input file is not available.", call. = FALSE)
+buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
+  Paths <- c(pathInputs, pathSection, pathStress)
+  if (any(!file.exists(Paths))) {
+    stop("One or more calculation input products are not available.", call. = FALSE)
   }
-  data <- utils::read.csv(path, check.names = FALSE)
-  required <- c(
-    "group", "magnitude", "symbol", "value", "unit", "evidenceLevel",
-    "condition"
+  Inputs <- utils::read.csv(pathInputs, check.names = FALSE, na.strings = "")
+  Section <- utils::read.csv(pathSection, check.names = FALSE, na.strings = "")
+  Stress <- utils::read.csv(pathStress, check.names = FALSE, na.strings = "")
+  RequiredInputs <- c(
+    "parameterId", "numericValue", "textValue", "unit", "evidenceLevel",
+    "conditionCode"
   )
-  if (length(setdiff(required, names(data))) > 0L) {
-    stop("The calculation-input file has an invalid schema.", call. = FALSE)
+  RequiredSection <- c(
+    "analysisBaseThicknessMm", "areaMm2PerMm", "inertiaMm4PerMm",
+    "circumferentialYoungModulusGPa", "extensionalRigidityKnPerM",
+    "flexuralRigidityKnM2PerM", "sectionRatio", "analysisRadiusM"
+  )
+  RequiredStress <- c(
+    "modelId", "effectiveVerticalKPa", "k0Applied",
+    "horizontalIncrementStatus", "effectiveHorizontalKPa",
+    "waterPressureDifferenceKPa", "k0EvidenceLevel"
+  )
+  if (length(setdiff(RequiredInputs, names(Inputs))) > 0L ||
+      length(setdiff(RequiredSection, names(Section))) > 0L ||
+      length(setdiff(RequiredStress, names(Stress))) > 0L ||
+      nrow(Section) != 1L || nrow(Stress) != 1L) {
+    stop("The calculation input products have an invalid schema.", call. = FALSE)
   }
-  symbolLabels <- c(
-    "D_i" = "$D_i$",
-    "R" = "$R$",
-    "perfil" = "—",
-    "t_0" = "$t_0$",
-    "t_b" = "$t_b$",
-    "A_p" = "$A_p$",
-    "I_p" = "$I_p$",
-    "E_theta" = "$E_\\theta$",
-    "EA_theta" = "$EA_\\theta$",
-    "EI_theta" = "$EI_\\theta$",
-    "eta_s" = "$\\eta_s$",
-    "t_eq" = "$t_{eq}$",
-    "E_eq" = "$E_{eq}$",
-    "sigma'_v,A" = "$\\sigma'_{v,A}$",
-    "K_0" = "$K_0$",
-    "Delta u_A" = "$\\Delta u_A$",
-    "sigma'_h,A" = "$\\sigma'_{h,A}$",
-    "p_m" = "$p_m$",
-    "Delta sigma" = "$\\Delta\\sigma$",
-    "alpha" = "$\\alpha$"
-  )
-  unitLabels <- c(
-    "m" = "$\\mathrm{m}$",
-    "mm" = "$\\mathrm{mm}$",
-    "mm2/mm" = "$\\mathrm{mm^2/mm}$",
-    "mm4/mm" = "$\\mathrm{mm^4/mm}$",
-    "GPa" = "$\\mathrm{GPa}$",
-    "kN/m" = "$\\mathrm{kN/m}$",
-    "kN m2/m" = "$\\mathrm{kN\\,m^2/m}$",
-    "-" = "—",
-    "kPa" = "$\\mathrm{kPa}$"
-  )
-  symbols <- unname(symbolLabels[data$symbol])
-  units <- unname(unitLabels[data$unit])
-  if (anyNA(symbols) || anyNA(units)) {
-    stop("The public symbol or unit mapping is incomplete.", call. = FALSE)
+  inputNumber <- function(parameterId) {
+    Value <- Inputs$numericValue[Inputs$parameterId == parameterId]
+    if (length(Value) != 1L || !is.finite(Value)) {
+      stop("Missing numeric input: ", parameterId, ".", call. = FALSE)
+    }
+    Value
+  }
+  inputText <- function(parameterId) {
+    Value <- Inputs$textValue[Inputs$parameterId == parameterId]
+    if (length(Value) != 1L || is.na(Value) || !nzchar(Value)) {
+      stop("Missing text input: ", parameterId, ".", call. = FALSE)
+    }
+    Value
+  }
+  formatGeneral <- function(value, digits = 6L) {
+    format(signif(value, digits), trim = TRUE, scientific = FALSE)
   }
   formatScientificLatex <- function(value, digits) {
-    exponent <- floor(log10(abs(value)))
-    mantissa <- value / 10^exponent
-    mantissaText <- format(
-      signif(mantissa, digits), trim = TRUE, scientific = FALSE
+    Exponent <- floor(log10(abs(value)))
+    Mantissa <- value / 10^Exponent
+    paste0(
+      "$", format(signif(Mantissa, digits), trim = TRUE, scientific = FALSE),
+      "\\times10^{", Exponent, "}$"
     )
-    paste0("$", mantissaText, "\\times10^{", exponent, "}$")
   }
-  values <- data$value
-  values[data$symbol == "EA_theta"] <- formatScientificLatex(
-    as.numeric(values[data$symbol == "EA_theta"]), 6L
+  row <- function(group, magnitude, symbol, value, unit, condition) {
+    data.frame(
+      Grupo = group,
+      Magnitud = magnitude,
+      Simbolo = symbol,
+      Valor = value,
+      Unidad = unit,
+      Condicion = condition,
+      check.names = FALSE,
+      stringsAsFactors = FALSE
+    )
+  }
+  ModelLabels <- c(
+    "adopted-constant" = "Valor constante adoptado",
+    "elastic-confined" = "Idealización elástica confinada",
+    "jaky-nc" = "Relación de Jáky para carga primaria",
+    "mayne-kulhawy-unloading" = "Relación de descarga de Mayne--Kulhawy",
+    "mayne-kulhawy-reload" = "Relación de recarga de Mayne--Kulhawy"
   )
-  values[data$symbol == "eta_s"] <- formatScientificLatex(
-    as.numeric(values[data$symbol == "eta_s"]), 4L
+  ModelLabel <- unname(ModelLabels[Stress$modelId])
+  if (is.na(ModelLabel)) {
+    stop("The public K0 model mapping is incomplete.", call. = FALSE)
+  }
+  AlphaValues <- Inputs$numericValue[Inputs$parameterId == "tangential-multiplier"]
+  AlphaText <- paste(format(sort(AlphaValues), trim = TRUE), collapse = "; ")
+  ProfileText <- paste0(
+    formatGeneral(inputNumber("nominal-corrugation-pitch")),
+    " × ",
+    formatGeneral(inputNumber("nominal-corrugation-depth"))
   )
-  conditions <- data$condition
-  conditions[conditions ==
-    "Aproximación D_i/2; no es radio centroidal confirmado"] <-
-    "Aproximación $D_i/2$; radio centroidal pendiente de confirmación"
-  conditions[conditions == "Hipótesis condicional t_0 = t_b"] <-
-    "Hipótesis condicional $t_0=t_b$"
-  conditions[conditions == "Interpolación de NCSPA bajo t_0 = t_b"] <-
-    "Interpolación de NCSPA bajo $t_0=t_b$"
-  output <- data.frame(
-    Grupo = data$group,
-    Magnitud = data$magnitude,
-    Simbolo = symbols,
-    Valor = values,
-    Unidad = units,
-    Condicion = conditions,
-    check.names = FALSE,
-    stringsAsFactors = FALSE
-  )
+  Output <- do.call(rbind, list(
+    row("Geometría", "Diámetro interior nominal", "$D_i$", formatGeneral(inputNumber("inside-diameter")), "$\\mathrm{m}$", "Parámetro nominal suministrado"),
+    row("Geometría", "Radio empleado", "$R$", formatGeneral(Section$analysisRadiusM), "$\\mathrm{m}$", "Aproximación $D_i/2$; radio centroidal pendiente de confirmación"),
+    row("Geometría", "Corrugación nominal", "—", ProfileText, "$\\mathrm{mm}$", "Parámetro nominal suministrado"),
+    row("Geometría", "Espesor informado", "$t_0$", formatGeneral(inputNumber("reported-thickness")), "$\\mathrm{mm}$", "Categoría pendiente"),
+    row("Sección corrugada", "Espesor base del escenario", "$t_b$", formatGeneral(Section$analysisBaseThicknessMm), "$\\mathrm{mm}$", "Hipótesis condicional $t_0=t_b$"),
+    row("Sección corrugada", "Área por unidad de longitud", "$A_p$", formatGeneral(Section$areaMm2PerMm), "$\\mathrm{mm^2/mm}$", "Interpolación de NCSPA bajo $t_0=t_b$"),
+    row("Sección corrugada", "Momento de inercia por unidad de longitud", "$I_p$", formatGeneral(Section$inertiaMm4PerMm), "$\\mathrm{mm^4/mm}$", "Interpolación de NCSPA bajo $t_0=t_b$"),
+    row("Sección corrugada", "Módulo circunferencial", "$E_\\theta$", formatGeneral(Section$circumferentialYoungModulusGPa), "$\\mathrm{GPa}$", "Valor adoptado"),
+    row("Sección corrugada", "Rigidez extensional circunferencial", "$EA_\\theta$", formatScientificLatex(Section$extensionalRigidityKnPerM, 6L), "$\\mathrm{kN/m}$", "Resultado derivado"),
+    row("Sección corrugada", "Rigidez flexional circunferencial", "$EI_\\theta$", formatGeneral(Section$flexuralRigidityKnM2PerM), "$\\mathrm{kN\\,m^2/m}$", "Resultado derivado"),
+    row("Sección corrugada", "Razón seccional", "$\\eta_s$", formatScientificLatex(Section$sectionRatio, 4L), "—", "Resultado derivado"),
+    row("Estado de tensiones y acciones", "Rama de empuje en reposo", "—", ModelLabel, "—", "Selección declarada"),
+    row("Estado de tensiones y acciones", "Tensión vertical efectiva en el eje", "$\\sigma'_{v,A}$", formatGeneral(Stress$effectiveVerticalKPa), "$\\mathrm{kPa}$", "Escenario analítico"),
+    row("Estado de tensiones y acciones", "Coeficiente de empuje aplicado", "$K_0$", formatGeneral(Stress$k0Applied), "—", if (Stress$k0EvidenceLevel == "HA") "Valor adoptado para el escenario" else "Resultado de la rama seleccionada"),
+    row("Estado de tensiones y acciones", "Incremento horizontal residual", "$\\Delta\\sigma'_{h,c}$", "No modelado", "—", "Magnitud física no caracterizada"),
+    row("Estado de tensiones y acciones", "Diferencia de presión de agua", "$\\Delta u_A$", formatGeneral(Stress$waterPressureDifferenceKPa), "$\\mathrm{kPa}$", "Escenario analítico"),
+    row("Estado de tensiones y acciones", "Tensión horizontal efectiva en el eje", "$\\sigma'_{h,A}$", formatGeneral(Stress$effectiveHorizontalKPa), "$\\mathrm{kPa}$", "Resultado derivado"),
+    row("Estado de tensiones y acciones", "Multiplicador de la componente tangencial", "$\\alpha$", AlphaText, "—", "Casos de carga prescritos")
+  ))
   knitr::kable(
-    output,
+    Output,
     col.names = c("Grupo", "Magnitud", "Símbolo", "Valor", "Unidad", "Condición"),
     align = c("l", "l", "c", "r", "c", "l"),
     escape = FALSE

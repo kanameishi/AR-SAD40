@@ -67,8 +67,99 @@ assertTrue <- function(value, label) {
 Theta <- (0:180) * 2 * pi / 181
 Radius <- 2
 
+# Internal equation controls; these values are not published project results.
 assertNear(k0NormallyConsolidated(30), 0.5, 1e-14, "Jaky K0")
 assertNear(k0ElasticConfined(1 / 3), 0.5, 1e-14, "elastic K0")
+assertNear(
+  k0MayneKulhawyUnloading(30, 1),
+  k0NormallyConsolidated(30),
+  1e-14,
+  "unloading NC boundary"
+)
+assertNear(
+  k0MayneKulhawyUnloading(30, 4),
+  1,
+  1e-14,
+  "unloading K0"
+)
+assertNear(
+  k0MayneKulhawyUnloading(30, 9),
+  1.5,
+  1e-14,
+  "unloading permits K0 above one"
+)
+assertNear(
+  k0MayneKulhawyReload(30, 4, 4),
+  k0MayneKulhawyUnloading(30, 4),
+  1e-14,
+  "reload at maximum OCR"
+)
+assertNear(
+  k0MayneKulhawyReload(30, 1, 1),
+  k0NormallyConsolidated(30),
+  1e-14,
+  "reload NC boundary"
+)
+assertNear(
+  k0MayneKulhawyReload(30, 2, 4),
+  0.6875,
+  1e-14,
+  "reload intermediate state"
+)
+K0Domain <- checkK0PassiveDomain(30, 4)
+assertTrue(K0Domain$valid, "passive-domain valid state")
+assertTrue(
+  identical(K0Domain$domainStatus, "withinDomain"),
+  "passive-domain status"
+)
+assertNear(
+  K0Domain$passiveCoefficient,
+  3,
+  1e-14,
+  "passive K0 limit"
+)
+assertNear(K0Domain$ocrLimit, 36, 1e-12, "passive OCR limit")
+K0Boundary <- checkK0PassiveDomain(30, 36)
+assertTrue(!K0Boundary$valid, "passive-domain boundary state")
+assertTrue(
+  identical(K0Boundary$domainStatus, "passiveLimitReached"),
+  "passive-domain boundary status"
+)
+assertError(
+  function() k0MayneKulhawyUnloading(30, 0.99),
+  "unloading OCR lower bound",
+  "at least 1"
+)
+assertError(
+  function() k0MayneKulhawyUnloading(30, 36),
+  "unloading passive limit",
+  "passive limit"
+)
+assertError(
+  function() k0MayneKulhawyReload(30, 4.01, 4),
+  "reloading OCR order",
+  "must not exceed"
+)
+assertError(
+  function() k0MayneKulhawyReload(30, 1, 36),
+  "reloading passive limit",
+  "passive limit"
+)
+assertError(
+  function() checkK0PassiveDomain(0, 1),
+  "passive-domain friction lower bound",
+  "greater than 0"
+)
+assertError(
+  function() checkK0PassiveDomain(90, 1),
+  "passive-domain friction upper bound",
+  "less than 90"
+)
+assertError(
+  function() checkK0PassiveDomain(30, c(1, 2)),
+  "passive-domain scalar OCR",
+  "one finite numeric value"
+)
 
 # Mai (2013), PDF p. 23: published 152 x 51 x 3 mm section and its
 # equivalent plain shell. Units here are N and mm, per mm projected width.

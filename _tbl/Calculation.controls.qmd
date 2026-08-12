@@ -5,7 +5,7 @@ if (!exists("CAP", inherits = FALSE)) {
 }
 source("scripts/tbl/Calculation.controls.R")
 TBL <- buildCalculationControlsTable(
-  "TITO/kb/calculation-memo/results/ring-controls.csv"
+  Calculation$paths$controls
 )
 ```
 

@@ -5,7 +5,9 @@ if (!exists("CAP", inherits = FALSE)) {
 }
 source("scripts/tbl/Calculation.inputs.R")
 TBL <- buildCalculationInputsTable(
-  "TITO/kb/calculation-memo/results/calculation-inputs.csv"
+  Calculation$paths$inputs,
+  Calculation$paths$section,
+  Calculation$paths$stress
 )
 ```
 

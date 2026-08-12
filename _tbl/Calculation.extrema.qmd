@@ -5,7 +5,8 @@ if (!exists("CAP", inherits = FALSE)) {
 }
 source("scripts/tbl/Calculation.extrema.R")
 TBL <- buildCalculationExtremaTable(
-  "TITO/kb/calculation-memo/results/calculation-example-results.csv"
+  Calculation$paths$resultants,
+  Calculation$paths$extrema
 )
 ```
 

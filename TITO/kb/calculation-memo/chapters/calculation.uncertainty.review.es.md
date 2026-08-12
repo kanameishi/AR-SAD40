@@ -21,7 +21,7 @@ magnitudes que permanecen por caracterizar.
 | Grupo | Magnitudes primitivas | Relación dentro del cálculo | Estado |
 |---|---|---|---|
 | relleno | clasificación, estratigrafía, $\gamma'$, humedad y parámetros resistentes | determina $\sigma_v'$, la rama aplicable de $K_0$ y la condición drenada o no drenada | pendiente de caracterización |
-| estado lateral | $K_0$ o variables que lo determinan; incremento residual de compactación | determina $\sigma_h'(\theta)$ | definir una rama sin duplicar variables dependientes |
+| estado lateral | rama de estado lateral y sus variables primitivas; $K_0$ sólo como medición directa o valor adoptado; incremento residual de compactación cuando corresponda | determina $\sigma_h'(\theta)$ | definir una rama sin duplicar variables dependientes |
 | compactación | equipo, energía, tongadas, secuencia y retención | determina acciones temporales y, si existe evidencia, componentes residuales | pendiente de registros de obra |
 | participación tangencial | multiplicador $\alpha$ | $P_t=\alpha p_t^*$ mediante la @eq-calculation-tangential-multiplier | variable de Monte Carlo; distribución y dependencias pendientes |
 | corrosión | pérdida de espesor o mediciones de espesor actual | $t_{net}=t_0-\Delta t_{corr}$; se recalculan $A_p$, $I_p$, $EA_\theta$ y $EI_\theta$ | pendiente de inspección y modelo espacial |

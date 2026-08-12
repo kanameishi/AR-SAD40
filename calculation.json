@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "1.0.0",
+  "scenarioId": "verification-biaxial-uniform",
+  "geometry": {
+    "insideDiameterM": 2.63,
+    "analysisRadiusRule": "inside-diameter-half"
+  },
+  "section": {
+    "nominalCorrugationPitchMm": 76.0,
+    "nominalCorrugationDepthMm": 25.0,
+    "reportedThicknessMm": 3.0,
+    "analysisBaseThicknessMm": 3.0,
+    "referenceProfileId": "ncspa-3x1",
+    "propertyModelId": "linear-interpolation-base-thickness",
+    "propertyTable": "data/reference/corrugation.section.properties.csv"
+  },
+  "material": {
+    "circumferentialYoungModulusGPa": 200.0
+  },
+  "stressState": {
+    "statePointId": "axis",
+    "effectiveVerticalKPa": 100.0,
+    "waterPressureDifferenceKPa": 0.0,
+    "horizontalIncrementMode": "unknown-not-modeled",
+    "k0Model": {
+      "modelId": "adopted-constant",
+      "k0": 0.5
+    }
+  },
+  "loadCases": [
+    {
+      "caseId": "alpha-1",
+      "alpha": 1.0
+    },
+    {
+      "caseId": "alpha-0",
+      "alpha": 0.0
+    }
+  ],
+  "numerics": {
+    "baseThetaPointCount": 721,
+    "criticalAnglesDeg": [0, 45, 90, 135, 180, 225, 270, 315],
+    "integrationSteps": 8192,
+    "balanceTolerance": 1e-9,
+    "closedFormTolerance": 1e-7
+  },
+  "graphics": {
+    "graphicAmplification": 2.0,
+    "radialFraction": 0.25,
+    "ordinateCount": 36
+  }
+}

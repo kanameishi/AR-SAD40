@@ -43,48 +43,126 @@ Las ordenadas de clave, eje y fondo constituyen controles obligatorios. El
 peso unitario efectivo y la presión intersticial se calculan por separado para
 evitar contabilizar el agua dos veces.
 
-## Empuje lateral en reposo y compactación
+## Estimación del coeficiente de empuje en reposo {#sec-calculation-k0-estimation}
 
-El coeficiente de empuje en reposo se define para tensiones efectivas:
+El coeficiente de empuje en reposo se define mediante tensiones efectivas:
 
 $$
-K_0=\frac{\sigma'_h}{\sigma'_v},
+K_0(z)=\frac{\sigma'_h(z)}{\sigma'_v(z)},
 \qquad
-\sigma'_h=K_0\sigma'_v.
+\sigma'_h(z)=K_0(z)\,\sigma'_v(z).
 $$ {#eq-calculation-k0}
 
-Como relaciones de referencia, un material elástico confinado lateralmente y
-un suelo normalmente consolidado satisfacen, respectivamente,
+La magnitud que alimenta el cálculo de las acciones perimetrales es
+$\sigma'_h(z)$. Salvo que se disponga de una medición representativa o se
+declare un escenario analítico, $K_0$ se obtiene de las propiedades del suelo
+y de la trayectoria de carga. Las ramas admisibles se mantienen separadas;
+cada estado adopta una única rama, seleccionada según las propiedades del
+suelo, la trayectoria de carga y la evidencia disponible.
+
+| Condición representada | Variables requeridas | Uso dentro del procedimiento |
+|---|---|---|
+| medición directa | valor medido, profundidad, trayectoria y calidad del ensayo | estimación preferente cuando el ensayo representa el relleno y el intervalo tensional considerados |
+| idealización elástica confinada | $\nu_g$ | referencia constitutiva para deformación lateral impedida |
+| carga primaria o estado normalmente consolidado | $\phi'$ | correlación de Jáky para suelos no cohesivos y suelos cohesivos normalmente consolidados |
+| descarga primaria | $\phi'$ y $\mathrm{OCR}$ | relación de Mayne--Kulhawy para descarga desde la compresión virgen |
+| descarga seguida de recarga | $\phi'$, $\mathrm{OCR}$ y $\mathrm{OCR}_{\max}$ | relación condicionada al conocimiento de la historia tensional máxima |
+| valor adoptado | $K_0$ declarado | comprobación o sensibilidad; no constituye una estimación del relleno existente |
+
+: Ramas para determinar el estado lateral efectivo. {#tbl-calculation-k0-branches}
+
+Para la idealización elástica confinada y el estado normalmente consolidado,
+respectivamente [@ChristopherEtAl2006, sec. 5.4.9],
 
 $$
 K_0=\frac{\nu_g}{1-\nu_g},
 \qquad
 K_{0,NC}=1-\sin\phi'.
+$$ {#eq-calculation-k0-reference}
+
+$\nu_g$ es el coeficiente de Poisson de la idealización elástica isótropa y
+$\phi'$ es el ángulo de fricción interna efectiva correspondiente al material
+y al intervalo de tensiones analizado.
+
+Para una descarga primaria, Mayne y Kulhawy proponen
+[@MayneKulhawy1982, ec. 10]
+
+$$
+K_{0,OC}=(1-\sin\phi')\,\mathrm{OCR}^{\sin\phi'},
+\qquad
+\mathrm{OCR}=\frac{\sigma'_{v,\max}}{\sigma'_v}.
+$$ {#eq-calculation-k0-unloading}
+
+La relación corresponde a descarga desde la rama de compresión virgen. Los
+ajustes reunidos por los autores se obtuvieron generalmente para
+$\mathrm{OCR}<15$; su empleo requiere una tensión vertical efectiva máxima
+histórica identificable.
+
+Cuando la trayectoria incluye descarga y recarga, se define además
+[@MayneKulhawy1982, ec. 14]
+
+$$
+\mathrm{OCR}_{\max}
+=\frac{\sigma'_{v,\max}}{\sigma'_{v,\min}},
 $$
 
-$\nu_g$ es el coeficiente de Poisson del terreno en la idealización elástica
-isótropa y $\phi'$ es el ángulo de fricción interna efectiva.
-
-Estas relaciones se aplican únicamente bajo los estados que las sustentan
-[@ChristopherEtAl2006, sec. 5.4.9]. En un relleno compactado, la historia de
-tensiones puede representarse mediante una de las dos expresiones siguientes:
+y se utiliza [@MayneKulhawy1982, ec. 18]
 
 $$
-\sigma'_h=K_{0,c}\sigma'_v,
+K_0=(1-\sin\phi')\left[
+\frac{\mathrm{OCR}}
+{\mathrm{OCR}_{\max}^{\,1-\sin\phi'}}
++\frac{3}{4}\left(
+1-\frac{\mathrm{OCR}}{\mathrm{OCR}_{\max}}
+\right)
+\right].
+$$ {#eq-calculation-k0-reloading}
+
+Esta última relación recupera la descarga primaria cuando
+$\mathrm{OCR}=\mathrm{OCR}_{\max}$ y el estado normalmente consolidado cuando
+$\mathrm{OCR}=\mathrm{OCR}_{\max}=1$. Debido a que la evidencia de recarga es
+más limitada, no se adopta sin una trayectoria tensional documentada.
+
+La relación de descarga deja de representar un estado en reposo al alcanzar
+el límite pasivo considerado por los autores
+[@MayneKulhawy1982, ecs. 11--12]:
+
+$$
+K_p=\frac{1+\sin\phi'}{1-\sin\phi'},
+\qquad
+\mathrm{OCR}_{\lim}
+=\left[
+\frac{1+\sin\phi'}{(1-\sin\phi')^2}
+\right]^{1/\sin\phi'}.
+$$ {#eq-calculation-k0-passive-limit}
+
+Al alcanzar este límite se declara la formulación fuera de dominio; no se
+recorta el valor de $K_0$. El coeficiente pasivo se emplea sólo para este
+control y no constituye una ley de interfaz suelo--revestimiento. Tampoco se
+impone una restricción general $K_0\leq1$, porque la sobreconsolidación puede
+producir valores mayores.
+
+### Compactación
+
+El estado en reposo y la tensión horizontal residual de compactación son
+magnitudes distintas. Según la evidencia disponible, el estado permanente se
+representará mediante una de las alternativas siguientes:
+
+$$
+\sigma'_h(z)=K_0^{(m)}(z)\,\sigma'_v(z),
 \qquad\text{o bien}\qquad
-\sigma'_h=K_{0,b}\sigma'_v+\Delta\sigma'_{h,c}.
+\sigma'_h(z)=K_{0,b}(z)\,\sigma'_v(z)
++\Delta\sigma'_{h,c}(z).
 $$ {#eq-calculation-compaction-history}
 
-$K_{0,c}$ es el coeficiente equivalente para el relleno compactado;
-$K_{0,b}$ es el coeficiente correspondiente al estado base; y
-$\Delta\sigma'_{h,c}$ es el incremento residual de tensión horizontal efectiva
-atribuido a la compactación.
-
-La primera rama concentra el efecto de compactación en un coeficiente
-equivalente; la segunda separa un estado base y un incremento residual. Son
-parametrizaciones alternativas y no deben sumarse. La elección requiere
-clasificación del relleno, humedad, densidad, energía y secuencia de
-compactación, además de mediciones disponibles.
+En la primera alternativa, la formulación $m$ representa la trayectoria de
+carga adoptada. En la segunda, $K_{0,b}$ define el estado base y
+$\Delta\sigma'_{h,c}$ una tensión horizontal residual sustentada por un modelo
+específico. Las dos rutas no se combinan si describen el mismo proceso de
+carga--descarga. Para el revestimiento existente, la magnitud y la variación
+con la profundidad de $\Delta\sigma'_{h,c}$ permanecen sin determinar hasta
+disponer de la secuencia de colocación, el equipo, la humedad, la densidad
+alcanzada y la movilidad del revestimiento.
 
 ## Transformación del estado tensional y acciones perimetrales
 

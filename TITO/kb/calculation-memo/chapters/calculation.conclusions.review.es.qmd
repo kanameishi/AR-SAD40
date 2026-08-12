@@ -2,28 +2,20 @@
 
 ## Resultados del escenario de comprobación
 
-La aplicación numérica considera un estado biaxial uniforme en la cota del
-eje y los valores extremos $\alpha=0$ y $\alpha=1$. Para $\alpha=1$ se obtienen
+La aplicación numérica considera un estado biaxial uniforme en la cota del eje
+y los valores declarados del multiplicador tangencial $\alpha$.
 
-$$
--131.5\leq N_\theta\leq-65.8\ \mathrm{kN/m},\qquad
--21.62\leq M_\theta\leq21.61\ \mathrm{kN\,m/m},
-$$
+```{r}
+#| echo: false
+#| results: asis
+cat(Calculation$caseSummaryMarkdown)
+```
 
-con $|Q_\theta|_{\max}=32.88$ kN/m. Para $\alpha=0$ se
-obtienen
-
-$$
--109.6\leq N_\theta\leq-87.7\ \mathrm{kN/m},\qquad
--14.42\leq M_\theta\leq14.40\ \mathrm{kN\,m/m},
-$$
-
-con $|Q_\theta|_{\max}=21.92$ kN/m. Los valores intermedios se obtienen con la
-@eq-calculation-biaxial-alpha-response.
-
-La integración directa reproduce las soluciones cerradas de ambos extremos
-con una diferencia absoluta máxima de $2.4\times10^{-12}$ en las unidades de
-cada resultante.
+Los valores intermedios se obtienen con la
+@eq-calculation-biaxial-alpha-response. La integración directa reproduce las
+soluciones cerradas con una diferencia absoluta máxima de
+$`r formatCalculationScientificLatex(Calculation$numerics$maximumControlDifference, 2L)`$
+en las unidades de cada resultante.
 
 ## Datos del revestimiento existente
 
@@ -44,7 +36,7 @@ requiere completar la siguiente caracterización:
 
 La presente emisión determina $N_\theta(\theta)$,
 $M_\theta(\theta)$ y $Q_\theta(\theta)$ para las acciones declaradas. La
-recuperación de tensiones en la chapa, el tratamiento local de
-$Q_\theta$ y la demanda de juntas y pernos requieren relaciones resistentes
-adicionales. El plan de caracterización y simulación probabilística se define
-en la @sec-calculation-uncertainty.
+recuperación de tensiones en la chapa, el tratamiento local de $Q_\theta$ y la
+demanda de juntas y pernos requieren relaciones resistentes adicionales. El
+plan de caracterización y simulación probabilística se define en la
+@sec-calculation-uncertainty.

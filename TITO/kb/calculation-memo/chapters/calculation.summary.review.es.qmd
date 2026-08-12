@@ -17,25 +17,24 @@ $\alpha=1$ la incorpora por completo; los valores intermedios prescriben una
 participación proporcional.
 
 La aplicación numérica corresponde a un escenario de comprobación con
-$D_i=2.63$ m, perfil corrugado nominal de $76\times25\times3$ mm,
-$R=1.315$ m, $\sigma'_{v,A}=100$ kPa, $K_0=0.50$ y $\Delta u_A=0$. Se calculan
-los límites $\alpha=0$ y $\alpha=1$. Para $\alpha=1$ se obtiene
+$D_i=`r formatCalculationGeneral(Calculation$geometry$insideDiameterM)`$ m,
+perfil corrugado nominal de
+$`r Calculation$section$nominalProfile`\times`r formatCalculationGeneral(Calculation$section$reportedThicknessMm)`$
+mm, $R=`r formatCalculationGeneral(Calculation$geometry$radiusM)`$ m,
+$\sigma'_{v,A}=`r formatCalculationGeneral(Calculation$stress$effectiveVerticalKPa)`$
+kPa, $K_0=`r formatCalculationGeneral(Calculation$stress$k0Applied)`$ y
+$\Delta u_A=`r formatCalculationGeneral(Calculation$stress$waterPressureDifferenceKPa)`$ kPa.
+Se evalúan los valores
+`r Calculation$actions$tangentialMultiplierMarkdown`.
 
-$$
--131.5\le N_\theta\le-65.8\ \mathrm{kN/m},\qquad
--21.62\le M_\theta\le21.61\ \mathrm{kN\,m/m},
-$$
+```{r}
+#| echo: false
+#| results: asis
+cat(Calculation$caseSummaryMarkdown)
+```
 
-con $|Q_\theta|_{\max}=32.88$ kN/m. Para $\alpha=0$ se obtiene
-
-$$
--109.6\le N_\theta\le-87.7\ \mathrm{kN/m},\qquad
--14.42\le M_\theta\le14.40\ \mathrm{kN\,m/m},
-$$
-
-con $|Q_\theta|_{\max}=21.92$ kN/m. Estos resultados corresponden al escenario
-de comprobación declarado y no constituyen la demanda del revestimiento
-existente.
+Estos resultados corresponden al escenario de comprobación declarado y no
+constituyen la demanda del revestimiento existente.
 
 La evaluación probabilística del proyecto no fue ejecutada. La tapada, la
 geometría del revestimiento, el acero y el espesor original se tratarán como

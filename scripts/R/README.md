@@ -143,10 +143,41 @@ Stress <- ringVerticalStressOrdinates(
 )
 ```
 
+Las relaciones de historia tensional reciben variables primitivas y devuelven
+$K_0$ derivado:
+
+```r
+K0.unloading <- k0MayneKulhawyUnloading(
+  frictionAngleDeg = 30,
+  ocr = 4
+)
+
+K0.reloading <- k0MayneKulhawyReload(
+  frictionAngleDeg = 30,
+  ocr = 2,
+  ocrMaximum = 4
+)
+
+Domain <- checkK0PassiveDomain(
+  frictionAngleDeg = 30,
+  ocrMaximum = 4
+)
+```
+
+El límite pasivo identifica la frontera de aplicación de la relación en
+reposo. `Domain` informa `valid`, `domainStatus`, `passiveCoefficient` y
+`ocrLimit`. Las funciones de descarga y recarga exigen
+$1\leq\mathrm{OCR}\leq\mathrm{OCR}_{\max}$ cuando corresponda, rechazan la
+frontera pasiva y no recortan $K_0$.
+
 Adaptadores disponibles:
 
 - `k0NormallyConsolidated()` y `k0ElasticConfined()`: dos estimaciones de
   $K_0$ con dominios distintos; no son modelos de compactación;
+- `k0MayneKulhawyUnloading()` y `k0MayneKulhawyReload()`: relaciones de
+  Mayne--Kulhawy para descarga primaria y descarga--recarga;
+- `checkK0PassiveDomain()`: estado del dominio, coeficiente pasivo y OCR
+  límite usados únicamente para comprobar las relaciones anteriores;
 - `usaceCmpThrust()`: empuje escalar con factores explícitos;
 - `usaceUniformSurrogate()`: presión uniforme de igual empuje, marcada como
   derivada;
@@ -159,6 +190,26 @@ Adaptadores disponibles:
 
 Los objetos de fuente conservan `source`, `sourceLocation`, `evidenceLevel` y
 limitaciones cuando corresponde.
+
+## Productos determinísticos de la memoria
+
+`calculation.json` contiene las entradas adoptadas del escenario. El comando
+
+```sh
+Rscript scripts/R/runCalculationMemo.R
+```
+
+valida la configuración, interpola las propiedades publicadas conservadas en
+`data/reference/`, selecciona una única rama de $K_0$ y materializa ocho
+CSV más una instantánea exacta del JSON en `data/calculation/`. El estado
+lateral distingue `k0Input`,
+`k0Derived` y `k0Applied`; las acciones consumen
+`effectiveHorizontalKPa` y no vuelven a calcular $K_0$.
+
+La presión horizontal residual de compactación no se ha cuantificado. Por
+ello `horizontalIncrementKPa` permanece nulo y
+`horizontalIncrementStatus` registra `unknown-not-modeled`. La diferencia de
+presión de agua se define como $u_{ext}-u_{int}$ y admite signo.
 
 ## Interacción elástica cerrada
 
@@ -245,6 +296,8 @@ Resultados principales:
 
 ```sh
 Rscript scripts/R/testRingMethod.R
+Rscript scripts/R/testCalculationData.R
+Rscript scripts/R/testCalculationFigures.R
 Rscript scripts/R/runRingBenchmarks.R
 Rscript scripts/R/runRingFigures.R
 ```

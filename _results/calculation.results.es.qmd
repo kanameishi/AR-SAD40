@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+projectRoot <- normalizePath(".", mustWork = TRUE)
+source(file.path(projectRoot, "scripts", "setup", "setup.R"))
+source(file.path(projectRoot, "scripts", "setup", "calculationResults.R"))
+```

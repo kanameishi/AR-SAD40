@@ -19,27 +19,30 @@ if (!exists("CAP.Q", inherits = FALSE)) {
   )
 }
 source("scripts/fig/Calculation.resultants.R")
-PATH.curves <- "TITO/kb/calculation-memo/results/ring-curves.csv"
-PATH.scales <- "TITO/kb/calculation-memo/results/ring-display-scales.csv"
+PATH.curves <- Calculation$paths$resultants
+PATH.scales <- Calculation$paths$scales
 PLOT.N <- buildCalculationResultantsInteractive(
   pathCurves = PATH.curves,
   pathScales = PATH.scales,
-  radius = 1.315,
-  graphicAmplification = 2,
+  radius = Calculation$geometry$radiusM,
+  graphicAmplification = Calculation$display$graphicAmplification,
+  raysPerCircle = Calculation$display$raysPerCircle,
   resultant = "N"
 )
 PLOT.M <- buildCalculationResultantsInteractive(
   pathCurves = PATH.curves,
   pathScales = PATH.scales,
-  radius = 1.315,
-  graphicAmplification = 2,
+  radius = Calculation$geometry$radiusM,
+  graphicAmplification = Calculation$display$graphicAmplification,
+  raysPerCircle = Calculation$display$raysPerCircle,
   resultant = "M"
 )
 PLOT.Q <- buildCalculationResultantsInteractive(
-  pathCurves = "TITO/kb/calculation-memo/results/ring-curves.csv",
-  pathScales = "TITO/kb/calculation-memo/results/ring-display-scales.csv",
-  radius = 1.315,
-  graphicAmplification = 2,
+  pathCurves = PATH.curves,
+  pathScales = PATH.scales,
+  radius = Calculation$geometry$radiusM,
+  graphicAmplification = Calculation$display$graphicAmplification,
+  raysPerCircle = Calculation$display$raysPerCircle,
   resultant = "Q"
 )
 ```

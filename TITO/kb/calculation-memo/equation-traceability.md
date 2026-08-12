@@ -28,7 +28,12 @@ $Q_\theta$ conservan sus signos.
 | Fórmula de la memoria | Etiquetas de Fase 1 |
 |---|---|
 | `eq-calculation-depth`, `eq-calculation-vertical-stress` | `eq-depth-theta`, `eq-effective-vertical`, `eq-pore-pressure` |
-| `eq-calculation-k0`, `eq-calculation-compaction-history` | `eq-k0-definition`, `eq-k0-jaky`, `eq-compaction-history` |
+| `eq-calculation-k0` | `eq-k0-definition` |
+| `eq-calculation-k0-reference` | `eq-k0-elastic`, `eq-k0-jaky`; FHWA NHI-05-037, ecs. 5.37--5.38 |
+| `eq-calculation-k0-unloading` | sin equivalente en Fase 1; Mayne--Kulhawy (1982), ec. 10; desarrollo académico de $K_0$ |
+| `eq-calculation-k0-reloading` | sin equivalente en Fase 1; Mayne--Kulhawy (1982), ec. 18; desarrollo académico de $K_0$ |
+| `eq-calculation-k0-passive-limit` | sin equivalente en Fase 1; Mayne--Kulhawy (1982), ecs. 11--12; desarrollo académico de $K_0$ |
+| `eq-calculation-compaction-history` | `eq-compaction-history`; separación metodológica ampliada en el desarrollo académico de $K_0$ |
 | `eq-calculation-stress-projection`, `eq-calculation-biaxial-load` | `eq-mean-difference`, `eq-normal-pressure`, `eq-tangential-traction` |
 | `eq-calculation-tangential-multiplier` | interpola los estados prescritos `eq-normal-pressure` y `eq-tangential-traction`; desarrollo independiente en `TITO/kb/paper-candidate/chapters/methodology.interface.friction.es.md` |
 | `eq-calculation-first-order-system` | `eq-ring-equilibrium-m`, `eq-ring-equilibrium-r`, `eq-ring-equilibrium-t` |
