@@ -269,12 +269,12 @@ assertNear(
   "load combination and scaling"
 )
 
-for (Interface in c("fullTraction", "normalOnly")) {
+for (s in c("fullTraction", "normalOnly")) {
   K0Load <- k0TensorLoad(
     effectiveVertical = 100,
     k0 = 0.5,
     porePressure = 20,
-    interface = Interface
+    interface = s
   )
   Direct <- solveRingDirect(
     load = K0Load,
@@ -289,14 +289,14 @@ for (Interface in c("fullTraction", "normalOnly")) {
     porePressure = 20,
     radius = Radius,
     theta = Theta,
-    interface = Interface,
+    interface = s,
     sectionRatio = 0.02
   )
   assertNear(
     as.matrix(Direct$values[, c("normalForce", "bendingMoment", "shearForce")]),
     as.matrix(Closed$values[, c("normalForce", "bendingMoment", "shearForce")]),
     3e-8,
-    paste("direct versus closed K0", Interface)
+    paste("direct versus closed K0", s)
   )
 }
 
@@ -317,9 +317,9 @@ MultiplierEndpointLoads <- list(
     tangentialMultiplier = 0
   )
 )
-for (Interface in names(MultiplierEndpointLoads)) {
+for (s in names(MultiplierEndpointLoads)) {
   MultiplierValues <- evaluateRingLoad(
-    MultiplierEndpointLoads[[Interface]],
+    MultiplierEndpointLoads[[s]],
     Theta
   )
   TensorValues <- evaluateRingLoad(
@@ -327,7 +327,7 @@ for (Interface in names(MultiplierEndpointLoads)) {
       effectiveVertical = 100,
       k0 = 0.5,
       porePressure = 20,
-      interface = Interface
+      interface = s
     ),
     Theta
   )
@@ -335,13 +335,13 @@ for (Interface in names(MultiplierEndpointLoads)) {
     MultiplierValues$radialOutward,
     TensorValues$radialOutward,
     5e-14,
-    paste("tangential multiplier radial endpoint", Interface)
+    paste("tangential multiplier radial endpoint", s)
   )
   assertNear(
     MultiplierValues$tangentialPositive,
     TensorValues$tangentialPositive,
     5e-14,
-    paste("tangential multiplier endpoint", Interface)
+    paste("tangential multiplier endpoint", s)
   )
 }
 IntermediateMultiplier <- 0.2
@@ -566,25 +566,25 @@ BakerPublished <- list(
     M = c(0.080, 0.048, -0.040, -0.095)
   )
 )
-for (HalfAngleDeg in c(30, 60)) {
+for (x in c(30, 60)) {
   Baker <- solveRingDirect(
-    load = bakerLoad(HalfAngleDeg),
+    load = bakerLoad(x),
     radius = 1,
     theta = BakerAngles,
     integrationSteps = 16384L
   )
-  Published <- BakerPublished[[as.character(HalfAngleDeg)]]
+  Published <- BakerPublished[[as.character(x)]]
   assertNear(
     Baker$values$normalForce,
     Published$N,
     6e-4,
-    paste("Baker N", HalfAngleDeg)
+    paste("Baker N", x)
   )
   assertNear(
     Baker$values$bendingMoment,
     Published$M,
     6e-4,
-    paste("Baker M", HalfAngleDeg)
+    paste("Baker M", x)
   )
 }
 
@@ -630,11 +630,11 @@ Fhwa <- data.frame(
   diameterMm = c(970, 970, 970, 970, 1575, 1575, 970, 970, 1575),
   publishedKpa = c(3.4, 7.2, 0.9, 1.8, 0.3, 0.5, 0.7, 1.4, 0.2)
 )
-Fhwa$calculatedKpa <- vapply(seq_len(nrow(Fhwa)), function(Index) {
+Fhwa$calculatedKpa <- vapply(seq_len(nrow(Fhwa)), function(i) {
   fhwaCompactionPressure(
-    compactorForceKn = Fhwa$forceKn[Index],
-    looseFrictionAngleDeg = Fhwa$phiDeg[Index],
-    centroidalDiameterMm = Fhwa$diameterMm[Index]
+    compactorForceKn = Fhwa$forceKn[i],
+    looseFrictionAngleDeg = Fhwa$phiDeg[i],
+    centroidalDiameterMm = Fhwa$diameterMm[i]
   )
 }, numeric(1))
 assertNear(
@@ -830,8 +830,8 @@ SchwartzCases <- data.frame(
   stringsAsFactors = FALSE
 )
 
-for (CaseId in seq_len(nrow(SchwartzCases))) {
-  Case <- SchwartzCases[CaseId, , drop = FALSE]
+for (i in seq_len(nrow(SchwartzCases))) {
+  Case <- SchwartzCases[i, , drop = FALSE]
   Result <- schwartzEinsteinResultants(
     theta = pi / 6,
     verticalStress = 1,
@@ -1000,8 +1000,8 @@ SchwartzStableCases <- data.frame(
   fStar = c(1, 100, 10, 0.1),
   poisson = c(0, 0.4, 0.2, 0.49)
 )
-for (CaseId in seq_len(nrow(SchwartzStableCases))) {
-  Case <- SchwartzStableCases[CaseId, , drop = FALSE]
+for (i in seq_len(nrow(SchwartzStableCases))) {
+  Case <- SchwartzStableCases[i, , drop = FALSE]
   CStar <- Case$cStar
   FStar <- Case$fStar
   Nu <- Case$poisson
@@ -1025,7 +1025,7 @@ for (CaseId in seq_len(nrow(SchwartzStableCases))) {
     ExcavationStable$coefficients[c("bHat", "b2Star", "a2Star")],
     c(bHat = BHatLiteral, b2Star = B2Literal, a2Star = A2Literal),
     5e-12,
-    paste("Schwartz-Einstein stable excavation no-slip case", CaseId)
+    paste("Schwartz-Einstein stable excavation no-slip case", i)
   )
 
   AHatLiteral <- FStar * U / 6 * ((3 - 2 * Nu) + CStar * U) +
@@ -1050,7 +1050,7 @@ for (CaseId in seq_len(nrow(SchwartzStableCases))) {
     ExternalStable$coefficients[c("aHat", "a2", "a3")],
     c(aHat = AHatLiteral, a2 = A2ExternalLiteral, a3 = A3ExternalLiteral),
     5e-12,
-    paste("Schwartz-Einstein stable external no-slip case", CaseId)
+    paste("Schwartz-Einstein stable external no-slip case", i)
   )
 }
 
@@ -1104,7 +1104,7 @@ CandeExpected <- list(
 )
 CandeEquilibriumRadius <- 2.3
 
-for (Interface in names(CandeExpected)) {
+for (s in names(CandeExpected)) {
   Cande <- candeLevel1Response(
     theta = CandeAngles,
     overburdenPressure = 100,
@@ -1113,16 +1113,16 @@ for (Interface in names(CandeExpected)) {
     groundPoisson = 1 / 3,
     alpha = 0.2,
     beta = 0.01,
-    interface = Interface
+    interface = s
   )
-  Expected <- CandeExpected[[Interface]]
-  for (Quantity in names(Expected)) {
-    Tolerance <- if (grepl("Displacement", Quantity)) 6e-10 else 6e-6
+  Expected <- CandeExpected[[s]]
+  for (v in names(Expected)) {
+    Tolerance <- if (grepl("Displacement", v)) 6e-10 else 6e-6
     assertNear(
-      Cande$response[[Quantity]],
-      Expected[[Quantity]],
+      Cande$response[[v]],
+      Expected[[v]],
       Tolerance,
-      paste("CANDE Level 1", Interface, Quantity)
+      paste("CANDE Level 1", s, v)
     )
   }
 
@@ -1135,7 +1135,7 @@ for (Interface in names(CandeExpected)) {
     groundPoisson = 1 / 3,
     alpha = 0.2,
     beta = 0.01,
-    interface = Interface
+    interface = s
   )$response
   Derivative <- function(value) diff(value[c(1L, 3L)]) /
     (2 * DifferenceStep)
@@ -1155,7 +1155,7 @@ for (Interface in names(CandeExpected)) {
     2e-8,
     paste(
       "CANDE Level 1",
-      Interface,
+      s,
       "differential equilibrium at non-unit radius"
     )
   )
@@ -1185,11 +1185,11 @@ Draws <- data.frame(
 )
 MonteCarlo <- runRingMonteCarlo(
   draws = Draws,
-  responseFunction = function(Draw, theta) {
+  responseFunction = function(draw, theta) {
     solveK0Closed(
-      effectiveVertical = Draw$effectiveVertical,
-      k0 = Draw$k0,
-      porePressure = Draw$porePressure,
+      effectiveVertical = draw$effectiveVertical,
+      k0 = draw$k0,
+      porePressure = draw$porePressure,
       radius = Radius,
       theta = theta,
       interface = "fullTraction"
@@ -1214,11 +1214,11 @@ assertTrue(
 )
 SingleQuantile <- runRingMonteCarlo(
   draws = Draws[1L, , drop = FALSE],
-  responseFunction = function(Draw, theta) {
+  responseFunction = function(draw, theta) {
     solveK0Closed(
-      effectiveVertical = Draw$effectiveVertical,
-      k0 = Draw$k0,
-      porePressure = Draw$porePressure,
+      effectiveVertical = draw$effectiveVertical,
+      k0 = draw$k0,
+      porePressure = draw$porePressure,
       radius = Radius,
       theta = theta,
       interface = "fullTraction"
@@ -1234,9 +1234,9 @@ assertTrue(
 )
 ScalarOutput <- runOutputMonteCarlo(
   draws = Draws,
-  outputFunction = function(Draw) c(
-    vertical = Draw$effectiveVertical,
-    horizontal = Draw$effectiveVertical * Draw$k0
+  outputFunction = function(draw) c(
+    vertical = draw$effectiveVertical,
+    horizontal = draw$effectiveVertical * draw$k0
   ),
   probabilities = 0.5,
   modelLabel = "scalar-output test",
@@ -1247,7 +1247,7 @@ assertTrue(is.null(ScalarOutput$samples), "scalar output sample retention")
 assertError(
   function() runOutputMonteCarlo(
     draws = Draws,
-    outputFunction = function(Draw) c(value = Draw$k0),
+    outputFunction = function(draw) c(value = draw$k0),
     modelLabel = "invalid keepSamples test",
     keepSamples = NA
   ),

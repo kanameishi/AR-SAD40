@@ -2058,7 +2058,7 @@ runRingMonteCarlo[
         KeyExistsQ[Scenario, "Radius"],
       "InvalidScenario",
       "scenarioFunction must return Spectrum and Radius.",
-      <|"SampleId" -> i|>
+      <|"SampleID" -> i|>
     ];
     Spectrum = ringEnsure[validateRingSpectrum[Scenario["Spectrum"]]];
     Radius = Scenario["Radius"];
@@ -2123,7 +2123,7 @@ runRingMonteCarlo[
         #,
         <|
           "Model" -> modelLabel,
-          "SampleId" -> i
+          "SampleID" -> i
         |>
       ] &,
       Summary
@@ -2260,7 +2260,7 @@ runRingStageMonteCarlo[
     "Every sample must return the same ordered, non-empty, unique stage names."
   ];
   SampleCount = Length[draws];
-  InternalKey = "RingStageSampleId";
+  InternalKey = "RingStageSampleID";
   While[AnyTrue[draws, KeyExistsQ[#, InternalKey] &], InternalKey = InternalKey <> "X"];
   IndexedDraws = MapIndexed[Append[#1, InternalKey -> First[#2]] &, draws];
   StageResults = AssociationMap[
@@ -2351,14 +2351,14 @@ runRingStageMonteCarlo[
   Do[
     Candidates = Select[
       StageExtrema,
-      #["SampleId"] == i && #["Resultant"] == Resultant &&
+      #["SampleID"] == i && #["Resultant"] == Resultant &&
         #["Statistic"] == Statistic &
     ];
     If[
       ! MemberQ[Supported, Resultant],
       Selected = <|
         "Model" -> modelLabel,
-        "SampleId" -> i,
+        "SampleID" -> i,
         "Resultant" -> Resultant,
         "Statistic" -> Statistic,
         "Value" -> Missing["NotSupported"],
@@ -2415,7 +2415,7 @@ runRingStageMonteCarlo[
         Membership,
         Map[
           <|
-            "SampleId" -> i,
+            "SampleID" -> i,
             "Resultant" -> Resultant,
             "Statistic" -> Statistic,
             "Stage" -> #["Stage"]

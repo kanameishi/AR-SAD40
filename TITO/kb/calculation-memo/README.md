@@ -12,9 +12,11 @@ Desde la raíz del repositorio, el HTML se regenera mediante:
 qrt render _master/calculation.review.es.qmd --profile html
 ```
 
-El render lee `calculation.json`, regenera `data/calculation/` y luego hidrata
+El render lee `calculation.json` con el esquema vigente `2.0.0`, regenera
+`data/calculation/` y luego hidrata
 el resumen, la aplicación numérica, las tablas y las figuras desde esos
-productos. Para regenerar y comprobar sólo la corrida determinística:
+productos. Los identificadores propios usan el sufijo `ID` en todas esas
+fronteras. Para regenerar y comprobar sólo la corrida determinística:
 
 ```bash
 Rscript scripts/R/runCalculationMemo.R

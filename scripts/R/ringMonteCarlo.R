@@ -35,11 +35,11 @@ if (!exists("solveRingDirect", mode = "function")) {
   as.integer(quantileType)
 }
 
-.responseExtrema <- function(response, sampleId) {
+.responseExtrema <- function(response, sampleID) {
   OUT <- summarizeSectionResultants(response)
-  OUT$sampleId <- sampleId
+  OUT$sampleID <- sampleID
   OUT <- OUT[, c(
-    "sampleId", "resultant", "statistic", "value", "signedValue",
+    "sampleID", "resultant", "statistic", "value", "signedValue",
     "theta", "thetaDeg"
   )]
   OUT
@@ -79,13 +79,13 @@ runRingMonteCarlo <- function(
   Extrema <- vector("list", SampleCount)
   Diagnostics <- vector("list", SampleCount)
 
-  for (SampleId in seq_len(SampleCount)) {
-    Draw <- draws[SampleId, , drop = FALSE]
+  for (i in seq_len(SampleCount)) {
+    Draw <- draws[i, , drop = FALSE]
     Response <- responseFunction(Draw, theta)
     if (!inherits(Response, "ringDirectResponse")) {
       stop(
         "responseFunction must return a ringDirectResponse; sample ",
-        SampleId,
+        i,
         " did not.",
         call. = FALSE
       )
@@ -93,7 +93,7 @@ runRingMonteCarlo <- function(
     if (!isTRUE(Response$diagnostics$valid)) {
       stop(
         "responseFunction returned an unbalanced ring response at sample ",
-        SampleId,
+        i,
         ".",
         call. = FALSE
       )
@@ -106,35 +106,35 @@ runRingMonteCarlo <- function(
         max(abs(Values$theta - theta)) > 1e-12) {
       stop(
         "responseFunction returned a different angular grid at sample ",
-        SampleId,
+        i,
         ".",
         call. = FALSE
       )
     }
     if (any(!is.finite(as.matrix(Values[, -c(1L, 2L), drop = FALSE])))) {
-      stop("Non-finite resultant at sample ", SampleId, ".", call. = FALSE)
+      stop("Non-finite resultant at sample ", i, ".", call. = FALSE)
     }
 
-    Curves$N[SampleId, ] <- Values$normalForce
-    Curves$M[SampleId, ] <- Values$bendingMoment
-    Curves$Q[SampleId, ] <- Values$shearForce
-    Extrema[[SampleId]] <- .responseExtrema(Response, SampleId)
-    Diagnostics[[SampleId]] <- Response$diagnostics
+    Curves$N[i, ] <- Values$normalForce
+    Curves$M[i, ] <- Values$bendingMoment
+    Curves$Q[i, ] <- Values$shearForce
+    Extrema[[i]] <- .responseExtrema(Response, i)
+    Diagnostics[[i]] <- Response$diagnostics
   }
 
-  Pointwise <- do.call(rbind, lapply(names(Curves), function(Resultant) {
-    QuantileMatrix <- apply(Curves[[Resultant]], 2L, function(Value) {
-      .quantiles(Value, Probabilities, QuantileType)
+  Pointwise <- do.call(rbind, lapply(names(Curves), function(resultant) {
+    QuantileMatrix <- apply(Curves[[resultant]], 2L, function(values) {
+      .quantiles(values, Probabilities, QuantileType)
     })
     dim(QuantileMatrix) <- c(length(Probabilities), AngleCount)
-    do.call(rbind, lapply(seq_along(Probabilities), function(Index) {
+    do.call(rbind, lapply(seq_along(Probabilities), function(i) {
       data.frame(
         model = modelLabel,
-        resultant = Resultant,
-        probability = Probabilities[Index],
+        resultant = resultant,
+        probability = Probabilities[i],
         theta = theta,
         thetaDeg = theta * 180 / pi,
-        value = QuantileMatrix[Index, ],
+        value = QuantileMatrix[i, ],
         stringsAsFactors = FALSE
       )
     }))
@@ -148,13 +148,13 @@ runRingMonteCarlo <- function(
     list(ExtremaSamples$resultant, ExtremaSamples$statistic),
     drop = TRUE
   )
-  ExtremaQuantiles <- do.call(rbind, lapply(ExtremaGroups, function(Group) {
+  ExtremaQuantiles <- do.call(rbind, lapply(ExtremaGroups, function(group) {
     data.frame(
       model = modelLabel,
-      resultant = Group$resultant[1L],
-      statistic = Group$statistic[1L],
+      resultant = group$resultant[1L],
+      statistic = group$statistic[1L],
       probability = Probabilities,
-      value = .quantiles(Group$value, Probabilities, QuantileType),
+      value = .quantiles(group$value, Probabilities, QuantileType),
       stringsAsFactors = FALSE
     )
   }))
@@ -201,15 +201,15 @@ runOutputMonteCarlo <- function(
     stop("keepSamples must be TRUE or FALSE.", call. = FALSE)
   }
 
-  Outputs <- lapply(seq_len(nrow(draws)), function(SampleId) {
-    Value <- outputFunction(draws[SampleId, , drop = FALSE])
+  Outputs <- lapply(seq_len(nrow(draws)), function(i) {
+    Value <- outputFunction(draws[i, , drop = FALSE])
     if (!is.numeric(Value) || any(!is.finite(Value)) ||
         is.null(names(Value)) || any(!nzchar(names(Value))) ||
         anyDuplicated(names(Value))) {
       stop(
         "outputFunction must return a finite, uniquely named numeric vector; ",
         "sample ",
-        SampleId,
+        i,
         " did not.",
         call. = FALSE
       )
@@ -217,20 +217,20 @@ runOutputMonteCarlo <- function(
     Value
   })
   OutputNames <- names(Outputs[[1L]])
-  if (any(!vapply(Outputs, function(Value) {
-    identical(names(Value), OutputNames)
+  if (any(!vapply(Outputs, function(value) {
+    identical(names(value), OutputNames)
   }, logical(1)))) {
     stop("outputFunction must return the same names in the same order.", call. = FALSE)
   }
   SampleMatrix <- do.call(rbind, Outputs)
 
-  Quantiles <- do.call(rbind, lapply(seq_along(OutputNames), function(Index) {
+  Quantiles <- do.call(rbind, lapply(seq_along(OutputNames), function(i) {
     data.frame(
       model = modelLabel,
-      output = OutputNames[Index],
+      output = OutputNames[i],
       probability = Probabilities,
       value = .quantiles(
-        SampleMatrix[, Index],
+        SampleMatrix[, i],
         Probabilities,
         QuantileType
       ),

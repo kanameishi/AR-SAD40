@@ -1747,11 +1747,11 @@ de sus fórmulas operativas; el apéndice no repetirá el estado de la práctica
 
 ### 26.6 Contrato de datos implementado
 
-`calculation.json`, con `schemaVersion = 1.0.0`, es la fuente única de entradas
+`calculation.json`, con `schemaVersion = 2.0.0`, es la fuente única de entradas
 adoptadas de la corrida. Cada estado selecciona exactamente una rama de
 $K_0$ y declara sólo sus variables primitivas. Los identificadores son:
 
-| `modelId` | Variables declaradas | Estado |
+| `modelID` | Variables declaradas | Estado |
 |---|---|---|
 | `adopted-constant` | `k0` | implementado para comprobación o sensibilidad |
 | `elastic-confined` | `poissonRatio` | implementado |
@@ -1802,7 +1802,7 @@ entradas no contiene magnitudes derivadas. `section.properties.csv` conserva
 las rigideces obtenidas de la tabla publicada en `data/reference/`;
 `numerical.controls.csv` identifica controles matemáticos internos y no
 benchmarks externos. Este último materializa `alpha` como magnitud numérica;
-ningún consumidor la reconstruye a partir de `caseId`, que es un identificador
+ningún consumidor la reconstruye a partir de `caseID`, que es un identificador
 opaco.
 
 La publicación se realiza por intercambio de directorios: el productor escribe
@@ -1866,7 +1866,7 @@ controlados de tensión vertical, $K_0$, espesor, $\alpha$ y presión de agua;
 equivalencia entre una rama adoptada y Jáky para $\phi'=30^\circ$; rechazo de
 ramas mezcladas, espesores fuera de la tabla, controles incumplidos y esquemas
 incompatibles; y ausencia de bloques de Monte Carlo en el JSON. La perturbación
-de $\alpha$ utiliza deliberadamente un `caseId` no numérico y atraviesa tablas
+de $\alpha$ utiliza deliberadamente un `caseID` no numérico y atraviesa tablas
 y figura. Una falla de control conserva íntegra la publicación anterior.
 
 ### 26.9 Estado de implementación
@@ -2094,8 +2094,8 @@ por formulación continuarán siendo unidades pequeñas y comprobables; durante
 la migración conservarán sus nombres existentes para no romper consumidores.
 La fachada aplicará una exclusión de tipo `oneOf`: no aceptará parámetros de
 ramas que no correspondan al `modelID` seleccionado. El adaptador de
-`calculation.json` traduce expresamente la clave histórica `modelId`; esa
-ortografía no se propaga al núcleo R.
+`calculation.json` usa `modelID`, de acuerdo con la política vigente de siglas,
+y esa ortografía se conserva en el núcleo R.
 
 `calculateSectionResultants()` devolverá siempre las tres resultantes. Un
 consumidor que necesite sólo una de ellas seleccionará su columna después de
@@ -2147,7 +2147,7 @@ parámetros derivados —los «hijos»— se calculan una vez en el orden indica
 |---|---|---|---|
 | diámetro interior y regla geométrica | $R$ | sección y resultantes | implementado |
 | tapada, estratigrafía, pesos unitarios efectivos, sobrecarga y agua | $\sigma'_v$ | estado tensional | las funciones básicas existen; la aplicación vigente ingresa $\sigma'_v$ directamente |
-| `modelID` y $K_0$ adoptado, o $\phi'$, o $\nu_g$, o $\phi'$--OCR, o $\phi'$--OCR--$\mathrm{OCR}_{\max}$ | $K_0$ | $\sigma'_h$ | implementado por ramas; el JSON histórico usa `modelId` |
+| `modelID` y $K_0$ adoptado, o $\phi'$, o $\nu_g$, o $\phi'$--OCR, o $\phi'$--OCR--$\mathrm{OCR}_{\max}$ | $K_0$ | $\sigma'_h$ | implementado por ramas; el esquema vigente usa `modelID` |
 | $K_0$ y $\sigma'_v$ | $\sigma'_{h,b}=K_0\sigma'_v$ | acciones perimetrales | implementado |
 | modelo residual aprobado y sus primitivas | $\Delta\sigma'_{h,c}$ | estado tensional | `UNKNOWN`; no se sustituye por una constante inventada |
 | $\sigma'_v$, $\sigma'_h$, diferencia de agua y $\alpha$ | $P_r(\theta)$ y $P_t(\theta)$ | resultantes | implementado para el estado biaxial uniforme prescrito |
@@ -2478,7 +2478,7 @@ nombre y firma histórica y delega en esta única implementación.
 
 La corrida determinística adapta el resumen mediante
 `.buildSectionExtremaTable()`. Monte Carlo usa la misma función para cada
-realización y agrega después `sampleId`; no cambia la generación de cuantiles
+realización y agrega después `sampleID`; no cambia la generación de cuantiles
 ni incorpora distribuciones. Los contrastes contra la solución cerrada y las
 escalas de representación permanecen fuera del resumen físico, aislados en
 `.buildResultantControlTable()` y `.buildDisplayScaleTable()`.
@@ -2630,7 +2630,7 @@ consumidores externos todavía `UNKNOWN`.
 
 La corrección de nombres de G8.3 se limitó a los parámetros y locales internos
 de `calculationResults.R`; las columnas históricas `...Id` y el objeto
-`Calculation` permanecieron idénticos. Las seis pruebas pertinentes, el render,
+`Calculation` permanecieron idénticos en esa puerta. Las seis pruebas pertinentes, el render,
 los nueve productos G0 y la línea base congelada de Fase 1 concluyeron sin
 cambios. La auditoría independiente final concluyó PASS en
 `/private/tmp/ar-sad40-g8-3-final-audit.md`. Las superficies Monte Carlo y la
@@ -2639,10 +2639,11 @@ interfaz gráfica de NGR conservan puertas propias.
 Durante G8.2 se detectó una aplicación incorrecta de la política de siglas en
 las superficies puras creadas por G2, G3 y G7. La corrección pertenece a esta
 misma puerta: el núcleo y sus listas en memoria usan `modelID`, `profileID`,
-`k0ModelID`, `ScenarioID`, `sectionID` y `stressStateID`; los adaptadores
-traducen hacia las claves y columnas históricas `...Id` de `calculation.json`,
-la referencia seccional y los nueve productos G0. No se cambia el esquema
-persistido ni se presenta la corrección como una migración de datos.
+`k0ModelID`, `ScenarioID`, `sectionID` y `stressStateID`; durante G8.2 los
+adaptadores conservaron las claves y columnas históricas `...Id` de
+`calculation.json`, la referencia seccional y los nueve productos G0. Esa fue
+una restricción acotada de G8.2, no una excepción permanente a la política de
+nombres.
 
 #### G9 — Conectar el agregador Monte Carlo
 
@@ -2655,6 +2656,45 @@ real que el callback no pueda expresar.
 misma malla, y producen el mismo orden de muestras, curvas y extremos para un
 lote pequeño de control. Ese lote sigue siendo una prueba de software, no un
 resultado probabilístico del proyecto.
+
+El 12 de agosto de 2026 el usuario rechazó expresamente la excepción histórica
+`...Id`. La puerta G9 incorpora por ello una migración declarada del esquema:
+`schemaVersion = 2.0.0`, claves de configuración, columnas, referencia
+seccional, parámetros R y productos Monte Carlo usan el sufijo `ID`. Los
+fixtures `calculation.g0.*` preservan el oráculo histórico de la versión 1.0.0;
+`calculation.schema.*` fija la versión vigente. La comparación contra
+`953e0c7` normaliza exclusivamente `Id` a `ID` y la versión de esquema; exige
+identidad de estructura restante, tipos, valores, filas, orden, signos,
+ángulos, diagnósticos y cuantiles. No existe una capa de compatibilidad que
+acepte ambas grafías.
+
+G9 quedó cerrada al adaptar `calculateScenario()` al argumento
+`responseFunction` de `runRingMonteCarlo()`. El lote fijo de tres realizaciones
+se evaluó mediante el callback histórico por etapas y mediante el callback
+candidato; ambos produjeron objetos completos idénticos, incluidas las
+realizaciones recibidas, diagnósticos, curvas conservadas, cuantiles puntuales,
+extremos y cuantiles de extremos. El agregador no conoce AR-SAD40, archivos,
+configuración documental, distribuciones ni generación aleatoria. Este lote es
+un control determinístico de software y no una simulación probabilística del
+proyecto.
+
+La migración nominal también alcanzó los atributos activos de representación:
+`ringCaseIDs` en el prototipo de AR-SAD40 y `sectionCaseIDs` en
+`NGR::buildSectionResultantsPlot()`. No se mantuvo un alias con la grafía
+anterior. La fuente de NGR corregida fue comprobada mediante su prueba enfocada
+y el instalador oficial, y el consumidor de AR-SAD40 se ejecutó contra esa
+instalación. La publicación Git de NGR permanece como efecto independiente;
+esta puerta no la ejecuta ni la presenta como terminada.
+
+Las comparaciones de paridad concluyeron PASS en
+`/private/tmp/ar-sad40-g9-parity-reaudit.md` y la auditoría integrada de
+arquitectura, esquema y nombres concluyó PASS en
+`/private/tmp/ar-sad40-g9-r-architecture-final-audit.md`. El render vigente de
+la memoria tiene SHA-256
+`1b297dc09b81f99fc4f0a4341f37b6ba862a556fd8bace15807bec00c36df0f2`.
+La ejecución Wolfram permanece `UNKNOWN` porque no existe un kernel configurado;
+los cambios nominales en `.wl` y `.nb` no se presentan como una comprobación
+ejecutada.
 
 #### G10 — Incorporar módulos posteriores y promover a librería
 

@@ -4,17 +4,17 @@ buildCalculationControlsTable <- function(path) {
   }
   Data <- utils::read.csv(path, check.names = FALSE)
   Required <- c(
-    "caseId", "alpha", "resultantId", "observedValue", "unit", "limitValue",
+    "caseID", "alpha", "resultantID", "observedValue", "unit", "limitValue",
     "pass", "thetaPointCount", "integrationSteps", "evidenceLevel"
   )
   if (length(setdiff(Required, names(Data))) > 0L) {
     stop("The numerical-control file has an invalid schema.", call. = FALSE)
   }
   formatScientificLatex <- function(values, digits) {
-    vapply(values, function(Value) {
-      if (Value == 0) return("$0$")
-      Exponent <- floor(log10(abs(Value)))
-      Mantissa <- Value / 10^Exponent
+    vapply(values, function(value) {
+      if (value == 0) return("$0$")
+      Exponent <- floor(log10(abs(value)))
+      Mantissa <- value / 10^Exponent
       paste0(
         "$", format(signif(Mantissa, digits), trim = TRUE, scientific = FALSE),
         "\\times10^{", Exponent, "}$"
@@ -28,7 +28,7 @@ buildCalculationControlsTable <- function(path) {
     "kN/m" = "$\\mathrm{kN/m}$",
     "kN m/m" = "$\\mathrm{kN\\,m/m}$"
   )
-  Resultants <- unname(ResultantLabels[Data$resultantId])
+  Resultants <- unname(ResultantLabels[Data$resultantID])
   Units <- unname(UnitLabels[Data$unit])
   if (anyNA(Resultants) || anyNA(Units)) {
     stop("The public resultant or unit mapping is incomplete.", call. = FALSE)

@@ -550,6 +550,6 @@ buildRingComparisonPlot <- function(
   }
   attr(Chart, "ringPanelSize") <- PanelSize
   attr(Chart, "ringLayout") <- "responsive-square-panels"
-  attr(Chart, "ringCaseIds") <- GroupIDs
+  attr(Chart, "ringCaseIDs") <- GroupIDs
   Chart
 }

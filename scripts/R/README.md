@@ -283,7 +283,9 @@ limitaciones cuando corresponde.
 
 ## Productos determinísticos de la memoria
 
-`calculation.json` contiene las entradas adoptadas del escenario. El comando
+`calculation.json` contiene las entradas adoptadas del escenario. Su esquema
+vigente es `2.0.0`; las siglas de los identificadores se escriben con el
+sufijo `ID` en configuración, tablas y código R. El comando
 
 ```sh
 Rscript scripts/R/runCalculationMemo.R
@@ -348,32 +350,34 @@ El motor recibe realizaciones, no distribuciones:
 
 ```r
 Draws <- data.frame(
-  effectiveVertical = c(80, 100, 120),
   frictionAngleDeg = c(28, 32, 36),
-  porePressure = c(0, 10, 20),
-  tangentialMultiplier = c(0, 0.5, 1)
+  effectiveVerticalKPa = c(80, 100, 120),
+  waterPressureDifferenceKPa = c(0, 10, 20),
+  baseThicknessMm = c(3.0, 3.1, 3.2),
+  alpha = c(0, 0.5, 1)
 )
 
 Result <- runRingMonteCarlo(
   draws = Draws,
-  responseFunction = function(Draw, theta) {
-    Load <- k0TangentialMultiplierLoad(
-      effectiveVertical = Draw$effectiveVertical,
-      k0 = k0NormallyConsolidated(Draw$frictionAngleDeg),
-      porePressure = Draw$porePressure,
-      tangentialMultiplier = Draw$tangentialMultiplier
+  responseFunction = function(draw, theta) {
+    Context.draw <- Context
+    Context.draw$theta <- theta
+    Scenario <- calculateScenario(
+      realization = as.list(draw[1L, , drop = FALSE]),
+      context = Context.draw
     )
-    solveRingDirect(
-      load = Load,
-      radius = 2,
-      theta = theta
-    )
+    Scenario$sectionResultants
   },
-  theta = (0:720) * 2 * pi / 721,
+  theta = Context$theta,
   probabilities = c(0.05, 0.50, 0.95),
   modelLabel = "declared geotechnical branch"
 )
 ```
+
+El callback adapta una fila ya materializada al mismo `calculateScenario()`
+que usa el cálculo determinístico. `runRingMonteCarlo()` conserva el orden de
+esas filas y no elige distribuciones, dependencias, probabilidades de modelo ni
+semilla.
 
 Resultados principales:
 

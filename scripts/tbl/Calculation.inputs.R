@@ -7,7 +7,7 @@ buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
   Section <- utils::read.csv(pathSection, check.names = FALSE, na.strings = "")
   Stress <- utils::read.csv(pathStress, check.names = FALSE, na.strings = "")
   RequiredInputs <- c(
-    "parameterId", "numericValue", "textValue", "unit", "evidenceLevel",
+    "parameterID", "numericValue", "textValue", "unit", "evidenceLevel",
     "conditionCode"
   )
   RequiredSection <- c(
@@ -16,7 +16,7 @@ buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
     "flexuralRigidityKnM2PerM", "sectionRatio", "analysisRadiusM"
   )
   RequiredStress <- c(
-    "modelId", "effectiveVerticalKPa", "k0Applied",
+    "modelID", "effectiveVerticalKPa", "k0Applied",
     "horizontalIncrementStatus", "effectiveHorizontalKPa",
     "waterPressureDifferenceKPa", "k0EvidenceLevel"
   )
@@ -26,17 +26,17 @@ buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
       nrow(Section) != 1L || nrow(Stress) != 1L) {
     stop("The calculation input products have an invalid schema.", call. = FALSE)
   }
-  inputNumber <- function(parameterId) {
-    Value <- Inputs$numericValue[Inputs$parameterId == parameterId]
+  inputNumber <- function(parameterID) {
+    Value <- Inputs$numericValue[Inputs$parameterID == parameterID]
     if (length(Value) != 1L || !is.finite(Value)) {
-      stop("Missing numeric input: ", parameterId, ".", call. = FALSE)
+      stop("Missing numeric input: ", parameterID, ".", call. = FALSE)
     }
     Value
   }
-  inputText <- function(parameterId) {
-    Value <- Inputs$textValue[Inputs$parameterId == parameterId]
+  inputText <- function(parameterID) {
+    Value <- Inputs$textValue[Inputs$parameterID == parameterID]
     if (length(Value) != 1L || is.na(Value) || !nzchar(Value)) {
-      stop("Missing text input: ", parameterId, ".", call. = FALSE)
+      stop("Missing text input: ", parameterID, ".", call. = FALSE)
     }
     Value
   }
@@ -70,11 +70,11 @@ buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
     "mayne-kulhawy-unloading" = "Relación de descarga de Mayne--Kulhawy",
     "mayne-kulhawy-reload" = "Relación de recarga de Mayne--Kulhawy"
   )
-  ModelLabel <- unname(ModelLabels[Stress$modelId])
+  ModelLabel <- unname(ModelLabels[Stress$modelID])
   if (is.na(ModelLabel)) {
     stop("The public K0 model mapping is incomplete.", call. = FALSE)
   }
-  AlphaValues <- Inputs$numericValue[Inputs$parameterId == "tangential-multiplier"]
+  AlphaValues <- Inputs$numericValue[Inputs$parameterID == "tangential-multiplier"]
   AlphaText <- paste(format(sort(AlphaValues), trim = TRUE), collapse = "; ")
   ProfileText <- paste0(
     formatGeneral(inputNumber("nominal-corrugation-pitch")),

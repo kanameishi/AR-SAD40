@@ -14,11 +14,11 @@ source("scripts/fig/ringParametric.R")
   Curves <- utils::read.csv(pathCurves, check.names = FALSE)
   Scales <- utils::read.csv(pathScales, check.names = FALSE)
   RequiredCurves <- c(
-    "caseId", "alpha", "resultantId", "thetaIndex", "thetaRad", "thetaDeg",
+    "caseID", "alpha", "resultantID", "thetaIndex", "thetaRad", "thetaDeg",
     "value", "unit", "evidenceLevel"
   )
   RequiredScales <- c(
-    "resultantId", "displayScale", "maximumAbsoluteValue", "resultantUnit",
+    "resultantID", "displayScale", "maximumAbsoluteValue", "resultantUnit",
     "radialFraction"
   )
   if (length(setdiff(RequiredCurves, names(Curves))) > 0L ||
@@ -29,7 +29,7 @@ source("scripts/fig/ringParametric.R")
     )
   }
   Curves <- data.frame(
-    case = Curves$caseId,
+    case = Curves$caseID,
     stage = "Estado biaxial uniforme",
     model = "Acciones prescritas",
     prescription = paste0(
@@ -37,7 +37,7 @@ source("scripts/fig/ringParametric.R")
       formatC(Curves$alpha, format = "f", digits = 2)
     ),
     tangentialMultiplier = Curves$alpha,
-    resultant = Curves$resultantId,
+    resultant = Curves$resultantID,
     thetaIndex = Curves$thetaIndex,
     theta = Curves$thetaRad,
     thetaDeg = Curves$thetaDeg,
@@ -47,7 +47,7 @@ source("scripts/fig/ringParametric.R")
     stringsAsFactors = FALSE
   )
   Scales <- data.frame(
-    resultant = Scales$resultantId,
+    resultant = Scales$resultantID,
     displayScale = Scales$displayScale,
     maximumAbsoluteValue = Scales$maximumAbsoluteValue,
     unit = Scales$resultantUnit,

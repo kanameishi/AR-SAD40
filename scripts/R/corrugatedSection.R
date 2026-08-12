@@ -23,7 +23,7 @@ interpolateCorrugatedSection <- function(
   )
 
   COLS.required <- c(
-    "profileId", "referenceRowId", "specifiedThicknessIn", "baseThicknessMm",
+    "profileID", "referenceRowID", "specifiedThicknessIn", "baseThicknessMm",
     "areaMm2PerMm", "inertiaMm4PerMm", "evidenceLevel", "sourceKey",
     "sourceLocator"
   )
@@ -38,7 +38,7 @@ interpolateCorrugatedSection <- function(
   }
 
   ProfileRows <- reference[
-    reference$profileId == profileID,
+    reference$profileID == profileID,
     ,
     drop = FALSE
   ]
@@ -61,7 +61,7 @@ interpolateCorrugatedSection <- function(
     drop = FALSE
   ]
   if (anyDuplicated(ProfileRows$baseThicknessMm) ||
-      anyDuplicated(ProfileRows$referenceRowId)) {
+      anyDuplicated(ProfileRows$referenceRowID)) {
     stop("Reference thicknesses and row identifiers must be unique.", call. = FALSE)
   }
   if (baseThicknessMm < min(ProfileRows$baseThicknessMm) ||
@@ -91,8 +91,8 @@ interpolateCorrugatedSection <- function(
   list(
     profileID = profileID,
     analysisBaseThicknessMm = baseThicknessMm,
-    lowerReferenceRowID = LowerRow$referenceRowId,
-    upperReferenceRowID = UpperRow$referenceRowId,
+    lowerReferenceRowID = LowerRow$referenceRowID,
+    upperReferenceRowID = UpperRow$referenceRowID,
     interpolationFraction = Fraction,
     areaMm2PerMm =
       (1 - Fraction) * LowerRow$areaMm2PerMm +

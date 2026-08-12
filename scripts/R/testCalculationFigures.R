@@ -82,7 +82,7 @@ stopifnot(identical(
   )]),
   c("Solid", "ShortDash")
 ))
-GroupIDs <- attr(Interactive, "sectionCaseIds")
+GroupIDs <- attr(Interactive, "sectionCaseIDs")
 stopifnot(length(GroupIDs) == 2L)
 stopifnot(all(GroupIDs %in% vapply(Series, function(x) {
   if (is.null(x$id)) "" else x$id
@@ -121,17 +121,17 @@ CurveSeries <- Filter(function(x) {
   length(x$data) > 0L && !is.null(x$data[[1L]]$custom)
 }, Series)
 stopifnot(length(CurveSeries) == 6L)
-for (CurrentSeries in CurveSeries) {
-  Resultant <- CurrentSeries$data[[1L]]$custom$resultant
+for (v in CurveSeries) {
+  Resultant <- v$data[[1L]]$custom$resultant
   CurrentGeometry <- Geometry[
-    Geometry$prescription == CurrentSeries$name &
+    Geometry$prescription == v$name &
       Geometry$resultant == Resultant,
     ,
     drop = FALSE
   ]
-  Values <- vapply(CurrentSeries$data, function(x) x$custom$value, numeric(1))
-  X <- vapply(CurrentSeries$data, `[[`, numeric(1), "x")
-  Y <- vapply(CurrentSeries$data, `[[`, numeric(1), "y")
+  Values <- vapply(v$data, function(x) x$custom$value, numeric(1))
+  X <- vapply(v$data, `[[`, numeric(1), "x")
+  Y <- vapply(v$data, `[[`, numeric(1), "y")
   stopifnot(identical(Values, CurrentGeometry$value))
   stopifnot(identical(X, CurrentGeometry$x))
   stopifnot(identical(Y, CurrentGeometry$y))
@@ -143,9 +143,9 @@ stopifnot(length(RaySeries) == 10L)
 stopifnot(all(vapply(RaySeries, function(x) {
   isFALSE(x$requireSorting)
 }, logical(1))))
-for (CurrentSeries in RaySeries) {
-  NullPositions <- which(vapply(CurrentSeries$data, is.null, logical(1)))
-  stopifnot(identical(NullPositions, seq(3L, length(CurrentSeries$data), by = 3L)))
+for (v in RaySeries) {
+  NullPositions <- which(vapply(v$data, is.null, logical(1)))
+  stopifnot(identical(NullPositions, seq(3L, length(v$data), by = 3L)))
 }
 Cases <- unique(Geometry$case)
 PhasedRays <- prepareRingRays(
@@ -208,14 +208,14 @@ stopifnot(inherits(extremaChart, "shiny.tag"))
 
 CanonicalCurves <- utils::read.csv(PathCurves, check.names = FALSE)
 stages <- data.frame(
-  case = CanonicalCurves$caseId,
+  case = CanonicalCurves$caseID,
   stage = ifelse(CanonicalCurves$alpha == 1, "Etapa 1", "Etapa 2"),
   model = "mathematical-control",
   prescription = paste0(
     "Componente tangencial: α = ",
     formatC(CanonicalCurves$alpha, format = "f", digits = 2)
   ),
-  resultant = CanonicalCurves$resultantId,
+  resultant = CanonicalCurves$resultantID,
   thetaIndex = CanonicalCurves$thetaIndex,
   theta = CanonicalCurves$thetaRad,
   thetaDeg = CanonicalCurves$thetaDeg,
@@ -229,7 +229,7 @@ stageScalePath <- tempfile(fileext = ".csv")
 utils::write.csv(stages, stagePath, row.names = FALSE)
 utils::write.csv(
   data.frame(
-    resultant = ScaleData$resultantId,
+    resultant = ScaleData$resultantID,
     displayScale = ScaleData$displayScale,
     maximumAbsoluteValue = ScaleData$maximumAbsoluteValue,
     unit = ScaleData$resultantUnit,

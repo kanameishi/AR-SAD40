@@ -25,11 +25,11 @@ if (!exists("calculateRingSection", mode = "function") ||
     Values <- actions[[i]]$values
     rbind(
       data.frame(
-        scenarioId = scenarioID,
-        caseId = cases$caseId[i],
-        stressStateId = stressStateID,
+        scenarioID = scenarioID,
+        caseID = cases$caseID[i],
+        stressStateID = stressStateID,
         alpha = cases$alpha[i],
-        componentId = "radial",
+        componentID = "radial",
         thetaIndex = seq_len(nrow(Values)) - 1L,
         thetaRad = Values$theta,
         thetaDeg = Values$theta * 180 / pi,
@@ -38,11 +38,11 @@ if (!exists("calculateRingSection", mode = "function") ||
         stringsAsFactors = FALSE
       ),
       data.frame(
-        scenarioId = scenarioID,
-        caseId = cases$caseId[i],
-        stressStateId = stressStateID,
+        scenarioID = scenarioID,
+        caseID = cases$caseID[i],
+        stressStateID = stressStateID,
         alpha = cases$alpha[i],
-        componentId = "tangential",
+        componentID = "tangential",
         thetaIndex = seq_len(nrow(Values)) - 1L,
         thetaRad = Values$theta,
         thetaDeg = Values$theta * 180 / pi,
@@ -144,11 +144,11 @@ if (!exists("calculateRingSection", mode = "function") ||
   Path <- "stressState.k0Model"
   .requireFields(
     model,
-    required = "modelId",
+    required = "modelID",
     optional = c("k0", "frictionAngleDeg", "poissonRatio", "ocr", "ocrMaximum"),
     path = Path
   )
-  ModelID <- .readText(model, "modelId", Path)
+  ModelID <- .readText(model, "modelID", Path)
   BranchFields <- switch(
     ModelID,
     "adopted-constant" = "k0",
@@ -156,10 +156,10 @@ if (!exists("calculateRingSection", mode = "function") ||
     "jaky-nc" = "frictionAngleDeg",
     "mayne-kulhawy-unloading" = c("frictionAngleDeg", "ocr"),
     "mayne-kulhawy-reload" = c("frictionAngleDeg", "ocr", "ocrMaximum"),
-    stop("Unsupported K0 modelId: ", ModelID, ".", call. = FALSE)
+    stop("Unsupported K0 modelID: ", ModelID, ".", call. = FALSE)
   )
-  .requireFields(model, c("modelId", BranchFields), path = Path)
-  Result <- list(modelId = ModelID)
+  .requireFields(model, c("modelID", BranchFields), path = Path)
+  Result <- list(modelID = ModelID)
   if ("k0" %in% BranchFields) {
     Result$k0 <- .readNumber(model, "k0", Path, minimum = 0)
   }
@@ -201,19 +201,19 @@ if (!exists("calculateRingSection", mode = "function") ||
   if (!is.list(loadCases) || length(loadCases) == 0L) {
     stop("loadCases must be a non-empty array.", call. = FALSE)
   }
-  Rows <- lapply(seq_along(loadCases), function(Index) {
-    Path <- paste0("loadCases[", Index, "]")
-    Case <- loadCases[[Index]]
-    .requireFields(Case, c("caseId", "alpha"), path = Path)
+  Rows <- lapply(seq_along(loadCases), function(i) {
+    Path <- paste0("loadCases[", i, "]")
+    Case <- loadCases[[i]]
+    .requireFields(Case, c("caseID", "alpha"), path = Path)
     data.frame(
-      caseId = .readText(Case, "caseId", Path),
+      caseID = .readText(Case, "caseID", Path),
       alpha = .readNumber(Case, "alpha", Path, minimum = 0, maximum = 1),
       stringsAsFactors = FALSE
     )
   })
   Result <- do.call(rbind, Rows)
-  if (anyDuplicated(Result$caseId)) {
-    stop("loadCases.caseId values must be unique.", call. = FALSE)
+  if (anyDuplicated(Result$caseID)) {
+    stop("loadCases.caseID values must be unique.", call. = FALSE)
   }
   if (anyDuplicated(Result$alpha)) {
     stop("loadCases.alpha values must be unique.", call. = FALSE)
@@ -222,18 +222,22 @@ if (!exists("calculateRingSection", mode = "function") ||
 }
 
 validateCalculationConfig <- function(config) {
+  .requireObject(config, "calculation.json")
+  if (!("schemaVersion" %in% names(config))) {
+    stop("calculation.json is missing: schemaVersion.", call. = FALSE)
+  }
+  SchemaVersion <- .readText(config, "schemaVersion", "calculation.json")
+  if (SchemaVersion != "2.0.0") {
+    stop("Unsupported calculation schemaVersion: ", SchemaVersion, ".", call. = FALSE)
+  }
   .requireFields(
     config,
     c(
-      "schemaVersion", "scenarioId", "geometry", "section", "material",
+      "schemaVersion", "scenarioID", "geometry", "section", "material",
       "stressState", "loadCases", "numerics", "graphics"
     ),
     path = "calculation.json"
   )
-  SchemaVersion <- .readText(config, "schemaVersion", "calculation.json")
-  if (SchemaVersion != "1.0.0") {
-    stop("Unsupported calculation schemaVersion: ", SchemaVersion, ".", call. = FALSE)
-  }
 
   Geometry <- .requireObject(config$geometry, "geometry")
   .requireFields(Geometry, c("insideDiameterM", "analysisRadiusRule"), path = "geometry")
@@ -247,14 +251,14 @@ validateCalculationConfig <- function(config) {
     Section,
     c(
       "nominalCorrugationPitchMm", "nominalCorrugationDepthMm",
-      "reportedThicknessMm", "analysisBaseThicknessMm", "referenceProfileId",
-      "propertyModelId", "propertyTable"
+      "reportedThicknessMm", "analysisBaseThicknessMm", "referenceProfileID",
+      "propertyModelID", "propertyTable"
     ),
     path = "section"
   )
-  PropertyModel <- .readText(Section, "propertyModelId", "section")
+  PropertyModel <- .readText(Section, "propertyModelID", "section")
   if (PropertyModel != "linear-interpolation-base-thickness") {
-    stop("Unsupported section.propertyModelId: ", PropertyModel, ".", call. = FALSE)
+    stop("Unsupported section.propertyModelID: ", PropertyModel, ".", call. = FALSE)
   }
 
   Material <- .requireObject(config$material, "material")
@@ -264,7 +268,7 @@ validateCalculationConfig <- function(config) {
   .requireFields(
     Stress,
     c(
-      "statePointId", "effectiveVerticalKPa", "waterPressureDifferenceKPa",
+      "statePointID", "effectiveVerticalKPa", "waterPressureDifferenceKPa",
       "horizontalIncrementMode", "k0Model"
     ),
     path = "stressState"
@@ -306,7 +310,7 @@ validateCalculationConfig <- function(config) {
 
   list(
     schemaVersion = SchemaVersion,
-    scenarioId = .readText(config, "scenarioId", "calculation.json"),
+    scenarioID = .readText(config, "scenarioID", "calculation.json"),
     geometry = list(
       insideDiameterM = .readNumber(
         Geometry,
@@ -346,8 +350,8 @@ validateCalculationConfig <- function(config) {
         minimum = 0,
         strictMinimum = TRUE
       ),
-      referenceProfileId = .readText(Section, "referenceProfileId", "section"),
-      propertyModelId = PropertyModel,
+      referenceProfileID = .readText(Section, "referenceProfileID", "section"),
+      propertyModelID = PropertyModel,
       propertyTable = .readText(Section, "propertyTable", "section")
     ),
     material = list(
@@ -360,7 +364,7 @@ validateCalculationConfig <- function(config) {
       )
     ),
     stressState = list(
-      statePointId = .readText(Stress, "statePointId", "stressState"),
+      statePointID = .readText(Stress, "statePointID", "stressState"),
       effectiveVerticalKPa = .readNumber(
         Stress,
         "effectiveVerticalKPa",
@@ -436,7 +440,7 @@ validateCalculationConfig <- function(config) {
 .adaptCalculationK0State <- function(k0State) {
   ModelID <- k0State[["modelID", exact = TRUE]]
   OUT <- list(
-    modelId = ModelID,
+    modelID = ModelID,
     frictionAngleDeg = k0State[["frictionAngleDeg", exact = TRUE]],
     poissonRatio = k0State[["poissonRatio", exact = TRUE]],
     ocr = k0State[["ocr", exact = TRUE]],
@@ -491,16 +495,16 @@ validateCalculationConfig <- function(config) {
     config[["geometry", exact = TRUE]][["insideDiameterM", exact = TRUE]] /
       2
   data.frame(
-    scenarioId = config[["scenarioId", exact = TRUE]],
-    sectionId = "circumferential-section",
-    profileId = corrugatedSection[["profileID", exact = TRUE]],
-    propertyModelId =
-      config[["section", exact = TRUE]][["propertyModelId", exact = TRUE]],
+    scenarioID = config[["scenarioID", exact = TRUE]],
+    sectionID = "circumferential-section",
+    profileID = corrugatedSection[["profileID", exact = TRUE]],
+    propertyModelID =
+      config[["section", exact = TRUE]][["propertyModelID", exact = TRUE]],
     analysisBaseThicknessMm =
       corrugatedSection[["analysisBaseThicknessMm", exact = TRUE]],
-    lowerReferenceRowId =
+    lowerReferenceRowID =
       corrugatedSection[["lowerReferenceRowID", exact = TRUE]],
-    upperReferenceRowId =
+    upperReferenceRowID =
       corrugatedSection[["upperReferenceRowID", exact = TRUE]],
     interpolationFraction =
       corrugatedSection[["interpolationFraction", exact = TRUE]],
@@ -526,7 +530,7 @@ validateCalculationConfig <- function(config) {
 }
 
 resolveCalculationK0 <- function(model) {
-  ModelID <- model[["modelId", exact = TRUE]]
+  ModelID <- model[["modelID", exact = TRUE]]
   Fields.model <- intersect(
     names(model),
     c("k0", "frictionAngleDeg", "poissonRatio", "ocr", "ocrMaximum")
@@ -542,7 +546,7 @@ readCalculationSection <- function(config, projectRoot) {
   Reference <- .readCalculationSectionReference(config, projectRoot)
   CorrugatedSection <- interpolateCorrugatedSection(
     reference = Reference,
-    profileID = config$section$referenceProfileId,
+    profileID = config$section$referenceProfileID,
     baseThicknessMm = config$section$analysisBaseThicknessMm
   )
   Radius <- config$geometry$insideDiameterM / 2
@@ -567,12 +571,12 @@ readCalculationSection <- function(config, projectRoot) {
   stressStateID
 ) {
   data.frame(
-    scenarioId = config[["scenarioId", exact = TRUE]],
-    stressStateId = stressStateID,
-    modelId = k0State[["modelId", exact = TRUE]],
-    statePointId =
-      config[["stressState", exact = TRUE]][["statePointId", exact = TRUE]],
-    layerId = NA_character_,
+    scenarioID = config[["scenarioID", exact = TRUE]],
+    stressStateID = stressStateID,
+    modelID = k0State[["modelID", exact = TRUE]],
+    statePointID =
+      config[["stressState", exact = TRUE]][["statePointID", exact = TRUE]],
+    layerID = NA_character_,
     thetaIndex = NA_integer_,
     thetaRad = NA_real_,
     depthM = NA_real_,
@@ -615,10 +619,10 @@ readCalculationSection <- function(config, projectRoot) {
   conditionCode
 ) {
   data.frame(
-    scenarioId = scenarioID,
-    caseId = caseID,
-    groupId = groupID,
-    parameterId = parameterID,
+    scenarioID = scenarioID,
+    caseID = caseID,
+    groupID = groupID,
+    parameterID = parameterID,
     symbol = symbol,
     numericValue = numericValue,
     textValue = textValue,
@@ -630,7 +634,7 @@ readCalculationSection <- function(config, projectRoot) {
 }
 
 .buildCalculationInputs <- function(config) {
-  ScenarioID <- config$scenarioId
+  ScenarioID <- config$scenarioID
   Rows <- list(
     .inputRow(ScenarioID, NA, "geometry", "inside-diameter", "D_i", config$geometry$insideDiameterM, unit = "m", evidenceLevel = "PN", conditionCode = "provided-nominal"),
     .inputRow(ScenarioID, NA, "geometry", "analysis-radius-rule", "radiusRule", textValue = config$geometry$analysisRadiusRule, evidenceLevel = "HA", conditionCode = "adopted-rule"),
@@ -638,14 +642,14 @@ readCalculationSection <- function(config, projectRoot) {
     .inputRow(ScenarioID, NA, "section", "nominal-corrugation-depth", "depth", config$section$nominalCorrugationDepthMm, unit = "mm", evidenceLevel = "PN", conditionCode = "provided-nominal"),
     .inputRow(ScenarioID, NA, "section", "reported-thickness", "t_0", config$section$reportedThicknessMm, unit = "mm", evidenceLevel = "PN", conditionCode = "provided-nominal"),
     .inputRow(ScenarioID, NA, "section", "analysis-base-thickness", "t_b", config$section$analysisBaseThicknessMm, unit = "mm", evidenceLevel = "HA", conditionCode = "adopted-base-thickness"),
-    .inputRow(ScenarioID, NA, "section", "reference-profile", "profileId", textValue = config$section$referenceProfileId, evidenceLevel = "HA", conditionCode = "selected-reference"),
-    .inputRow(ScenarioID, NA, "section", "property-model", "propertyModelId", textValue = config$section$propertyModelId, evidenceLevel = "HA", conditionCode = "adopted-model"),
+    .inputRow(ScenarioID, NA, "section", "reference-profile", "profileID", textValue = config$section$referenceProfileID, evidenceLevel = "HA", conditionCode = "selected-reference"),
+    .inputRow(ScenarioID, NA, "section", "property-model", "propertyModelID", textValue = config$section$propertyModelID, evidenceLevel = "HA", conditionCode = "adopted-model"),
     .inputRow(ScenarioID, NA, "material", "circumferential-young-modulus", "E_theta", config$material$circumferentialYoungModulusGPa, unit = "GPa", evidenceLevel = "HA", conditionCode = "adopted-value"),
-    .inputRow(ScenarioID, NA, "stress-state", "state-point", "statePointId", textValue = config$stressState$statePointId, evidenceLevel = "HA", conditionCode = "analytical-scenario"),
+    .inputRow(ScenarioID, NA, "stress-state", "state-point", "statePointID", textValue = config$stressState$statePointID, evidenceLevel = "HA", conditionCode = "analytical-scenario"),
     .inputRow(ScenarioID, NA, "stress-state", "effective-vertical", "sigma'_v,A", config$stressState$effectiveVerticalKPa, unit = "kPa", evidenceLevel = "HA", conditionCode = "analytical-scenario"),
     .inputRow(ScenarioID, NA, "stress-state", "water-pressure-difference", "Delta u_A", config$stressState$waterPressureDifferenceKPa, unit = "kPa", evidenceLevel = "HA", conditionCode = "analytical-scenario"),
     .inputRow(ScenarioID, NA, "stress-state", "horizontal-increment-mode", "horizontalIncrementMode", textValue = config$stressState$horizontalIncrementMode, evidenceLevel = "HA", conditionCode = "unknown-not-modeled"),
-    .inputRow(ScenarioID, NA, "stress-state", "k0-model", "modelId", textValue = config$stressState$k0Model$modelId, evidenceLevel = "HA", conditionCode = "selected-branch")
+    .inputRow(ScenarioID, NA, "stress-state", "k0-model", "modelID", textValue = config$stressState$k0Model$modelID, evidenceLevel = "HA", conditionCode = "selected-branch")
   )
   Model <- config$stressState$k0Model
   ModelValues <- c("k0", "frictionAngleDeg", "poissonRatio", "ocr", "ocrMaximum")
@@ -664,27 +668,27 @@ readCalculationSection <- function(config, projectRoot) {
     ocr = "ocr",
     ocrMaximum = "ocr-maximum"
   )
-  for (Name in intersect(ModelValues, names(Model))) {
+  for (s in intersect(ModelValues, names(Model))) {
     Rows[[length(Rows) + 1L]] <- .inputRow(
       ScenarioID,
       NA,
       "stress-state",
-      ParameterIDs[[Name]],
-      Symbols[[Name]],
-      Model[[Name]],
-      unit = Units[[Name]],
+      ParameterIDs[[s]],
+      Symbols[[s]],
+      Model[[s]],
+      unit = Units[[s]],
       evidenceLevel = "HA",
       conditionCode = "branch-primitive"
     )
   }
-  for (Index in seq_len(nrow(config$loadCases))) {
+  for (i in seq_len(nrow(config$loadCases))) {
     Rows[[length(Rows) + 1L]] <- .inputRow(
       ScenarioID,
-      config$loadCases$caseId[Index],
+      config$loadCases$caseID[i],
       "load-case",
       "tangential-multiplier",
       "alpha",
-      config$loadCases$alpha[Index],
+      config$loadCases$alpha[i],
       evidenceLevel = "HA",
       conditionCode = "prescribed-load-case"
     )
@@ -719,11 +723,11 @@ readCalculationSection <- function(config, projectRoot) {
   LIST <- lapply(seq_len(nrow(cases)), function(i) {
     Summary <- summaries[[i]]
     data.frame(
-      scenarioId = scenarioID,
-      caseId = cases$caseId[i],
+      scenarioID = scenarioID,
+      caseID = cases$caseID[i],
       alpha = cases$alpha[i],
-      resultantId = Summary$resultant,
-      statisticId = unname(Statistics[Summary$statistic]),
+      resultantID = Summary$resultant,
+      statisticID = unname(Statistics[Summary$statistic]),
       value = Summary$value,
       signedValue = Summary$signedValue,
       thetaRad = Summary$theta,
@@ -751,12 +755,12 @@ readCalculationSection <- function(config, projectRoot) {
     Values <- responses[[i]]$values
     do.call(rbind, lapply(names(columns), function(s) {
       data.frame(
-        scenarioId = scenarioID,
-        caseId = cases$caseId[i],
-        sectionId = sectionID,
-        stressStateId = stressStateID,
+        scenarioID = scenarioID,
+        caseID = cases$caseID[i],
+        sectionID = sectionID,
+        stressStateID = stressStateID,
         alpha = cases$alpha[i],
-        resultantId = s,
+        resultantID = s,
         thetaIndex = seq_len(nrow(Values)) - 1L,
         thetaRad = Values$theta,
         thetaDeg = Values$thetaDeg,
@@ -800,12 +804,12 @@ readCalculationSection <- function(config, projectRoot) {
           Response.closed$values[[Columns[[s]]]]
       ))
       data.frame(
-        scenarioId = scenarioID,
-        caseId = cases$caseId[i],
+        scenarioID = scenarioID,
+        caseID = cases$caseID[i],
         alpha = cases$alpha[i],
-        controlId = "closed-form-resultants",
-        resultantId = s,
-        metricId = "maximum-absolute-difference",
+        controlID = "closed-form-resultants",
+        resultantID = s,
+        metricID = "maximum-absolute-difference",
         observedValue = Error,
         comparison = "<=",
         limitValue = numerics$closedFormTolerance,
@@ -834,11 +838,11 @@ readCalculationSection <- function(config, projectRoot) {
   units
 ) {
   do.call(rbind, lapply(names(units), function(s) {
-    AUX <- resultants[resultants$resultantId == s, , drop = FALSE]
+    AUX <- resultants[resultants$resultantID == s, , drop = FALSE]
     Maximum <- max(abs(AUX$value))
     data.frame(
-      scenarioId = scenarioID,
-      resultantId = s,
+      scenarioID = scenarioID,
+      resultantID = s,
       referenceRadiusM = radius,
       displayScale = graphics$radialFraction * radius / Maximum,
       maximumAbsoluteValue = Maximum,
@@ -860,10 +864,10 @@ readCalculationSection <- function(config, projectRoot) {
     stop("Could not create the calculation staging directory.", call. = FALSE)
   }
   on.exit(unlink(Stage, recursive = TRUE, force = TRUE), add = TRUE)
-  for (FileName in names(products)) {
+  for (s in names(products)) {
     utils::write.csv(
-      products[[FileName]],
-      file.path(Stage, FileName),
+      products[[s]],
+      file.path(Stage, s),
       row.names = FALSE,
       na = ""
     )
@@ -908,7 +912,7 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
   Config.section <- Config[["section", exact = TRUE]]
   Config.stress <- Config[["stressState", exact = TRUE]]
   Config.numerics <- Config[["numerics", exact = TRUE]]
-  ScenarioID <- Config[["scenarioId", exact = TRUE]]
+  ScenarioID <- Config[["scenarioID", exact = TRUE]]
   Cases <- Config[["loadCases", exact = TRUE]]
   Model <- Config.stress[["k0Model", exact = TRUE]]
   Reference <- .readCalculationSectionReference(Config, ProjectRoot)
@@ -934,12 +938,12 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
     Model[intersect(Fields.k0, names(Model))]
   )
   Context <- list(
-    k0ModelID = Model[["modelId", exact = TRUE]],
+    k0ModelID = Model[["modelID", exact = TRUE]],
     horizontalIncrementKPa = NA_real_,
     horizontalIncrementStatus =
       Config.stress[["horizontalIncrementMode", exact = TRUE]],
     sectionReference = Reference,
-    profileID = Config.section[["referenceProfileId", exact = TRUE]],
+    profileID = Config.section[["referenceProfileID", exact = TRUE]],
     youngModulusKPa =
       Config[["material", exact = TRUE]][[
         "circumferentialYoungModulusGPa",
@@ -958,7 +962,7 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
       context = Context
     )
   })
-  names(Scenarios) <- Cases[["caseId", exact = TRUE]]
+  names(Scenarios) <- Cases[["caseID", exact = TRUE]]
 
   Scenario <- Scenarios[[1L]]
   K0State <- .adaptCalculationK0State(
@@ -972,7 +976,7 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
   StressStateID <- paste0(
     ScenarioID,
     "-",
-    Config.stress[["statePointId", exact = TRUE]]
+    Config.stress[["statePointID", exact = TRUE]]
   )
   Stress <- .buildCalculationStressTable(
     config = Config,
@@ -1006,7 +1010,7 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
     responses = Responses,
     cases = Cases,
     scenarioID = ScenarioID,
-    sectionID = Section[["sectionId", exact = TRUE]],
+    sectionID = Section[["sectionID", exact = TRUE]],
     stressStateID = StressStateID,
     columns = Columns.resultant,
     units = Units.resultant

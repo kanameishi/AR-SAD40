@@ -16,11 +16,13 @@ runCalculationDataTests <- function() {
   source(file.path(Root, "scripts", "R", "sectionResultants.R"))
   source(file.path(Root, "scripts", "R", "calculateScenario.R"))
   source(file.path(Root, "scripts", "R", "calculationData.R"))
-  projectRoot <- Root
-  source(
+  LoaderEnvironment <- new.env(parent = environment())
+  LoaderEnvironment$projectRoot <- Root
+  sys.source(
     file.path(Root, "scripts", "setup", "calculationResults.R"),
-    local = environment()
+    envir = LoaderEnvironment
   )
+  loadCalculationResults <- LoaderEnvironment$loadCalculationResults
   source(file.path(Root, "scripts", "tbl", "Calculation.inputs.R"))
   source(file.path(Root, "scripts", "tbl", "Calculation.extrema.R"))
   source(file.path(Root, "scripts", "tbl", "Calculation.controls.R"))
@@ -38,7 +40,7 @@ runCalculationDataTests <- function() {
         expression()
         NA_character_
       },
-      error = function(Error) conditionMessage(Error)
+      error = function(e) conditionMessage(e)
     )
     if (is.na(Message) || !grepl(pattern, Message, fixed = TRUE)) {
       stop(label, " did not produce the expected error.", call. = FALSE)
@@ -53,16 +55,26 @@ runCalculationDataTests <- function() {
     "scripts",
     "R",
     "fixtures",
-    "calculation.g0.json"
+    "calculation.schema.json"
   )
   ManifestPath <- file.path(
     Root,
     "scripts",
     "R",
     "fixtures",
-    "calculation.g0.products.json"
+    "calculation.schema.products.json"
   )
   BaselineJson <- readCalculationJson(FixturePath)
+  LegacyJson <- readCalculationJson(file.path(
+    Root,
+    "scripts",
+    "R",
+    "fixtures",
+    "calculation.g0.json"
+  ))
+  assertError(function() {
+    validateCalculationConfig(LegacyJson)
+  }, "Unsupported calculation schemaVersion: 1.0.0", "legacy identifier schema")
   SectionReference <- utils::read.csv(
     file.path(Root, BaselineJson$section$propertyTable),
     check.names = FALSE,
@@ -161,12 +173,12 @@ runCalculationDataTests <- function() {
   assertNear(Section$inertiaMm4PerMm, 287.902153723077, 1e-11, "section inertia")
   InterpolatedSection <- interpolateCorrugatedSection(
     reference = SectionReference,
-    profileID = BaselineJson$section$referenceProfileId,
+    profileID = BaselineJson$section$referenceProfileID,
     baseThicknessMm = BaselineJson$section$analysisBaseThicknessMm
   )
   stopifnot(
-    InterpolatedSection$lowerReferenceRowID == Section$lowerReferenceRowId,
-    InterpolatedSection$upperReferenceRowID == Section$upperReferenceRowId,
+    InterpolatedSection$lowerReferenceRowID == Section$lowerReferenceRowID,
+    InterpolatedSection$upperReferenceRowID == Section$upperReferenceRowID,
     InterpolatedSection$sourceKey == Section$sourceKey,
     InterpolatedSection$sourceLocator == Section$sourceLocator,
     InterpolatedSection$domainStatus == Section$domainStatus
@@ -191,21 +203,21 @@ runCalculationDataTests <- function() {
   )
   LowerBoundary <- interpolateCorrugatedSection(
     reference = SectionReference,
-    profileID = BaselineJson$section$referenceProfileId,
+    profileID = BaselineJson$section$referenceProfileID,
     baseThicknessMm = min(SectionReference$baseThicknessMm)
   )
   UpperBoundary <- interpolateCorrugatedSection(
     reference = SectionReference,
-    profileID = BaselineJson$section$referenceProfileId,
+    profileID = BaselineJson$section$referenceProfileID,
     baseThicknessMm = max(SectionReference$baseThicknessMm)
   )
   stopifnot(
     LowerBoundary$interpolationFraction == 0,
     UpperBoundary$interpolationFraction == 1,
-    LowerBoundary$lowerReferenceRowID == SectionReference$referenceRowId[1L],
-    LowerBoundary$upperReferenceRowID == SectionReference$referenceRowId[2L],
-    UpperBoundary$lowerReferenceRowID == SectionReference$referenceRowId[1L],
-    UpperBoundary$upperReferenceRowID == SectionReference$referenceRowId[2L],
+    LowerBoundary$lowerReferenceRowID == SectionReference$referenceRowID[1L],
+    LowerBoundary$upperReferenceRowID == SectionReference$referenceRowID[2L],
+    UpperBoundary$lowerReferenceRowID == SectionReference$referenceRowID[1L],
+    UpperBoundary$upperReferenceRowID == SectionReference$referenceRowID[2L],
     LowerBoundary$sourceKey == UpperBoundary$sourceKey,
     LowerBoundary$sourceLocator == UpperBoundary$sourceLocator
   )
@@ -222,7 +234,7 @@ runCalculationDataTests <- function() {
     "section inertia boundaries"
   )
   stopifnot(
-    Stress$modelId == "adopted-constant",
+    Stress$modelID == "adopted-constant",
     Stress$k0Input == 0.5,
     is.na(Stress$k0Derived),
     Stress$k0Applied == 0.5,
@@ -263,9 +275,9 @@ runCalculationDataTests <- function() {
   )
   stopifnot(!file.exists(Sentinel), ExchangeStress$k0Applied == 0.6)
 
-  Vertical <- buildVariant("vertical-110", function(Config) {
-    Config$stressState$effectiveVerticalKPa <- 110
-    Config
+  Vertical <- buildVariant("vertical-110", function(config) {
+    config$stressState$effectiveVerticalKPa <- 110
+    config
   })
   VerticalStress <- readProduct(Vertical, "stress.state.csv")
   assertNear(VerticalStress$effectiveHorizontalKPa, 55, 1e-12, "vertical stress propagation")
@@ -288,9 +300,9 @@ runCalculationDataTests <- function() {
   ))
   stopifnot(grepl("110", VerticalTable, fixed = TRUE))
 
-  K0 <- buildVariant("k0-060", function(Config) {
-    Config$stressState$k0Model$k0 <- 0.6
-    Config
+  K0 <- buildVariant("k0-060", function(config) {
+    config$stressState$k0Model$k0 <- 0.6
+    config
   })
   K0Stress <- readProduct(K0, "stress.state.csv")
   assertNear(K0Stress$effectiveHorizontalKPa, 60, 1e-12, "K0 propagation")
@@ -305,12 +317,12 @@ runCalculationDataTests <- function() {
   K0Figure <- buildVariantFigure(K0)
   stopifnot(inherits(K0Figure, "highchart"))
 
-  Jaky <- buildVariant("jaky-30", function(Config) {
-    Config$stressState$k0Model <- list(
-      modelId = "jaky-nc",
+  Jaky <- buildVariant("jaky-30", function(config) {
+    config$stressState$k0Model <- list(
+      modelID = "jaky-nc",
       frictionAngleDeg = 30
     )
-    Config
+    config
   })
   JakyStress <- readProduct(Jaky, "stress.state.csv")
   stopifnot(
@@ -326,14 +338,14 @@ runCalculationDataTests <- function() {
     "adopted versus Jaky equivalence"
   )
 
-  Thickness <- buildVariant("thickness-3-1", function(Config) {
-    Config$section$analysisBaseThicknessMm <- 3.1
-    Config
+  Thickness <- buildVariant("thickness-3-1", function(config) {
+    config$section$analysisBaseThicknessMm <- 3.1
+    config
   })
   ThicknessSection <- readProduct(Thickness, "section.properties.csv")
   InterpolatedThickness <- interpolateCorrugatedSection(
     reference = SectionReference,
-    profileID = BaselineJson$section$referenceProfileId,
+    profileID = BaselineJson$section$referenceProfileID,
     baseThicknessMm = 3.1
   )
   assertNear(
@@ -374,9 +386,9 @@ runCalculationDataTests <- function() {
   )
   stopifnot(
     InterpolatedThickness$lowerReferenceRowID ==
-      ThicknessSection$lowerReferenceRowId,
+      ThicknessSection$lowerReferenceRowID,
     InterpolatedThickness$upperReferenceRowID ==
-      ThicknessSection$upperReferenceRowId,
+      ThicknessSection$upperReferenceRowID,
     InterpolatedThickness$sourceKey == ThicknessSection$sourceKey,
     InterpolatedThickness$sourceLocator == ThicknessSection$sourceLocator,
     InterpolatedThickness$domainStatus == ThicknessSection$domainStatus
@@ -400,33 +412,33 @@ runCalculationDataTests <- function() {
     inherits(buildVariantFigure(Thickness, "M"), "highchart")
   )
 
-  Alpha <- buildVariant("alpha-050", function(Config) {
-    Config$loadCases[[2L]] <- list(caseId = "middle", alpha = 0.5)
-    Config
+  Alpha <- buildVariant("alpha-050", function(config) {
+    config$loadCases[[2L]] <- list(caseID = "middle", alpha = 0.5)
+    config
   })
   AlphaResultants <- readProduct(Alpha, "section.resultants.csv")
   stopifnot(
-    length(unique(AlphaResultants$caseId)) == 2L,
+    length(unique(AlphaResultants$caseID)) == 2L,
     "0.5 y 1" == Alpha$calculation$actions$tangentialMultiplierText
   )
   FullTransfer <- BaselineResultants[
-    BaselineResultants$caseId == "alpha-1",
+    BaselineResultants$caseID == "alpha-1",
     ,
     drop = FALSE
   ]
   NoTransfer <- BaselineResultants[
-    BaselineResultants$caseId == "alpha-0",
+    BaselineResultants$caseID == "alpha-0",
     ,
     drop = FALSE
   ]
   MiddleTransfer <- AlphaResultants[
-    AlphaResultants$caseId == "middle",
+    AlphaResultants$caseID == "middle",
     ,
     drop = FALSE
   ]
   stopifnot(
-    identical(FullTransfer$resultantId, NoTransfer$resultantId),
-    identical(FullTransfer$resultantId, MiddleTransfer$resultantId),
+    identical(FullTransfer$resultantID, NoTransfer$resultantID),
+    identical(FullTransfer$resultantID, MiddleTransfer$resultantID),
     identical(FullTransfer$thetaIndex, NoTransfer$thetaIndex),
     identical(FullTransfer$thetaIndex, MiddleTransfer$thetaIndex)
   )
@@ -451,20 +463,20 @@ runCalculationDataTests <- function() {
   )
   AlphaFigure <- buildVariantFigure(Alpha)
   AlphaLegends <- Filter(
-    function(Series) isTRUE(Series$showInLegend),
+    function(series) isTRUE(series$showInLegend),
     AlphaFigure$x$hc_opts$series
   )
   AlphaLegendNames <- vapply(AlphaLegends, `[[`, character(1), "name")
   stopifnot("Componente tangencial: α = 0.50" %in% AlphaLegendNames)
 
-  Water <- buildVariant("water-minus-10", function(Config) {
-    Config$stressState$waterPressureDifferenceKPa <- -10
-    Config
+  Water <- buildVariant("water-minus-10", function(config) {
+    config$stressState$waterPressureDifferenceKPa <- -10
+    config
   })
   WaterLoads <- readProduct(Water, "perimeter.loads.csv")
   CrownRadial <- WaterLoads$valueKPa[
-    WaterLoads$caseId == "alpha-1" &
-      WaterLoads$componentId == "radial" &
+    WaterLoads$caseID == "alpha-1" &
+      WaterLoads$componentID == "radial" &
       WaterLoads$thetaIndex == 0
   ]
   assertNear(CrownRadial, -90, 1e-12, "signed water-pressure difference")
@@ -512,7 +524,7 @@ runCalculationDataTests <- function() {
     domainStatus = "not-applicable"
   ) {
     OUT <- list(
-      modelId = modelID,
+      modelID = modelID,
       frictionAngleDeg = frictionAngleDeg,
       poissonRatio = poissonRatio,
       ocr = ocr,
@@ -529,7 +541,7 @@ runCalculationDataTests <- function() {
   }
   K0Cases <- list(
     list(
-      model = list(modelId = "adopted-constant", k0 = 0.5),
+      model = list(modelID = "adopted-constant", k0 = 0.5),
       expected = expectedK0(
         modelID = "adopted-constant",
         k0Input = 0.5,
@@ -538,7 +550,7 @@ runCalculationDataTests <- function() {
       )
     ),
     list(
-      model = list(modelId = "elastic-confined", poissonRatio = 0.25),
+      model = list(modelID = "elastic-confined", poissonRatio = 0.25),
       expected = expectedK0(
         modelID = "elastic-confined",
         poissonRatio = 0.25,
@@ -549,7 +561,7 @@ runCalculationDataTests <- function() {
       )
     ),
     list(
-      model = list(modelId = "jaky-nc", frictionAngleDeg = 30),
+      model = list(modelID = "jaky-nc", frictionAngleDeg = 30),
       expected = expectedK0(
         modelID = "jaky-nc",
         frictionAngleDeg = 30,
@@ -561,7 +573,7 @@ runCalculationDataTests <- function() {
     ),
     list(
       model = list(
-        modelId = "mayne-kulhawy-unloading",
+        modelID = "mayne-kulhawy-unloading",
         frictionAngleDeg = 30,
         ocr = 4
       ),
@@ -578,7 +590,7 @@ runCalculationDataTests <- function() {
     ),
     list(
       model = list(
-        modelId = "mayne-kulhawy-reload",
+        modelID = "mayne-kulhawy-reload",
         frictionAngleDeg = 30,
         ocr = 2,
         ocrMaximum = 4
@@ -596,23 +608,23 @@ runCalculationDataTests <- function() {
       )
     )
   )
-  for (Case in K0Cases) {
-    Resolved <- resolveCalculationK0(Case$model)
-    stopifnot(identical(Resolved, Case$expected))
-    LIST <- Case$model
-    LIST$modelId <- NULL
+  for (v in K0Cases) {
+    Resolved <- resolveCalculationK0(v$model)
+    stopifnot(identical(Resolved, v$expected))
+    LIST <- v$model
+    LIST$modelID <- NULL
     Estimated <- do.call(
       estimateK0,
-      c(list(modelID = Case$model$modelId), LIST)
+      c(list(modelID = v$model$modelID), LIST)
     )
     CoreFields <- c(
       "frictionAngleDeg", "poissonRatio", "ocr", "ocrMaximum",
       "k0Input", "k0Derived", "k0Applied", "domainStatus"
     )
-    stopifnot(identical(Estimated$modelID, Case$expected$modelId))
+    stopifnot(identical(Estimated$modelID, v$expected$modelID))
     stopifnot(identical(
       unname(Estimated[CoreFields]),
-      unname(Case$expected[CoreFields])
+      unname(v$expected[CoreFields])
     ))
     stopifnot(!any(c(
       "k0EvidenceLevel",
@@ -623,8 +635,8 @@ runCalculationDataTests <- function() {
   Unloading <- do.call(
     estimateK0,
     c(
-      list(modelID = K0Cases[[4L]]$model$modelId),
-      K0Cases[[4L]]$model[setdiff(names(K0Cases[[4L]]$model), "modelId")]
+      list(modelID = K0Cases[[4L]]$model$modelID),
+      K0Cases[[4L]]$model[setdiff(names(K0Cases[[4L]]$model), "modelID")]
     )
   )
   assertNear(Unloading$passiveCoefficient, 3, 1e-14, "unloading passive coefficient")
@@ -782,7 +794,7 @@ runCalculationDataTests <- function() {
     horizontalIncrementKPa = NA_real_,
     horizontalIncrementStatus = "unknown-not-modeled",
     sectionReference = SectionReference,
-    profileID = Config.scenario$section$referenceProfileId,
+    profileID = Config.scenario$section$referenceProfileID,
     youngModulusKPa =
       Config.scenario$material$circumferentialYoungModulusGPa * 1e6,
     radiusM = Config.scenario$geometry$insideDiameterM / 2,
@@ -936,9 +948,9 @@ runCalculationDataTests <- function() {
 
   assertError(function() {
     Config <- copyObject(BaselineJson)
-    Config$stressState$k0Model <- list(modelId = "measured", k0 = 0.5)
+    Config$stressState$k0Model <- list(modelID = "measured", k0 = 0.5)
     validateCalculationConfig(Config)
-  }, "Unsupported K0 modelId", "deferred measured branch")
+  }, "Unsupported K0 modelID", "deferred measured branch")
   assertError(function() {
     Config <- copyObject(BaselineJson)
     Config$stressState$k0Model$frictionAngleDeg <- 30
@@ -956,7 +968,7 @@ runCalculationDataTests <- function() {
     InvalidReference$inertiaMm4PerMm <- NULL
     interpolateCorrugatedSection(
       reference = InvalidReference,
-      profileID = BaselineJson$section$referenceProfileId,
+      profileID = BaselineJson$section$referenceProfileID,
       baseThicknessMm = 3
     )
   }, "property table is missing", "section reference schema")
@@ -972,7 +984,7 @@ runCalculationDataTests <- function() {
     InvalidReference$areaMm2PerMm[1L] <- 0
     interpolateCorrugatedSection(
       reference = InvalidReference,
-      profileID = BaselineJson$section$referenceProfileId,
+      profileID = BaselineJson$section$referenceProfileID,
       baseThicknessMm = 3
     )
   }, "must be finite and positive", "section reference values")
@@ -982,7 +994,7 @@ runCalculationDataTests <- function() {
       InvalidReference$baseThicknessMm[1L]
     interpolateCorrugatedSection(
       reference = InvalidReference,
-      profileID = BaselineJson$section$referenceProfileId,
+      profileID = BaselineJson$section$referenceProfileID,
       baseThicknessMm = InvalidReference$baseThicknessMm[1L]
     )
   }, "must be unique", "section reference uniqueness")
@@ -991,7 +1003,7 @@ runCalculationDataTests <- function() {
     InvalidReference$sourceLocator[2L] <- "different locator"
     interpolateCorrugatedSection(
       reference = InvalidReference,
-      profileID = BaselineJson$section$referenceProfileId,
+      profileID = BaselineJson$section$referenceProfileID,
       baseThicknessMm = 3
     )
   }, "share one source and locator", "section reference provenance")
@@ -1002,7 +1014,7 @@ runCalculationDataTests <- function() {
   }, "at most 1", "alpha domain")
   assertError(function() {
     resolveCalculationK0(list(
-      modelId = "mayne-kulhawy-unloading",
+      modelID = "mayne-kulhawy-unloading",
       frictionAngleDeg = 30,
       ocr = 36
     ))

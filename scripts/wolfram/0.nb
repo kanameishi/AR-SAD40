@@ -1010,7 +1010,7 @@ Missing[\"Unset\"];\n  Do[\n    Draw = draws[[i]];\n    Scenario = \
 scenarioFunction[Draw];\n    ringRequire[\n      AssociationQ[Scenario] && \
 KeyExistsQ[Scenario, \"Spectrum\"] &&\n        KeyExistsQ[Scenario, \
 \"Radius\"],\n      \"InvalidScenario\",\n      \"scenarioFunction must \
-return Spectrum and Radius.\",\n      <|\"SampleId\" -> i|>\n    ];\n    \
+return Spectrum and Radius.\",\n      <|\"SampleID\" -> i|>\n    ];\n    \
 Spectrum = ringEnsure[validateRingSpectrum[Scenario[\"Spectrum\"]]];\n    \
 Radius = Scenario[\"Radius\"];\n    Thickness = Lookup[Scenario, \
 \"Thickness\", Missing[\"NotSpecified\"]];\n    UniformMoment = \
@@ -1043,7 +1043,7 @@ MemberQ[Supported, #[\"Resultant\"]],\n        #,\n        Join[\n          \
      \"Theta\" -> Missing[\"NotSupported\"],\n            \"ThetaDeg\" -> \
 Missing[\"NotSupported\"]\n          |>\n        ]\n      ] &,\n      \
 Summary\n    ];\n    Summary = Map[\n      Join[\n        #,\n        <|\n    \
-      \"Model\" -> modelLabel,\n          \"SampleId\" -> i\n        |>\n     \
+      \"Model\" -> modelLabel,\n          \"SampleID\" -> i\n        |>\n     \
  ] &,\n      Summary\n    ];\n    ExtremaSamples = Join[ExtremaSamples, \
 Summary];\n    ScenarioMetadata[[i]] = Lookup[Scenario, \"Metadata\", \
 <||>];\n    If[\n      KeepSampleCurves,\n      LoadSpectra[[i]] = \
@@ -1104,7 +1104,7 @@ ringRequire[\n    AllTrue[StageNames, nonEmptyStringQ] && \
 DuplicateFreeQ[StageNames] &&\n      AllTrue[AllStages, Keys[#] === \
 StageNames &],\n    \"ChangingStages\",\n    \"Every sample must return the \
 same ordered, non-empty, unique stage names.\"\n  ];\n  SampleCount = \
-Length[draws];\n  InternalKey = \"RingStageSampleId\";\n  \
+Length[draws];\n  InternalKey = \"RingStageSampleID\";\n  \
 While[AnyTrue[draws, KeyExistsQ[#, InternalKey] &], InternalKey = InternalKey \
 <> \"X\"];\n  IndexedDraws = MapIndexed[Append[#1, InternalKey -> First[#2]] \
 &, draws];\n  StageResults = AssociationMap[\n    Function[StageName,\n      \
@@ -1141,10 +1141,10 @@ Probability]],\n              Missing[\"NotSupported\"]\n            ]\n      \
 Function[StageName,\n      Map[Append[#, \"Stage\" -> StageName] &, \
 StageResults[StageName][\"ExtremaSamples\"]]\n    ],\n    StageNames\n  ];\n  \
 ExtremaSamples = {};\n  Membership = {};\n  Do[\n    Candidates = Select[\n   \
-   StageExtrema,\n      #[\"SampleId\"] == i && #[\"Resultant\"] == Resultant \
+   StageExtrema,\n      #[\"SampleID\"] == i && #[\"Resultant\"] == Resultant \
 &&\n        #[\"Statistic\"] == Statistic &\n    ];\n    If[\n      ! \
 MemberQ[Supported, Resultant],\n      Selected = <|\n        \"Model\" -> \
-modelLabel,\n        \"SampleId\" -> i,\n        \"Resultant\" -> \
+modelLabel,\n        \"SampleID\" -> i,\n        \"Resultant\" -> \
 Resultant,\n        \"Statistic\" -> Statistic,\n        \"Value\" -> \
 Missing[\"NotSupported\"],\n        \"Theta\" -> Missing[\"NotSupported\"],\n \
        \"ThetaDeg\" -> Missing[\"NotSupported\"],\n        \"Stage\" -> \
@@ -1171,7 +1171,7 @@ Length[Tied]\n        |>\n      ];\n      If[\n        Length[Tied] > 1,\n    \
 \"Theta\" -> Missing[\"Tie\"],\n              \"ThetaDeg\" -> \
 Missing[\"Tie\"]\n            |>\n          ]\n        ]\n      ];\n      \
 Membership = Join[\n        Membership,\n        Map[\n          <|\n         \
-   \"SampleId\" -> i,\n            \"Resultant\" -> Resultant,\n            \
+   \"SampleID\" -> i,\n            \"Resultant\" -> Resultant,\n            \
 \"Statistic\" -> Statistic,\n            \"Stage\" -> #[\"Stage\"]\n          \
 |> &,\n          Tied\n        ]\n      ]\n    ];\n    \
 AppendTo[ExtremaSamples, Selected],\n    {i, SampleCount},\n    {Resultant, \

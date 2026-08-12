@@ -46,8 +46,8 @@ loadCalculationResults <- function(
   SectionData <- readProduct(
     Paths$section,
     c(
-      "scenarioId", "sectionId", "profileId", "propertyModelId",
-      "analysisBaseThicknessMm", "lowerReferenceRowId", "upperReferenceRowId",
+      "scenarioID", "sectionID", "profileID", "propertyModelID",
+      "analysisBaseThicknessMm", "lowerReferenceRowID", "upperReferenceRowID",
       "interpolationFraction", "areaMm2PerMm", "inertiaMm4PerMm",
       "circumferentialYoungModulusGPa", "analysisRadiusM",
       "extensionalRigidityKnPerM", "flexuralRigidityKnM2PerM", "sectionRatio",
@@ -57,7 +57,7 @@ loadCalculationResults <- function(
   StressData <- readProduct(
     Paths$stress,
     c(
-      "scenarioId", "stressStateId", "modelId", "statePointId", "layerId",
+      "scenarioID", "stressStateID", "modelID", "statePointID", "layerID",
       "thetaIndex", "thetaRad", "depthM", "effectiveVerticalKPa",
       "frictionAngleDeg", "poissonRatio", "ocr", "ocrMaximum", "k0Input",
       "k0Derived", "k0Applied", "horizontalIncrementKPa",
@@ -69,22 +69,22 @@ loadCalculationResults <- function(
   Resultants <- readProduct(
     Paths$resultants,
     c(
-      "scenarioId", "caseId", "sectionId", "stressStateId", "alpha",
-      "resultantId", "thetaIndex", "thetaRad", "thetaDeg", "value", "unit",
+      "scenarioID", "caseID", "sectionID", "stressStateID", "alpha",
+      "resultantID", "thetaIndex", "thetaRad", "thetaDeg", "value", "unit",
       "evidenceLevel"
     )
   )
   ExtremaData <- readProduct(
     Paths$extrema,
     c(
-      "scenarioId", "caseId", "alpha", "resultantId", "statisticId", "value",
+      "scenarioID", "caseID", "alpha", "resultantID", "statisticID", "value",
       "signedValue", "thetaRad", "thetaDeg", "unit", "evidenceLevel"
     )
   )
   Controls <- readProduct(
     Paths$controls,
     c(
-      "scenarioId", "caseId", "alpha", "controlId", "resultantId", "metricId",
+      "scenarioID", "caseID", "alpha", "controlID", "resultantID", "metricID",
       "observedValue", "comparison", "limitValue", "unit", "pass",
       "thetaPointCount", "integrationSteps", "evidenceLevel"
     )
@@ -92,7 +92,7 @@ loadCalculationResults <- function(
   Scales <- readProduct(
     Paths$scales,
     c(
-      "scenarioId", "resultantId", "referenceRadiusM", "displayScale",
+      "scenarioID", "resultantID", "referenceRadiusM", "displayScale",
       "maximumAbsoluteValue", "resultantUnit", "radialFraction",
       "graphicAmplification", "ordinateCount", "evidenceLevel"
     )
@@ -103,15 +103,15 @@ loadCalculationResults <- function(
     stop("The calculation products have incompatible row counts.", call. = FALSE)
   }
   ScenarioIDs <- unique(c(
-    SectionData$scenarioId,
-    StressData$scenarioId,
-    Resultants$scenarioId,
-    ExtremaData$scenarioId,
-    Controls$scenarioId,
-    Scales$scenarioId
+    SectionData$scenarioID,
+    StressData$scenarioID,
+    Resultants$scenarioID,
+    ExtremaData$scenarioID,
+    Controls$scenarioID,
+    Scales$scenarioID
   ))
-  if (length(ScenarioIDs) != 1L || ScenarioIDs != Config$scenarioId) {
-    stop("The calculation products do not share the configured scenarioId.", call. = FALSE)
+  if (length(ScenarioIDs) != 1L || ScenarioIDs != Config$scenarioID) {
+    stop("The calculation products do not share the configured scenarioID.", call. = FALSE)
   }
   if (!all(Controls$pass)) {
     stop("One or more materialized numerical controls failed.", call. = FALSE)
@@ -124,12 +124,12 @@ loadCalculationResults <- function(
     stringsAsFactors = FALSE
   )
   Lower <- Reference[
-    Reference$referenceRowId == SectionData$lowerReferenceRowId,
+    Reference$referenceRowID == SectionData$lowerReferenceRowID,
     ,
     drop = FALSE
   ]
   Upper <- Reference[
-    Reference$referenceRowId == SectionData$upperReferenceRowId,
+    Reference$referenceRowID == SectionData$upperReferenceRowID,
     ,
     drop = FALSE
   ]
@@ -139,7 +139,7 @@ loadCalculationResults <- function(
 
   valueAt <- function(caseID, resultantID, angle) {
     Data <- Resultants[
-      Resultants$caseId == caseID & Resultants$resultantId == resultantID,
+      Resultants$caseID == caseID & Resultants$resultantID == resultantID,
       ,
       drop = FALSE
     ]
@@ -147,9 +147,9 @@ loadCalculationResults <- function(
   }
   extremumAt <- function(caseID, resultantID, statisticID, field = "value") {
     Data <- ExtremaData[
-      ExtremaData$caseId == caseID &
-        ExtremaData$resultantId == resultantID &
-        ExtremaData$statisticId == statisticID,
+      ExtremaData$caseID == caseID &
+        ExtremaData$resultantID == resultantID &
+        ExtremaData$statisticID == statisticID,
       ,
       drop = FALSE
     ]
@@ -159,12 +159,12 @@ loadCalculationResults <- function(
     Data[[field]][1L]
   }
   CaseRows <- lapply(seq_len(nrow(Config$loadCases)), function(i) {
-    CaseID <- Config$loadCases$caseId[i]
+    CaseID <- Config$loadCases$caseID[i]
     Alpha <- Config$loadCases$alpha[i]
     MomentMinimum <- extremumAt(CaseID, "M", "minimum")
     MomentMaximum <- extremumAt(CaseID, "M", "maximum")
     data.frame(
-      caseId = CaseID,
+      caseID = CaseID,
       prescription = paste0(
         "Componente tangencial: α = ",
         formatC(Alpha, format = "f", digits = 2)
@@ -274,7 +274,7 @@ loadCalculationResults <- function(
   Section$upperAreaMm2PerMm <- Upper$areaMm2PerMm
   Section$lowerInertiaMm4PerMm <- Lower$inertiaMm4PerMm
   Section$upperInertiaMm4PerMm <- Upper$inertiaMm4PerMm
-  K0Description <- if (StressData$modelId == "adopted-constant") {
+  K0Description <- if (StressData$modelID == "adopted-constant") {
     paste(
       "El valor de $K_0$ es una hipótesis del escenario de comprobación y no",
       "el resultado de una estimación del relleno existente mediante la",
@@ -289,7 +289,7 @@ loadCalculationResults <- function(
   }
 
   list(
-    scenarioId = Config$scenarioId,
+    scenarioID = Config$scenarioID,
     config = Config,
     paths = Paths,
     geometry = list(
