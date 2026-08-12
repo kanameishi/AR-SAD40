@@ -1,0 +1,1643 @@
+Notebook[{Cell["Prototipo no-FEM para un liner circular", "Title"],
+  Cell["Ejemplos ejecutables: carga uniforme, campo K0, fuentes publicadas y \
+Monte Carlo", "Subtitle"], Cell["Este notebook es autocontenido: no carga \
+archivos externos al ejecutarse. Los bloques internos est\[AAcute]n plegados \
+para dejar visibles los par\[AAcute]metros y resultados de los prototipos.",
+   "Text"], Cell["Inicio r\[AAcute]pido", "Section"],
+  Cell["Primero ejecute Evaluation > Evaluate Initialization Cells. \
+Despu\[EAcute]s edite \[UAcute]nicamente las celdas 'Entradas editables' y \
+eval\[UAcute]e el bloque correspondiente. Evaluation > Evaluate Notebook \
+ejecuta tambi\[EAcute]n las 36 pruebas y todos los ejemplos.", "Text"],
+  Cell["Convenci\[OAcute]n: theta=0 en clave y sentido horario; Pr positiva \
+hacia afuera; Pt positiva con theta creciente; N positiva a tracci\[OAcute]n. \
+Todas las entradas de cada ejemplo deben usar un sistema de unidades \
+coherente.", "Text"], CellGroupData[{Cell["Motor interno autocontenido",
+     "Section"], Cell["Definiciones del operador Fourier, adaptadores de \
+carga y Monte Carlo. No es necesario abrir ni editar estas celdas para usar \
+los prototipos.", "Text"], Cell[BoxData["(* ::Package:: *)\n\n(*\n  Non-FEM \
+circular-ring engine for prescribed radial and tangential tractions.\n\n  \
+Convention:\n    theta = 0 at crown and increases clockwise;\n    radial \
+traction is positive outward;\n    tangential traction is positive with \
+increasing theta;\n    normal force N is positive in tension.\n\n  The \
+isotropic ring is the primary model. Orthotropy and corrugation are not\n  \
+introduced here. Source adapters return only the quantities supported by\n  \
+the cited source; unsupported resultants remain \
+Missing[\"NotSupported\"].\n*)\n\nClearAll[\n  $ringFailureTag,\n  \
+ringCatch,\n  ringFail,\n  ringEnsure,\n  ringRequire,\n  finiteRealQ,\n  \
+nonEmptyStringQ,\n  ringMetadata,\n  withRingMetadata,\n  newRingSpectrum,\n  \
+validateRingSpectrum,\n  setRingCoefficient,\n  combineRingSpectra,\n  \
+scaleRingSpectrum,\n  fitRingSpectrum,\n  evaluateRingLoad,\n  \
+ringGlobalLoads,\n  solveRingSpectrum,\n  validateRingResponse,\n  \
+evaluateRingResponse,\n  ringEquilibriumResidual,\n  summarizeRingResponse,\n \
+ bakerDiametricLoadSpectrum,\n  k0NormallyConsolidated,\n  \
+k0Overconsolidated,\n  layeredEffectiveVerticalStress,\n  \
+ringVerticalStressOrdinates,\n  atRestFreeFieldSpectrum,\n  \
+usace2020ServiceThrust,\n  usace2020DesignThrust,\n  \
+usaceEquivalentUniformSpectrum,\n  fhwa1999CompactionPressure,\n  \
+fhwa1999PrismLoad,\n  fhwa1999CompactionStageSpectrum,\n  \
+nunez2014Resultants,\n  nunez2000CircularResultants,\n  \
+nunez2014SymmetricProjection,\n  fixedParameter,\n  uniformParameter,\n  \
+normalParameter,\n  lognormalParameter,\n  triangularParameter,\n  \
+discreteParameter,\n  sampleIndependentParameters,\n  quantileType7,\n  \
+runRingMonteCarlo,\n  runRingStageMonteCarlo,\n  \
+runOutputMonteCarlo\n];\n\n$ringFailureTag = \
+\"RingMethodologyFailure\";\n\nSetAttributes[ringCatch, \
+HoldFirst];\nringCatch[expression_] := Catch[expression, \
+$ringFailureTag];\n\nringFail[tag_String, message_String, data_: <||>] := \
+Throw[\n  Failure[tag, Join[<|\"MessageTemplate\" -> message|>, data]],\n  \
+$ringFailureTag\n];\n\nringEnsure[value_] := If[\n  FailureQ[value],\n  \
+Throw[value, $ringFailureTag],\n  value\n];\n\nringRequire[condition_, \
+tag_String, message_String, data_: <||>] := If[\n  ! TrueQ[condition],\n  \
+ringFail[tag, message, data]\n];\n\nfiniteRealQ[value_] := Quiet @ Check[\n  \
+NumericQ[value] &&\n    TrueQ[Im[N[value]] == 0] &&\n    FreeQ[N[value], \
+Indeterminate | ComplexInfinity | DirectedInfinity[_]],\n  \
+False\n];\n\nnonEmptyStringQ[value_] := StringQ[value] && StringLength[value] \
+> 0;\n\nringMetadata[value_Association] := Lookup[value, \"Metadata\", \
+<||>];\n\nwithRingMetadata[value_Association, metadata_Association] := \
+Join[\n  value,\n  <|\"Metadata\" -> Join[ringMetadata[value], \
+metadata]|>\n];\n\nnewRingSpectrum[maxMode_] := ringCatch @ Module[\n  \
+{Modes},\n  ringRequire[\n    IntegerQ[maxMode] && maxMode >= 0,\n    \
+\"InvalidMode\",\n    \"maxMode must be a non-negative integer.\"\n  ];\n  \
+Modes = Range[0, maxMode];\n  <|\n    \"Type\" -> \"RingLoadSpectrum\",\n    \
+\"Modes\" -> Modes,\n    \"RadialCos\" -> ConstantArray[0., Length[Modes]],\n \
+   \"RadialSin\" -> ConstantArray[0., Length[Modes]],\n    \"TangentialCos\" \
+-> ConstantArray[0., Length[Modes]],\n    \"TangentialSin\" -> \
+ConstantArray[0., Length[Modes]],\n    \"Metadata\" -> <||>\n  \
+|>\n];\n\nvalidateRingSpectrum[spectrum_] := ringCatch @ Module[\n  \
+{Required, Coefficients, MissingKeys, Modes, MaxMode, Metadata},\n  Required \
+= {\n    \"Modes\", \"RadialCos\", \"RadialSin\", \"TangentialCos\", \
+\"TangentialSin\"\n  };\n  Coefficients = Rest[Required];\n  ringRequire[\n   \
+ AssociationQ[spectrum],\n    \"InvalidSpectrum\",\n    \"spectrum must be an \
+Association.\"\n  ];\n  MissingKeys = Complement[Required, Keys[spectrum]];\n \
+ ringRequire[\n    MissingKeys === {},\n    \"InvalidSpectrum\",\n    \
+\"spectrum is missing required keys.\",\n    <|\"MissingKeys\" -> \
+MissingKeys|>\n  ];\n  Modes = spectrum[\"Modes\"];\n  ringRequire[\n    \
+ListQ[Modes] && Length[Modes] > 0 &&\n      AllTrue[Modes, IntegerQ[#] && # \
+>= 0 &] &&\n      DuplicateFreeQ[Modes],\n    \"InvalidSpectrum\",\n    \
+\"Modes must be unique non-negative integers.\"\n  ];\n  MaxMode = \
+Max[Modes];\n  ringRequire[\n    Modes === Range[0, MaxMode],\n    \
+\"InvalidSpectrum\",\n    \"spectrum must contain every mode from zero \
+through Max[Modes].\"\n  ];\n  ringRequire[\n    And @@ Map[\n      \
+Function[Key,\n        ListQ[spectrum[Key]] &&\n          \
+Length[spectrum[Key]] == Length[Modes] &&\n          AllTrue[spectrum[Key], \
+finiteRealQ]\n      ],\n      Coefficients\n    ],\n    \
+\"InvalidSpectrum\",\n    \"All coefficient arrays must be finite real \
+vectors matching Modes.\"\n  ];\n  ringRequire[\n    \
+spectrum[\"RadialSin\"][[1]] == 0 &&\n      spectrum[\"TangentialSin\"][[1]] \
+== 0,\n    \"InvalidSpectrum\",\n    \"Sine coefficients for mode zero must \
+be zero.\"\n  ];\n  Metadata = Lookup[spectrum, \"Metadata\", <||>];\n  \
+ringRequire[\n    AssociationQ[Metadata],\n    \"InvalidSpectrum\",\n    \
+\"Metadata must be an Association.\"\n  ];\n  Join[\n    <|\"Type\" -> \
+Lookup[spectrum, \"Type\", \"RingLoadSpectrum\"]|>,\n    KeyTake[spectrum, \
+Required],\n    <|\"Metadata\" -> Metadata|>\n  \
+]\n];\n\nsetRingCoefficient[spectrum_, key_, mode_, value_] := ringCatch @ \
+Module[\n  {Spectrum, CoefficientKeys, Coefficients},\n  Spectrum = \
+ringEnsure[validateRingSpectrum[spectrum]];\n  CoefficientKeys = {\n    \
+\"RadialCos\", \"RadialSin\", \"TangentialCos\", \"TangentialSin\"\n  };\n  \
+ringRequire[\n    MemberQ[CoefficientKeys, key],\n    \
+\"InvalidCoefficient\",\n    \"key is not a ring-load coefficient name.\",\n  \
+  <|\"Key\" -> key|>\n  ];\n  ringRequire[\n    IntegerQ[mode] && \
+MemberQ[Spectrum[\"Modes\"], mode],\n    \"InvalidCoefficient\",\n    \"mode \
+is not present in the spectrum.\",\n    <|\"Mode\" -> mode|>\n  ];\n  \
+ringRequire[\n    finiteRealQ[value],\n    \"InvalidCoefficient\",\n    \
+\"coefficient value must be finite and real.\"\n  ];\n  Coefficients = \
+Spectrum[key];\n  Coefficients[[mode + 1]] = value;\n  Join[Spectrum, <|key \
+-> Coefficients|>]\n];\n\ncombineRingSpectra[spectra_] := ringCatch @ \
+Module[\n  {\n    Validated, MaxMode, CoefficientKeys, Coefficients, \
+Metadata,\n    Components, MomentSupported, ShearSupported, RadialScale,\n    \
+TangentialScale, OUT\n  },\n  ringRequire[\n    ListQ[spectra] && \
+Length[spectra] > 0,\n    \"InvalidSpectra\",\n    \"spectra must be a \
+non-empty list.\"\n  ];\n  Validated = ringEnsure /@ (validateRingSpectrum /@ \
+spectra);\n  MaxMode = Max[Last /@ Lookup[Validated, \"Modes\"]];\n  \
+CoefficientKeys = {\n    \"RadialCos\", \"RadialSin\", \"TangentialCos\", \
+\"TangentialSin\"\n  };\n  Coefficients = AssociationMap[\n    \
+Function[Key,\n      Total[PadRight[#[Key], MaxMode + 1, 0.] & /@ \
+Validated]\n    ],\n    CoefficientKeys\n  ];\n  Components = Map[\n    \
+Function[Spectrum,\n      <|\n        \"Source\" -> \
+Lookup[ringMetadata[Spectrum], \"Source\", Missing[\"Unknown\"]],\n        \
+\"Representation\" -> Lookup[\n          ringMetadata[Spectrum],\n          \
+\"Representation\",\n          Missing[\"Unknown\"]\n        ]\n      |>\n    \
+],\n    Validated\n  ];\n  MomentSupported = And @@ Lookup[\n    ringMetadata \
+/@ Validated,\n    \"MomentSupported\",\n    True\n  ];\n  ShearSupported = \
+And @@ Lookup[\n    ringMetadata /@ Validated,\n    \"ShearSupported\",\n    \
+True\n  ];\n  RadialScale = Total @ Lookup[\n    ringMetadata /@ Validated,\n \
+   \"FitRadialLoadScale\",\n    0.\n  ];\n  TangentialScale = Total @ \
+Lookup[\n    ringMetadata /@ Validated,\n    \"FitTangentialLoadScale\",\n    \
+0.\n  ];\n  Metadata = <|\n    \"Components\" -> Components,\n    \
+\"MomentSupported\" -> MomentSupported,\n    \"ShearSupported\" -> \
+ShearSupported\n  |>;\n  If[RadialScale > 0, AssociateTo[Metadata, \
+\"FitRadialLoadScale\" -> RadialScale]];\n  If[\n    TangentialScale > 0,\n   \
+ AssociateTo[Metadata, \"FitTangentialLoadScale\" -> TangentialScale]\n  ];\n \
+ OUT = ringEnsure[newRingSpectrum[MaxMode]];\n  Join[OUT, Coefficients, \
+<|\"Metadata\" -> Metadata|>]\n];\n\nscaleRingSpectrum[spectrum_, factor_] := \
+ringCatch @ Module[\n  {Spectrum, CoefficientKeys, Coefficients, Metadata},\n \
+ Spectrum = ringEnsure[validateRingSpectrum[spectrum]];\n  ringRequire[\n    \
+finiteRealQ[factor],\n    \"InvalidScale\",\n    \"factor must be finite and \
+real.\"\n  ];\n  CoefficientKeys = {\n    \"RadialCos\", \"RadialSin\", \
+\"TangentialCos\", \"TangentialSin\"\n  };\n  Coefficients = \
+AssociationMap[factor Spectrum[#] &, CoefficientKeys];\n  Metadata = \
+ringMetadata[Spectrum];\n  If[\n    KeyExistsQ[Metadata, \
+\"FitRadialLoadScale\"],\n    AssociateTo[\n      Metadata,\n      \
+\"FitRadialLoadScale\" -> Abs[factor] Metadata[\"FitRadialLoadScale\"]\n    \
+]\n  ];\n  If[\n    KeyExistsQ[Metadata, \"FitTangentialLoadScale\"],\n    \
+AssociateTo[\n      Metadata,\n      \"FitTangentialLoadScale\" ->\n        \
+Abs[factor] Metadata[\"FitTangentialLoadScale\"]\n    ]\n  ];\n  \
+AssociateTo[Metadata, \"ScaleFactor\" -> factor];\n  Join[Spectrum, \
+Coefficients, <|\"Metadata\" -> Metadata|>]\n];\n\nOptions[fitRingSpectrum] = \
+{\"GridTolerance\" -> 1.*^-10};\n\nfitRingSpectrum[\n  theta_,\n  \
+radialOutward_,\n  tangentialPositive_,\n  maxMode_,\n  OptionsPattern[]\n] \
+:= ringCatch @ Module[\n  {\n    GridTolerance, Count, Wrapped, Order, \
+Radial, Tangential, Target,\n    GridError, Modes, RadialCos, RadialSin, \
+TangentialCos,\n    TangentialSin, Spectrum\n  },\n  GridTolerance = \
+OptionValue[\"GridTolerance\"];\n  ringRequire[\n    IntegerQ[maxMode] && \
+maxMode >= 0,\n    \"InvalidMode\",\n    \"maxMode must be a non-negative \
+integer.\"\n  ];\n  ringRequire[\n    finiteRealQ[GridTolerance] && \
+GridTolerance > 0,\n    \"InvalidTolerance\",\n    \"GridTolerance must be \
+positive and finite.\"\n  ];\n  ringRequire[\n    ListQ[theta] && \
+ListQ[radialOutward] && ListQ[tangentialPositive],\n    \"InvalidGrid\",\n    \
+\"theta and both load vectors must be lists.\"\n  ];\n  Count = \
+Length[theta];\n  ringRequire[\n    Count == Length[radialOutward] && Count \
+== Length[tangentialPositive],\n    \"InvalidGrid\",\n    \"theta and both \
+load vectors must have the same length.\"\n  ];\n  ringRequire[\n    Count >= \
+2 maxMode + 1,\n    \"AliasedGrid\",\n    \"The angular grid is too short for \
+maxMode without aliasing.\"\n  ];\n  ringRequire[\n    AllTrue[Join[theta, \
+radialOutward, tangentialPositive], finiteRealQ],\n    \"InvalidGrid\",\n    \
+\"theta and both load vectors must contain only finite real values.\"\n  ];\n \
+ Wrapped = N[Mod[theta, 2 Pi]];\n  Order = Ordering[Wrapped];\n  Wrapped = \
+Wrapped[[Order]];\n  Radial = N[radialOutward[[Order]]];\n  Tangential = \
+N[tangentialPositive[[Order]]];\n  Target = N[Range[0, Count - 1] 2 \
+Pi/Count];\n  GridError = Max[Abs[Wrapped - Target]];\n  ringRequire[\n    \
+GridError <= GridTolerance,\n    \"InvalidGrid\",\n    \"theta must be one \
+complete equally spaced grid beginning at zero; do not include both zero and \
+2 Pi.\",\n    <|\"GridError\" -> GridError|>\n  ];\n  Modes = Range[1, \
+maxMode];\n  RadialCos = Join[\n    {Mean[Radial]},\n    Table[2 Mean[Radial \
+Cos[n Target]], {n, Modes}]\n  ];\n  RadialSin = Join[\n    {0.},\n    \
+Table[2 Mean[Radial Sin[n Target]], {n, Modes}]\n  ];\n  TangentialCos = \
+Join[\n    {Mean[Tangential]},\n    Table[2 Mean[Tangential Cos[n Target]], \
+{n, Modes}]\n  ];\n  TangentialSin = Join[\n    {0.},\n    Table[2 \
+Mean[Tangential Sin[n Target]], {n, Modes}]\n  ];\n  Spectrum = \
+ringEnsure[newRingSpectrum[maxMode]];\n  Join[\n    Spectrum,\n    <|\n      \
+\"RadialCos\" -> RadialCos,\n      \"RadialSin\" -> RadialSin,\n      \
+\"TangentialCos\" -> TangentialCos,\n      \"TangentialSin\" -> \
+TangentialSin,\n      \"Metadata\" -> <|\n        \"FitRadialLoadScale\" -> \
+Max[Abs[Radial]],\n        \"FitTangentialLoadScale\" -> \
+Max[Abs[Tangential]]\n      |>\n    |>\n  \
+]\n];\n\nevaluateRingLoad[spectrum_, theta_] := ringCatch @ Module[\n  \
+{Spectrum, Theta, Angles},\n  Spectrum = \
+ringEnsure[validateRingSpectrum[spectrum]];\n  ringRequire[\n    ListQ[theta] \
+&& AllTrue[theta, finiteRealQ],\n    \"InvalidAngle\",\n    \"theta must be a \
+finite real list.\"\n  ];\n  Theta = N[theta];\n  Angles = Outer[Times, \
+Theta, Spectrum[\"Modes\"]];\n  <|\n    \"Theta\" -> Mod[Theta, 2 Pi],\n    \
+\"RadialOutward\" ->\n      Cos[Angles].Spectrum[\"RadialCos\"] + \
+Sin[Angles].Spectrum[\"RadialSin\"],\n    \"TangentialPositive\" ->\n      \
+Cos[Angles].Spectrum[\"TangentialCos\"] +\n        \
+Sin[Angles].Spectrum[\"TangentialSin\"],\n    \"Metadata\" -> \
+ringMetadata[Spectrum]\n  |>\n];\n\nringGlobalLoads[spectrum_, radius_] := \
+ringCatch @ Module[\n  {Spectrum, RadialCos, RadialSin, TangentialCos, \
+TangentialSin},\n  Spectrum = ringEnsure[validateRingSpectrum[spectrum]];\n  \
+ringRequire[\n    finiteRealQ[radius] && radius > 0,\n    \
+\"InvalidRadius\",\n    \"radius must be positive and finite.\"\n  ];\n  \
+If[\n    Last[Spectrum[\"Modes\"]] >= 1,\n    RadialCos = \
+Spectrum[\"RadialCos\"][[2]];\n    RadialSin = \
+Spectrum[\"RadialSin\"][[2]];\n    TangentialCos = \
+Spectrum[\"TangentialCos\"][[2]];\n    TangentialSin = \
+Spectrum[\"TangentialSin\"][[2]],\n    RadialCos = RadialSin = TangentialCos \
+= TangentialSin = 0.\n  ];\n  <|\n    \"ForceX\" -> Pi radius (RadialSin + \
+TangentialCos),\n    \"ForceZ\" -> Pi radius (-RadialCos + TangentialSin),\n  \
+  \"MomentCenter\" -> 2 Pi radius^2 Spectrum[\"TangentialCos\"][[1]]\n  \
+|>\n];\n\nOptions[solveRingSpectrum] = {\n  \"Thickness\" -> \
+Missing[\"NotSpecified\"],\n  \"UniformMoment\" -> \"Membrane\",\n  \
+\"RigidModeTolerance\" -> 1.*^-10\n};\n\nsolveRingSpectrum[spectrum_, \
+radius_, OptionsPattern[]] := ringCatch @ Module[\n  {\n    Spectrum, \
+Metadata, Thickness, UniformMoment, RigidTolerance,\n    EquivalentRadius, \
+RadiusError, RadiusTolerance, MaxMode, Count,\n    RadialCosOne, \
+RadialSinOne, TangentialCosOne, TangentialSinOne,\n    FitRadialScale, \
+FitTangentialScale, FloatingFactor, TorqueScale,\n    TorqueTolerance, \
+ForceXScale, ForceZScale, ForceXTolerance,\n    ForceZTolerance, Global, \
+NormalCos, NormalSin, MomentCos, MomentSin,\n    ShearCos, ShearSin, \
+CurvatureRatio, Denominator, i,\n    MomentSupported, ShearSupported, \
+ResponseMetadata\n  },\n  Spectrum = \
+ringEnsure[validateRingSpectrum[spectrum]];\n  Metadata = \
+ringMetadata[Spectrum];\n  Thickness = OptionValue[\"Thickness\"];\n  \
+UniformMoment = OptionValue[\"UniformMoment\"];\n  RigidTolerance = \
+OptionValue[\"RigidModeTolerance\"];\n  ringRequire[\n    finiteRealQ[radius] \
+&& radius > 0,\n    \"InvalidRadius\",\n    \"radius must be positive and \
+finite.\"\n  ];\n  ringRequire[\n    MemberQ[{\"Membrane\", \"Baker\"}, \
+UniformMoment],\n    \"InvalidUniformMoment\",\n    \"UniformMoment must be \
+\\\"Membrane\\\" or \\\"Baker\\\".\"\n  ];\n  ringRequire[\n    \
+finiteRealQ[RigidTolerance] && RigidTolerance > 0,\n    \
+\"InvalidTolerance\",\n    \"RigidModeTolerance must be positive and \
+finite.\"\n  ];\n  If[\n    UniformMoment == \"Baker\",\n    ringRequire[\n   \
+   finiteRealQ[Thickness] && Thickness > 0,\n      \"MissingThickness\",\n    \
+  \"Thickness is required and must be positive for the Baker uniform-moment \
+correction.\"\n    ]\n  ];\n  If[\n    KeyExistsQ[Metadata, \
+\"EquivalentRadius\"],\n    EquivalentRadius = \
+Metadata[\"EquivalentRadius\"];\n    ringRequire[\n      \
+finiteRealQ[EquivalentRadius] && EquivalentRadius > 0,\n      \
+\"InvalidRadius\",\n      \"Metadata EquivalentRadius must be positive and \
+finite.\"\n    ];\n    RadiusError = Abs[radius - EquivalentRadius];\n    \
+RadiusTolerance = RigidTolerance Max[Abs[EquivalentRadius], 1.*^-300];\n    \
+ringRequire[\n      RadiusError <= RadiusTolerance,\n      \
+\"RadiusMismatch\",\n      \"radius does not match the spectrum \
+EquivalentRadius; rebuild the projection after unit conversion.\",\n      \
+<|\"Radius\" -> radius, \"EquivalentRadius\" -> EquivalentRadius|>\n    ]\n  \
+];\n  MaxMode = Last[Spectrum[\"Modes\"]];\n  Count = MaxMode + 1;\n  If[\n   \
+ MaxMode >= 1,\n    RadialCosOne = Spectrum[\"RadialCos\"][[2]];\n    \
+RadialSinOne = Spectrum[\"RadialSin\"][[2]];\n    TangentialCosOne = \
+Spectrum[\"TangentialCos\"][[2]];\n    TangentialSinOne = \
+Spectrum[\"TangentialSin\"][[2]],\n    RadialCosOne = RadialSinOne = \
+TangentialCosOne = TangentialSinOne = 0.\n  ];\n  FitRadialScale = \
+Lookup[Metadata, \"FitRadialLoadScale\", 0.];\n  FitTangentialScale = \
+Lookup[Metadata, \"FitTangentialLoadScale\", 0.];\n  ringRequire[\n    \
+finiteRealQ[FitRadialScale] && FitRadialScale >= 0 &&\n      \
+finiteRealQ[FitTangentialScale] && FitTangentialScale >= 0,\n    \
+\"InvalidFitScale\",\n    \"Fourier fit scales must be finite and \
+non-negative.\"\n  ];\n  FloatingFactor = 64 $MachineEpsilon;\n  TorqueScale \
+= Max[\n    Abs[Spectrum[\"TangentialCos\"][[1]]],\n    FitTangentialScale,\n \
+   0.\n  ];\n  TorqueTolerance = Max[RigidTolerance, FloatingFactor \
+TorqueScale];\n  ForceXScale = Abs[RadialSinOne] + Abs[TangentialCosOne] +\n  \
+  FitRadialScale + FitTangentialScale;\n  ForceZScale = Abs[RadialCosOne] + \
+Abs[TangentialSinOne] +\n    FitRadialScale + FitTangentialScale;\n  \
+ForceXTolerance = If[\n    MaxMode >= 1,\n    Max[RigidTolerance, \
+FloatingFactor ForceXScale],\n    RigidTolerance\n  ];\n  ForceZTolerance = \
+If[\n    MaxMode >= 1,\n    Max[RigidTolerance, FloatingFactor \
+ForceZScale],\n    RigidTolerance\n  ];\n  ringRequire[\n    \
+Abs[Spectrum[\"TangentialCos\"][[1]]] <= TorqueTolerance,\n    \
+\"NetTorque\",\n    \"A non-zero mean tangential load has a net torque and \
+requires an explicit reaction.\"\n  ];\n  If[\n    MaxMode >= 1 && (\n      \
+Abs[TangentialSinOne - RadialCosOne] > ForceZTolerance ||\n      \
+Abs[TangentialCosOne + RadialSinOne] > ForceXTolerance\n    ),\n    Global = \
+ringEnsure[ringGlobalLoads[Spectrum, radius]];\n    ringFail[\n      \
+\"NetForce\",\n      \"Mode n=1 has a non-zero global force; define body \
+force, support, or contact reactions first.\",\n      Global\n    ]\n  ];\n  \
+NormalCos = ConstantArray[0., Count];\n  NormalSin = ConstantArray[0., \
+Count];\n  MomentCos = ConstantArray[0., Count];\n  MomentSin = \
+ConstantArray[0., Count];\n  ShearCos = ConstantArray[0., Count];\n  ShearSin \
+= ConstantArray[0., Count];\n  NormalCos[[1]] = radius \
+Spectrum[\"RadialCos\"][[1]];\n  If[\n    UniformMoment == \"Baker\",\n    \
+CurvatureRatio = Thickness^2/(12 radius^2);\n    MomentCos[[1]] = radius^2 \
+CurvatureRatio/(1 + CurvatureRatio) *\n      Spectrum[\"RadialCos\"][[1]]\n  \
+];\n  If[\n    MaxMode >= 1,\n    NormalCos[[2]] = radius RadialCosOne;\n    \
+NormalSin[[2]] = radius RadialSinOne\n  ];\n  Do[\n    i = n + 1;\n    \
+Denominator = n^2 - 1;\n    NormalCos[[i]] = radius (\n      n \
+Spectrum[\"TangentialSin\"][[i]] - Spectrum[\"RadialCos\"][[i]]\n    \
+)/Denominator;\n    MomentCos[[i]] = radius^2 (\n      \
+Spectrum[\"TangentialSin\"][[i]]/n - Spectrum[\"RadialCos\"][[i]]\n    \
+)/Denominator;\n    ShearSin[[i]] = radius (\n      n \
+Spectrum[\"RadialCos\"][[i]] - Spectrum[\"TangentialSin\"][[i]]\n    \
+)/Denominator;\n    NormalSin[[i]] = -radius (\n      \
+Spectrum[\"RadialSin\"][[i]] + n Spectrum[\"TangentialCos\"][[i]]\n    \
+)/Denominator;\n    MomentSin[[i]] = -radius^2 (\n      \
+Spectrum[\"RadialSin\"][[i]] + Spectrum[\"TangentialCos\"][[i]]/n\n    \
+)/Denominator;\n    ShearCos[[i]] = -radius (\n      n \
+Spectrum[\"RadialSin\"][[i]] + Spectrum[\"TangentialCos\"][[i]]\n    \
+)/Denominator,\n    {n, 2, MaxMode}\n  ];\n  MomentSupported = \
+Lookup[Metadata, \"MomentSupported\", True];\n  ShearSupported = \
+Lookup[Metadata, \"ShearSupported\", True];\n  If[\n    ! \
+TrueQ[MomentSupported],\n    MomentCos = MomentSin = \
+ConstantArray[Missing[\"NotSupported\"], Count]\n  ];\n  If[\n    ! \
+TrueQ[ShearSupported],\n    ShearCos = ShearSin = \
+ConstantArray[Missing[\"NotSupported\"], Count]\n  ];\n  ResponseMetadata = \
+Join[\n    Metadata,\n    <|\n      \"Radius\" -> radius,\n      \
+\"UniformMoment\" -> UniformMoment,\n      \"Thickness\" -> Thickness,\n      \
+\"MomentSupported\" -> TrueQ[MomentSupported],\n      \"ShearSupported\" -> \
+TrueQ[ShearSupported]\n    |>\n  ];\n  <|\n    \"Type\" -> \
+\"RingResponseSpectrum\",\n    \"Modes\" -> Spectrum[\"Modes\"],\n    \
+\"NormalCos\" -> NormalCos,\n    \"NormalSin\" -> NormalSin,\n    \
+\"MomentCos\" -> MomentCos,\n    \"MomentSin\" -> MomentSin,\n    \
+\"ShearCos\" -> ShearCos,\n    \"ShearSin\" -> ShearSin,\n    \"Metadata\" -> \
+ResponseMetadata\n  |>\n];\n\nvalidateRingResponse[response_] := ringCatch @ \
+Module[\n  {Required, MissingKeys, Modes, Metadata, MomentSupported, \
+ShearSupported},\n  Required = {\n    \"Modes\", \"NormalCos\", \
+\"NormalSin\", \"MomentCos\", \"MomentSin\",\n    \"ShearCos\", \
+\"ShearSin\"\n  };\n  ringRequire[\n    AssociationQ[response],\n    \
+\"InvalidResponse\",\n    \"response must be an Association.\"\n  ];\n  \
+MissingKeys = Complement[Required, Keys[response]];\n  ringRequire[\n    \
+MissingKeys === {},\n    \"InvalidResponse\",\n    \"response is missing \
+required keys.\",\n    <|\"MissingKeys\" -> MissingKeys|>\n  ];\n  Modes = \
+response[\"Modes\"];\n  ringRequire[\n    ListQ[Modes] && Length[Modes] > 0 \
+&& Modes === Range[0, Max[Modes]],\n    \"InvalidResponse\",\n    \"response \
+Modes must contain every integer from zero through Max[Modes].\"\n  ];\n  \
+ringRequire[\n    AllTrue[{\"NormalCos\", \"NormalSin\"},\n      \
+ListQ[response[#]] && Length[response[#]] == Length[Modes] &&\n        \
+AllTrue[response[#], finiteRealQ] &\n    ],\n    \"InvalidResponse\",\n    \
+\"normal-force coefficients must be finite real vectors.\"\n  ];\n  Metadata \
+= Lookup[response, \"Metadata\", <||>];\n  ringRequire[\n    \
+AssociationQ[Metadata],\n    \"InvalidResponse\",\n    \"response Metadata \
+must be an Association.\"\n  ];\n  MomentSupported = Lookup[Metadata, \
+\"MomentSupported\", True];\n  ShearSupported = Lookup[Metadata, \
+\"ShearSupported\", True];\n  ringRequire[\n    AllTrue[{\"MomentCos\", \
+\"MomentSin\"},\n      ListQ[response[#]] && Length[response[#]] == \
+Length[Modes] &&\n        If[\n          TrueQ[MomentSupported],\n          \
+AllTrue[response[#], finiteRealQ],\n          AllTrue[response[#], \
+finiteRealQ[#] || MissingQ[#] &]\n        ] &\n    ],\n    \
+\"InvalidResponse\",\n    \"moment coefficients are inconsistent with \
+MomentSupported.\"\n  ];\n  ringRequire[\n    AllTrue[{\"ShearCos\", \
+\"ShearSin\"},\n      ListQ[response[#]] && Length[response[#]] == \
+Length[Modes] &&\n        If[\n          TrueQ[ShearSupported],\n          \
+AllTrue[response[#], finiteRealQ],\n          AllTrue[response[#], \
+finiteRealQ[#] || MissingQ[#] &]\n        ] &\n    ],\n    \
+\"InvalidResponse\",\n    \"shear coefficients are inconsistent with \
+ShearSupported.\"\n  ];\n  Join[\n    <|\"Type\" -> Lookup[response, \
+\"Type\", \"RingResponseSpectrum\"]|>,\n    KeyTake[response, Required],\n    \
+<|\"Metadata\" -> Metadata|>\n  ]\n];\n\nevaluateRingResponse[response_, \
+theta_] := ringCatch @ Module[\n  {Response, Theta, Angles, Metadata, \
+MomentSupported, ShearSupported},\n  Response = \
+ringEnsure[validateRingResponse[response]];\n  ringRequire[\n    ListQ[theta] \
+&& AllTrue[theta, finiteRealQ],\n    \"InvalidAngle\",\n    \"theta must be a \
+finite real list.\"\n  ];\n  Theta = N[theta];\n  Angles = Outer[Times, \
+Theta, Response[\"Modes\"]];\n  Metadata = ringMetadata[Response];\n  \
+MomentSupported = Lookup[Metadata, \"MomentSupported\", True];\n  \
+ShearSupported = Lookup[Metadata, \"ShearSupported\", True];\n  <|\n    \
+\"Theta\" -> Mod[Theta, 2 Pi],\n    \"NormalForce\" ->\n      \
+Cos[Angles].Response[\"NormalCos\"] + Sin[Angles].Response[\"NormalSin\"],\n  \
+  \"BendingMoment\" -> If[\n      TrueQ[MomentSupported],\n      \
+Cos[Angles].Response[\"MomentCos\"] + Sin[Angles].Response[\"MomentSin\"],\n  \
+    ConstantArray[Missing[\"NotSupported\"], Length[Theta]]\n    ],\n    \
+\"ShearForce\" -> If[\n      TrueQ[ShearSupported],\n      \
+Cos[Angles].Response[\"ShearCos\"] + Sin[Angles].Response[\"ShearSin\"],\n    \
+  ConstantArray[Missing[\"NotSupported\"], Length[Theta]]\n    ],\n    \
+\"Metadata\" -> Metadata\n  |>\n];\n\nringEquilibriumResidual[spectrum_, \
+response_, radius_, theta_] :=\n  ringCatch @ Module[\n    {\n      Spectrum, \
+Response, Metadata, Loads, Resultants, Theta, Angles,\n      Modes, \
+MomentDerivative, NormalDerivative, ShearDerivative\n    },\n    Spectrum = \
+ringEnsure[validateRingSpectrum[spectrum]];\n    Response = \
+ringEnsure[validateRingResponse[response]];\n    ringRequire[\n      \
+Spectrum[\"Modes\"] === Response[\"Modes\"],\n      \"ModeMismatch\",\n      \
+\"load and response spectra must contain the same modes.\"\n    ];\n    \
+ringRequire[\n      finiteRealQ[radius] && radius > 0,\n      \
+\"InvalidRadius\",\n      \"radius must be positive and finite.\"\n    ];\n   \
+ ringRequire[\n      ListQ[theta] && AllTrue[theta, finiteRealQ],\n      \
+\"InvalidAngle\",\n      \"theta must be a finite real list.\"\n    ];\n    \
+Metadata = ringMetadata[Response];\n    ringRequire[\n      \
+TrueQ[Lookup[Metadata, \"MomentSupported\", True]] &&\n        \
+TrueQ[Lookup[Metadata, \"ShearSupported\", True]],\n      \
+\"EquilibriumUnavailable\",\n      \"M and Q must be supported to evaluate \
+all three ring-equilibrium equations.\"\n    ];\n    Theta = N[theta];\n    \
+Loads = ringEnsure[evaluateRingLoad[Spectrum, Theta]];\n    Resultants = \
+ringEnsure[evaluateRingResponse[Response, Theta]];\n    Angles = Outer[Times, \
+Theta, Response[\"Modes\"]];\n    Modes = Response[\"Modes\"];\n    \
+MomentDerivative =\n      (-Sin[Angles]).(Modes Response[\"MomentCos\"]) +\n  \
+      Cos[Angles].(Modes Response[\"MomentSin\"]);\n    NormalDerivative =\n  \
+    (-Sin[Angles]).(Modes Response[\"NormalCos\"]) +\n        \
+Cos[Angles].(Modes Response[\"NormalSin\"]);\n    ShearDerivative =\n      \
+(-Sin[Angles]).(Modes Response[\"ShearCos\"]) +\n        Cos[Angles].(Modes \
+Response[\"ShearSin\"]);\n    <|\n      \"Theta\" -> Mod[Theta, 2 Pi],\n      \
+\"MomentBalance\" -> radius Resultants[\"ShearForce\"] - MomentDerivative,\n  \
+    \"RadialBalance\" -> radius Loads[\"RadialOutward\"] -\n        \
+Resultants[\"NormalForce\"] - ShearDerivative,\n      \"TangentialBalance\" \
+-> NormalDerivative - Resultants[\"ShearForce\"] +\n        radius \
+Loads[\"TangentialPositive\"]\n    |>\n  ];\n\nOptions[summarizeRingResponse] \
+= {\"ScanPoints\" -> Automatic};\n\nsummarizeRingResponse[response_, \
+OptionsPattern[]] := ringCatch @ Module[\n  {\n    Response, RequestedScan, \
+Definitions, Supported, ActiveModes,\n    MaxMode, ScanPoints, MinimumScan, \
+Theta, Step, x, Rows, Definition,\n    Resultant, CosKey, SinKey, \
+CoefficientsCos, CoefficientsSin,\n    ConstantResponse, Expression, \
+GridValues, MinIndex, MaxIndex,\n    MinCenter, MaxCenter, Minimum, Maximum, \
+MinValue, MaxValue,\n    MinAngle, MaxAngle, AbsValue, AbsAngle\n  },\n  \
+Response = ringEnsure[validateRingResponse[response]];\n  RequestedScan = \
+OptionValue[\"ScanPoints\"];\n  Definitions = {\n    <|\"Resultant\" -> \
+\"N\", \"CosKey\" -> \"NormalCos\", \"SinKey\" -> \"NormalSin\"|>,\n    \
+<|\"Resultant\" -> \"M\", \"CosKey\" -> \"MomentCos\", \"SinKey\" -> \
+\"MomentSin\"|>,\n    <|\"Resultant\" -> \"Q\", \"CosKey\" -> \"ShearCos\", \
+\"SinKey\" -> \"ShearSin\"|>\n  };\n  Supported = <|\n    \"N\" -> True,\n    \
+\"M\" -> TrueQ[Lookup[ringMetadata[Response], \"MomentSupported\", True]],\n  \
+  \"Q\" -> TrueQ[Lookup[ringMetadata[Response], \"ShearSupported\", True]]\n  \
+|>;\n  ActiveModes = Select[\n    Response[\"Modes\"],\n    Function[n,\n     \
+ AnyTrue[\n        {\n          Response[\"NormalCos\"][[n + 1]], \
+Response[\"NormalSin\"][[n + 1]],\n          If[Supported[\"M\"], \
+Response[\"MomentCos\"][[n + 1]], 0],\n          If[Supported[\"M\"], \
+Response[\"MomentSin\"][[n + 1]], 0],\n          If[Supported[\"Q\"], \
+Response[\"ShearCos\"][[n + 1]], 0],\n          If[Supported[\"Q\"], \
+Response[\"ShearSin\"][[n + 1]], 0]\n        },\n        finiteRealQ[#] && \
+Abs[#] > 0 &\n      ]\n    ]\n  ];\n  MaxMode = If[ActiveModes === {}, 0, \
+Max[ActiveModes]];\n  If[\n    RequestedScan === Automatic,\n    ScanPoints = \
+Max[720, 64 Max[MaxMode, 1]],\n    MinimumScan = Max[16, 16 Max[MaxMode, \
+1]];\n    ringRequire[\n      IntegerQ[RequestedScan] && RequestedScan >= \
+MinimumScan,\n      \"AliasedExtremaGrid\",\n      \"ScanPoints must be an \
+integer large enough for the active Fourier modes.\",\n      \
+<|\"MinimumScanPoints\" -> MinimumScan|>\n    ];\n    ScanPoints = \
+RequestedScan\n  ];\n  Theta = N[Range[0, ScanPoints - 1] 2 Pi/ScanPoints];\n \
+ Step = 2 Pi/ScanPoints;\n  Rows = {};\n  Do[\n    Definition = \
+Definitions[[i]];\n    Resultant = Definition[\"Resultant\"];\n    If[\n      \
+! Supported[Resultant],\n      Rows = Join[\n        Rows,\n        Map[\n    \
+      <|\n            \"Resultant\" -> Resultant,\n            \"Statistic\" \
+-> #,\n            \"Value\" -> Missing[\"NotSupported\"],\n            \
+\"Theta\" -> Missing[\"NotSupported\"],\n            \"ThetaDeg\" -> \
+Missing[\"NotSupported\"],\n            \"ScanPoints\" -> ScanPoints\n        \
+  |> &,\n          {\"Minimum\", \"Maximum\", \"AbsoluteMaximum\"}\n        \
+]\n      ];\n      Continue[]\n    ];\n    CosKey = Definition[\"CosKey\"];\n \
+   SinKey = Definition[\"SinKey\"];\n    CoefficientsCos = \
+Response[CosKey];\n    CoefficientsSin = Response[SinKey];\n    \
+ConstantResponse = AllTrue[\n      Range[2, Length[CoefficientsCos]],\n      \
+CoefficientsCos[[#]] == 0 && CoefficientsSin[[#]] == 0 &\n    ];\n    \
+Expression = Total[\n      CoefficientsCos Cos[Response[\"Modes\"] x] +\n     \
+   CoefficientsSin Sin[Response[\"Modes\"] x]\n    ];\n    GridValues = \
+N[Expression /. x -> #] & /@ Theta;\n    If[\n      ConstantResponse,\n      \
+MinValue = MaxValue = First[GridValues];\n      MinAngle = MaxAngle = 0.,\n   \
+   MinIndex = First[Ordering[GridValues, 1]];\n      MaxIndex = \
+First[Ordering[GridValues, -1]];\n      MinCenter = Theta[[MinIndex]];\n      \
+MaxCenter = Theta[[MaxIndex]];\n      Minimum = Quiet @ Check[\n        \
+FindMinimum[\n          {Expression, MinCenter - Step <= x <= MinCenter + \
+Step},\n          {x, MinCenter},\n          AccuracyGoal -> 10,\n          \
+PrecisionGoal -> 8\n        ],\n        $Failed\n      ];\n      Maximum = \
+Quiet @ Check[\n        FindMaximum[\n          {Expression, MaxCenter - Step \
+<= x <= MaxCenter + Step},\n          {x, MaxCenter},\n          AccuracyGoal \
+-> 10,\n          PrecisionGoal -> 8\n        ],\n        $Failed\n      ];\n \
+     ringRequire[\n        Minimum =!= $Failed && Maximum =!= $Failed,\n      \
+  \"ExtremaFailure\",\n        \"Continuous extrema refinement failed.\"\n    \
+  ];\n      MinValue = First[Minimum];\n      MinAngle = Mod[x /. \
+Last[Minimum], 2 Pi];\n      MaxValue = First[Maximum];\n      MaxAngle = \
+Mod[x /. Last[Maximum], 2 Pi]\n    ];\n    If[\n      Abs[MaxValue] >= \
+Abs[MinValue],\n      AbsValue = MaxValue;\n      AbsAngle = MaxAngle,\n      \
+AbsValue = MinValue;\n      AbsAngle = MinAngle\n    ];\n    Rows = Join[\n   \
+   Rows,\n      {\n        <|\n          \"Resultant\" -> Resultant,\n        \
+  \"Statistic\" -> \"Minimum\",\n          \"Value\" -> MinValue,\n          \
+\"Theta\" -> MinAngle,\n          \"ThetaDeg\" -> MinAngle 180/Pi,\n          \
+\"ScanPoints\" -> ScanPoints\n        |>,\n        <|\n          \
+\"Resultant\" -> Resultant,\n          \"Statistic\" -> \"Maximum\",\n        \
+  \"Value\" -> MaxValue,\n          \"Theta\" -> MaxAngle,\n          \
+\"ThetaDeg\" -> MaxAngle 180/Pi,\n          \"ScanPoints\" -> ScanPoints\n    \
+    |>,\n        <|\n          \"Resultant\" -> Resultant,\n          \
+\"Statistic\" -> \"AbsoluteMaximum\",\n          \"Value\" -> AbsValue,\n     \
+     \"Theta\" -> AbsAngle,\n          \"ThetaDeg\" -> AbsAngle 180/Pi,\n     \
+     \"ScanPoints\" -> ScanPoints\n        |>\n      }\n    ],\n    {i, \
+Length[Definitions]}\n  ];\n  Rows\n];\n\nOptions[bakerDiametricLoadSpectrum] \
+= {\n  \"LoadPerPatch\" -> 1.,\n  \"Radius\" -> 1.,\n  \"RingWidth\" -> \
+1.\n};\n\nbakerDiametricLoadSpectrum[\n  halfAngleDeg_,\n  maxMode_,\n  \
+OptionsPattern[]\n] := ringCatch @ Module[\n  {LoadPerPatch, Radius, \
+RingWidth, Spectrum, RadialCos, HalfAngle, Shape},\n  LoadPerPatch = \
+OptionValue[\"LoadPerPatch\"];\n  Radius = OptionValue[\"Radius\"];\n  \
+RingWidth = OptionValue[\"RingWidth\"];\n  ringRequire[\n    \
+finiteRealQ[halfAngleDeg] && 0 <= halfAngleDeg < 90,\n    \
+\"InvalidHalfAngle\",\n    \"halfAngleDeg must lie in [0, 90).\"\n  ];\n  \
+ringRequire[\n    IntegerQ[maxMode] && maxMode >= 2,\n    \"InvalidMode\",\n  \
+  \"maxMode must be an integer of at least two.\"\n  ];\n  ringRequire[\n    \
+And @@ (finiteRealQ[#] && # > 0 & /@ {LoadPerPatch, Radius, RingWidth}),\n    \
+\"InvalidLoad\",\n    \"LoadPerPatch, Radius, and RingWidth must be positive \
+and finite.\"\n  ];\n  Spectrum = ringEnsure[newRingSpectrum[maxMode]];\n  \
+RadialCos = Spectrum[\"RadialCos\"];\n  RadialCos[[1]] = -LoadPerPatch/(Pi \
+Radius RingWidth);\n  HalfAngle = halfAngleDeg Pi/180;\n  Do[\n    If[\n      \
+EvenQ[n],\n      Shape = If[halfAngleDeg == 0, 1., Sin[n HalfAngle]/(n \
+HalfAngle)];\n      RadialCos[[n + 1]] = -2 LoadPerPatch/(Pi Radius \
+RingWidth) Shape\n    ],\n    {n, 2, maxMode}\n  ];\n  Join[Spectrum, \
+<|\"RadialCos\" -> RadialCos|>]\n];\n\n"], "Input",
+     InitializationCell -> True, CellTags -> {"RingCore"}],
+    Cell[BoxData["(* Soil-state and source adapters. \
+*)\n\nk0NormallyConsolidated[frictionAngleDeg_] := ringCatch @ Module[{},\n  \
+ringRequire[\n    finiteRealQ[frictionAngleDeg] && 0 <= frictionAngleDeg < \
+90,\n    \"InvalidFrictionAngle\",\n    \"frictionAngleDeg must lie in [0, \
+90).\"\n  ];\n  1 - Sin[frictionAngleDeg \
+Pi/180]\n];\n\nk0Overconsolidated[frictionAngleDeg_, ocr_] := ringCatch @ \
+Module[{K0Nc},\n  ringRequire[\n    finiteRealQ[frictionAngleDeg] && 0 <= \
+frictionAngleDeg < 90,\n    \"InvalidFrictionAngle\",\n    \"frictionAngleDeg \
+must lie in [0, 90).\"\n  ];\n  ringRequire[\n    finiteRealQ[ocr] && ocr >= \
+1,\n    \"InvalidOCR\",\n    \"ocr must be finite and at least one.\"\n  ];\n \
+ K0Nc = ringEnsure[k0NormallyConsolidated[frictionAngleDeg]];\n  K0Nc \
+ocr^Sin[frictionAngleDeg Pi/180]\n];\n\nlayeredEffectiveVerticalStress[\n  \
+depth_,\n  layerBottom_,\n  effectiveUnitWeight_,\n  effectiveSurcharge_\n] \
+:= ringCatch @ Module[{LayerTop},\n  ringRequire[\n    ListQ[depth] && \
+Length[depth] > 0 &&\n      AllTrue[depth, finiteRealQ[#] && # >= 0 &],\n    \
+\"InvalidDepth\",\n    \"depth must be a non-empty finite non-negative \
+list.\"\n  ];\n  ringRequire[\n    ListQ[layerBottom] && Length[layerBottom] \
+> 0 &&\n      Last[layerBottom] === Infinity &&\n      \
+AllTrue[Most[layerBottom], finiteRealQ[#] && # > 0 &] &&\n      And @@ \
+Thread[Rest[layerBottom] > Most[layerBottom]],\n    \"InvalidLayers\",\n    \
+\"layerBottom must be strictly increasing, positive, and end at Infinity.\"\n \
+ ];\n  ringRequire[\n    ListQ[effectiveUnitWeight] &&\n      \
+Length[effectiveUnitWeight] == Length[layerBottom] &&\n      \
+AllTrue[effectiveUnitWeight, finiteRealQ[#] && # >= 0 &],\n    \
+\"InvalidUnitWeight\",\n    \"effectiveUnitWeight must be finite, \
+non-negative, and match layerBottom.\"\n  ];\n  ringRequire[\n    \
+finiteRealQ[effectiveSurcharge] && effectiveSurcharge >= 0,\n    \
+\"InvalidSurcharge\",\n    \"effectiveSurcharge must be finite and \
+non-negative.\"\n  ];\n  LayerTop = Prepend[Most[layerBottom], 0];\n  Map[\n  \
+  Function[CurrentDepth,\n      effectiveSurcharge + Total[\n        \
+effectiveUnitWeight MapThread[\n          Max[0, Min[CurrentDepth, #1] - #2] \
+&,\n          {layerBottom, LayerTop}\n        ]\n      ]\n    ],\n    \
+depth\n  ]\n];\n\nringVerticalStressOrdinates[\n  coverCrown_,\n  radius_,\n  \
+layerBottom_,\n  effectiveUnitWeight_,\n  effectiveSurcharge_,\n  \
+waterTableDepth_,\n  waterUnitWeight_\n] := ringCatch @ Module[{Depth, \
+Effective, Pore},\n  ringRequire[\n    finiteRealQ[coverCrown] && coverCrown \
+>= 0,\n    \"InvalidCover\",\n    \"coverCrown must be finite and \
+non-negative.\"\n  ];\n  ringRequire[\n    finiteRealQ[radius] && radius > \
+0,\n    \"InvalidRadius\",\n    \"radius must be positive and finite.\"\n  \
+];\n  ringRequire[\n    waterTableDepth === Infinity ||\n      \
+(finiteRealQ[waterTableDepth] && waterTableDepth >= 0),\n    \
+\"InvalidWaterTable\",\n    \"waterTableDepth must be non-negative or \
+Infinity.\"\n  ];\n  ringRequire[\n    finiteRealQ[waterUnitWeight] && \
+waterUnitWeight >= 0,\n    \"InvalidWaterUnitWeight\",\n    \"waterUnitWeight \
+must be finite and non-negative.\"\n  ];\n  Depth = coverCrown + {0, radius, \
+2 radius};\n  Effective = ringEnsure[layeredEffectiveVerticalStress[\n    \
+Depth,\n    layerBottom,\n    effectiveUnitWeight,\n    effectiveSurcharge\n  \
+]];\n  Pore = If[\n    waterTableDepth === Infinity,\n    ConstantArray[0., \
+Length[Depth]],\n    waterUnitWeight Map[Max[0, # - waterTableDepth] &, \
+Depth]\n  ];\n  MapThread[\n    <|\n      \"Location\" -> #1,\n      \
+\"Depth\" -> #2,\n      \"EffectiveVertical\" -> #3,\n      \"PorePressure\" \
+-> #4,\n      \"TotalVertical\" -> #3 + #4\n    |> &,\n    {{\"Crown\", \
+\"Axis\", \"Invert\"}, Depth, Effective, Pore}\n  \
+]\n];\n\nOptions[atRestFreeFieldSpectrum] = {\"InterfaceBranch\" -> \
+\"FullTraction\"};\n\natRestFreeFieldSpectrum[\n  effectiveVertical_,\n  \
+k0_,\n  porePressure_,\n  residualHorizontal_,\n  OptionsPattern[]\n] := \
+ringCatch @ Module[\n  {InterfaceBranch, EffectiveHorizontal, MeanPressure, \
+Difference, Spectrum},\n  InterfaceBranch = \
+OptionValue[\"InterfaceBranch\"];\n  ringRequire[\n    And @@ (finiteRealQ[#] \
+&& # >= 0 & /@\n      {effectiveVertical, k0, porePressure, \
+residualHorizontal}),\n    \"InvalidPressure\",\n    \"all pressure-state \
+inputs must be finite and non-negative.\"\n  ];\n  ringRequire[\n    \
+MemberQ[{\"FullTraction\", \"NormalOnly\"}, InterfaceBranch],\n    \
+\"InvalidInterface\",\n    \"InterfaceBranch must be \\\"FullTraction\\\" or \
+\\\"NormalOnly\\\".\"\n  ];\n  EffectiveHorizontal = k0 effectiveVertical + \
+residualHorizontal;\n  MeanPressure = porePressure + (effectiveVertical + \
+EffectiveHorizontal)/2;\n  Difference = effectiveVertical - \
+EffectiveHorizontal;\n  Spectrum = ringEnsure[newRingSpectrum[2]];\n  \
+Spectrum = ringEnsure[setRingCoefficient[\n    Spectrum,\n    \
+\"RadialCos\",\n    0,\n    -MeanPressure\n  ]];\n  Spectrum = \
+ringEnsure[setRingCoefficient[\n    Spectrum,\n    \"RadialCos\",\n    2,\n   \
+ -Difference/2\n  ]];\n  If[\n    InterfaceBranch == \"FullTraction\",\n    \
+Spectrum = ringEnsure[setRingCoefficient[\n      Spectrum,\n      \
+\"TangentialSin\",\n      2,\n      Difference/2\n    ]]\n  ];\n  \
+withRingMetadata[\n    Spectrum,\n    <|\n      \"Source\" -> \"derived \
+free-field tensor projection\",\n      \"Representation\" -> \
+InterfaceBranch,\n      \"EffectiveVertical\" -> effectiveVertical,\n      \
+\"EffectiveHorizontal\" -> EffectiveHorizontal,\n      \"PorePressure\" -> \
+porePressure,\n      \"AngularTractionAvailable\" -> True\n    |>\n  \
+]\n];\n\nusace2020ServiceThrust[\n  unitWeight_,\n  coverCrown_,\n  span_,\n  \
+livePressure_,\n  liveWidth_,\n  liveShapeFactor_,\n  unitSystem_,\n  \
+lengthUnit_,\n  forceUnit_,\n  liveInputSource_,\n  liveCriteriaConfirmed_\n] \
+:= ringCatch @ Module[\n  {ValidUnitPair, LiveInputs, LiveOmitted, EightFeet, \
+DeadPressure, DeadThrust, LiveThrust},\n  ringRequire[\n    And @@ \
+(finiteRealQ[#] && # >= 0 & /@\n      {unitWeight, coverCrown, livePressure, \
+liveWidth, liveShapeFactor}) &&\n      finiteRealQ[span] && span > 0,\n    \
+\"InvalidUSACEInput\",\n    \"USACE load inputs must be finite and \
+non-negative, with positive span.\"\n  ];\n  ringRequire[\n    \
+MemberQ[{\"SI\", \"US\"}, unitSystem],\n    \"InvalidUnitSystem\",\n    \
+\"unitSystem must be \\\"SI\\\" or \\\"US\\\".\"\n  ];\n  ringRequire[\n    \
+nonEmptyStringQ[lengthUnit] && nonEmptyStringQ[forceUnit] &&\n      \
+nonEmptyStringQ[liveInputSource],\n    \"InvalidSource\",\n    \"unit and \
+live-load source strings must be non-empty.\"\n  ];\n  ringRequire[\n    \
+TrueQ[liveCriteriaConfirmed],\n    \"UnconfirmedLiveLoad\",\n    \
+\"liveCriteriaConfirmed must be True after checking USACE Eq. 4-20 and its \
+AASHTO conditions.\"\n  ];\n  ValidUnitPair = If[\n    unitSystem == \
+\"SI\",\n    lengthUnit == \"m\" && MemberQ[{\"N\", \"kN\"}, forceUnit],\n    \
+lengthUnit == \"ft\" && MemberQ[{\"lb\", \"kip\"}, forceUnit]\n  ];\n  \
+ringRequire[\n    ValidUnitPair,\n    \"InvalidUnits\",\n    \"Use SI with m \
+and N/kN, or US with ft and lb/kip; convert inputs before calling the \
+adapter.\"\n  ];\n  LiveInputs = {livePressure, liveWidth, \
+liveShapeFactor};\n  LiveOmitted = AllTrue[LiveInputs, # == 0 &];\n  \
+ringRequire[\n    LiveOmitted || AllTrue[LiveInputs, # > 0 &],\n    \
+\"InvalidLiveLoad\",\n    \"livePressure, liveWidth, and liveShapeFactor must \
+all be positive or all zero under a documented omission.\"\n  ];\n  \
+ringRequire[\n    LiveOmitted || liveWidth <= span,\n    \
+\"InvalidLiveWidth\",\n    \"liveWidth must not exceed span under USACE Eq. \
+4-20.\"\n  ];\n  ringRequire[\n    LiveOmitted || liveShapeFactor >= 1,\n    \
+\"InvalidLiveFactor\",\n    \"liveShapeFactor must be at least 1.0 under the \
+audited USACE limits.\"\n  ];\n  EightFeet = If[unitSystem == \"US\", 8., 8. \
+0.3048];\n  ringRequire[\n    ! LiveOmitted || (coverCrown > EightFeet && \
+coverCrown > span),\n    \"InvalidLiveOmission\",\n    \"USACE live load may \
+be omitted only when cover exceeds both 8 ft (2.4384 m) and span.\"\n  ];\n  \
+DeadPressure = unitWeight coverCrown;\n  DeadThrust = DeadPressure span/2;\n  \
+LiveThrust = livePressure liveWidth liveShapeFactor/2;\n  <|\n    \"Type\" -> \
+\"USACE2020Thrust\",\n    \"Source\" -> \"USACE EM 1110-2-2902 (2020)\",\n    \
+\"SourceLocation\" -> \"Appendix D4 p. 332/PDF 346; Eq. 4-20 p. 86/PDF \
+100\",\n    \"Representation\" -> \"ScalarThrust\",\n    \
+\"DeadCrownPressure\" -> DeadPressure,\n    \"DeadThrust\" -> DeadThrust,\n   \
+ \"LiveThrust\" -> LiveThrust,\n    \"ServiceThrust\" -> DeadThrust + \
+LiveThrust,\n    \"Span\" -> span,\n    \"EquivalentRadius\" -> span/2,\n    \
+\"UnitSystem\" -> unitSystem,\n    \"LengthUnit\" -> lengthUnit,\n    \
+\"ForceUnit\" -> forceUnit,\n    \"UnitWeightUnit\" -> forceUnit <> \"/\" <> \
+lengthUnit <> \"^3\",\n    \"PressureUnit\" -> forceUnit <> \"/\" <> \
+lengthUnit <> \"^2\",\n    \"ThrustUnit\" -> forceUnit <> \"/\" <> \
+lengthUnit,\n    \"LiveInputSource\" -> liveInputSource,\n    \
+\"LiveCriteriaConfirmed\" -> True,\n    \"LiveLoadOmitted\" -> LiveOmitted,\n \
+   \"AngularTractionAvailable\" -> False,\n    \"MomentSupported\" -> \
+False,\n    \"ShearSupported\" -> False\n  |>\n];\n\nusace2020DesignThrust[\n \
+ serviceThrust_,\n  deadLoadFactor_,\n  liveLoadFactor_,\n  \
+demandModifier_,\n  factorSource_,\n  modifierSource_\n] := ringCatch @ \
+Module[{DesignBeforeModifier},\n  ringRequire[\n    \
+AssociationQ[serviceThrust] &&\n      Lookup[serviceThrust, \"Type\", \
+Missing[\"Unknown\"]] == \"USACE2020Thrust\",\n    \"InvalidUSACEThrust\",\n  \
+  \"serviceThrust must be returned by usace2020ServiceThrust.\"\n  ];\n  \
+ringRequire[\n    And @@ (finiteRealQ[#] && # >= 0 & /@\n      \
+{deadLoadFactor, liveLoadFactor, demandModifier}),\n    \"InvalidFactor\",\n  \
+  \"USACE factors must be finite and non-negative.\"\n  ];\n  ringRequire[\n  \
+  nonEmptyStringQ[factorSource] && nonEmptyStringQ[modifierSource],\n    \
+\"InvalidSource\",\n    \"factorSource and modifierSource must be \
+non-empty.\"\n  ];\n  DesignBeforeModifier = deadLoadFactor \
+serviceThrust[\"DeadThrust\"] +\n    liveLoadFactor \
+serviceThrust[\"LiveThrust\"];\n  Join[\n    serviceThrust,\n    <|\n      \
+\"DeadLoadFactor\" -> deadLoadFactor,\n      \"LiveLoadFactor\" -> \
+liveLoadFactor,\n      \"DemandModifier\" -> demandModifier,\n      \
+\"FactorSource\" -> factorSource,\n      \"ModifierSource\" -> \
+modifierSource,\n      \"DesignThrustBeforeModifier\" -> \
+DesignBeforeModifier,\n      \"DesignThrust\" -> demandModifier \
+DesignBeforeModifier\n    |>\n  \
+]\n];\n\nOptions[usaceEquivalentUniformSpectrum] = {\"Demand\" -> \
+\"Service\"};\n\nusaceEquivalentUniformSpectrum[thrustResult_, \
+OptionsPattern[]] :=\n  ringCatch @ Module[{Demand, Thrust, Radius, \
+Spectrum},\n    Demand = OptionValue[\"Demand\"];\n    ringRequire[\n      \
+AssociationQ[thrustResult] &&\n        Lookup[thrustResult, \"Type\", \
+Missing[\"Unknown\"]] == \"USACE2020Thrust\",\n      \
+\"InvalidUSACEThrust\",\n      \"thrustResult must be returned by a USACE \
+thrust adapter.\"\n    ];\n    ringRequire[\n      MemberQ[{\"Service\", \
+\"Design\"}, Demand],\n      \"InvalidDemand\",\n      \"Demand must be \
+\\\"Service\\\" or \\\"Design\\\".\"\n    ];\n    If[\n      Demand == \
+\"Design\",\n      ringRequire[\n        KeyExistsQ[thrustResult, \
+\"DesignThrust\"],\n        \"MissingDesignThrust\",\n        \"Run \
+usace2020DesignThrust before requesting the design projection.\"\n      ]\n   \
+ ];\n    Thrust = If[Demand == \"Service\", thrustResult[\"ServiceThrust\"], \
+thrustResult[\"DesignThrust\"]];\n    Radius = thrustResult[\"Span\"]/2;\n    \
+Spectrum = ringEnsure[newRingSpectrum[0]];\n    Spectrum = \
+ringEnsure[setRingCoefficient[\n      Spectrum,\n      \"RadialCos\",\n      \
+0,\n      -Thrust/Radius\n    ]];\n    withRingMetadata[\n      Spectrum,\n   \
+   <|\n        \"Source\" -> thrustResult[\"Source\"],\n        \
+\"Representation\" -> \"uniform equivalent for scalar thrust\",\n        \
+\"Equivalence\" -> \"N0 only\",\n        \"EquivalentRadius\" -> Radius,\n    \
+    \"LengthUnit\" -> thrustResult[\"LengthUnit\"],\n        \"ForceUnit\" -> \
+thrustResult[\"ForceUnit\"],\n        \"PressureUnit\" -> \
+thrustResult[\"PressureUnit\"],\n        \"ResultantUnit\" -> \
+thrustResult[\"ThrustUnit\"],\n        \"AngularTractionAvailable\" -> \
+False,\n        \"MomentSupported\" -> False,\n        \"ShearSupported\" -> \
+False\n      |>\n    ]\n  ];\n\nfhwa1999CompactionPressure[\n  \
+totalCompactorForceKn_,\n  frictionAngleDeg_,\n  centroidalDiameterMm_\n] := \
+ringCatch @ Module[\n  {EffectiveForceKn, PressureKpa, \
+PublishedConfigurations, Matches, Within},\n  ringRequire[\n    \
+finiteRealQ[totalCompactorForceKn] && totalCompactorForceKn >= 0,\n    \
+\"InvalidCompactorForce\",\n    \"totalCompactorForceKn must be finite and \
+non-negative.\"\n  ];\n  ringRequire[\n    finiteRealQ[frictionAngleDeg] && 0 \
+<= frictionAngleDeg < 90,\n    \"InvalidFrictionAngle\",\n    \
+\"frictionAngleDeg must lie in [0, 90).\"\n  ];\n  ringRequire[\n    \
+finiteRealQ[centroidalDiameterMm] && centroidalDiameterMm > 250,\n    \
+\"InvalidDiameter\",\n    \"centroidalDiameterMm must exceed 250 mm.\"\n  \
+];\n  EffectiveForceKn = Max[totalCompactorForceKn, 4.];\n  PressureKpa = 1.3 \
+EffectiveForceKn (\n    1 - Sin[frictionAngleDeg Pi/180]\n  )^3 \
+(970/(centroidalDiameterMm - 250))^2;\n  PublishedConfigurations = {\n    \
+{20.5, 36., 970.}, {20.5, 28., 970.},\n    {5.2, 36., 970.}, {5.2, 28., \
+970.},\n    {5.2, 36., 1575.}, {5.2, 28., 1575.},\n    {4., 36., 970.}, {4., \
+28., 970.}, {4., 36., 1575.}\n  };\n  Matches = AnyTrue[\n    \
+PublishedConfigurations,\n    Abs[#[[1]] - totalCompactorForceKn] < 1.*^-12 \
+&&\n      Abs[#[[2]] - frictionAngleDeg] < 1.*^-12 &&\n      Abs[#[[3]] - \
+centroidalDiameterMm] < 1.*^-9 &\n  ];\n  Within = 970 <= \
+centroidalDiameterMm <= 1575 &&\n    28 <= frictionAngleDeg <= 36 &&\n    4 \
+<= totalCompactorForceKn <= 20.5;\n  <|\n    \"Type\" -> \
+\"FHWA1999CompactionPressure\",\n    \"Source\" -> \"FHWA-RD-98-191 \
+(1999)\",\n    \"SourceLocation\" -> \"Eq. 5.1, printed p. 177/PDF 192\",\n   \
+ \"Representation\" -> \"scalar CANDE nodal pressure\",\n    \
+\"InputCompactorForceKn\" -> totalCompactorForceKn,\n    \"EffectiveForceKn\" \
+-> EffectiveForceKn,\n    \"FrictionAngleDeg\" -> frictionAngleDeg,\n    \
+\"CentroidalDiameterMm\" -> centroidalDiameterMm,\n    \"PressureKpa\" -> \
+PressureKpa,\n    \"OutsideTestedDiameterRange\" -> ! (970 <= \
+centroidalDiameterMm <= 1575),\n    \"OutsideTestedFrictionRange\" -> ! (28 \
+<= frictionAngleDeg <= 36),\n    \"WithinMarginalRanges\" -> Within,\n    \
+\"MatchesPublishedTableConfiguration\" -> Matches,\n    \"CalibrationStatus\" \
+-> If[\n      Matches,\n      \"published Table 5.5 configuration\",\n      \
+\"interpolation or extrapolation; not a published tested configuration\"\n    \
+],\n    \"CalibrationSoils\" -> {\"No. 57 stone\", \"silty sand\"},\n    \
+\"AngularTractionAvailable\" -> False,\n    \"MomentSupported\" -> False,\n   \
+ \"ShearSupported\" -> False\n  |>\n];\n\nfhwa1999PrismLoad[\n  \
+unitWeight_,\n  outsideDiameter_,\n  coverCrown_,\n  \
+verticalArchingFactor_,\n  verticalArchingFactorSource_,\n  applicability_\n] \
+:= ringCatch @ Module[{SoilPrismLoad, PipeLoad},\n  ringRequire[\n    \
+finiteRealQ[unitWeight] && unitWeight >= 0 &&\n      \
+finiteRealQ[outsideDiameter] && outsideDiameter > 0 &&\n      \
+finiteRealQ[coverCrown] && coverCrown >= 0 &&\n      \
+finiteRealQ[verticalArchingFactor] && verticalArchingFactor > 0,\n    \
+\"InvalidFHWAPrismInput\",\n    \"FHWA prism inputs must be finite; diameter \
+and VAF must be positive.\"\n  ];\n  ringRequire[\n    \
+nonEmptyStringQ[verticalArchingFactorSource] && \
+nonEmptyStringQ[applicability],\n    \"InvalidSource\",\n    \"VAF source and \
+applicability must be non-empty.\"\n  ];\n  SoilPrismLoad = unitWeight \
+outsideDiameter (\n    coverCrown + 0.11 outsideDiameter\n  );\n  PipeLoad = \
+verticalArchingFactor SoilPrismLoad;\n  <|\n    \"Type\" -> \
+\"FHWA1999PrismLoad\",\n    \"Source\" -> \"FHWA-RD-98-191 (1999)\",\n    \
+\"SourceLocation\" -> \"Eqs. 2.1-2.3, printed p. 12/PDF 28\",\n    \
+\"Representation\" -> \"global prism load and springline thrust\",\n    \
+\"SoilPrismLoad\" -> SoilPrismLoad,\n    \"PipeLoad\" -> PipeLoad,\n    \
+\"SpringlineThrust\" -> PipeLoad/2,\n    \"VerticalArchingFactor\" -> \
+verticalArchingFactor,\n    \"VerticalArchingFactorSource\" -> \
+verticalArchingFactorSource,\n    \"Applicability\" -> applicability,\n    \
+\"AngularTractionAvailable\" -> False,\n    \"MomentSupported\" -> False,\n   \
+ \"ShearSupported\" -> False\n  \
+|>\n];\n\nOptions[fhwa1999CompactionStageSpectrum] = {\n  \"BandDepthM\" -> \
+0.300,\n  \"AngleCount\" -> \
+Automatic\n};\n\nfhwa1999CompactionStageSpectrum[\n  compactionPressure_,\n  \
+radiusM_,\n  liftSurfaceZM_,\n  maxMode_,\n  OptionsPattern[]\n] := ringCatch \
+@ Module[\n  {\n    BandDepthM, AngleCount, ExpectedDiameterMm, \
+DiameterError, Theta,\n    X, Z, BoundaryTolerance, Active, Side, \
+HorizontalTraction,\n    RadialOutward, TangentialPositive, Spectrum\n  },\n  \
+BandDepthM = OptionValue[\"BandDepthM\"];\n  AngleCount = \
+OptionValue[\"AngleCount\"];\n  ringRequire[\n    \
+AssociationQ[compactionPressure] &&\n      Lookup[compactionPressure, \
+\"Type\", Missing[\"Unknown\"]] ==\n        \"FHWA1999CompactionPressure\",\n \
+   \"InvalidFHWACompaction\",\n    \"compactionPressure must be returned by \
+fhwa1999CompactionPressure.\"\n  ];\n  ringRequire[\n    finiteRealQ[radiusM] \
+&& radiusM > 0 && finiteRealQ[liftSurfaceZM],\n    \"InvalidGeometry\",\n    \
+\"radiusM must be positive and liftSurfaceZM finite.\"\n  ];\n  \
+ringRequire[\n    IntegerQ[maxMode] && maxMode >= 2,\n    \"InvalidMode\",\n  \
+  \"maxMode must be an integer of at least two.\"\n  ];\n  ringRequire[\n    \
+finiteRealQ[BandDepthM] && Abs[BandDepthM - 0.300] <= 1.*^-12,\n    \
+\"InvalidBandDepth\",\n    \"The audited FHWA construction-stage adapter \
+requires BandDepthM = 0.300 m.\"\n  ];\n  ExpectedDiameterMm = 2 radiusM \
+1000;\n  DiameterError = Abs[\n    \
+compactionPressure[\"CentroidalDiameterMm\"] - ExpectedDiameterMm\n  ];\n  \
+ringRequire[\n    DiameterError <= 1.*^-8 Max[ExpectedDiameterMm, 1.],\n    \
+\"DiameterMismatch\",\n    \"radiusM and the centroidal diameter used in FHWA \
+Eq. 5.1 are inconsistent.\"\n  ];\n  If[\n    AngleCount === Automatic,\n    \
+AngleCount = Max[4096, 32 (maxMode + 1)],\n    ringRequire[\n      \
+IntegerQ[AngleCount] && AngleCount >= 2 maxMode + 1,\n      \
+\"AliasedGrid\",\n      \"AngleCount must be an integer of at least 2 maxMode \
++ 1.\"\n    ]\n  ];\n  Theta = N[Range[0, AngleCount - 1] 2 Pi/AngleCount];\n \
+ X = radiusM Sin[Theta];\n  Z = -radiusM Cos[Theta];\n  BoundaryTolerance = \
+100 $MachineEpsilon Max[\n    radiusM,\n    Abs[liftSurfaceZM],\n    \
+BandDepthM,\n    1.*^-300\n  ];\n  Active = Map[\n    Boole[liftSurfaceZM - \
+BoundaryTolerance <= # <=\n      liftSurfaceZM + BandDepthM + \
+BoundaryTolerance] &,\n    Z\n  ];\n  Side = Map[If[Abs[#] <= \
+BoundaryTolerance, 0., Sign[#]] &, X];\n  HorizontalTraction = \
+-compactionPressure[\"PressureKpa\"] Side Active;\n  RadialOutward = \
+HorizontalTraction Sin[Theta];\n  TangentialPositive = HorizontalTraction \
+Cos[Theta];\n  Spectrum = ringEnsure[fitRingSpectrum[\n    Theta,\n    \
+RadialOutward,\n    TangentialPositive,\n    maxMode\n  ]];\n  \
+withRingMetadata[\n    Spectrum,\n    <|\n      \"Source\" -> \
+compactionPressure[\"Source\"],\n      \"SourceLocation\" -> \"Eq. 5.1 and \
+construction stage, printed pp. 173-178/PDF 188-193\",\n      \
+\"Representation\" -> \"derived horizontal stage band\",\n      \
+\"PublishedAngularTraction\" -> False,\n      \"LiftSurfaceZM\" -> \
+liftSurfaceZM,\n      \"BandDepthM\" -> BandDepthM,\n      \
+\"PublishedBandDepthM\" -> 0.300,\n      \"UsesPublishedBandDepth\" -> \
+True,\n      \"BandIntersectsRing\" -> AnyTrue[Active, # == 1 &],\n      \
+\"ResidualFinalPressureAvailable\" -> False,\n      \"WithinMarginalRanges\" \
+-> compactionPressure[\"WithinMarginalRanges\"],\n      \
+\"MatchesPublishedTableConfiguration\" ->\n        \
+compactionPressure[\"MatchesPublishedTableConfiguration\"],\n      \
+\"CalibrationStatus\" -> compactionPressure[\"CalibrationStatus\"]\n    |>\n  \
+]\n];\n\nnunez2014Resultants[\n  diameter_,\n  depthAxis_,\n  unitWeight_,\n  \
+surfaceLoad_,\n  k0_,\n  eta_,\n  interactionRatio_,\n  \
+interactionRatioSource_\n] := ringCatch @ Module[\n  {\n    \
+VerticalGeostatic, InteractionFraction, MomentMaximum,\n    NormalSpringline, \
+NormalCrown, NormalInvert\n  },\n  ringRequire[\n    finiteRealQ[diameter] && \
+diameter > 0 &&\n      And @@ (finiteRealQ[#] && # >= 0 & /@\n        \
+{depthAxis, unitWeight, surfaceLoad, k0, interactionRatio}) &&\n      \
+finiteRealQ[eta] && 0 <= eta <= 1,\n    \"InvalidNunezInput\",\n    \"Nunez \
+inputs must be finite and non-negative; diameter is positive and eta lies in \
+[0,1].\"\n  ];\n  ringRequire[\n    \
+nonEmptyStringQ[interactionRatioSource],\n    \"InvalidSource\",\n    \
+\"interactionRatioSource must be non-empty.\"\n  ];\n  VerticalGeostatic = \
+unitWeight depthAxis + surfaceLoad;\n  InteractionFraction = \
+interactionRatio/(1 + interactionRatio);\n  MomentMaximum = eta (1 - k0) \
+VerticalGeostatic diameter^2/16 *\n    InteractionFraction;\n  \
+NormalSpringline = eta diameter VerticalGeostatic/2;\n  NormalCrown = eta \
+diameter VerticalGeostatic/2 (\n    k0 + (2/3) (1 - k0)/(1 + \
+interactionRatio)\n  ) - k0 unitWeight diameter^2/12;\n  NormalInvert = eta \
+diameter VerticalGeostatic/2 (\n    k0 + (4/3) (1 - k0)/(1 + \
+interactionRatio)\n  ) + k0 unitWeight diameter^2/12;\n  <|\n    \"Type\" -> \
+\"Nunez2014Resultants\",\n    \"Source\" -> \"Nunez, Sfriso and Laiun \
+(2014)\",\n    \"SourceLocation\" -> \"Eqs. 22-25, PDF p. 6\",\n    \
+\"Domain\" -> \"excavated tunnel with shotcrete support\",\n    \
+\"OutOfDomainForBackfilledPipe\" -> True,\n    \
+\"GeometryOutsideBuriedDomain\" -> depthAxis < diameter/2,\n    \
+\"Representation\" -> \"published point resultants\",\n    \
+\"NormalResultantSignConvention\" -> \"compression positive in source\",\n    \
+\"SolverNormalConversion\" -> \"N_solver = -N_source\",\n    \
+\"MomentSignConvention\" -> \"positive at crown and negative at springline \
+per 2014\",\n    \"InteractionRatioSource\" -> interactionRatioSource,\n    \
+\"VerticalGeostatic\" -> VerticalGeostatic,\n    \"MomentCrown\" -> \
+MomentMaximum,\n    \"MomentSpringline\" -> -MomentMaximum,\n    \
+\"MomentInvert\" -> Missing[\"Unknown\"],\n    \"NormalCrown\" -> \
+NormalCrown,\n    \"NormalSpringline\" -> NormalSpringline,\n    \
+\"NormalInvert\" -> NormalInvert,\n    \"Shear\" -> Missing[\"Unknown\"],\n   \
+ \"AngularTractionAvailable\" -> False\n  \
+|>\n];\n\nnunez2000CircularResultants[\n  diameter_,\n  depthAxis_,\n  \
+thickness_,\n  unitWeight_,\n  surfaceLoad_,\n  waterUnitWeight_,\n  \
+waterHead_,\n  k0_,\n  eta_,\n  chi_,\n  planeModulusRatio_,\n  \
+planeModulusRatioSource_\n] := ringCatch @ Module[\n  {\n    Geostatic, \
+WaterPressure, ReducedVertical, InteractionRatio,\n    InteractionFraction, \
+HorizontalReaction, Moment, NormalCrown,\n    NormalSpringline\n  },\n  \
+ringRequire[\n    finiteRealQ[diameter] && diameter > 0 &&\n      \
+finiteRealQ[thickness] && thickness > 0 &&\n      finiteRealQ[chi] && chi > 0 \
+&&\n      finiteRealQ[planeModulusRatio] && planeModulusRatio > 0 &&\n      \
+And @@ (finiteRealQ[#] && # >= 0 & /@\n        {depthAxis, unitWeight, \
+surfaceLoad, waterUnitWeight, waterHead, k0}) &&\n      finiteRealQ[eta] && 0 \
+<= eta <= 1,\n    \"InvalidNunezInput\",\n    \"Nunez inputs violate \
+positivity or eta-domain requirements.\"\n  ];\n  ringRequire[\n    \
+nonEmptyStringQ[planeModulusRatioSource],\n    \"InvalidSource\",\n    \
+\"planeModulusRatioSource must be non-empty.\"\n  ];\n  Geostatic = \
+unitWeight depthAxis + surfaceLoad;\n  WaterPressure = waterUnitWeight \
+waterHead;\n  ReducedVertical = eta (1 - k0) Geostatic;\n  InteractionRatio = \
+16/chi planeModulusRatio (thickness/diameter)^3;\n  InteractionFraction = \
+InteractionRatio/(1 + InteractionRatio);\n  HorizontalReaction = \
+ReducedVertical/(1 + InteractionRatio);\n  Moment = ReducedVertical \
+diameter^2 InteractionFraction/16;\n  NormalCrown = diameter/2 (\n    k0 \
+ReducedVertical + HorizontalReaction + WaterPressure\n  );\n  \
+NormalSpringline = diameter/2 (Geostatic + WaterPressure);\n  <|\n    \
+\"Type\" -> \"Nunez2000CircularResultants\",\n    \"Source\" -> \"Nunez \
+(2000)\",\n    \"SourceLocation\" -> \"circular specialization, PDF pp. \
+13-15\",\n    \"Domain\" -> \"excavated tunnel with shotcrete support\",\n    \
+\"OutOfDomainForBackfilledPipe\" -> True,\n    \
+\"GeometryOutsideBuriedDomain\" -> depthAxis < diameter/2,\n    \
+\"Representation\" -> \"published circular point resultants\",\n    \
+\"NormalResultantSignConvention\" -> \"compression positive in source\",\n    \
+\"SolverNormalConversion\" -> \"N_solver = -N_source\",\n    \
+\"MomentSignConvention\" -> \"published 2000 values are magnitudes; algebraic \
+sign is UNKNOWN\",\n    \"PlaneModulusRatioSource\" -> \
+planeModulusRatioSource,\n    \"InteractionRatio\" -> InteractionRatio,\n    \
+\"InteractionFraction\" -> InteractionFraction,\n    \
+\"ReducedVerticalPressure\" -> ReducedVertical,\n    \"HorizontalReaction\" \
+-> HorizontalReaction,\n    \"MomentCrown\" -> Moment,\n    \
+\"MomentSpringline\" -> Missing[\"Unknown\"],\n    \"MomentCrownMagnitude\" \
+-> Moment,\n    \"MomentSpringlineMagnitude\" -> Moment,\n    \"NormalCrown\" \
+-> NormalCrown,\n    \"NormalSpringline\" -> NormalSpringline,\n    \
+\"NormalInvert\" -> Missing[\"Unknown\"],\n    \"Shear\" -> \
+Missing[\"Unknown\"],\n    \"AngularTractionAvailable\" -> False\n  \
+|>\n];\n\nnunez2014SymmetricProjection[\n  diameter_,\n  depthAxis_,\n  \
+unitWeight_,\n  surfaceLoad_,\n  k0_,\n  eta_,\n  interactionRatio_,\n  \
+interactionRatioSource_\n] := ringCatch @ Module[\n  {\n    Published, \
+Vertical, HorizontalEquivalent, Difference, MeanPressure,\n    Spectrum, \
+CrownInvertResidual\n  },\n  Published = ringEnsure[nunez2014Resultants[\n    \
+diameter,\n    depthAxis,\n    unitWeight,\n    surfaceLoad,\n    k0,\n    \
+eta,\n    interactionRatio,\n    interactionRatioSource\n  ]];\n  Vertical = \
+eta Published[\"VerticalGeostatic\"];\n  HorizontalEquivalent = eta \
+Published[\"VerticalGeostatic\"] (\n    k0 + (1 - k0)/(1 + \
+interactionRatio)\n  );\n  Difference = Vertical - HorizontalEquivalent;\n  \
+MeanPressure = (Vertical + HorizontalEquivalent)/2;\n  Spectrum = \
+ringEnsure[newRingSpectrum[2]];\n  Spectrum = \
+ringEnsure[setRingCoefficient[\n    Spectrum,\n    \"RadialCos\",\n    0,\n   \
+ -MeanPressure\n  ]];\n  Spectrum = ringEnsure[setRingCoefficient[\n    \
+Spectrum,\n    \"RadialCos\",\n    2,\n    -Difference/2\n  ]];\n  Spectrum = \
+ringEnsure[setRingCoefficient[\n    Spectrum,\n    \"TangentialSin\",\n    \
+2,\n    Difference/2\n  ]];\n  Spectrum = withRingMetadata[\n    Spectrum,\n  \
+  <|\n      \"Source\" -> \"derived projection of Nunez 2014 Eqs. 9-10 and \
+18-25\",\n      \"Representation\" -> \"Nunez 2014 symmetric n=0+n=2 \
+projection\",\n      \"AngularTractionAvailable\" -> True,\n      \
+\"PublishedByNunez\" -> False\n    |>\n  ];\n  CrownInvertResidual = \
+(Published[\"NormalInvert\"] - Published[\"NormalCrown\"])/2;\n  <|\n    \
+\"Type\" -> \"Nunez2014SymmetricProjection\",\n    \"Spectrum\" -> \
+Spectrum,\n    \"PublishedResultants\" -> Published,\n    \
+\"CrownInvertResidual\" -> CrownInvertResidual,\n    \"ProjectionChecks\" -> \
+{\n      <|\"Check\" -> \"M_crown\", \"TargetSourceConvention\" -> \
+Published[\"MomentCrown\"]|>,\n      <|\"Check\" -> \"N_springline\", \
+\"TargetSourceConvention\" -> Published[\"NormalSpringline\"]|>,\n      <|\n  \
+      \"Check\" -> \"mean_N_crown_invert\",\n        \
+\"TargetSourceConvention\" ->\n          Mean[{Published[\"NormalCrown\"], \
+Published[\"NormalInvert\"]}]\n      |>\n    },\n    \"Source\" -> \
+Published[\"Source\"],\n    \"Representation\" -> \"derived symmetric \
+projection\",\n    \"OutOfDomainForBackfilledPipe\" -> True\n  |>\n];\n\n"],
+     "Input", InitializationCell -> True, CellTags -> {"RingLoads"}],
+    Cell[BoxData["(* Monte Carlo orchestration. No engineering priors or \
+correlations are\n   introduced by these helpers. Wolfram-native RNG \
+sequences intentionally\n   differ from R; deterministic mechanics are \
+benchmarked separately. *)\n\nfixedParameter[value_] := <|\"Distribution\" -> \
+\"Fixed\", \"Value\" -> value|>;\nuniformParameter[minimum_, maximum_] := \
+<|\n  \"Distribution\" -> \"Uniform\",\n  \"Minimum\" -> minimum,\n  \
+\"Maximum\" -> maximum\n|>;\nnormalParameter[mean_, standardDeviation_] := \
+<|\n  \"Distribution\" -> \"Normal\",\n  \"Mean\" -> mean,\n  \
+\"StandardDeviation\" -> standardDeviation\n|>;\nlognormalParameter[meanlog_, \
+sdlog_] := <|\n  \"Distribution\" -> \"Lognormal\",\n  \"Meanlog\" -> \
+meanlog,\n  \"Sdlog\" -> sdlog\n|>;\ntriangularParameter[minimum_, mode_, \
+maximum_] := <|\n  \"Distribution\" -> \"Triangular\",\n  \"Minimum\" -> \
+minimum,\n  \"Mode\" -> mode,\n  \"Maximum\" -> \
+maximum\n|>;\ndiscreteParameter[values_, probabilities_] := <|\n  \
+\"Distribution\" -> \"Discrete\",\n  \"Values\" -> values,\n  \
+\"Probabilities\" -> probabilities\n|>;\n\nsampleIndependentParameters[\n  \
+specification_,\n  sampleCount_,\n  seed_,\n  independenceConfirmed_\n] := \
+ringCatch @ Module[\n  {Names, sampleOne, Columns},\n  ringRequire[\n    \
+AssociationQ[specification] && Length[specification] > 0,\n    \
+\"InvalidSpecification\",\n    \"specification must be a non-empty \
+Association.\"\n  ];\n  ringRequire[\n    IntegerQ[sampleCount] && \
+sampleCount >= 1 && IntegerQ[seed] && seed >= 0,\n    \
+\"InvalidSamplingControl\",\n    \"sampleCount must be positive and seed a \
+non-negative integer.\"\n  ];\n  ringRequire[\n    \
+TrueQ[independenceConfirmed],\n    \"UnconfirmedIndependence\",\n    \"Set \
+independenceConfirmed to True only after documenting independence; otherwise \
+construct correlated draws externally.\"\n  ];\n  Names = \
+Keys[specification];\n  sampleOne[Parameter_, Name_] := Module[\n    \
+{Distribution, Minimum, Mode, Maximum, Uniform, BreakPoint, Values, \
+Probabilities},\n    ringRequire[\n      AssociationQ[Parameter] && \
+KeyExistsQ[Parameter, \"Distribution\"],\n      \"InvalidParameter\",\n      \
+\"Each parameter needs a Distribution declaration.\",\n      <|\"Parameter\" \
+-> Name|>\n    ];\n    Distribution = Parameter[\"Distribution\"];\n    \
+Switch[\n      Distribution,\n      \"Fixed\",\n        \
+ringRequire[finiteRealQ[Parameter[\"Value\"]], \"InvalidParameter\", \"Fixed \
+value must be finite.\"];\n        ConstantArray[Parameter[\"Value\"], \
+sampleCount],\n      \"Uniform\",\n        Minimum = \
+Parameter[\"Minimum\"];\n        Maximum = Parameter[\"Maximum\"];\n        \
+ringRequire[\n          finiteRealQ[Minimum] && finiteRealQ[Maximum] && \
+Maximum > Minimum,\n          \"InvalidParameter\",\n          \"Uniform \
+parameters require finite Minimum < Maximum.\"\n        ];\n        \
+RandomReal[{Minimum, Maximum}, sampleCount],\n      \"Normal\",\n        \
+ringRequire[\n          finiteRealQ[Parameter[\"Mean\"]] &&\n            \
+finiteRealQ[Parameter[\"StandardDeviation\"]] &&\n            \
+Parameter[\"StandardDeviation\"] > 0,\n          \"InvalidParameter\",\n      \
+    \"Normal parameters require finite mean and positive standard \
+deviation.\"\n        ];\n        RandomVariate[\n          \
+NormalDistribution[Parameter[\"Mean\"], Parameter[\"StandardDeviation\"]],\n  \
+        sampleCount\n        ],\n      \"Lognormal\",\n        ringRequire[\n \
+         finiteRealQ[Parameter[\"Meanlog\"]] && \
+finiteRealQ[Parameter[\"Sdlog\"]] &&\n            Parameter[\"Sdlog\"] > 0,\n \
+         \"InvalidParameter\",\n          \"Lognormal parameters require \
+finite meanlog and positive sdlog.\"\n        ];\n        RandomVariate[\n    \
+      LogNormalDistribution[Parameter[\"Meanlog\"], Parameter[\"Sdlog\"]],\n  \
+        sampleCount\n        ],\n      \"Triangular\",\n        Minimum = \
+Parameter[\"Minimum\"];\n        Mode = Parameter[\"Mode\"];\n        Maximum \
+= Parameter[\"Maximum\"];\n        ringRequire[\n          And @@ \
+(finiteRealQ /@ {Minimum, Mode, Maximum}) &&\n            Minimum <= Mode <= \
+Maximum && Minimum < Maximum,\n          \"InvalidParameter\",\n          \
+\"Triangular parameters require Minimum <= Mode <= Maximum and Minimum < \
+Maximum.\"\n        ];\n        Uniform = RandomReal[{0, 1}, sampleCount];\n  \
+      BreakPoint = (Mode - Minimum)/(Maximum - Minimum);\n        Map[\n      \
+    If[\n            # <= BreakPoint,\n            Minimum + Sqrt[# (Maximum \
+- Minimum) (Mode - Minimum)],\n            Maximum - Sqrt[(1 - #) (Maximum - \
+Minimum) (Maximum - Mode)]\n          ] &,\n          Uniform\n        ],\n   \
+   \"Discrete\",\n        Values = Parameter[\"Values\"];\n        \
+Probabilities = Parameter[\"Probabilities\"];\n        ringRequire[\n         \
+ ListQ[Values] && Length[Values] > 0 && AllTrue[Values, finiteRealQ] &&\n     \
+       ListQ[Probabilities] && Length[Probabilities] == Length[Values] &&\n   \
+         AllTrue[Probabilities, finiteRealQ[#] && # >= 0 &] &&\n            \
+Total[Probabilities] > 0,\n          \"InvalidParameter\",\n          \
+\"Discrete values and probabilities are invalid.\"\n        ];\n        \
+RandomChoice[(Probabilities/Total[Probabilities]) -> Values, sampleCount],\n  \
+    _,\n        ringFail[\n          \"InvalidDistribution\",\n          \
+\"Unsupported distribution declaration.\",\n          <|\"Parameter\" -> \
+Name, \"Distribution\" -> Distribution|>\n        ]\n    ]\n  ];\n  Columns = \
+BlockRandom[\n    SeedRandom[seed, Method -> \"MersenneTwister\"];\n    \
+MapThread[sampleOne, {Values[specification], Names}]\n  ];\n  Map[\n    \
+AssociationThread[Names, #] &,\n    Transpose[Columns]\n  \
+]\n];\n\nquantileType7[values_, probability_] := ringCatch @ Module[\n  \
+{Sorted, Count, h, j, Fraction},\n  ringRequire[\n    ListQ[values] && \
+Length[values] > 0 && AllTrue[values, finiteRealQ],\n    \
+\"InvalidQuantileData\",\n    \"quantile data must be a non-empty finite real \
+list.\"\n  ];\n  ringRequire[\n    finiteRealQ[probability] && 0 <= \
+probability <= 1,\n    \"InvalidProbability\",\n    \"probability must lie in \
+[0,1].\"\n  ];\n  Sorted = Sort[N[values]];\n  Count = Length[Sorted];\n  \
+If[Count == 1, Return[First[Sorted]]];\n  h = (Count - 1) probability + 1;\n  \
+j = Floor[h];\n  Fraction = h - j;\n  If[\n    j >= Count,\n    \
+Last[Sorted],\n    Sorted[[j]] + Fraction (Sorted[[j + 1]] - Sorted[[j]])\n  \
+]\n];\n\nOptions[runRingMonteCarlo] = {\n  \"ExtremaScanPoints\" -> \
+Automatic,\n  \"KeepSampleCurves\" -> False\n};\n\nrunRingMonteCarlo[\n  \
+draws_,\n  scenarioFunction_,\n  theta_,\n  probabilities_,\n  modelLabel_,\n \
+ OptionsPattern[]\n] := ringCatch @ Module[\n  {\n    ExtremaScanPoints, \
+KeepSampleCurves, Probabilities, SampleCount,\n    AngleCount, NormalCurves, \
+MomentCurves, ShearCurves, ExtremaSamples,\n    ScenarioMetadata, \
+LoadSpectra, ResponseSpectra, ExpectedSupported,\n    Draw, Scenario, \
+Spectrum, Radius, Thickness, UniformMoment,\n    Response, Values, Supported, \
+Summary, PointwiseRows, Curves,\n    ExtremaQuantiles, Group, GroupValues, \
+OUT\n  },\n  ExtremaScanPoints = OptionValue[\"ExtremaScanPoints\"];\n  \
+KeepSampleCurves = OptionValue[\"KeepSampleCurves\"];\n  ringRequire[\n    \
+ListQ[draws] && Length[draws] > 0 && AllTrue[draws, AssociationQ],\n    \
+\"InvalidDraws\",\n    \"draws must be a non-empty list of Associations.\"\n  \
+];\n  ringRequire[\n    Head[scenarioFunction] === Function ||\n      \
+MatchQ[scenarioFunction, _Symbol],\n    \"InvalidScenarioFunction\",\n    \
+\"scenarioFunction must be callable.\"\n  ];\n  ringRequire[\n    \
+ListQ[theta] && Length[theta] >= 3 && AllTrue[theta, finiteRealQ] &&\n      \
+And @@ Thread[Differences[N[theta]] > 0] &&\n      Min[theta] >= 0 && \
+Max[theta] < 2 Pi,\n    \"InvalidAngle\",\n    \"theta must be strictly \
+increasing on [0, 2 Pi) with at least three points.\"\n  ];\n  ringRequire[\n \
+   ListQ[probabilities] && Length[probabilities] > 0 &&\n      \
+AllTrue[probabilities, finiteRealQ[#] && 0 <= # <= 1 &],\n    \
+\"InvalidProbability\",\n    \"probabilities must be a non-empty list in \
+[0,1].\"\n  ];\n  ringRequire[\n    nonEmptyStringQ[modelLabel] && \
+BooleanQ[KeepSampleCurves],\n    \"InvalidMonteCarloControl\",\n    \
+\"modelLabel must be non-empty and KeepSampleCurves Boolean.\"\n  ];\n  \
+Probabilities = Sort[DeleteDuplicates[N[probabilities]]];\n  SampleCount = \
+Length[draws];\n  AngleCount = Length[theta];\n  NormalCurves = \
+ConstantArray[Missing[\"NotSupported\"], {SampleCount, AngleCount}];\n  \
+MomentCurves = ConstantArray[Missing[\"NotSupported\"], {SampleCount, \
+AngleCount}];\n  ShearCurves = ConstantArray[Missing[\"NotSupported\"], \
+{SampleCount, AngleCount}];\n  ExtremaSamples = {};\n  ScenarioMetadata = \
+ConstantArray[<||>, SampleCount];\n  LoadSpectra = \
+ConstantArray[Missing[\"NotKept\"], SampleCount];\n  ResponseSpectra = \
+ConstantArray[Missing[\"NotKept\"], SampleCount];\n  ExpectedSupported = \
+Missing[\"Unset\"];\n  Do[\n    Draw = draws[[i]];\n    Scenario = \
+scenarioFunction[Draw];\n    ringRequire[\n      AssociationQ[Scenario] && \
+KeyExistsQ[Scenario, \"Spectrum\"] &&\n        KeyExistsQ[Scenario, \
+\"Radius\"],\n      \"InvalidScenario\",\n      \"scenarioFunction must \
+return Spectrum and Radius.\",\n      <|\"SampleId\" -> i|>\n    ];\n    \
+Spectrum = ringEnsure[validateRingSpectrum[Scenario[\"Spectrum\"]]];\n    \
+Radius = Scenario[\"Radius\"];\n    Thickness = Lookup[Scenario, \
+\"Thickness\", Missing[\"NotSpecified\"]];\n    UniformMoment = \
+Lookup[Scenario, \"UniformMoment\", \"Membrane\"];\n    Response = \
+ringEnsure[solveRingSpectrum[\n      Spectrum,\n      Radius,\n      \
+\"Thickness\" -> Thickness,\n      \"UniformMoment\" -> UniformMoment\n    \
+]];\n    Supported = Lookup[Scenario, \"SupportedResultants\", {\"N\", \"M\", \
+\"Q\"}];\n    ringRequire[\n      ListQ[Supported] && \
+DuplicateFreeQ[Supported] &&\n        AllTrue[Supported, MemberQ[{\"N\", \
+\"M\", \"Q\"}, #] &],\n      \"InvalidSupportedResultants\",\n      \
+\"SupportedResultants must contain unique values drawn from N, M, Q.\"\n    \
+];\n    If[\n      ! TrueQ[Lookup[ringMetadata[Response], \
+\"MomentSupported\", True]],\n      Supported = DeleteCases[Supported, \
+\"M\"]\n    ];\n    If[\n      ! TrueQ[Lookup[ringMetadata[Response], \
+\"ShearSupported\", True]],\n      Supported = DeleteCases[Supported, \
+\"Q\"]\n    ];\n    Supported = Select[{\"N\", \"M\", \"Q\"}, \
+MemberQ[Supported, #] &];\n    If[\n      MissingQ[ExpectedSupported],\n      \
+ExpectedSupported = Supported,\n      ringRequire[\n        Supported === \
+ExpectedSupported,\n        \"ChangingSupportedResultants\",\n        \
+\"SupportedResultants must remain constant within one model branch.\"\n      \
+]\n    ];\n    Values = ringEnsure[evaluateRingResponse[Response, theta]];\n  \
+  If[MemberQ[Supported, \"N\"], NormalCurves[[i]] = \
+Values[\"NormalForce\"]];\n    If[MemberQ[Supported, \"M\"], \
+MomentCurves[[i]] = Values[\"BendingMoment\"]];\n    If[MemberQ[Supported, \
+\"Q\"], ShearCurves[[i]] = Values[\"ShearForce\"]];\n    Summary = \
+ringEnsure[summarizeRingResponse[\n      Response,\n      \"ScanPoints\" -> \
+ExtremaScanPoints\n    ]];\n    Summary = Map[\n      If[\n        \
+MemberQ[Supported, #[\"Resultant\"]],\n        #,\n        Join[\n          \
+#,\n          <|\n            \"Value\" -> Missing[\"NotSupported\"],\n       \
+     \"Theta\" -> Missing[\"NotSupported\"],\n            \"ThetaDeg\" -> \
+Missing[\"NotSupported\"]\n          |>\n        ]\n      ] &,\n      \
+Summary\n    ];\n    Summary = Map[\n      Join[\n        #,\n        <|\n    \
+      \"Model\" -> modelLabel,\n          \"SampleId\" -> i\n        |>\n     \
+ ] &,\n      Summary\n    ];\n    ExtremaSamples = Join[ExtremaSamples, \
+Summary];\n    ScenarioMetadata[[i]] = Lookup[Scenario, \"Metadata\", \
+<||>];\n    If[\n      KeepSampleCurves,\n      LoadSpectra[[i]] = \
+Spectrum;\n      ResponseSpectra[[i]] = Response\n    ],\n    {i, \
+SampleCount}\n  ];\n  Curves = <|\n    \"N\" -> NormalCurves,\n    \"M\" -> \
+MomentCurves,\n    \"Q\" -> ShearCurves\n  |>;\n  PointwiseRows = Flatten @ \
+Table[\n    Table[\n      <|\n        \"Model\" -> modelLabel,\n        \
+\"Theta\" -> theta[[j]],\n        \"ThetaDeg\" -> theta[[j]] 180/Pi,\n        \
+\"Resultant\" -> Resultant,\n        \"Probability\" -> Probability,\n        \
+\"Value\" -> If[\n          MemberQ[ExpectedSupported, Resultant],\n          \
+ringEnsure[quantileType7[Curves[Resultant][[All, j]], Probability]],\n        \
+  Missing[\"NotSupported\"]\n        ]\n      |>,\n      {j, AngleCount}\n    \
+],\n    {Resultant, {\"N\", \"M\", \"Q\"}},\n    {Probability, \
+Probabilities}\n  ];\n  ExtremaQuantiles = Flatten @ Table[\n    Group = \
+Select[\n      ExtremaSamples,\n      #[\"Resultant\"] == Resultant && \
+#[\"Statistic\"] == Statistic &\n    ];\n    GroupValues = Lookup[Group, \
+\"Value\"];\n    Table[\n      <|\n        \"Model\" -> modelLabel,\n        \
+\"Resultant\" -> Resultant,\n        \"Statistic\" -> Statistic,\n        \
+\"Probability\" -> Probability,\n        \"Value\" -> If[\n          \
+MemberQ[ExpectedSupported, Resultant],\n          \
+ringEnsure[quantileType7[GroupValues, Probability]],\n          \
+Missing[\"NotSupported\"]\n        ]\n      |>,\n      {Probability, \
+Probabilities}\n    ],\n    {Resultant, {\"N\", \"M\", \"Q\"}},\n    \
+{Statistic, {\"Minimum\", \"Maximum\", \"AbsoluteMaximum\"}}\n  ];\n  OUT = \
+<|\n    \"Type\" -> \"RingMonteCarlo\",\n    \"Model\" -> modelLabel,\n    \
+\"SampleCount\" -> SampleCount,\n    \"Theta\" -> theta,\n    \
+\"Probabilities\" -> Probabilities,\n    \"QuantileMethod\" -> \"Hyndman-Fan \
+type 7\",\n    \"SupportedResultants\" -> ExpectedSupported,\n    \
+\"PointwiseQuantiles\" -> PointwiseRows,\n    \"ExtremaSamples\" -> \
+ExtremaSamples,\n    \"ExtremaQuantiles\" -> ExtremaQuantiles,\n    \"Draws\" \
+-> draws,\n    \"ScenarioMetadata\" -> ScenarioMetadata\n  |>;\n  If[\n    \
+KeepSampleCurves,\n    OUT = Join[\n      OUT,\n      <|\n        \
+\"SampleCurves\" -> Curves,\n        \"LoadSpectra\" -> LoadSpectra,\n        \
+\"ResponseSpectra\" -> ResponseSpectra\n      |>\n    ]\n  ];\n  \
+OUT\n];\n\nOptions[runRingStageMonteCarlo] = {\n  \"ExtremaScanPoints\" -> \
+Automatic,\n  \"KeepSampleEnvelopes\" -> \
+False\n};\n\nrunRingStageMonteCarlo[\n  draws_,\n  stageScenarioFunction_,\n  \
+theta_,\n  probabilities_,\n  modelLabel_,\n  OptionsPattern[]\n] := \
+ringCatch @ Module[\n  {\n    ExtremaScanPoints, KeepSampleEnvelopes, \
+AllStages, StageNames,\n    IndexedDraws, InternalKey, StageResults, \
+Probabilities, SampleCount,\n    AngleCount, Resultants, Supported, \
+SampleEnvelopes, PointwiseRows,\n    StageCube, Lower, Upper, EnvelopeValues, \
+StageExtrema, ExtremaSamples,\n    Membership, Candidates, Metric, \
+ExtremeMetric, TieTolerance, Tied,\n    Selected, ThetaValues, ThetaSpread, \
+ExtremaQuantiles, Group,\n    GroupValues, Counts, OUT\n  },\n  \
+ExtremaScanPoints = OptionValue[\"ExtremaScanPoints\"];\n  \
+KeepSampleEnvelopes = OptionValue[\"KeepSampleEnvelopes\"];\n  ringRequire[\n \
+   ListQ[draws] && Length[draws] > 0 && AllTrue[draws, AssociationQ],\n    \
+\"InvalidDraws\",\n    \"draws must be a non-empty list of Associations.\"\n  \
+];\n  ringRequire[\n    nonEmptyStringQ[modelLabel] && \
+BooleanQ[KeepSampleEnvelopes],\n    \"InvalidMonteCarloControl\",\n    \
+\"modelLabel must be non-empty and KeepSampleEnvelopes Boolean.\"\n  ];\n  \
+AllStages = Map[stageScenarioFunction, draws];\n  ringRequire[\n    \
+AllTrue[AllStages, AssociationQ[#] && Length[#] > 0 &],\n    \
+\"InvalidStages\",\n    \"stageScenarioFunction must return a non-empty \
+Association of scenarios.\"\n  ];\n  StageNames = Keys[First[AllStages]];\n  \
+ringRequire[\n    AllTrue[StageNames, nonEmptyStringQ] && \
+DuplicateFreeQ[StageNames] &&\n      AllTrue[AllStages, Keys[#] === \
+StageNames &],\n    \"ChangingStages\",\n    \"Every sample must return the \
+same ordered, non-empty, unique stage names.\"\n  ];\n  SampleCount = \
+Length[draws];\n  InternalKey = \"RingStageSampleId\";\n  \
+While[AnyTrue[draws, KeyExistsQ[#, InternalKey] &], InternalKey = InternalKey \
+<> \"X\"];\n  IndexedDraws = MapIndexed[Append[#1, InternalKey -> First[#2]] \
+&, draws];\n  StageResults = AssociationMap[\n    Function[StageName,\n      \
+ringEnsure[runRingMonteCarlo[\n        IndexedDraws,\n        Function[Draw, \
+AllStages[[Draw[InternalKey]]][StageName]],\n        theta,\n        \
+probabilities,\n        modelLabel <> \"::\" <> StageName,\n        \
+\"ExtremaScanPoints\" -> ExtremaScanPoints,\n        \"KeepSampleCurves\" -> \
+True\n      ]]\n    ],\n    StageNames\n  ];\n  Probabilities = \
+First[Values[StageResults]][\"Probabilities\"];\n  AngleCount = \
+Length[theta];\n  Resultants = {\"N\", \"M\", \"Q\"};\n  Supported = \
+Select[\n    Resultants,\n    Function[Resultant,\n      AllTrue[\n        \
+Values[StageResults],\n        MemberQ[#[\"SupportedResultants\"], Resultant] \
+&\n      ]\n    ]\n  ];\n  SampleEnvelopes = <||>;\n  PointwiseRows = {};\n  \
+Do[\n    StageCube = Lookup[Lookup[Values[StageResults], \"SampleCurves\"], \
+Resultant];\n    If[\n      MemberQ[Supported, Resultant],\n      Lower = \
+Table[\n        Min[StageCube[[All, i, j]]],\n        {i, SampleCount},\n     \
+   {j, AngleCount}\n      ];\n      Upper = Table[\n        \
+Max[StageCube[[All, i, j]]],\n        {i, SampleCount},\n        {j, \
+AngleCount}\n      ],\n      Lower = Upper = ConstantArray[\n        \
+Missing[\"NotSupported\"],\n        {SampleCount, AngleCount}\n      ]\n    \
+];\n    AssociateTo[\n      SampleEnvelopes,\n      Resultant -> \
+<|\"Minimum\" -> Lower, \"Maximum\" -> Upper|>\n    ];\n    Do[\n      \
+EnvelopeValues = If[Bound == \"Minimum\", Lower, Upper];\n      PointwiseRows \
+= Join[\n        PointwiseRows,\n        Table[\n          <|\n            \
+\"Model\" -> modelLabel,\n            \"Bound\" -> Bound,\n            \
+\"Theta\" -> theta[[j]],\n            \"ThetaDeg\" -> theta[[j]] 180/Pi,\n    \
+        \"Resultant\" -> Resultant,\n            \"Probability\" -> \
+Probability,\n            \"Value\" -> If[\n              MemberQ[Supported, \
+Resultant],\n              ringEnsure[quantileType7[EnvelopeValues[[All, j]], \
+Probability]],\n              Missing[\"NotSupported\"]\n            ]\n      \
+    |>,\n          {j, AngleCount}\n        ]\n      ],\n      {Bound, \
+{\"Minimum\", \"Maximum\"}},\n      {Probability, Probabilities}\n    ],\n    \
+{Resultant, Resultants}\n  ];\n  StageExtrema = Flatten @ Map[\n    \
+Function[StageName,\n      Map[Append[#, \"Stage\" -> StageName] &, \
+StageResults[StageName][\"ExtremaSamples\"]]\n    ],\n    StageNames\n  ];\n  \
+ExtremaSamples = {};\n  Membership = {};\n  Do[\n    Candidates = Select[\n   \
+   StageExtrema,\n      #[\"SampleId\"] == i && #[\"Resultant\"] == Resultant \
+&&\n        #[\"Statistic\"] == Statistic &\n    ];\n    If[\n      ! \
+MemberQ[Supported, Resultant],\n      Selected = <|\n        \"Model\" -> \
+modelLabel,\n        \"SampleId\" -> i,\n        \"Resultant\" -> \
+Resultant,\n        \"Statistic\" -> Statistic,\n        \"Value\" -> \
+Missing[\"NotSupported\"],\n        \"Theta\" -> Missing[\"NotSupported\"],\n \
+       \"ThetaDeg\" -> Missing[\"NotSupported\"],\n        \"Stage\" -> \
+Missing[\"NotSupported\"],\n        \"StageStatus\" -> \"Unsupported\",\n     \
+   \"ControllingStages\" -> {},\n        \"CoControllingStageCount\" -> 0,\n  \
+      \"ScanPoints\" -> First[Lookup[Candidates, \"ScanPoints\"]]\n      \
+|>,\n      Metric = If[\n        Statistic == \"AbsoluteMaximum\",\n        \
+Abs[Lookup[Candidates, \"Value\"]],\n        Lookup[Candidates, \"Value\"]\n  \
+    ];\n      ExtremeMetric = If[Statistic == \"Minimum\", Min[Metric], \
+Max[Metric]];\n      TieTolerance = 64 $MachineEpsilon Max[Max[Abs[Metric]], \
+1.];\n      Tied = Pick[\n        Candidates,\n        Map[# <= TieTolerance \
+&, Abs[Metric - ExtremeMetric]]\n      ];\n      Selected = First[Tied];\n    \
+  Selected = Join[\n        Selected,\n        <|\n          \"Model\" -> \
+modelLabel,\n          \"Stage\" -> If[Length[Tied] == 1, \
+First[Tied][\"Stage\"], Missing[\"Tie\"]],\n          \"StageStatus\" -> \
+If[Length[Tied] == 1, \"Unique\", \"Tie\"],\n          \"ControllingStages\" \
+-> Lookup[Tied, \"Stage\"],\n          \"CoControllingStageCount\" -> \
+Length[Tied]\n        |>\n      ];\n      If[\n        Length[Tied] > 1,\n    \
+    ThetaValues = Lookup[Tied, \"Theta\"];\n        ThetaSpread = If[\n       \
+   AllTrue[ThetaValues, finiteRealQ],\n          Max[Abs[Arg[Exp[I \
+(ThetaValues - First[ThetaValues])]]]],\n          Infinity\n        ];\n     \
+   If[\n          ! finiteRealQ[ThetaSpread] || ThetaSpread > 1.*^-12,\n      \
+    Selected = Join[\n            Selected,\n            <|\n              \
+\"Theta\" -> Missing[\"Tie\"],\n              \"ThetaDeg\" -> \
+Missing[\"Tie\"]\n            |>\n          ]\n        ]\n      ];\n      \
+Membership = Join[\n        Membership,\n        Map[\n          <|\n         \
+   \"SampleId\" -> i,\n            \"Resultant\" -> Resultant,\n            \
+\"Statistic\" -> Statistic,\n            \"Stage\" -> #[\"Stage\"]\n          \
+|> &,\n          Tied\n        ]\n      ]\n    ];\n    \
+AppendTo[ExtremaSamples, Selected],\n    {i, SampleCount},\n    {Resultant, \
+Resultants},\n    {Statistic, {\"Minimum\", \"Maximum\", \
+\"AbsoluteMaximum\"}}\n  ];\n  ExtremaQuantiles = Flatten @ Table[\n    Group \
+= Select[\n      ExtremaSamples,\n      #[\"Resultant\"] == Resultant && \
+#[\"Statistic\"] == Statistic &\n    ];\n    GroupValues = Lookup[Group, \
+\"Value\"];\n    Table[\n      <|\n        \"Model\" -> modelLabel,\n        \
+\"Resultant\" -> Resultant,\n        \"Statistic\" -> Statistic,\n        \
+\"Probability\" -> Probability,\n        \"Value\" -> If[\n          \
+MemberQ[Supported, Resultant],\n          \
+ringEnsure[quantileType7[GroupValues, Probability]],\n          \
+Missing[\"NotSupported\"]\n        ]\n      |>,\n      {Probability, \
+Probabilities}\n    ],\n    {Resultant, Resultants},\n    {Statistic, \
+{\"Minimum\", \"Maximum\", \"AbsoluteMaximum\"}}\n  ];\n  Counts = Map[\n    \
+<|\n      \"Resultant\" -> #[[1, 1]],\n      \"Statistic\" -> #[[1, 2]],\n    \
+  \"Stage\" -> #[[1, 3]],\n      \"Count\" -> Length[#[[2]]]\n    |> &,\n    \
+Normal @ GroupBy[\n      Membership,\n      {#[\"Resultant\"], \
+#[\"Statistic\"], #[\"Stage\"]} &\n    ]\n  ];\n  OUT = <|\n    \"Type\" -> \
+\"RingStageMonteCarlo\",\n    \"Model\" -> modelLabel,\n    \"SampleCount\" \
+-> SampleCount,\n    \"StageNames\" -> StageNames,\n    \"Theta\" -> theta,\n \
+   \"Probabilities\" -> Probabilities,\n    \"QuantileMethod\" -> \
+\"Hyndman-Fan type 7\",\n    \"SupportedResultants\" -> Supported,\n    \
+\"UnsupportedResultants\" -> Complement[Resultants, Supported],\n    \
+\"PointwiseStageEnvelopeQuantiles\" -> PointwiseRows,\n    \"ExtremaSamples\" \
+-> ExtremaSamples,\n    \"ExtremaQuantiles\" -> ExtremaQuantiles,\n    \
+\"ControllingStageCounts\" -> Counts,\n    \"ControllingStageCountMeaning\" \
+->\n      \"Co-controlling count; each tied stage is counted once, so totals \
+may exceed SampleCount.\",\n    \"Draws\" -> draws,\n    \
+\"StageScenarioMetadata\" -> AssociationMap[\n      Lookup[StageResults[#], \
+\"ScenarioMetadata\"] &,\n      StageNames\n    ]\n  |>;\n  If[\n    \
+KeepSampleEnvelopes,\n    OUT = Join[\n      OUT,\n      <|\n        \
+\"SampleStageEnvelopes\" -> SampleEnvelopes,\n        \"StageSampleCurves\" \
+-> AssociationMap[\n          StageResults[#][\"SampleCurves\"] &,\n          \
+StageNames\n        ],\n        \"StageLoadSpectra\" -> AssociationMap[\n     \
+     StageResults[#][\"LoadSpectra\"] &,\n          StageNames\n        ],\n  \
+      \"StageResponseSpectra\" -> AssociationMap[\n          \
+StageResults[#][\"ResponseSpectra\"] &,\n          StageNames\n        ]\n    \
+  |>\n    ]\n  ];\n  OUT\n];\n\nOptions[runOutputMonteCarlo] = \
+{\"KeepSamples\" -> True};\n\nrunOutputMonteCarlo[\n  draws_,\n  \
+outputFunction_,\n  probabilities_,\n  modelLabel_,\n  OptionsPattern[]\n] := \
+ringCatch @ Module[\n  {KeepSamples, Probabilities, Outputs, OutputNames, \
+Quantiles, OUT},\n  KeepSamples = OptionValue[\"KeepSamples\"];\n  \
+ringRequire[\n    ListQ[draws] && Length[draws] > 0 && AllTrue[draws, \
+AssociationQ],\n    \"InvalidDraws\",\n    \"draws must be a non-empty list \
+of Associations.\"\n  ];\n  ringRequire[\n    ListQ[probabilities] && \
+Length[probabilities] > 0 &&\n      AllTrue[probabilities, finiteRealQ[#] && \
+0 <= # <= 1 &] &&\n      nonEmptyStringQ[modelLabel] && \
+BooleanQ[KeepSamples],\n    \"InvalidOutputMonteCarlo\",\n    \
+\"probabilities, modelLabel, or KeepSamples are invalid.\"\n  ];\n  \
+Probabilities = Sort[DeleteDuplicates[N[probabilities]]];\n  Outputs = \
+Map[outputFunction, draws];\n  ringRequire[\n    AllTrue[Outputs, \
+AssociationQ] &&\n      AllTrue[Outputs, AllTrue[Values[#], finiteRealQ] \
+&],\n    \"InvalidOutput\",\n    \"outputFunction must return an Association \
+of finite numeric outputs.\"\n  ];\n  OutputNames = Keys[First[Outputs]];\n  \
+ringRequire[\n    AllTrue[Outputs, Keys[#] === OutputNames &],\n    \
+\"ChangingOutputs\",\n    \"outputFunction must return the same ordered names \
+for every sample.\"\n  ];\n  Quantiles = Flatten @ Table[\n    <|\n      \
+\"Model\" -> modelLabel,\n      \"Output\" -> Name,\n      \"Probability\" -> \
+Probability,\n      \"Value\" -> ringEnsure[quantileType7[Lookup[Outputs, \
+Name], Probability]]\n    |>,\n    {Name, OutputNames},\n    {Probability, \
+Probabilities}\n  ];\n  OUT = <|\n    \"Type\" -> \"OutputMonteCarlo\",\n    \
+\"Model\" -> modelLabel,\n    \"SampleCount\" -> Length[draws],\n    \
+\"Probabilities\" -> Probabilities,\n    \"QuantileMethod\" -> \"Hyndman-Fan \
+type 7\",\n    \"Quantiles\" -> Quantiles,\n    \"Draws\" -> draws\n  |>;\n  \
+If[KeepSamples, OUT = Join[OUT, <|\"Samples\" -> Outputs|>]];\n  OUT\n];"],
+     "Input", InitializationCell -> True, CellTags -> {"RingMonteCarlo"}]},
+   Closed], CellGroupData[{Cell["Verificaci\[OAcute]n interna", "Section"],
+    Cell["Este bloque define y ejecuta 36 pruebas determin\[IAcute]sticas. Es \
+opcional durante la exploraci\[OAcute]n y queda plegado por defecto.",
+     "Text"], Cell[BoxData["(* Deterministic regression checks for \
+ringMethodology.wl. *)\n\nClearAll[ringTestNear, ringTestTrue, ringTestEqual, \
+runRingMethodologyTests];\n\nringTestNear[label_, actual_, expected_, \
+tolerance_] := Module[\n  {ActualValues, ExpectedValues, Error, Passed},\n  \
+If[\n    FailureQ[actual],\n    Return[<|\n      \"Test\" -> label,\n      \
+\"Passed\" -> False,\n      \"Error\" -> Infinity,\n      \"Diagnostic\" -> \
+actual\n    |>]\n  ];\n  ActualValues = Flatten[{actual}];\n  ExpectedValues \
+= Flatten[{expected}];\n  Passed = Length[ActualValues] == \
+Length[ExpectedValues] &&\n    AllTrue[Join[ActualValues, ExpectedValues], \
+finiteRealQ];\n  Error = If[\n    Passed,\n    Max[Abs[N[ActualValues] - \
+N[ExpectedValues]]],\n    Infinity\n  ];\n  <|\n    \"Test\" -> label,\n    \
+\"Passed\" -> TrueQ[Passed && Error <= tolerance],\n    \"Error\" -> Error,\n \
+   \"Tolerance\" -> tolerance\n  |>\n];\n\nringTestTrue[label_, value_] := \
+<|\n  \"Test\" -> label,\n  \"Passed\" -> TrueQ[value],\n  \"Observed\" -> \
+value\n|>;\n\nringTestEqual[label_, actual_, expected_] := <|\n  \"Test\" -> \
+label,\n  \"Passed\" -> SameQ[actual, expected],\n  \"Observed\" -> actual,\n \
+ \"Expected\" -> expected\n|>;\n\nrunRingMethodologyTests[] := Module[\n  {\n \
+   Tests, UniformPressure, Radius, UniformSpectrum, UniformResponse,\n    \
+UniformValues, GeneralSpectrum, GeneralResponse, Residual,\n    FitTheta, \
+FitLoads, FittedSpectrum, FittedTorque, FullSpectrum,\n    FullResponse, \
+Cardinal, NormalSpectrum, NormalResponse, NormalCardinal,\n    \
+BakerPublished, BakerAngles, BakerSpectrum, BakerResponse, BakerValues,\n    \
+UsaceService, UsaceDesign, UsaceSpectrum, UsaceResponse, UsaceValues,\n    \
+FhwaCases, FhwaCalculated, FhwaPressure, FhwaStage, FhwaStageResponse,\n    \
+FhwaResidual, NunezPrimary, NunezFinal, Draws, Scenario,\n    MonteCarlo, \
+MedianPointwise, MedianN, StageDraws, StageScenario,\n    StageMonteCarlo, \
+StageMedianN, UnsupportedScenario,\n    UnsupportedMonteCarlo, \
+UnsupportedPointwise, UnsupportedExtrema,\n    UnsupportedExtremaQuantiles, \
+TieStageScenario, TieStageMonteCarlo,\n    TieNMinimum, SamplerSpecification, \
+SampleOne, SampleTwo\n  },\n  Tests = {};\n\n  UniformPressure = 12.3;\n  \
+Radius = 2.1;\n  UniformSpectrum = newRingSpectrum[0];\n  UniformSpectrum = \
+setRingCoefficient[\n    UniformSpectrum,\n    \"RadialCos\",\n    0,\n    \
+-UniformPressure\n  ];\n  UniformResponse = \
+solveRingSpectrum[UniformSpectrum, Radius];\n  UniformValues = \
+evaluateRingResponse[\n    UniformResponse,\n    N[Range[0, 36] 2 Pi/37]\n  \
+];\n  AppendTo[Tests, ringTestNear[\n    \"uniform pressure N\",\n    \
+UniformValues[\"NormalForce\"],\n    ConstantArray[-UniformPressure Radius, \
+37],\n    1.*^-12\n  ]];\n  AppendTo[Tests, ringTestNear[\n    \"uniform \
+pressure M\",\n    UniformValues[\"BendingMoment\"],\n    ConstantArray[0., \
+37],\n    1.*^-12\n  ]];\n  AppendTo[Tests, ringTestNear[\n    \"uniform \
+pressure Q\",\n    UniformValues[\"ShearForce\"],\n    ConstantArray[0., \
+37],\n    1.*^-12\n  ]];\n\n  GeneralSpectrum = newRingSpectrum[5];\n  \
+GeneralSpectrum = Fold[\n    setRingCoefficient[#1, #2[[1]], #2[[2]], \
+#2[[3]]] &,\n    GeneralSpectrum,\n    {\n      {\"RadialCos\", 0, -7.}, \
+{\"RadialCos\", 2, 3.},\n      {\"RadialCos\", 3, -2.}, {\"RadialCos\", 5, \
+0.4},\n      {\"RadialSin\", 2, 1.2}, {\"RadialSin\", 3, -0.7},\n      \
+{\"RadialSin\", 4, 2.1}, {\"TangentialCos\", 2, -1.1},\n      \
+{\"TangentialCos\", 4, 0.8}, {\"TangentialCos\", 5, -0.3},\n      \
+{\"TangentialSin\", 2, 2.2}, {\"TangentialSin\", 3, -0.9},\n      \
+{\"TangentialSin\", 5, 0.6}\n    }\n  ];\n  GeneralResponse = \
+solveRingSpectrum[GeneralSpectrum, 1.7];\n  Residual = \
+ringEquilibriumResidual[\n    GeneralSpectrum,\n    GeneralResponse,\n    \
+1.7,\n    N[Range[0, 300] 2 Pi/300]\n  ];\n  AppendTo[Tests, ringTestNear[\n  \
+  \"modal equilibrium\",\n    Join[\n      Residual[\"MomentBalance\"],\n     \
+ Residual[\"RadialBalance\"],\n      Residual[\"TangentialBalance\"]\n    \
+],\n    ConstantArray[0., 3 Length[Residual[\"Theta\"]]],\n    3.*^-12\n  \
+]];\n\n  FitTheta = N[Range[0, 511] 2 Pi/512];\n  FitLoads = \
+evaluateRingLoad[GeneralSpectrum, FitTheta];\n  FittedSpectrum = \
+fitRingSpectrum[\n    FitTheta,\n    FitLoads[\"RadialOutward\"],\n    \
+FitLoads[\"TangentialPositive\"],\n    5\n  ];\n  AppendTo[Tests, \
+ringTestNear[\n    \"Fourier coefficient recovery\",\n    Flatten[Lookup[\n   \
+   FittedSpectrum,\n      {\"RadialCos\", \"RadialSin\", \"TangentialCos\", \
+\"TangentialSin\"}\n    ]],\n    Flatten[Lookup[\n      GeneralSpectrum,\n    \
+  {\"RadialCos\", \"RadialSin\", \"TangentialCos\", \"TangentialSin\"}\n    \
+]],\n    3.*^-13\n  ]];\n\n  FittedTorque = fitRingSpectrum[\n    FitTheta,\n \
+   1.*^12 Cos[2 FitTheta],\n    ConstantArray[1., Length[FitTheta]],\n    2\n \
+ ];\n  AppendTo[Tests, ringTestTrue[\n    \"fitted torque channel \
+separation\",\n    FailureQ[solveRingSpectrum[FittedTorque, 1.]]\n  ]];\n\n  \
+FullSpectrum = atRestFreeFieldSpectrum[\n    100.,\n    0.5,\n    20.,\n    \
+0.,\n    \"InterfaceBranch\" -> \"FullTraction\"\n  ];\n  FullResponse = \
+solveRingSpectrum[FullSpectrum, 2.];\n  Cardinal = evaluateRingResponse[\n    \
+FullResponse,\n    {0., Pi/4, Pi/2, 3 Pi/4, Pi}\n  ];\n  AppendTo[Tests, \
+ringTestNear[\n    \"full-traction N\",\n    Cardinal[\"NormalForce\"],\n    \
+{-140., -190., -240., -190., -140.},\n    3.*^-12\n  ]];\n  AppendTo[Tests, \
+ringTestNear[\n    \"full-traction M\",\n    Cardinal[\"BendingMoment\"],\n   \
+ {50., 0., -50., 0., 50.},\n    3.*^-12\n  ]];\n  AppendTo[Tests, \
+ringTestNear[\n    \"full-traction Q\",\n    Cardinal[\"ShearForce\"],\n    \
+{0., -50., 0., 50., 0.},\n    3.*^-12\n  ]];\n\n  NormalSpectrum = \
+atRestFreeFieldSpectrum[\n    100.,\n    0.5,\n    20.,\n    0.,\n    \
+\"InterfaceBranch\" -> \"NormalOnly\"\n  ];\n  NormalResponse = \
+solveRingSpectrum[NormalSpectrum, 2.];\n  NormalCardinal = \
+evaluateRingResponse[NormalResponse, {0., Pi/4, Pi/2}];\n  AppendTo[Tests, \
+ringTestNear[\n    \"normal-only N\",\n    NormalCardinal[\"NormalForce\"],\n \
+   {-173.333333333333, -190., -206.666666666667},\n    3.*^-12\n  ]];\n  \
+AppendTo[Tests, ringTestNear[\n    \"normal-only M\",\n    \
+NormalCardinal[\"BendingMoment\"],\n    {33.3333333333333, 0., \
+-33.3333333333333},\n    3.*^-12\n  ]];\n\n  BakerPublished = <|\n    0 -> \
+<|\n      \"N\" -> {0.000, -0.250, -0.433, -0.500},\n      \"M\" -> {0.318, \
+0.068, -0.115, -0.182}\n    |>,\n    30 -> <|\n      \"N\" -> {-0.128, \
+-0.239, -0.413, -0.477},\n      \"M\" -> {0.190, 0.080, -0.095, -0.159}\n    \
+|>,\n    60 -> <|\n      \"N\" -> {-0.239, -0.271, -0.358, -0.413},\n      \
+\"M\" -> {0.080, 0.048, -0.040, -0.095}\n    |>\n  |>;\n  BakerAngles = N[{0, \
+30, 60, 90} Pi/180];\n  Do[\n    BakerSpectrum = \
+bakerDiametricLoadSpectrum[HalfAngle, 8000];\n    BakerResponse = \
+solveRingSpectrum[BakerSpectrum, 1.];\n    BakerValues = \
+evaluateRingResponse[BakerResponse, BakerAngles];\n    AppendTo[Tests, \
+ringTestNear[\n      \"Baker N half-angle \" <> ToString[HalfAngle],\n      \
+BakerValues[\"NormalForce\"],\n      BakerPublished[HalfAngle][\"N\"],\n      \
+5.1*^-4\n    ]];\n    AppendTo[Tests, ringTestNear[\n      \"Baker M \
+half-angle \" <> ToString[HalfAngle],\n      \
+BakerValues[\"BendingMoment\"],\n      BakerPublished[HalfAngle][\"M\"],\n    \
+  5.1*^-4\n    ]],\n    {HalfAngle, {0, 30, 60}}\n  ];\n\n  UsaceService = \
+usace2020ServiceThrust[\n    120., 30., 3., 0., 0., 0.,\n    \"US\", \"ft\", \
+\"lb\",\n    \"USACE D4: live load omitted at H=30 ft > 8 ft and H>S\",\n    \
+True\n  ];\n  UsaceDesign = usace2020DesignThrust[\n    UsaceService,\n    \
+1.95,\n    1.75,\n    1.10,\n    \"D4 published regression\",\n    \"D4 \
+published regression\"\n  ];\n  AppendTo[Tests, ringTestNear[\n    \"USACE D4 \
+service thrust\",\n    UsaceService[\"ServiceThrust\"],\n    5400.,\n    \
+1.*^-12\n  ]];\n  AppendTo[Tests, ringTestNear[\n    \"USACE D4 design \
+thrust\",\n    UsaceDesign[\"DesignThrust\"],\n    11583.,\n    1.*^-9\n  \
+]];\n  AppendTo[Tests, ringTestEqual[\n    \"USACE thrust units\",\n    \
+UsaceService[\"ThrustUnit\"],\n    \"lb/ft\"\n  ]];\n  UsaceSpectrum = \
+usaceEquivalentUniformSpectrum[UsaceService];\n  UsaceResponse = \
+solveRingSpectrum[UsaceSpectrum, 1.5];\n  UsaceValues = \
+evaluateRingResponse[UsaceResponse, {0., Pi/2}];\n  AppendTo[Tests, \
+ringTestNear[\n    \"USACE N0 projection\",\n    \
+UsaceValues[\"NormalForce\"],\n    {-5400., -5400.},\n    1.*^-12\n  ]];\n  \
+AppendTo[Tests, ringTestTrue[\n    \"USACE M and Q unsupported\",\n    \
+AllTrue[\n      Join[UsaceValues[\"BendingMoment\"], \
+UsaceValues[\"ShearForce\"]],\n      MissingQ\n    ]\n  ]];\n\n  FhwaCases = \
+{\n    {20.5, 36., 970., 3.4}, {20.5, 28., 970., 7.2},\n    {5.2, 36., 970., \
+0.9}, {5.2, 28., 970., 1.8},\n    {5.2, 36., 1575., 0.3}, {5.2, 28., 1575., \
+0.5},\n    {4., 36., 970., 0.7}, {4., 28., 970., 1.4},\n    {4., 36., 1575., \
+0.2}\n  };\n  FhwaCalculated = Map[\n    fhwa1999CompactionPressure[#[[1]], \
+#[[2]], #[[3]]][\"PressureKpa\"] &,\n    FhwaCases\n  ];\n  AppendTo[Tests, \
+ringTestNear[\n    \"FHWA Table 5.5\",\n    Round[FhwaCalculated, 0.1],\n    \
+FhwaCases[[All, 4]],\n    1.*^-12\n  ]];\n  FhwaPressure = \
+fhwa1999CompactionPressure[20.5, 36., 970.];\n  FhwaStage = \
+fhwa1999CompactionStageSpectrum[\n    FhwaPressure,\n    0.485,\n    0.,\n    \
+40\n  ];\n  FhwaStageResponse = solveRingSpectrum[FhwaStage, 0.485];\n  \
+FhwaResidual = ringEquilibriumResidual[\n    FhwaStage,\n    \
+FhwaStageResponse,\n    0.485,\n    N[Range[0, 256] 2 Pi/256]\n  ];\n  \
+AppendTo[Tests, ringTestNear[\n    \"FHWA stage equilibrium\",\n    Join[\n   \
+   FhwaResidual[\"MomentBalance\"],\n      FhwaResidual[\"RadialBalance\"],\n \
+     FhwaResidual[\"TangentialBalance\"]\n    ],\n    ConstantArray[0., 3 \
+Length[FhwaResidual[\"Theta\"]]],\n    3.*^-12\n  ]];\n\n  NunezPrimary = \
+nunez2000CircularResultants[\n    10., 15., 0.15, 1.9, 1., 0., 0., 0.5, 0.5, \
+1., 500.,\n    \"Nunez 2000 example\"\n  ];\n  AppendTo[Tests, \
+ringTestNear[\n    \"Nunez 2000 primary interaction\",\n    \
+NunezPrimary[\"InteractionRatio\"],\n    0.027,\n    1.*^-14\n  ]];\n  \
+AppendTo[Tests, ringTestNear[\n    \"Nunez 2000 primary M\",\n    \
+NunezPrimary[\"MomentCrown\"],\n    1.2118,\n    5.*^-5\n  ]];\n  \
+AppendTo[Tests, ringTestNear[\n    \"Nunez 2000 primary N\",\n    \
+NunezPrimary[\"NormalCrown\"],\n    54.343,\n    5.*^-4\n  ]];\n  NunezFinal \
+= nunez2000CircularResultants[\n    10., 15., 0.35, 1.9, 1., 0., 0., 0.5, 1., \
+2., 320.,\n    \"Nunez 2000 example\"\n  ];\n  AppendTo[Tests, \
+ringTestNear[\n    \"Nunez 2000 final M\",\n    \
+NunezFinal[\"MomentCrown\"],\n    9.118,\n    5.*^-4\n  ]];\n  \
+AppendTo[Tests, ringTestNear[\n    \"Nunez 2000 final N springline\",\n    \
+NunezFinal[\"NormalSpringline\"],\n    147.5,\n    1.*^-12\n  ]];\n\n  Draws \
+= {\n    <|\"EffectiveVertical\" -> 80., \"K0\" -> 0.5, \"Radius\" -> 2.|>,\n \
+   <|\"EffectiveVertical\" -> 100., \"K0\" -> 0.5, \"Radius\" -> 2.|>,\n    \
+<|\"EffectiveVertical\" -> 120., \"K0\" -> 0.5, \"Radius\" -> 2.|>\n  };\n  \
+Scenario = Function[Draw,\n    <|\n      \"Spectrum\" -> \
+atRestFreeFieldSpectrum[\n        Draw[\"EffectiveVertical\"], Draw[\"K0\"], \
+0., 0.,\n        \"InterfaceBranch\" -> \"FullTraction\"\n      ],\n      \
+\"Radius\" -> Draw[\"Radius\"],\n      \"SupportedResultants\" -> {\"N\", \
+\"M\", \"Q\"},\n      \"Metadata\" -> <|\"Fixture\" -> True|>\n    |>\n  ];\n \
+ MonteCarlo = runRingMonteCarlo[\n    Draws,\n    Scenario,\n    {0., Pi/2, \
+Pi, 3 Pi/2},\n    {0.05, 0.5, 0.95},\n    \"algorithmic fixture\",\n    \
+\"ExtremaScanPoints\" -> 720,\n    \"KeepSampleCurves\" -> True\n  ];\n  \
+MedianPointwise = Select[\n    MonteCarlo[\"PointwiseQuantiles\"],\n    \
+#[\"Probability\"] == 0.5 &\n  ];\n  MedianN = Lookup[\n    \
+Select[MedianPointwise, #[\"Resultant\"] == \"N\" &],\n    \"Value\"\n  ];\n  \
+AppendTo[Tests, ringTestNear[\n    \"Monte Carlo pointwise N\",\n    \
+MedianN,\n    {-100., -200., -100., -200.},\n    2.*^-12\n  ]];\n\n  \
+UnsupportedScenario = Function[Draw,\n    Join[\n      Scenario[Draw],\n      \
+<|\"SupportedResultants\" -> {\"N\"}|>\n    ]\n  ];\n  UnsupportedMonteCarlo \
+= runRingMonteCarlo[\n    Draws,\n    UnsupportedScenario,\n    {0., Pi/2, \
+Pi, 3 Pi/2},\n    {0.5},\n    \"unsupported-resultant fixture\",\n    \
+\"ExtremaScanPoints\" -> 720\n  ];\n  UnsupportedPointwise = Select[\n    \
+UnsupportedMonteCarlo[\"PointwiseQuantiles\"],\n    MemberQ[{\"M\", \"Q\"}, \
+#[\"Resultant\"]] &\n  ];\n  UnsupportedExtrema = Select[\n    \
+UnsupportedMonteCarlo[\"ExtremaSamples\"],\n    MemberQ[{\"M\", \"Q\"}, \
+#[\"Resultant\"]] &\n  ];\n  UnsupportedExtremaQuantiles = Select[\n    \
+UnsupportedMonteCarlo[\"ExtremaQuantiles\"],\n    MemberQ[{\"M\", \"Q\"}, \
+#[\"Resultant\"]] &\n  ];\n  AppendTo[Tests, ringTestTrue[\n    \"unsupported \
+MC resultants remain Missing everywhere\",\n    AllTrue[UnsupportedPointwise, \
+MissingQ[#[\"Value\"]] &] &&\n      AllTrue[\n        UnsupportedExtrema,\n   \
+     MissingQ[#[\"Value\"]] && MissingQ[#[\"Theta\"]] &&\n          \
+MissingQ[#[\"ThetaDeg\"]] &\n      ] &&\n      \
+AllTrue[UnsupportedExtremaQuantiles, MissingQ[#[\"Value\"]] &]\n  ]];\n\n  \
+StageDraws = {\n    <|\"StageAPressure\" -> 0., \"StageBPressure\" -> \
+100.|>,\n    <|\"StageAPressure\" -> 100., \"StageBPressure\" -> 0.|>\n  };\n \
+ StageScenario = Function[Draw,\n    AssociationMap[\n      \
+Function[StageName,\n        Module[{Pressure, Spectrum},\n          Pressure \
+= If[\n            StageName == \"StageA\",\n            \
+Draw[\"StageAPressure\"],\n            Draw[\"StageBPressure\"]\n          \
+];\n          Spectrum = newRingSpectrum[0];\n          Spectrum = \
+setRingCoefficient[Spectrum, \"RadialCos\", 0, -Pressure];\n          <|\n    \
+        \"Spectrum\" -> Spectrum,\n            \"Radius\" -> 2.,\n            \
+\"SupportedResultants\" -> {\"N\", \"M\", \"Q\"},\n            \"Metadata\" \
+-> <|\"Source\" -> \"crossed-stage fixture\"|>\n          |>\n        ]\n     \
+ ],\n      {\"StageA\", \"StageB\"}\n    ]\n  ];\n  StageMonteCarlo = \
+runRingStageMonteCarlo[\n    StageDraws,\n    StageScenario,\n    {0., Pi/2, \
+Pi, 3 Pi/2},\n    {0.5},\n    \"stage fixture\",\n    \"ExtremaScanPoints\" \
+-> 720,\n    \"KeepSampleEnvelopes\" -> True\n  ];\n  StageMedianN = \
+Select[\n    StageMonteCarlo[\"PointwiseStageEnvelopeQuantiles\"],\n    \
+#[\"Resultant\"] == \"N\" && #[\"Probability\"] == 0.5 &\n  ];\n  \
+AppendTo[Tests, ringTestNear[\n    \"stage MC lower envelope before \
+quantile\",\n    Lookup[Select[StageMedianN, #[\"Bound\"] == \"Minimum\" &], \
+\"Value\"],\n    ConstantArray[-200., 4],\n    2.*^-12\n  ]];\n  \
+AppendTo[Tests, ringTestNear[\n    \"stage MC upper envelope before \
+quantile\",\n    Lookup[Select[StageMedianN, #[\"Bound\"] == \"Maximum\" &], \
+\"Value\"],\n    ConstantArray[0., 4],\n    2.*^-12\n  ]];\n\n  \
+TieStageScenario = Function[Draw,\n    AssociationMap[\n      \
+Function[StageName,\n        Module[{Spectrum},\n          Spectrum = \
+newRingSpectrum[2];\n          Spectrum = setRingCoefficient[\n            \
+Spectrum,\n            If[StageName == \"Cosine\", \"RadialCos\", \
+\"RadialSin\"],\n            2,\n            3.\n          ];\n          <|\n \
+           \"Spectrum\" -> Spectrum,\n            \"Radius\" -> 1.,\n         \
+   \"SupportedResultants\" -> {\"N\"},\n            \"Metadata\" -> \
+<|\"Source\" -> \"angle-tie fixture\"|>\n          |>\n        ]\n      ],\n  \
+    {\"Cosine\", \"Sine\"}\n    ]\n  ];\n  TieStageMonteCarlo = \
+runRingStageMonteCarlo[\n    {<|\"Fixture\" -> True|>},\n    \
+TieStageScenario,\n    N[Range[0, 7] Pi/4],\n    {0.5},\n    \
+\"stage-angle-tie fixture\",\n    \"ExtremaScanPoints\" -> 720\n  ];\n  \
+TieNMinimum = First @ Select[\n    TieStageMonteCarlo[\"ExtremaSamples\"],\n  \
+  #[\"Resultant\"] == \"N\" && #[\"Statistic\"] == \"Minimum\" &\n  ];\n  \
+AppendTo[Tests, ringTestTrue[\n    \"stage tie with distinct angles \
+invalidates controlling angle\",\n    TieNMinimum[\"StageStatus\"] == \"Tie\" \
+&&\n      TieNMinimum[\"CoControllingStageCount\"] == 2 &&\n      \
+MissingQ[TieNMinimum[\"Stage\"]] &&\n      MissingQ[TieNMinimum[\"Theta\"]] \
+&&\n      MissingQ[TieNMinimum[\"ThetaDeg\"]]\n  ]];\n  AppendTo[Tests, \
+ringTestTrue[\n    \"stage extrema retain a homogeneous ScanPoints \
+schema\",\n    AllTrue[\n      TieStageMonteCarlo[\"ExtremaSamples\"],\n      \
+KeyExistsQ[#, \"ScanPoints\"] &&\n        #[\"ScanPoints\"] == 720 &\n    ]\n \
+ ]];\n\n  SamplerSpecification = <|\n    \"FixedValue\" -> \
+fixedParameter[3.],\n    \"UniformValue\" -> uniformParameter[0., 1.],\n    \
+\"TriangularValue\" -> triangularParameter[0., 0.25, 1.],\n    \
+\"DiscreteValue\" -> discreteParameter[{1., 2.}, {0.4, 0.6}]\n  |>;\n  \
+SampleOne = sampleIndependentParameters[\n    SamplerSpecification,\n    \
+20,\n    20260809,\n    True\n  ];\n  SampleTwo = \
+sampleIndependentParameters[\n    SamplerSpecification,\n    20,\n    \
+20260809,\n    True\n  ];\n  AppendTo[Tests, ringTestEqual[\n    \
+\"Wolfram-native sampler deterministic replay\",\n    SampleOne,\n    \
+SampleTwo\n  ]];\n\n  <|\n    \"Passed\" -> AllTrue[Tests, \
+TrueQ[#[\"Passed\"]] &],\n    \"TestCount\" -> Length[Tests],\n    \
+\"FailedCount\" -> Count[Lookup[Tests, \"Passed\"], False],\n    \"Results\" \
+-> Tests\n  |>\n];"], "Input", InitializationCell -> True,
+     CellTags -> {"RingTests"}], Cell[BoxData["RingTestReport = \
+runRingMethodologyTests[];\nKeyTake[RingTestReport, {\"Passed\", \
+\"TestCount\", \"FailedCount\"}]"], "Input",
+     CellTags -> {"RingVerification"}]}, Closed],
+  Cell["Prototipo 1 \[LongDash] presi\[OAcute]n uniforme", "Section"],
+  Cell["Caso m\[IAcute]nimo para verificar signos: debe obtenerse N=-p R \
+constante, M=0 y Q=0.", "Text"], Cell["Entradas editables", "Subsection"],
+  Cell[BoxData["P1Radius = 2.10;\nP1Pressure = 12.30;\nP1Theta = N[Range[0, \
+359] 2 Pi/360];"], "Input", CellTags -> {"Prototype1Inputs"}],
+  Cell["C\[AAcute]lculo y resultados", "Subsection"],
+  Cell[BoxData["P1Spectrum = newRingSpectrum[0];\nP1Spectrum = \
+setRingCoefficient[P1Spectrum, \"RadialCos\", 0, -P1Pressure];\nP1Response = \
+solveRingSpectrum[P1Spectrum, P1Radius];\nP1Values = \
+evaluateRingResponse[P1Response, P1Theta];\nP1Summary = \
+summarizeRingResponse[P1Response];\nColumn[{\n  Dataset[P1Summary],\n  \
+ListLinePlot[\n    Transpose[{P1Theta 180/Pi, P1Values[\"NormalForce\"]}],\n  \
+  Frame -> True, FrameLabel -> {\"theta [deg]\", \"N\"},\n    PlotLabel -> \
+\"Presion uniforme: N(theta)\", PlotRange -> All,\n    ImageSize -> Large\n  \
+]\n}]"], "Input", CellTags -> {"Prototype1Run"}],
+  Cell["Prototipo 2 \[LongDash] relleno estratificado y campo K0",
+   "Section"], Cell["Ejemplo sint\[EAcute]tico completo: calcula las \
+ordenadas verticales en clave, eje y solera; proyecta el estado \
+geost\[AAcute]tico sobre el per\[IAcute]metro; y obtiene N(theta), M(theta) y \
+Q(theta). Los n\[UAcute]meros son demostrativos, no par\[AAcute]metros del \
+proyecto.", "Text"], Cell["Entradas editables", "Subsection"],
+  Cell[BoxData["P2CoverCrown = 3.00;\nP2Radius = 1.00;\nP2LayerBottom = \
+{Infinity};\nP2EffectiveUnitWeight = {18.0};\nP2EffectiveSurcharge = \
+0.0;\nP2WaterTableDepth = Infinity;\nP2WaterUnitWeight = 9.81;\nP2K0 = \
+0.50;\nP2ResidualHorizontal = 0.0;\nP2InterfaceBranch = \
+\"FullTraction\";\nP2Theta = N[Range[0, 359] 2 Pi/360];"], "Input",
+   CellTags -> {"Prototype2Inputs"}],
+  Cell["C\[AAcute]lculo, tablas y curvas", "Subsection"],
+  Cell[BoxData["P2StressOrdinates = ringVerticalStressOrdinates[\n  \
+P2CoverCrown, P2Radius, P2LayerBottom, P2EffectiveUnitWeight,\n  \
+P2EffectiveSurcharge, P2WaterTableDepth, P2WaterUnitWeight\n];\nP2AxisState = \
+First @ Select[P2StressOrdinates, #[\"Location\"] == \"Axis\" &];\nP2Spectrum \
+= atRestFreeFieldSpectrum[\n  P2AxisState[\"EffectiveVertical\"], P2K0,\n  \
+P2AxisState[\"PorePressure\"], P2ResidualHorizontal,\n  \"InterfaceBranch\" \
+-> P2InterfaceBranch\n];\nP2Response = solveRingSpectrum[P2Spectrum, \
+P2Radius];\nP2Loads = evaluateRingLoad[P2Spectrum, P2Theta];\nP2Values = \
+evaluateRingResponse[P2Response, P2Theta];\nP2Summary = \
+summarizeRingResponse[P2Response];\nColumn[{\n  Dataset[P2StressOrdinates],\n \
+ Dataset[P2Summary],\n  ListLinePlot[\n    {\n      Transpose[{P2Theta \
+180/Pi, P2Loads[\"RadialOutward\"]}],\n      Transpose[{P2Theta 180/Pi, \
+P2Loads[\"TangentialPositive\"]}]\n    },\n    PlotLegends -> {\"Pr hacia \
+afuera\", \"Pt con theta\"},\n    Frame -> True, FrameLabel -> {\"theta \
+[deg]\", \"traccion perimetral\"},\n    PlotLabel -> \"Carga proyectada sobre \
+el anillo\", PlotRange -> All,\n    ImageSize -> Large\n  ],\n  \
+ListLinePlot[\n    Transpose[{P2Theta 180/Pi, P2Values[\"NormalForce\"]}],\n  \
+  Frame -> True, FrameLabel -> {\"theta [deg]\", \"N\"},\n    PlotLabel -> \
+\"Esfuerzo normal; traccion positiva\", PlotRange -> All,\n    ImageSize -> \
+Large\n  ],\n  ListLinePlot[\n    Transpose[{P2Theta 180/Pi, \
+P2Values[\"BendingMoment\"]}],\n    Frame -> True, FrameLabel -> {\"theta \
+[deg]\", \"M\"},\n    PlotLabel -> \"Momento flector\", PlotRange -> All, \
+ImageSize -> Large\n  ],\n  ListLinePlot[\n    Transpose[{P2Theta 180/Pi, \
+P2Values[\"ShearForce\"]}],\n    Frame -> True, FrameLabel -> {\"theta \
+[deg]\", \"Q\"},\n    PlotLabel -> \"Corte\", PlotRange -> All, ImageSize -> \
+Large\n  ]\n}]"], "Input", CellTags -> {"Prototype2Run"}],
+  Cell["Explorador interactivo", "Section"], Cell["Los controles permiten \
+observar directamente la sensibilidad a sigma'_v, K0, presi\[OAcute]n de \
+poros, radio y rama de interfaz. Este explorador recibe el estado de \
+presi\[OAcute]n en el eje; el Prototipo 2 muestra c\[OAcute]mo obtenerlo \
+desde la tapada.", "Text"], Cell[BoxData["Manipulate[\n  Module[{Spectrum, \
+Response, Theta, Values, Summary},\n    Spectrum = atRestFreeFieldSpectrum[\n \
+     VerticalStress, K0Value, PorePressure, 0.,\n      \"InterfaceBranch\" -> \
+InterfaceBranch\n    ];\n    Response = solveRingSpectrum[Spectrum, \
+Radius];\n    Theta = N[Range[0, 359] 2 Pi/360];\n    Values = \
+evaluateRingResponse[Response, Theta];\n    Summary = \
+summarizeRingResponse[Response];\n    Column[{\n      Dataset[Summary],\n     \
+ ListLinePlot[\n        Transpose[{Theta 180/Pi, Values[\"NormalForce\"]}],\n \
+       Frame -> True, FrameLabel -> {\"theta [deg]\", \"N\"},\n        \
+PlotLabel -> \"N(theta)\", PlotRange -> All, ImageSize -> Large\n      ],\n   \
+   ListLinePlot[\n        Transpose[{Theta 180/Pi, \
+Values[\"BendingMoment\"]}],\n        Frame -> True, FrameLabel -> {\"theta \
+[deg]\", \"M\"},\n        PlotLabel -> \"M(theta)\", PlotRange -> All, \
+ImageSize -> Large\n      ],\n      ListLinePlot[\n        Transpose[{Theta \
+180/Pi, Values[\"ShearForce\"]}],\n        Frame -> True, FrameLabel -> \
+{\"theta [deg]\", \"Q\"},\n        PlotLabel -> \"Q(theta)\", PlotRange -> \
+All, ImageSize -> Large\n      ]\n    }]\n  ],\n  {{VerticalStress, 100., \
+\"sigma_v efectiva en el eje\"}, 10., 300., 5.},\n  {{K0Value, 0.50, \"K0\"}, \
+0.20, 1.20, 0.05},\n  {{PorePressure, 0., \"presion de poros\"}, 0., 200., \
+5.},\n  {{Radius, 2., \"radio\"}, 0.50, 5.00, 0.10},\n  {{InterfaceBranch, \
+\"FullTraction\", \"interfaz\"},\n    {\"FullTraction\", \"NormalOnly\"}},\n  \
+SaveDefinitions -> True\n]"], "Input", CellTags -> {"InteractivePrototype"}],
+  Cell["Ejemplos publicados de los adaptadores", "Section"],
+  Cell["Ejecuta los valores de regresi\[OAcute]n USACE D4, FHWA Tabla 5.5 y \
+N\[UAcute]\[NTilde]ez (2000). Son benchmarks de las fuentes, no una \
+combinaci\[OAcute]n de modelos ni datos del proyecto.", "Text"],
+  Cell[BoxData["P4UsaceService = usace2020ServiceThrust[\n  120., 30., 3., \
+0., 0., 0., \"US\", \"ft\", \"lb\",\n  \"USACE D4: live load omitted at H=30 \
+ft > 8 ft and H>S\", True\n];\nP4UsaceDesign = usace2020DesignThrust[\n  \
+P4UsaceService, 1.95, 1.75, 1.10,\n  \"D4 published regression\", \"D4 \
+published regression\"\n];\nP4FhwaPressure = fhwa1999CompactionPressure[20.5, \
+36., 970.];\nP4Nunez = nunez2000CircularResultants[\n  10., 15., 0.15, 1.9, \
+1., 0., 0., 0.5, 0.5, 1., 500.,\n  \"Nunez 2000 example\"\n];\nColumn[{\n  \
+Dataset[<|\n    \"USACE D4 service\" -> KeyTake[P4UsaceService,\n      \
+{\"DeadCrownPressure\", \"ServiceThrust\", \"ThrustUnit\"}],\n    \"USACE D4 \
+design\" -> KeyTake[P4UsaceDesign,\n      {\"DesignThrustBeforeModifier\", \
+\"DesignThrust\", \"ThrustUnit\"}]\n  |>],\n  \
+Dataset[KeyTake[P4FhwaPressure,\n    {\"PressureKpa\", \"CalibrationStatus\", \
+\"SourceLocation\"}]],\n  Dataset[KeyTake[P4Nunez,\n    \
+{\"InteractionRatio\", \"MomentCrown\", \"NormalCrown\",\n      \
+\"NormalSpringline\", \"Source\"}]]\n}]"], "Input",
+   CellTags -> {"SourceBenchmarks"}],
+  Cell["Prototipo 3 \[LongDash] Monte Carlo", "Section"],
+  Cell["Ejemplo sint\[EAcute]tico con marginales declaradas. \
+P3IndependenceConfirmed=True s\[OAcute]lo documenta la hip\[OAcute]tesis del \
+prototipo: para datos reales debe confirmarse la independencia o construirse \
+externamente un conjunto de realizaciones correlacionadas.", "Text"],
+  Cell["Entradas editables", "Subsection"],
+  Cell[BoxData["P3SampleCount = 100;\nP3Seed = 20260809;\nP3Probabilities = \
+{0.05, 0.50, 0.95};\nP3Theta = N[Range[0, 179] 2 Pi/180];\nP3CoverCrown = \
+3.00;\nP3Radius = 1.00;\nP3LayerBottom = {Infinity};\nP3WaterTableDepth = \
+Infinity;\nP3WaterUnitWeight = 9.81;\nP3Specification = <|\n  \
+\"EffectiveUnitWeight\" -> triangularParameter[17.0, 18.0, 20.0],\n  \
+\"EffectiveSurcharge\" -> triangularParameter[0.0, 5.0, 15.0],\n  \"K0\" -> \
+uniformParameter[0.40, 0.65]\n|>;\nP3IndependenceConfirmed = True;"],
+   "Input", CellTags -> {"Prototype3Inputs"}], Cell["Simulaci\[OAcute]n",
+   "Subsection"], Cell[BoxData["P3Draws = sampleIndependentParameters[\n  \
+P3Specification, P3SampleCount, P3Seed, \
+P3IndependenceConfirmed\n];\nP3Scenario = Function[Draw,\n  \
+Module[{StressOrdinates, AxisState, Spectrum},\n    StressOrdinates = \
+ringVerticalStressOrdinates[\n      P3CoverCrown, P3Radius, P3LayerBottom,\n  \
+    {Draw[\"EffectiveUnitWeight\"]}, Draw[\"EffectiveSurcharge\"],\n      \
+P3WaterTableDepth, P3WaterUnitWeight\n    ];\n    AxisState = First @ \
+Select[\n      StressOrdinates, #[\"Location\"] == \"Axis\" &\n    ];\n    \
+Spectrum = atRestFreeFieldSpectrum[\n      AxisState[\"EffectiveVertical\"], \
+Draw[\"K0\"],\n      AxisState[\"PorePressure\"], 0.,\n      \
+\"InterfaceBranch\" -> \"FullTraction\"\n    ];\n    <|\n      \"Spectrum\" \
+-> Spectrum,\n      \"Radius\" -> P3Radius,\n      \"SupportedResultants\" -> \
+{\"N\", \"M\", \"Q\"},\n      \"Metadata\" -> <|\"StressOrdinates\" -> \
+StressOrdinates|>\n    |>\n  ]\n];\nP3Result = runRingMonteCarlo[\n  P3Draws, \
+P3Scenario, P3Theta, P3Probabilities,\n  \"synthetic K0 prototype\", \
+\"ExtremaScanPoints\" -> 720\n];\nKeyTake[P3Result,\n  {\"Model\", \
+\"SampleCount\", \"Probabilities\", \"QuantileMethod\"}]"], "Input",
+   CellTags -> {"Prototype3Run"}], Cell["Envolventes y extremos",
+   "Subsection"], Cell[BoxData["P3NRows = Select[\n  \
+P3Result[\"PointwiseQuantiles\"], #[\"Resultant\"] == \"N\" &\n];\nP3NSeries \
+= Table[\n  With[{Rows = Select[P3NRows, #[\"Probability\"] == Probability \
+&]},\n    Transpose[{Lookup[Rows, \"ThetaDeg\"], Lookup[Rows, \"Value\"]}]\n  \
+],\n  {Probability, P3Probabilities}\n];\nColumn[{\n  ListLinePlot[\n    \
+P3NSeries,\n    PlotLegends -> (\"p=\" <> ToString[#] & /@ \
+P3Probabilities),\n    Frame -> True, FrameLabel -> {\"theta [deg]\", \
+\"N\"},\n    PlotLabel -> \"Cuantiles puntuales de N(theta)\", PlotRange -> \
+All,\n    ImageSize -> Large\n  ],\n  Dataset @ Select[\n    \
+P3Result[\"ExtremaQuantiles\"], #[\"Resultant\"] == \"N\" &\n  ]\n}]"],
+   "Input", CellTags -> {"Prototype3Results"}],
+  Cell["L\[IAcute]mite de esta etapa", "Section"],
+  Cell["El prototipo resuelve el anillo isotr\[OAcute]pico bajo tracciones \
+prescritas. No resuelve todav\[IAcute]a interacci\[OAcute]n suelo-estructura \
+dependiente de rigidez, ortotrop\[IAcute]a, chapa ondulada ni pernos. Los \
+resultantes que una fuente no respalda permanecen Missing[\"NotSupported\"]."\
+, "Text"]}, WindowTitle ->
+  "Prototipo de liner circular: Fourier y Monte Carlo",
+ TaggingRules ->
+  <|"Artifact" -> "self-contained isotropic circular-ring prototype",
+   "KernelVersion" -> "15.0.1 for Mac OS X ARM (64-bit) (July 2, 2026)",
+   "SelfContained" -> True, "PrototypeCount" -> 3|>,
+ StyleDefinitions -> "Default.nb"]
