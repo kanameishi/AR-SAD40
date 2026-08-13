@@ -1082,7 +1082,7 @@ con la misma ley.
 El desarrollo académico nuevo se preserva fuera de la Fase 1 congelada en:
 
 ```text
-TITO/kb/paper-candidate/chapters/methodology.interface.friction.es.md
+TITO/kb/paper-candidate/chapters/methodology.tangential.participation.es.md
 ```
 
 ### 21.4 Alcance de los contrastes
@@ -3246,3 +3246,79 @@ La ejecución de Mai.1--Mai.10 requiere, en este orden:
 No se modifica `calculation.json`, no se ejecuta Monte Carlo, no se generan
 tensiones del revestimiento existente y no se altera la Fase 1 durante esta
 etapa de planificación.
+
+## 30. Ampliación metodológica y secuencia chapa--shotcrete
+
+La instrucción del 12 de agosto de 2026 establece una secuencia de dos
+productos: primero se incorporan los hallazgos posteriores a la Fase 1 en una
+metodología candidata autónoma; después se trasladan a la memoria profesional
+solamente las fórmulas operativas y el estado de aplicación que puedan
+sostenerse. La alternativa de shotcrete comienza después de cerrar la etapa de
+chapa y no se mezcla con esta ampliación.
+
+### 30.1 Producto metodológico candidato
+
+La Fase 1 permanece congelada. La ampliación independiente se ensambla mediante
+
+```text
+_master/methodology.extension.review.es.qmd
+_index/methodology.extension.review.ES.qmd
+```
+
+y reúne cinco bloques bajo `TITO/kb/paper-candidate/chapters/`:
+
+1. alcance y cadena de cálculo;
+2. estimación de $K_0$ desde variables primitivas e historia tensional;
+3. participación prescrita de la componente tangencial mediante
+   $P_t=\alpha p_t^*$, sin atribuir a $\alpha$ una ley de fricción;
+4. deterioro, sección neta y recuperación elástica condicionada de la tensión
+   normal circunferencial; y
+5. controles matemáticos y datos de referencia en un apéndice separado.
+
+El producto no incorpora resultados CANDE, cargas superficiales de Mai ni
+ensayos últimos como contrastes del cálculo geostático. Tampoco adopta una
+norma resistente sin acceso a su articulado aplicable.
+
+### 30.2 Estado de la chapa
+
+La recuperación mecánica condicional está formulada e implementada:
+
+$$
+\sigma_\theta(\theta,y)
+=\frac{N_\theta(\theta)}{\bar A_n}
+-1000\frac{M_\theta(\theta)y}{\bar I_n}.
+$$
+
+Con la coordenada $\xi=-y$ de la memoria, positiva hacia el interior, la misma
+relación se expresa como
+
+$$
+\sigma_\theta(\theta,\xi)
+=\frac{N_\theta(\theta)}{\bar A_n}
++1000\frac{M_\theta(\theta)\xi}{\bar I_n}.
+$$
+
+La metodología de recuperación puede incorporarse a la memoria. Su evaluación
+para el revestimiento existente continúa bloqueada por la sección neta
+corroída $\bar A_n,\bar I_n$, las coordenadas reales de las fibras y un criterio
+aprobado de aplicabilidad frente a la curvatura. Las propiedades nominales del
+escenario de comprobación no sustituyen esos datos. La verificación resistente
+permanece además bloqueada por la identificación del producto, la norma y
+edición aplicables, el acero, las combinaciones y los estados límite
+obligatorios. No se informarán tensiones, utilizaciones ni factores de
+seguridad del caso hasta resolver esas entradas.
+
+### 30.3 Puerta documental y próxima rama
+
+El diseño independiente del candidato concluyó `PASS` en
+`/private/tmp/ar-sad40-methodology-candidate-design.md`. Las formulaciones de
+$K_0$, participación tangencial, G10.2, Mai y G10.7 conservan sus auditorías
+independientes previas; el render del ensamblado resolvió citas, referencias
+cruzadas y la numeración propia del apéndice sin modificar los hashes de la
+Fase 1. El HTML queda sujeto a revisión y aceptación editorial directa del
+usuario.
+
+La memoria puede incorporar la fórmula final, sus signos, unidades, dominio y
+el estado no evaluado del escenario; no copiará derivaciones ni controles
+académicos. La rama de shotcrete permanece como próxima etapa y conserva las
+condiciones registradas en 28.2.3 y 28.4.

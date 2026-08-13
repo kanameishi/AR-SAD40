@@ -35,7 +35,7 @@ $Q_\theta$ conservan sus signos.
 | `eq-calculation-k0-passive-limit` | sin equivalente en Fase 1; Mayne--Kulhawy (1982), ecs. 11--12; desarrollo académico de $K_0$ |
 | `eq-calculation-compaction-history` | `eq-compaction-history`; separación metodológica ampliada en el desarrollo académico de $K_0$ |
 | `eq-calculation-stress-projection`, `eq-calculation-biaxial-load` | `eq-mean-difference`, `eq-normal-pressure`, `eq-tangential-traction` |
-| `eq-calculation-tangential-multiplier` | interpola los estados prescritos `eq-normal-pressure` y `eq-tangential-traction`; desarrollo independiente en `TITO/kb/paper-candidate/chapters/methodology.interface.friction.es.md` |
+| `eq-calculation-tangential-multiplier` | interpola los estados prescritos `eq-normal-pressure` y `eq-tangential-traction`; desarrollo independiente en `TITO/kb/paper-candidate/chapters/methodology.tangential.participation.es.md` |
 | `eq-calculation-first-order-system` | `eq-ring-equilibrium-m`, `eq-ring-equilibrium-r`, `eq-ring-equilibrium-t` |
 | `eq-calculation-compatibility-constants` | `eq-general-resultants`, `eq-compatibility-conditions`, `eq-compatibility-constants` |
 | `eq-calculation-section-stiffness` | `eq-sectional-constitutive-law`, `eq-corrugated-rigidities`, `eq-corrugated-ratio` |

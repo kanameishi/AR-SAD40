@@ -1,17 +1,18 @@
-# Candidato académico: participación de la componente tangencial
+# Participación de la componente tangencial
 
-## Función dentro de la metodología
+## Acciones proyectadas sobre el contorno
 
-La Fase 1 definió dos estados de acciones prescritas: la proyección completa
-del estado biaxial y el estado que conserva únicamente su componente normal.
-Este candidato establece una familia continua entre ambos extremos, sin
-modificar los archivos congelados de Fase 1.
+La proyección de un estado biaxial sobre una circunferencia contiene una
+componente normal y una componente tangencial. Como el grado de transferencia
+de esta última no está caracterizado para el relleno existente, la metodología
+define una familia continua de acciones prescritas entre su omisión y su
+incorporación completa.
 
 ## Proyección del estado tensional
 
 Para tensiones principales efectivas vertical y horizontal,
 $\sigma_v'$ y $\sigma_h'$, la presión normal efectiva y la componente
-tangencial proyectada sobre una circunferencia son
+tangencial proyectada son
 
 $$
 p_n'(\theta)=\sigma_v'\cos^2\theta+\sigma_h'\sin^2\theta,
@@ -29,7 +30,7 @@ $$
 
 ## Multiplicador tangencial
 
-La acción tangencial se prescribe mediante
+La acción tangencial prescrita es
 
 $$
 P_t(\theta)=\alpha\,p_t^*(\theta),
@@ -77,17 +78,12 @@ $$
 
 ## Incorporación en el análisis probabilístico
 
-$\alpha$ integra el vector de variables de Monte Carlo, junto con $\phi'$ y
-las variables que determinen $K_0$ en cada rama geotécnica. Su dominio,
-distribución y dependencias deben definirse antes de la corrida. Cuando $K_0$
-se calcula a partir de $\phi'$ u otras variables, no se muestrean además como
-entradas independientes. No se asigna a $\alpha$ una relación con parámetros
-geotécnicos de interfaz dentro de esta formulación.
+$\alpha$ integra el vector de variables de Monte Carlo junto con $\phi'$ y
+las restantes variables primitivas que determinen $K_0$. Su dominio,
+distribución y dependencias deben definirse antes de la simulación. Cuando
+$K_0$ se calcula desde $\phi'$ u otras propiedades, esas magnitudes no se
+muestrean además como entradas independientes.
 
-## Alcance
-
-El multiplicador permite propagar de forma transparente la incertidumbre sobre
-la participación de una acción tangencial proyectada. Una ley constitutiva de
-contacto requeriría una formulación distinta, parámetros adicionales y un
-procedimiento de solución propio; no constituye una reinterpretación de
-$\alpha$.
+No se asigna a $\alpha$ una relación con parámetros geotécnicos de interfaz
+dentro de esta formulación. Una ley constitutiva de contacto requeriría otros
+parámetros y un procedimiento de solución propio.

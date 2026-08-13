@@ -1,11 +1,10 @@
-# Candidato académico: estimación del coeficiente de empuje en reposo
+# Estimación del coeficiente de empuje en reposo
 
-## Función dentro de la metodología
+## Estado lateral efectivo del relleno
 
 El estado lateral efectivo constituye una entrada de la proyección de acciones
-sobre el revestimiento circular. Este capítulo reúne las relaciones que
-permiten obtenerlo a partir de propiedades del suelo y de su historia
-tensional.
+sobre el revestimiento circular. Las relaciones siguientes permiten obtenerlo
+a partir de las propiedades del suelo y de su historia tensional.
 
 El capítulo caracteriza las formulaciones aplicables según la trayectoria
 tensional, identifica sus variables primitivas y establece la separación entre

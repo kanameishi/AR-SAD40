@@ -1,0 +1,30 @@
+---
+lang: es
+title: "Ampliaciones de la metodología para el análisis de revestimientos circulares de acero corrugado"
+subtitle: "Estado lateral del relleno, participación tangencial, deterioro y recuperación elástica de tensiones circunferenciales"
+date: "2026-08-12"
+bibliography:
+  - bib/references.bib
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+number-sections: true
+toc-title: "Contenido"
+crossref:
+  fig-title: Figura
+  tbl-title: Tabla
+  eq-title: Ecuación
+  fig-prefix: figura
+  tbl-prefix: tabla
+  eq-prefix: ec.
+  sec-prefix: sección
+---
+
+{{< include /_index/methodology.extension.review.ES.qmd >}}
+
+# Referencias {.unnumbered}
+
+::: {#refs .references}
+:::

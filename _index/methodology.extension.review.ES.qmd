@@ -1,0 +1,9 @@
+{{< include /TITO/kb/paper-candidate/chapters/methodology.extension.scope.es.md >}}
+
+{{< include /TITO/kb/paper-candidate/chapters/methodology.k0.estimation.es.md >}}
+
+{{< include /TITO/kb/paper-candidate/chapters/methodology.tangential.participation.es.md >}}
+
+{{< include /TITO/kb/paper-candidate/chapters/methodology.sheet.assessment.es.md >}}
+
+{{< include /TITO/kb/paper-candidate/chapters/methodology.extension.controls.es.md >}}
