@@ -35,6 +35,12 @@ primarias mediante `bib/references.bib`.
   independiente completa (`NunezSfrisoLaiun2014`).
 - NCSPA (2018): propiedades seccionales de perfiles corrugados de acero
   (`NCSPA2018`).
+- Mai (2013): estados de medición del deterioro, conservación de $EA$ y $EI$,
+  recuperación elástica y mecanismos locales no representados por la tensión
+  normal homogeneizada (`Mai2013`).
+- United States Bureau of Reclamation (1968): diferencia entre las
+  distribuciones de tensión de vigas rectas y curvas y límite cualitativo de la
+  aproximación lineal (`USBR1968Beggs`).
 
 ## Clases internas de evidencia
 
@@ -149,6 +155,14 @@ permanecen pendientes y no se habilitan como ecuaciones operativas.
   $Q_\theta(\theta)$.
 - En el problema plano, el perfil corrugado interviene mediante
   $EA_\theta$ y $EI_\theta$.
+- La tensión normal circunferencial de una sección neta homogeneizada puede
+  recuperarse condicionalmente mediante
+  $\sigma_\theta=N_\theta/\bar A_n+1000M_\theta\xi/\bar I_n$, con $\xi$
+  positiva hacia el interior y unidades consistentes.
+- La recuperación se evalúa en ambas fibras sólo cuando la sección neta y el
+  criterio de aplicabilidad frente a la curvatura están definidos.
+- $Q_\theta$ permanece como resultante hasta adoptar una distribución local de
+  flujo cortante compatible con la corrugación.
 - La circunferencia de referencia y los diagramas radiales no representan una
   deformada. $A_g$ modifica exclusivamente la longitud gráfica de las
   ordenadas.
@@ -158,8 +172,11 @@ permanecen pendientes y no se habilitan como ecuaciones operativas.
 
 ## Afirmaciones excluidas
 
-- No se informan tensiones de la chapa, capacidad resistente, solicitaciones
-  de juntas ni pernos.
+- No se informan tensiones del revestimiento existente mientras no se conozcan
+  la sección neta, las fibras y la aplicabilidad frente a la curvatura.
+- No se presenta una utilización normativa, un factor de seguridad, una
+  tensión equivalente ni una comprobación de pandeo, costuras, juntas o
+  pernos.
 - No se asignan distribuciones, dependencias o probabilidades de escenarios
   sin una caracterización aprobada.
 - No se atribuye retención permanente a la acción FHWA sin evidencia de obra.
@@ -177,7 +194,8 @@ proyección del estado tensional;
 multiplicador de la componente tangencial; comparación uniforme USACE; acción temporal FHWA;
 equilibrio global; sistema diferencial de primer orden; constantes de
 compatibilidad; solución cerrada en función de $\alpha$; rigideces
-circunferenciales; resultantes y extremos espaciales. El Apéndice A resume los
+circunferenciales; resultantes y extremos espaciales; y recuperación
+condicionada de la tensión normal circunferencial. El Apéndice A resume los
 desarrollos necesarios para comprobarlas.
 
 ## Hechos requeridos no resueltos
@@ -193,17 +211,22 @@ desarrollos necesarios para comprobarlas.
 - niveles de agua exterior e interior;
 - espesores actuales, variación espacial de la corrosión y modelo de pérdida
   de sección;
-- recuperación de tensiones normales y cortantes en la chapa y relación con
-  las demandas de juntas y pernos; y
+- propiedades netas $\bar A_n$, $\bar I_n$, coordenadas de fibras, regla para
+  representar su variación angular y criterio de aplicabilidad frente a la
+  curvatura;
+- producto, norma, acero, combinaciones y estados límite para la comprobación
+  resistente de la chapa;
+- recuperación local de la tensión cortante y relación con las demandas de
+  juntas y pernos; y
 - distribuciones marginales, dependencias, truncamientos, cuantiles de interés
   y criterios de estabilidad de Monte Carlo.
 
 ## Estado
 
 La aplicación determinística y sus contrastes son aptos para la memoria como
-escenario de comprobación. La evaluación probabilística del revestimiento
-existente permanece pendiente de la caracterización y de las relaciones
-resistentes indicadas. Las formulaciones operativas de $K_0$ y sus controles
-están implementados e integrados al contrato reproducible de datos. No
-sustituyen el valor adoptado del escenario vigente sin información del
-relleno; tampoco asignan distribuciones ni ejecutan Monte Carlo.
+escenario de comprobación. La relación de recuperación normal está establecida
+pero no se evalúa con las propiedades nominales del escenario. La evaluación
+probabilística y la comprobación resistente del revestimiento existente
+permanecen pendientes de la caracterización indicada. Las formulaciones
+operativas de $K_0$ y sus controles están integradas al contrato reproducible
+de datos; no asignan distribuciones ni ejecutan Monte Carlo.

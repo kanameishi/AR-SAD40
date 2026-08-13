@@ -9,9 +9,11 @@ acción radial $P_r(\theta)$ y tangencial $P_t(\theta)$ siempre que el estado de
 carga incluya todas las fuerzas y reacciones necesarias para satisfacer el
 equilibrio global.
 
-El procedimiento entrega resultantes por unidad de longitud del eje. Estas
-magnitudes constituyen la entrada para recuperar las tensiones locales de la
-corrugación y evaluar las uniones mediante relaciones resistentes específicas.
+El procedimiento entrega resultantes por unidad de longitud del eje. A partir
+de $N_\theta$ y $M_\theta$ puede recuperarse la tensión normal circunferencial
+de una sección homogeneizada cuando se conocen sus propiedades netas y se
+satisface la condición de curvatura. Las tensiones locales de la corrugación y
+la evaluación de las uniones requieren formulaciones resistentes específicas.
 
 ## Coordenada angular, signos y unidades
 

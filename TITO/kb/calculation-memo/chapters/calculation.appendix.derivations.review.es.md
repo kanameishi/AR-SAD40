@@ -660,3 +660,73 @@ La @eq-calculation-appendix-biaxial-alpha-response es un resultado derivado en
 esta memoria para la familia de acciones prescritas $P_t=\alpha p_t^*$. Su
 ámbito no se extiende a una ley de interacción suelo--estructura, fricción o
 deslizamiento.
+
+## A.6 Recuperación de la tensión normal circunferencial {.unnumbered}
+
+Sea $\xi$ la coordenada de la sección neta medida desde su centroide y positiva
+hacia el interior. Para una sección homogénea en régimen elástico y una
+distribución lineal de deformaciones,
+
+$$
+\varepsilon_\theta(\xi)
+=\varepsilon_0+\kappa_\theta\xi,
+\qquad
+\sigma_\theta(\xi)
+=E_\theta\left(\varepsilon_0+\kappa_\theta\xi\right).
+$$ {#eq-calculation-appendix-sheet-strain}
+
+Las propiedades netas por unidad de longitud longitudinal proyectada son
+
+$$
+\bar A_n=\frac{1}{b}\int_{A_n}dA,
+\qquad
+\bar I_n=\frac{1}{b}\int_{A_n}\xi^2\,dA,
+\qquad
+\frac{1}{b}\int_{A_n}\xi\,dA=0.
+$$ {#eq-calculation-appendix-net-properties}
+
+Al integrar las tensiones de la
+@eq-calculation-appendix-sheet-strain sobre la sección se obtiene
+
+$$
+N_\theta=E_\theta\bar A_n\varepsilon_0,
+\qquad
+M_\theta=E_\theta\bar I_n\kappa_\theta.
+$$ {#eq-calculation-appendix-net-resultants}
+
+La eliminación de $\varepsilon_0$ y $\kappa_\theta$ conduce a
+
+$$
+\sigma_\theta(\theta,\xi)
+=\frac{N_\theta(\theta)}{\bar A_n}
++\frac{M_\theta(\theta)\xi}{\bar I_n}.
+$$
+
+En las unidades de la memoria, $1\ \mathrm{kN/m}=1\ \mathrm{N/mm}$ para la
+fuerza por unidad de ancho, mientras que
+$1\ \mathrm{kN\,m/m}=1000\ \mathrm{N\,mm/mm}$ para el momento por unidad de
+ancho. Por lo tanto,
+
+$$
+\boxed{
+\sigma_\theta(\theta,\xi)\,[\mathrm{MPa}]
+=\frac{N_\theta(\theta)\,[\mathrm{kN/m}]}{\bar A_n\,[\mathrm{mm^2/mm}]}
++1000\frac{M_\theta(\theta)\,[\mathrm{kN\,m/m}]\,\xi\,[\mathrm{mm}]}
+{\bar I_n\,[\mathrm{mm^4/mm}]}}
+$$ {#eq-calculation-appendix-sheet-normal-stress}
+
+Como $M_\theta>0$ produce tracción en la fibra interior, el signo positivo del
+término flexional es coherente con $\xi>0$ hacia el interior.
+
+La derivación supone una distribución lineal de deformaciones. En un perfil
+corrugado curvo sólo se aplica después de adoptar un criterio respaldado de
+aplicabilidad frente a la curvatura o de cuantificar la diferencia mediante
+una formulación de viga curva. Ese criterio no ha sido adoptado para el
+revestimiento existente. La misma sección neta y el mismo eje centroidal deben
+determinar las rigideces con las que se obtienen $N_\theta$ y $M_\theta$. Si
+$\bar A_n$ o $\bar I_n$ varían de manera relevante con $\theta$, deben
+recalcularse las resultantes con una representación compatible de esa variación
+o justificarse una sección equivalente aplicable. La resultante $Q_\theta$ no
+interviene en esta recuperación y no se transforma aquí en una tensión local.
+Una sección perforada o con ligamentos aislados requiere, además, evaluar la
+continuidad del camino resistente y la estabilidad local.

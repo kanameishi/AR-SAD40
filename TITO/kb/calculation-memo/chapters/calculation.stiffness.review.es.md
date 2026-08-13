@@ -33,3 +33,9 @@ las rigideces circunferenciales porque las acciones adoptadas no varían en la
 dirección longitudinal. La recuperación de tensiones en crestas y valles y la
 respuesta de las uniones requieren las relaciones resistentes específicas de
 esas verificaciones.
+
+En la evaluación del revestimiento existente, $A_p$ e $I_p$ deben representar
+la sección neta actual. Las mismas propiedades y el mismo eje centroidal se
+emplean en las rigideces anteriores y en la recuperación de tensiones de la
+@sec-calculation-sheet-stress. Las propiedades nominales interpoladas en la
+aplicación numérica se limitan al escenario de comprobación.

@@ -113,12 +113,28 @@ magnitudes físicas y sus unidades.
 
 {{< include /_fig/Calculation.resultants.ES.qmd >}}
 
+## Estado de la recuperación de tensiones
+
+Las propiedades seccionales interpoladas en esta aplicación corresponden al
+perfil nominal del escenario de comprobación. No constituyen propiedades netas
+del revestimiento deteriorado. Por ello no se aplica la
+@eq-calculation-sheet-normal-stress ni se informan tensiones normales de la
+chapa.
+
+La evaluación se completará cuando se disponga de $\bar A_n$, $\bar I_n$, las
+coordenadas firmadas de las fibras interior y exterior y un criterio de
+aplicabilidad frente a la curvatura. Esta condición evita identificar el
+espesor nominal informado con el espesor metálico resistente actual. Si las
+propiedades netas adoptadas no son uniformes alrededor de la sección, también
+deberá recalcularse la respuesta mediante una formulación que represente esa
+variación de rigidez.
+
 ## Comprobación numérica
 
-Los casos declarados disponen de soluciones cerradas. La máxima diferencia
-absoluta entre esas soluciones y la integración directa es
-$`r formatCalculationScientificLatex(Calculation$numerics$maximumControlDifference, 2L)`$
-en las unidades de cada resultante, frente a una tolerancia de
-$`r formatCalculationScientificLatex(Calculation$numerics$controlTolerance[1L], 2L)`$.
-Las soluciones cerradas empleadas en esta comprobación se presentan en el
-Apéndice A.5.
+Los casos declarados disponen de soluciones cerradas. La
+@tbl-calculation-controls presenta la diferencia absoluta y la tolerancia de
+cada resultante por separado; no combina fuerzas y momentos en una única
+métrica dimensional. Las soluciones cerradas empleadas en esta comprobación se
+presentan en el Apéndice A.5.
+
+{{< include /_tbl/Calculation.controls.ES.qmd >}}

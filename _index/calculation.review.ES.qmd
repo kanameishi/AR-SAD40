@@ -12,6 +12,8 @@
 
 {{< include /TITO/kb/calculation-memo/chapters/calculation.stiffness.review.es.md >}}
 
+{{< include /TITO/kb/calculation-memo/chapters/calculation.sheet.review.es.md >}}
+
 {{< include /TITO/kb/calculation-memo/chapters/calculation.uncertainty.review.es.md >}}
 
 {{< include /TITO/kb/calculation-memo/chapters/calculation.application.review.es.qmd >}}

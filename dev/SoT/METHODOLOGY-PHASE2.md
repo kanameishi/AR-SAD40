@@ -1,6 +1,6 @@
 # Fuente de verdad — memoria de cálculo ejecutiva, Fase 2
 
-**Estado:** G0--G10.2 y G10.7 cerradas; ampliación metodológica posterior a Fase 1 auditada; incorporación condicionada de chapa a la memoria en curso
+**Estado:** G0--G10.2 y G10.7 cerradas; ampliación metodológica y recuperación condicionada de chapa auditadas; verificación resistente del caso bloqueada por entradas; shotcrete es la próxima rama
 **Fecha de corte:** 2026-08-12
 **Aceptación:** usuario
 **Producto aprobado de referencia:** documento metodológico de Fase 1, futuro paper
@@ -3331,3 +3331,52 @@ La memoria puede incorporar la fórmula final, sus signos, unidades, dominio y
 el estado no evaluado del escenario; no copiará derivaciones ni controles
 académicos. La rama de shotcrete permanece como próxima etapa y conserva las
 condiciones registradas en 28.2.3 y 28.4.
+
+### 30.4 Cierre de la memoria y transición a shotcrete
+
+La memoria incorporó la recuperación normal circunferencial como una operación
+condicionada y autónoma. El cuerpo presenta la fórmula final, las convenciones,
+las unidades y las entradas; el Apéndice A.6 desarrolla la relación y declara
+su dominio sin remitir a otro producto. La aplicación conserva las propiedades
+nominales como escenario de comprobación y no calcula tensiones del
+revestimiento existente.
+
+La misma sección neta y el mismo eje centroidal deben producir
+$EA_\theta$, $EI_\theta$ y la recuperación de tensión. Para propiedades netas
+uniformes se recalculan las resultantes con esas rigideces. Si
+$\bar A_n(\theta)$ o $\bar I_n(\theta)$ varían de forma relevante, la solución
+actual de rigidez uniforme no se usa como base de una posoperación local: debe
+resolverse nuevamente el equilibrio y la compatibilidad con rigideces
+variables, o justificarse una sección equivalente aplicable.
+
+Controles de cierre:
+
+- `Rscript scripts/R/testSheetStress.R`: PASS;
+- `Rscript scripts/R/runCalculationMemo.R`: PASS;
+- `Rscript scripts/R/testCalculationData.R`: PASS;
+- `Rscript scripts/R/testRingMethod.R`: PASS;
+- `Rscript scripts/R/testCalculationFigures.R`: PASS;
+- auditoría técnica: PASS en
+  `/private/tmp/ar-sad40-sheet-memo-technical-audit.md`;
+- reauditoría editorial: PASS en
+  `/private/tmp/ar-sad40-sheet-memo-editorial-reaudit.md`; y
+- HTML: `html/calculation.review.es/index.html`, SHA-256
+  `10a249fc6604da90e1b4f6b9b2c69600c1d77ae0b5c9f5d919f1a531ee651f29`.
+
+Este cierre corresponde al procedimiento de recuperación, no a una
+verificación resistente del caso. Permanecen obligatorios y no resueltos la
+sección neta, las coordenadas firmadas de fibras, la representación espacial de
+la corrosión, la continuidad resistente, el criterio de curvatura, el producto,
+la norma y edición, el acero, las combinaciones y los estados límite. No se
+informan tensiones, utilización ni factor de seguridad del revestimiento
+existente.
+
+La alternativa de shotcrete es la rama siguiente, separada de la chapa. Su
+investigación G10.1 permanece en
+`TITO/kb/research/g10.shotcrete.section.verification.es.md` y su auditoría en
+`TITO/kb/research/g10.shotcrete.section.verification.audit.es.md`. Antes de
+implementar o trasladar fórmulas a la memoria deben resolverse la aplicabilidad
+reglamentaria, la clasificación de la sección, la condición autónoma o
+compuesta, el espesor resistente, la armadura, la resistencia efectiva y las
+acciones de cálculo y servicio. No se inferirá una sección compuesta con la
+chapa ni se tratará automáticamente una cuantía nula como hormigón simple.

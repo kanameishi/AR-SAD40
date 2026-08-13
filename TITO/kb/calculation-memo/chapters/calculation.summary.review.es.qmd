@@ -36,12 +36,19 @@ cat(Calculation$caseSummaryMarkdown)
 Estos resultados corresponden al escenario de comprobación declarado y no
 constituyen la demanda del revestimiento existente.
 
+La memoria establece además la recuperación de la tensión normal
+circunferencial a partir de $N_\theta$, $M_\theta$ y las propiedades de la
+sección neta actual. Esa operación no se evalúa para el escenario presentado:
+faltan el área y la inercia netas, las coordenadas de ambas fibras y el criterio
+de aplicabilidad frente a la curvatura. Las propiedades nominales empleadas en
+la comprobación de resultantes no sustituyen esos antecedentes.
+
 La evaluación probabilística del proyecto no fue ejecutada. La tapada, la
 geometría del revestimiento, el acero y el espesor original se tratarán como
 datos conocidos una vez incorporados sus registros definitivos. Permanecen por
 caracterizar las propiedades del relleno, la compactación, la participación
 tangencial y el espesor neto actual afectado por corrosión. Antes de asignar
-distribuciones también deben definirse las dependencias entre variables y las
-relaciones para recuperar tensiones en la chapa y demandas en las uniones. El
-alcance mecánico de esta emisión termina en $N_\theta$, $M_\theta$ y
-$Q_\theta$ y sus extremos.
+distribuciones también deben definirse las dependencias entre variables y la
+base resistente de la chapa y las uniones. Esta emisión informa las
+resultantes y sus extremos, y deja formulada la recuperación condicional de la
+tensión normal sin presentar valores del revestimiento existente.

@@ -24,7 +24,7 @@ magnitudes que permanecen por caracterizar.
 | estado lateral | rama de estado lateral y sus variables primitivas; $K_0$ sólo como medición directa o valor adoptado; incremento residual de compactación cuando corresponda | determina $\sigma_h'(\theta)$ | definir una rama sin duplicar variables dependientes |
 | compactación | equipo, energía, tongadas, secuencia y retención | determina acciones temporales y, si existe evidencia, componentes residuales | pendiente de registros de obra |
 | participación tangencial | multiplicador $\alpha$ | $P_t=\alpha p_t^*$ mediante la @eq-calculation-tangential-multiplier | variable de Monte Carlo; distribución y dependencias pendientes |
-| corrosión | pérdida de espesor o mediciones de espesor actual | $t_{net}=t_0-\Delta t_{corr}$; se recalculan $A_p$, $I_p$, $EA_\theta$ y $EI_\theta$ | pendiente de inspección y modelo espacial |
+| corrosión | espesor medido, estado de lectura, perforación y eventual pérdida futura | obtener un espesor de cálculo no negativo mediante una regla espacial documentada; recalcular $A_p$, $I_p$, $EA_\theta$ y $EI_\theta$ sin descontar dos veces la pérdida ya medida | pendiente de inspección, regla espacial y definición de rigidez uniforme o variable |
 | agua | niveles exterior e interior y variación temporal | determina $\Delta u(\theta)$ | confirmar para cada estado de carga |
 
 : Variables que requieren caracterización antes de ejecutar Monte Carlo. {#tbl-calculation-probabilistic-inputs}
@@ -48,8 +48,9 @@ Antes de generar realizaciones deberán definirse:
    relleno;
 2. la relación entre pérdida de espesor y propiedades seccionales actuales;
 3. la distribución y las dependencias de $\alpha$ dentro del modelo conjunto;
-4. la recuperación de tensiones normales en la chapa a partir de
-   $N_\theta$ y $M_\theta$;
+4. las propiedades netas, las fibras, la representación espacial de la rigidez
+   y el criterio de curvatura necesarios para aplicar la recuperación de
+   tensiones normales desde $N_\theta$ y $M_\theta$;
 5. la contribución de $Q_\theta$ a las tensiones locales de la chapa; y
 6. la conversión de $N_\theta$ en fuerza tributaria de la junta longitudinal,
    su distribución entre pernos y la eventual contribución de
@@ -74,8 +75,8 @@ Cada realización conservará sus valores de entrada y calculará, por etapa:
 1. $P_r(\theta)$ y $P_t(\theta)$;
 2. $N_\theta(\theta)$, $M_\theta(\theta)$ y $Q_\theta(\theta)$;
 3. los mínimos, máximos y máximos absolutos, con su posición angular; y
-4. una vez definida la recuperación resistente, las tensiones de la chapa y
-   las demandas de las uniones.
+4. una vez cerrada la recuperación de demanda y, separadamente, la base
+   resistente, las tensiones de la chapa y las demandas de las uniones.
 
 Las funciones de densidad y distribución acumulada de las tensiones se
 obtendrán de la misma muestra registrada. Las distribuciones en una posición

@@ -40,6 +40,8 @@ $Q_\theta$ conservan sus signos.
 | `eq-calculation-compatibility-constants` | `eq-general-resultants`, `eq-compatibility-conditions`, `eq-compatibility-constants` |
 | `eq-calculation-section-stiffness` | `eq-sectional-constitutive-law`, `eq-corrugated-rigidities`, `eq-corrugated-ratio` |
 | `eq-calculation-biaxial-alpha-response` | superposición lineal de `eq-k0-normal-response` y `eq-k0-full-response` |
+| `eq-calculation-sheet-normal-stress` | desarrollo posterior a la Fase 1; `eq-methodology-sheet-normal-stress` en la ampliación metodológica independiente |
+| `eq-calculation-appendix-sheet-normal-stress` | derivación dimensional de `eq-calculation-sheet-normal-stress` con la coordenada $\xi=-y$ |
 
 La correspondencia identifica procedencia y equivalencia conceptual. No
 autoriza a modificar las etiquetas ni los archivos congelados de la Fase 1.

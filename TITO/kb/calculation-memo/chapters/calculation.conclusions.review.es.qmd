@@ -12,10 +12,9 @@ cat(Calculation$caseSummaryMarkdown)
 ```
 
 Los valores intermedios se obtienen con la
-@eq-calculation-biaxial-alpha-response. La integración directa reproduce las
-soluciones cerradas con una diferencia absoluta máxima de
-$`r formatCalculationScientificLatex(Calculation$numerics$maximumControlDifference, 2L)`$
-en las unidades de cada resultante.
+@eq-calculation-biaxial-alpha-response. Los seis controles de la
+@tbl-calculation-controls satisfacen la tolerancia declarada para cada
+resultante, conservando por separado las unidades de fuerza y momento.
 
 ## Datos del revestimiento existente
 
@@ -30,13 +29,20 @@ requiere completar la siguiente caracterización:
 3. estado tensional e historia de carga necesarios para seleccionar la rama de
    $K_0$;
 4. hipótesis y rango aplicable del multiplicador tangencial $\alpha$;
-5. niveles de agua exterior e interior para cada estado de carga; y
-6. espesores medidos, distribución de la corrosión y propiedades seccionales
-   netas.
+5. niveles de agua exterior e interior para cada estado de carga;
+6. espesores medidos, estados de lectura, perforaciones, distribución de la
+   corrosión y propiedades seccionales netas;
+7. regla para representar la variación espacial de esas propiedades en el
+   cálculo de resultantes; y
+8. criterio de aplicabilidad de la distribución lineal de tensiones frente a
+   la curvatura del perfil.
 
 La presente emisión determina $N_\theta(\theta)$,
 $M_\theta(\theta)$ y $Q_\theta(\theta)$ para las acciones declaradas. La
-recuperación de tensiones en la chapa, el tratamiento local de $Q_\theta$ y la
-demanda de juntas y pernos requieren relaciones resistentes adicionales. El
-plan de caracterización y simulación probabilística se define en la
+relación para recuperar la tensión normal circunferencial desde
+$N_\theta$ y $M_\theta$ queda establecida en la
+@sec-calculation-sheet-stress, pero no se evalúa con las propiedades nominales
+del escenario. El tratamiento local de $Q_\theta$, la comprobación resistente
+de la chapa y la demanda de juntas y pernos permanecen separados. El plan de
+caracterización y simulación probabilística se define en la
 @sec-calculation-uncertainty.

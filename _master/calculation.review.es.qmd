@@ -2,7 +2,7 @@
 lang: es
 title: "Memoria de cálculo de las resultantes seccionales del revestimiento circular"
 subtitle: "Acciones del relleno, respuesta transversal y plan de análisis probabilístico"
-date: "2026-08-11"
+date: "2026-08-12"
 bibliography:
   - bib/references.bib
 format:
