@@ -1,0 +1,1 @@
+Circumferential normal-stress extrema for the CSPI reference section. Stresses are expressed in MPa and angles in degrees clockwise from the crown; $f=e$ identifies the outer fibre and $f=i$ the inner fibre.

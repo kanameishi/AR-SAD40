@@ -25,14 +25,13 @@ un conducto corrugado de aluminio de 36 in de diámetro exterior, una tapada de
 
 {{< include /_tbl/Calculation.usace.reference.ES.qmd >}}
 
-El valor $T_G=5400\ \mathrm{lb/ft}$ resulta de aplicar la relación sin
-factores y es derivado en este estudio. Los restantes valores de la tabla se
-publican en D4. El ejemplo identifica por error la expresión de empuje como
-ecuación 4-24; la expresión mostrada corresponde a la ecuación 4-20. Asimismo,
-el modificador 1,10 pertenece al ejemplo de aluminio, mientras que la ecuación
-4-21 indica 1,05 para conductos metálicos corrugados. Ninguno de esos valores
-se transfiere al revestimiento de acero sin establecer la disposición
-aplicable.
+La tabla distingue el empuje de servicio derivado en este estudio de los
+valores publicados en D4. El ejemplo identifica por error la expresión de
+empuje como ecuación 4-24; la expresión mostrada corresponde a la ecuación
+4-20. Asimismo, el modificador 1,10 pertenece al ejemplo de aluminio, mientras
+que la ecuación 4-21 indica 1,05 para conductos metálicos corrugados. Ninguno
+de esos valores se transfiere al revestimiento de acero sin establecer la
+disposición aplicable.
 
 ## C.2 FHWA-RD-98-191: presión equivalente de compactación {.unnumbered}
 
@@ -40,20 +39,40 @@ La @eq-calculation-fhwa-compaction representa el efecto lateral del equipo de
 compactación mediante la correlación publicada por FHWA
 [@McGrathEtAl1999, ec. 5.1, pp. 176--178]. El caso siguiente comprueba su
 evaluación aritmética con las combinaciones de $P$, $d_c$ y $\phi$ tabuladas
-por la fuente.
+por la fuente. Los diámetros centroidales de 970 y 1575 mm se obtienen de la
+figura 5.4; la tabla 5.5 identifica los diámetros nominales correspondientes
+como 900 y 1500 mm.
 
 {{< include /_tbl/Calculation.fhwa.reference.ES.qmd >}}
 
-Las ocho filas reproducen la columna correspondiente a la ecuación 5.1 de la
-tabla 5.5 al aplicar su redondeo. Una fila adicional impresa para piedra,
-$P=4,0\ \mathrm{kN}$, $d_c=1575\ \mathrm{mm}$ y
-$\phi=28^\circ$ informa $0,2\ \mathrm{kPa}$, aunque la sustitución literal
-produce $0,416\ \mathrm{kPa}$. Con $\phi=36^\circ$, coherente con las demás
-filas de piedra, se obtiene $0,195\ \mathrm{kPa}$. Esta observación se conserva
-como discrepancia de los datos impresos; no modifica la ecuación ni ajusta sus
-parámetros.
+Ocho filas coinciden con la presión publicada al redondear a 0,1 kPa. La fila
+9 conserva por separado el ángulo impreso y el ángulo alternativo coherente
+con las demás filas de piedra. La diferencia se registra como discrepancia de
+la fuente; no modifica la ecuación ni ajusta sus parámetros.
 
-## C.3 Núñez (2000): ejemplos circulares {.unnumbered}
+## C.3 Schwartz--Einstein: ejemplo HP97 {.unnumbered}
+
+El ejemplo HP97 utiliza $C^*=0,05$, $F^*=100$, $\nu_g=0,4$,
+$K_{SE}=0,5$ y $\theta_{SE}=30^\circ$. La fuente tabula las razones
+
+$$
+\bar T=\frac{T_{SE}}{P_{SE}R},
+\qquad
+\bar M=\frac{M_{SE}}{P_{SE}R^2}
+$$
+
+para dos secuencias de carga y dos condiciones de interfaz
+[@SchwartzEinstein1980, ejemplo HP97, pp. 391--392]. En esta reproducción,
+$T_{SE}>0$ indica compresión conforme a la convención de la fuente.
+
+{{< include /_tbl/Calculation.schwartz.einstein.reference.ES.qmd >}}
+
+La fuente no tabula la fuerza cortante; por tanto, el contraste se limita a
+las razones de fuerza normal y momento publicadas. Los cuatro casos pertenecen
+al continuo elástico y a las secuencias definidas por Schwartz y Einstein; no
+representan la construcción por colocación y relleno del conducto analizado.
+
+## C.4 Núñez (2000): ejemplos circulares {.unnumbered}
 
 Núñez desarrolla una formulación para revestimientos de túneles excavados. La
 especialización circular sin presión de agua empleada en sus ejemplos define
@@ -90,15 +109,19 @@ $q=1\ \mathrm{tf/m^2}$ y $K_0=0,5$.
 
 {{< include /_tbl/Calculation.nunez.reference.ES.qmd >}}
 
-La diferencia relativa máxima entre los valores publicados, redondeados, y
-los recalculados es 1,31 %. El parámetro $\eta_N$ representa la relajación
-asociada a la excavación. Por consiguiente, este caso comprueba la evaluación
-de la formulación de Núñez dentro de su dominio y no constituye un modelo de
-acción para un conducto colocado y posteriormente rellenado.
+Los valores no redondeados de $a_N$ son entradas de la reproducción; no se
+recalculan porque los ejemplos no suministran en forma completa las
+propiedades requeridas por su definición. A partir de esas entradas se
+recalculan $A_N$, $M_{\max}$, $N_C$ y $N_A$.
 
-## C.4 Alcance conjunto {.unnumbered}
+El parámetro $\eta_N$ representa la relajación asociada a la excavación. Por
+consiguiente, este caso comprueba la evaluación de la formulación de Núñez
+dentro de su dominio y no constituye un modelo de acción para un conducto
+colocado y posteriormente rellenado.
+
+## C.5 Alcance conjunto {.unnumbered}
 
 USACE y FHWA comprueban relaciones de acciones dentro de sus respectivos
-dominios; Núñez comprueba una formulación de interacción para túneles
-excavados. Ninguna de estas relaciones reemplaza la solución angular empleada
-para obtener $N_\theta$, $M_\theta$ y $Q_\theta$.
+dominios; Schwartz--Einstein y Núñez comprueban formulaciones de interacción
+para sus condiciones de referencia. Ninguna de estas relaciones reemplaza la
+solución angular empleada para obtener $N_\theta$, $M_\theta$ y $Q_\theta$.

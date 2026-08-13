@@ -143,7 +143,9 @@ calculateSheetNormalStress <- function(resultants, netSection, recoveryBasis) {
   if (ModelID != "linear-homogenized") {
     stop("Unsupported sheet-stress recovery modelID: ", ModelID, ".", call. = FALSE)
   }
-  if (!(ApplicabilityStatus %in% c("satisfied", "not-satisfied", "unknown"))) {
+  if (!(ApplicabilityStatus %in% c(
+    "satisfied", "adopted", "not-satisfied", "unknown"
+  ))) {
     stop(
       "Unsupported recovery applicabilityStatus: ",
       ApplicabilityStatus,
@@ -170,7 +172,7 @@ calculateSheetNormalStress <- function(resultants, netSection, recoveryBasis) {
   Output$recoveryModelID <- ModelID
   Output$criterionID <- CriterionID
   Output$applicabilityStatus <- ApplicabilityStatus
-  if (ApplicabilityStatus == "satisfied") {
+  if (ApplicabilityStatus %in% c("satisfied", "adopted")) {
     Output$membraneStressMPa <-
       Output$normalForceKnPerM / netSection$areaMm2PerMm
     Output$bendingStressMPa <-

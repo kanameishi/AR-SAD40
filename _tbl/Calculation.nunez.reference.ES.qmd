@@ -1,11 +1,6 @@
 ```{r}
 #| include: false
 source("scripts/tbl/Calculation.reference.cases.R")
-ReferenceTables <- buildCalculationReferenceTables(
-  pathUSACE = "_tbl/usaceThrustBenchmark.csv",
-  pathFHWA = "_tbl/fhwaCompactionBenchmark.csv",
-  pathNunez = "_tbl/nunez2000Benchmark.csv"
-)
 CAP <- paste(
   readLines("_captions/tbl.Calculation.nunez.reference.ES.md", warn = FALSE),
   collapse = "\n"
@@ -16,10 +11,12 @@ CAP <- paste(
 #| label: tbl-calculation-nunez-reference
 #| tbl-cap: !expr CAP
 #| echo: false
-ReferenceTables$Nunez
+buildCalculationNunezReferenceTable(
+  file.path(projectRoot, "data", "benchmarks", "nunez.2000.circular.csv")
+)
 ```
 
 ```{r}
 #| include: false
-rm(CAP, ReferenceTables, buildCalculationReferenceTables)
+rm(CAP, buildCalculationNunezReferenceTable, .readReferenceCaseProduct)
 ```

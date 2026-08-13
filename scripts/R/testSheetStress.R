@@ -111,6 +111,17 @@ for (Status in c("unknown", "not-satisfied")) {
   )
 }
 
+AdoptedBasis <- RecoveryBasis
+AdoptedBasis$criterionID <- "reference-section-model-adoption"
+AdoptedBasis$applicabilityStatus <- "adopted"
+StressAdopted <- calculateSheetNormalStress(
+  Resultants,
+  NetSection,
+  AdoptedBasis
+)
+assertClose(StressAdopted$normalStressMPa, Stress$normalStressMPa)
+stopifnot(all(StressAdopted$applicabilityStatus == "adopted"))
+
 expectError <- function(expression, pattern) {
   Message <- tryCatch(
     {

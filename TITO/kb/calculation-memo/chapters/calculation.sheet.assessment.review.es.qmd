@@ -1,0 +1,42 @@
+# Demanda elástica de la sección corrugada de referencia {#sec-calculation-sheet-assessment}
+
+Las resultantes del escenario determinístico se aplicaron a la sección CSPI
+76×25 adoptada en la @tbl-calculation-section-reference. Bajo la hipótesis de
+respuesta elástica lineal de la sección homogeneizada, las tensiones normales
+circunferenciales en las fibras exterior e interior son
+
+$$
+\sigma_{\theta,e}(\theta)
+=\frac{N_\theta(\theta)}{A_p}
+-1000\frac{M_\theta(\theta)}{S_p},
+\qquad
+\sigma_{\theta,i}(\theta)
+=\frac{N_\theta(\theta)}{A_p}
++1000\frac{M_\theta(\theta)}{S_p}.
+$$ {#eq-calculation-sheet-reference-stress}
+
+La convención asigna signo positivo a la tracción y considera
+$M_\theta>0$ cuando la fibra interior está traccionada. El factor 1000
+corresponde a las unidades adoptadas: $N_\theta$ en kN/m, $M_\theta$ en
+kN·m/m, $A_p$ en mm²/mm y $S_p$ en mm³/mm; las tensiones resultan en MPa.
+El desarrollo se presenta en el Apéndice A.
+
+{{< include /_tbl/Calculation.sheet.stress.ES.qmd >}}
+
+La mayor magnitud calculada es
+`r formatCalculationFixed(Calculation$sheet$governing$maximumAbsoluteStressMPa, 2L)`
+MPa; corresponde a un valor firmado de
+`r formatCalculationFixed(Calculation$sheet$governing$governingSignedStressMPa, 2L)`
+MPa para $\alpha=
+`r formatCalculationGeneral(Calculation$sheet$governing$alpha)`$, en
+$\theta=
+`r formatCalculationFixed(Calculation$sheet$governing$governingThetaDeg, 1L)`^\circ$
+y en la fibra
+`r Calculation$sheet$governing$fibreLabel`.
+
+Estos valores representan la demanda elástica de la sección publicada que se
+empleó para calcular las rigideces. No representan la sección neta del
+revestimiento afectada por corrosión ni una comprobación de resistencia. La
+fuerza cortante $Q_\theta$ se conserva como resultante seccional, pero no se
+transforma en una tensión local sin definir un modelo de flujo cortante
+compatible con la geometría corrugada.

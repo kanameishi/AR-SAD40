@@ -119,7 +119,8 @@ buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
   }
   SectionRows <- if (Section$propertyModelID == "published-exact-row") {
     RequiredExact <- c(
-      "actualPitchMm", "actualDepthMm", "corrugationRadiusMm",
+      "nominalPitchMm", "nominalDepthMm", "actualPitchMm",
+      "actualDepthMm", "corrugationRadiusMm",
       "specifiedThicknessMm", "designBaseThicknessMm"
     )
     if (length(setdiff(RequiredExact, names(Section))) > 0L) {
@@ -129,7 +130,14 @@ buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
       row("$p_c$", formatGeneral(Section$actualPitchMm), "$\\mathrm{mm}$"),
       row("$h_c$", formatGeneral(Section$actualDepthMm), "$\\mathrm{mm}$"),
       row("$r_c$", formatGeneral(Section$corrugationRadiusMm), "$\\mathrm{mm}$"),
-      row("$\\mathcal P$", inputText("reference-profile"), "—"),
+      row(
+        "$\\mathcal P$",
+        paste0(
+          "CSPI CSP ", formatGeneral(Section$nominalPitchMm), " × ",
+          formatGeneral(Section$nominalDepthMm)
+        ),
+        "—"
+      ),
       row("$t_s$", formatGeneral(Section$specifiedThicknessMm), "$\\mathrm{mm}$"),
       row("$t_d$", formatGeneral(Section$designBaseThicknessMm), "$\\mathrm{mm}$")
     )
@@ -140,7 +148,15 @@ buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
     list(
       row("$p_c$", formatGeneral(inputNumber("nominal-corrugation-pitch")), "$\\mathrm{mm}$"),
       row("$h_c$", formatGeneral(inputNumber("nominal-corrugation-depth")), "$\\mathrm{mm}$"),
-      row("$\\mathcal P$", inputText("reference-profile"), "—"),
+      row(
+        "$\\mathcal P$",
+        paste0(
+          "Perfil ",
+          formatGeneral(inputNumber("nominal-corrugation-pitch")), " × ",
+          formatGeneral(inputNumber("nominal-corrugation-depth"))
+        ),
+        "—"
+      ),
       row("$t_b$", formatGeneral(Section$analysisBaseThicknessMm), "$\\mathrm{mm}$")
     )
   }

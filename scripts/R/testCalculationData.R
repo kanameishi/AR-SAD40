@@ -14,6 +14,7 @@ runCalculationDataTests <- function() {
   source(file.path(Root, "scripts", "R", "corrugatedSection.R"))
   source(file.path(Root, "scripts", "R", "perimeterActions.R"))
   source(file.path(Root, "scripts", "R", "sectionResultants.R"))
+  source(file.path(Root, "scripts", "R", "sheetStress.R"))
   source(file.path(Root, "scripts", "R", "calculateScenario.R"))
   source(file.path(Root, "scripts", "R", "calculationData.R"))
   LoaderEnvironment <- new.env(parent = environment())
@@ -27,6 +28,7 @@ runCalculationDataTests <- function() {
   source(file.path(Root, "scripts", "tbl", "Calculation.extrema.R"))
   source(file.path(Root, "scripts", "tbl", "Calculation.controls.R"))
   source(file.path(Root, "scripts", "tbl", "Calculation.section.reference.R"))
+  source(file.path(Root, "scripts", "tbl", "Calculation.sheet.stress.R"))
   source(file.path(Root, "scripts", "fig", "Calculation.resultants.R"))
 
   assertNear <- function(actual, expected, tolerance, label) {
@@ -145,6 +147,17 @@ runCalculationDataTests <- function() {
     check.names = FALSE,
     stringsAsFactors = FALSE
   )
+  ExactStress <- utils::read.csv(
+    file.path(ExactDirectory, "sheet.normal.stress.csv"),
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+  ExactStressExtrema <- utils::read.csv(
+    file.path(ExactDirectory, "sheet.normal.stress.extrema.csv"),
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+  ExactCalculation <- loadCalculationResults(Root, ExactDirectory)
   stopifnot(
     ExactConfig$section$propertyModelID == "published-exact-row",
     ExactSelected$referenceRowID == "cspi-76x25-2.8",
@@ -162,6 +175,38 @@ runCalculationDataTests <- function() {
     c(2.8, 2.64, 3.281, 249.73, 17.81),
     0,
     "published exact section row"
+  )
+  FibreSign <- ifelse(ExactStress$fiberID == "outer", -1, 1)
+  ExpectedStress <-
+    ExactStress$normalForceKnPerM / ExactSection$areaMm2PerMm +
+      FibreSign * 1000 * ExactStress$bendingMomentKnMPerM /
+        ExactSection$sectionModulusMm3PerMm
+  assertNear(
+    ExactStress$normalStressMPa,
+    ExpectedStress,
+    1e-10,
+    "published-section normal stress"
+  )
+  stopifnot(
+    nrow(ExactStressExtrema) == nrow(ExactConfig$loadCases),
+    all(ExactStress$sectionStateID == "published-reference-section"),
+    all(ExactStress$recoveryBasisID ==
+      "reference-section-model-adoption"),
+    all(ExactStress$recoveryBasisStatus == "adopted"),
+    all(ExactStress$shearStressStatus == "not-evaluated"),
+    !is.null(ExactCalculation$sheet),
+    identical(
+      ExactCalculation$sheet$governing$maximumAbsoluteStressMPa,
+      max(ExactStressExtrema$maximumAbsoluteStressMPa)
+    )
+  )
+  ExactStressTable <- tableText(buildCalculationSheetStressTable(
+    file.path(ExactDirectory, "sheet.normal.stress.extrema.csv")
+  ))
+  stopifnot(
+    grepl("sigma", ExactStressTable, fixed = TRUE),
+    grepl("$e$", ExactStressTable, fixed = TRUE) ||
+      grepl("$i$", ExactStressTable, fixed = TRUE)
   )
   ExactMismatch <- copyObject(readCalculationJson(ExactConfigPath))
   ExactMismatch$section$designBaseThicknessMm <- 2.65
@@ -243,7 +288,7 @@ runCalculationDataTests <- function() {
     drop = FALSE
   ]
   stopifnot(nrow(Section) == 1L, nrow(Stress) == 1L)
-  stopifnot(grepl("ncspa-3x1", InputsTable, fixed = TRUE))
+  stopifnot(grepl("Perfil 76 × 25", InputsTable, fixed = TRUE))
   stopifnot(
     grepl("2.65684", SectionReferenceTable, fixed = TRUE),
     grepl("3.4163", SectionReferenceTable, fixed = TRUE),

@@ -10,6 +10,12 @@ invisible(buildCalculationData(
   outputDirectory = file.path(projectRoot, "data", "calculation"),
   projectRoot = projectRoot
 ))
+source(file.path(projectRoot, "scripts", "R", "ringInteraction.R"), local = TRUE)
+source(file.path(projectRoot, "scripts", "R", "referenceCases.R"), local = TRUE)
+invisible(buildReferenceCaseData(
+  referenceDirectory = file.path(projectRoot, "data", "reference"),
+  outputDirectory = file.path(projectRoot, "data", "benchmarks")
+))
 source(
   file.path(projectRoot, "scripts", "setup", "calculationResults.R"),
   local = TRUE

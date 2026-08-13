@@ -2,31 +2,19 @@
 
 ## Acciones adoptadas
 
-La tensión horizontal efectiva del caso resulta
+El estado tensional y las magnitudes de la proyección biaxial adoptada son
 
 $$
-\sigma'_h=(`r formatCalculationGeneral(Calculation$stress$k0Applied)`)
-(`r formatCalculationGeneral(Calculation$stress$effectiveVerticalKPa)`)
-=`r formatCalculationGeneral(Calculation$stress$effectiveHorizontalKPa)`
-\ \mathrm{kPa}.
-$$
-
-Por consiguiente,
-
-$$
-p_m=`r formatCalculationGeneral(Calculation$stress$waterPressureDifferenceKPa)`
-+\frac{`r formatCalculationGeneral(Calculation$stress$effectiveVerticalKPa)`
-+`r formatCalculationGeneral(Calculation$stress$effectiveHorizontalKPa)`}{2}
-=`r formatCalculationGeneral(Calculation$actions$meanPressureKPa)`
-\ \mathrm{kPa},
-$$
-
-$$
-\Delta\sigma=
-`r formatCalculationGeneral(Calculation$stress$effectiveVerticalKPa)`-
+\begin{aligned}
+\sigma'_h&=
 `r formatCalculationGeneral(Calculation$stress$effectiveHorizontalKPa)`
-=`r formatCalculationGeneral(Calculation$actions$stressDifferenceKPa)`
+\ \mathrm{kPa},\\
+p_m&=`r formatCalculationGeneral(Calculation$actions$meanPressureKPa)`
+\ \mathrm{kPa},\\
+\Delta\sigma&=
+`r formatCalculationGeneral(Calculation$actions$stressDifferenceKPa)`
 \ \mathrm{kPa}.
+\end{aligned}
 $$ {#eq-calculation-adopted-stress}
 
 Las acciones perimetrales evaluadas son
@@ -75,7 +63,7 @@ I_\theta=
 `r formatCalculationFixed(Calculation$section$inertiaMm4PerMm, 2L)`
 \ \mathrm{mm^4/mm},
 \qquad
-S_\theta=
+S_p=
 `r formatCalculationFixed(Calculation$section$sectionModulusMm3PerMm, 2L)`
 \ \mathrm{mm^3/mm}.
 $$ {#eq-calculation-adopted-properties}

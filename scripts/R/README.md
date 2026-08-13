@@ -192,8 +192,10 @@ control sintético y no constituye un criterio de aplicabilidad aprobado. El
 usuario de la función suministra el criterio y su estado; la función no
 evalúa la curvatura.
 
-Si la aplicabilidad es `unknown` o `not-satisfied`, las tensiones se devuelven
-como `NA`; no se activa de manera implícita una formulación alternativa.
+El estado `adopted` permite declarar expresamente la hipótesis lineal de un
+caso de referencia sin presentarla como un criterio evaluado. Si la
+aplicabilidad es `unknown` o `not-satisfied`, las tensiones se devuelven como
+`NA`; no se activa de manera implícita una formulación alternativa.
 
 ## Cargas arbitrarias
 

@@ -17,7 +17,16 @@ invisible(buildCalculationData(
   outputDirectory = file.path(projectRoot, "data", "calculation"),
   projectRoot = projectRoot
 ))
+source(file.path(projectRoot, "scripts", "R", "ringInteraction.R"))
+source(file.path(projectRoot, "scripts", "R", "referenceCases.R"))
+invisible(buildReferenceCaseData(
+  referenceDirectory = file.path(projectRoot, "data", "reference"),
+  outputDirectory = file.path(projectRoot, "data", "benchmarks")
+))
 
 cat(
-  "PASS: calculation.json and data/calculation are consistent.\n"
+  paste(
+    "PASS: calculation.json, data/calculation and data/benchmarks",
+    "are consistent.\n"
+  )
 )

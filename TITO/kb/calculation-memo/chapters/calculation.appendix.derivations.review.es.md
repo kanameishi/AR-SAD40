@@ -177,3 +177,53 @@ La sustitución de la solución periódica general en estas tres condiciones
 produce las constantes reunidas en la
 @eq-calculation-compatibility-constants y completa, sin parámetros libres,
 las tres resultantes seccionales.
+
+## A.4 Recuperación de la tensión normal circunferencial {.unnumbered}
+
+Al medir $\xi$ desde el centroide, la @eq-calculation-appendix-section-law se
+desacopla y proporciona
+
+$$
+\varepsilon_0=\frac{N_\theta}{E_\theta A_\theta},
+\qquad
+\kappa_\theta=\frac{M_\theta}{E_\theta I_\theta}.
+$$
+
+La sustitución en
+$\sigma_\theta=E_\theta(\varepsilon_0+\xi\kappa_\theta)$ conduce a
+
+$$
+\sigma_\theta(\theta,\xi)
+=\frac{N_\theta(\theta)}{A_\theta}
++1000\frac{M_\theta(\theta)\,\xi}{I_\theta}.
+$$ {#eq-calculation-appendix-stress-recovery}
+
+Para la sección corrugada de referencia,
+
+$$
+A_\theta=A_p,
+\qquad
+I_\theta=I_p,
+\qquad
+\xi_e=-\frac{I_p}{S_p},
+\qquad
+\xi_i=\frac{I_p}{S_p}.
+$$
+
+En las unidades adoptadas, $1\ \mathrm{kN/m}=1\ \mathrm{N/mm}$ y
+$1\ \mathrm{kN\,m/m}=1000\ \mathrm{N}$. Por ello,
+$N_\theta/A_p$ y $1000M_\theta\xi/I_p$ se expresan en
+$\mathrm{N/mm^2}=\mathrm{MPa}$. La sustitución de las coordenadas extremas
+proporciona
+
+$$
+\sigma_{\theta,e}(\theta)
+=\frac{N_\theta(\theta)}{A_p}
+-1000\frac{M_\theta(\theta)}{S_p},
+\qquad
+\sigma_{\theta,i}(\theta)
+=\frac{N_\theta(\theta)}{A_p}
++1000\frac{M_\theta(\theta)}{S_p},
+$$
+
+que coincide con la @eq-calculation-sheet-reference-stress.

@@ -6,6 +6,7 @@ if (!exists("calculateRingSection", mode = "function") ||
     !exists("buildThetaMesh", mode = "function") ||
     !exists("calculatePerimeterActions", mode = "function") ||
     !exists("calculateSectionResultants", mode = "function") ||
+    !exists("calculateSheetNormalStress", mode = "function") ||
     !exists("calculateScenario", mode = "function") ||
     !exists("readCalculationJson", mode = "function")) {
   stop(
@@ -14,6 +15,7 @@ if (!exists("calculateRingSection", mode = "function") ||
       "scripts/R/ringLoads.R, scripts/R/k0Models.R and",
       "scripts/R/stressState.R, scripts/R/corrugatedSection.R and",
       "scripts/R/perimeterActions.R, scripts/R/sectionResultants.R and",
+      "scripts/R/sheetStress.R and",
       "scripts/R/calculateScenario.R before",
       "scripts/R/calculationData.R."
     ),
@@ -892,6 +894,149 @@ readCalculationSection <- function(config, projectRoot) {
   OUT
 }
 
+.buildSheetStressTable <- function(resultants, cases, section) {
+  FibreDistanceMm <-
+    section[["inertiaMm4PerMm", exact = TRUE]] /
+      section[["sectionModulusMm3PerMm", exact = TRUE]]
+  ReferenceSection <- list(
+    sectionID = section[["sectionID", exact = TRUE]],
+    areaMm2PerMm = section[["areaMm2PerMm", exact = TRUE]],
+    inertiaMm4PerMm = section[["inertiaMm4PerMm", exact = TRUE]],
+    outerFiberCoordinateMm = -FibreDistanceMm,
+    innerFiberCoordinateMm = FibreDistanceMm,
+    coordinatePositiveDirection = "inward",
+    momentSignConvention = "positive-tension-inner"
+  )
+  RecoveryBasis <- list(
+    modelID = "linear-homogenized",
+    criterionID = "reference-section-model-adoption",
+    applicabilityStatus = "adopted"
+  )
+  Keys <- c(
+    "scenarioID", "caseID", "sectionID", "stressStateID", "alpha",
+    "thetaIndex", "thetaRad", "thetaDeg"
+  )
+  LIST <- lapply(seq_len(nrow(cases)), function(i) {
+    CaseID <- cases[["caseID", exact = TRUE]][i]
+    Components <- lapply(c("N", "M", "Q"), function(s) {
+      OUT <- resultants[
+        resultants$caseID == CaseID &
+          resultants$resultantID == s,
+        ,
+        drop = FALSE
+      ]
+      OUT <- OUT[order(OUT$thetaIndex), , drop = FALSE]
+      rownames(OUT) <- NULL
+      OUT
+    })
+    names(Components) <- c("N", "M", "Q")
+    RowCount <- vapply(Components, nrow, integer(1))
+    if (any(RowCount == 0L) || length(unique(RowCount)) != 1L) {
+      stop("The sheet-stress resultants are incomplete.", call. = FALSE)
+    }
+    ReferenceKeys <- Components$N[Keys]
+    SameKeys <- vapply(
+      Components[c("M", "Q")],
+      function(x) identical(x[Keys], ReferenceKeys),
+      logical(1)
+    )
+    if (!all(SameKeys)) {
+      stop("The sheet-stress resultant ordinates are inconsistent.", call. = FALSE)
+    }
+    ResultantInput <- data.frame(
+      ReferenceKeys,
+      combinationID = CaseID,
+      stageID = ReferenceKeys$scenarioID,
+      theta = ReferenceKeys$thetaRad,
+      normalForceKnPerM = Components$N$value,
+      bendingMomentKnMPerM = Components$M$value,
+      shearForceKnPerM = Components$Q$value,
+      forceEffectStatus = "unfactored-reference-state",
+      longitudinalBasis = "per-projected-metre",
+      check.names = FALSE,
+      stringsAsFactors = FALSE
+    )
+    Recovered <- calculateSheetNormalStress(
+      resultants = ResultantInput,
+      netSection = ReferenceSection,
+      recoveryBasis = RecoveryBasis
+    )
+    data.frame(
+      scenarioID = Recovered$scenarioID,
+      caseID = Recovered$caseID,
+      sectionID = Recovered$sectionID,
+      stressStateID = Recovered$stressStateID,
+      alpha = Recovered$alpha,
+      thetaIndex = Recovered$thetaIndex,
+      thetaRad = Recovered$theta,
+      thetaDeg = Recovered$thetaDeg,
+      fiberID = Recovered$fiberID,
+      fiberCoordinateMm = Recovered$fiberCoordinateMm,
+      normalForceKnPerM = Recovered$normalForceKnPerM,
+      bendingMomentKnMPerM = Recovered$bendingMomentKnMPerM,
+      shearForceKnPerM = Recovered$shearForceKnPerM,
+      membraneStressMPa = Recovered$membraneStressMPa,
+      bendingStressMPa = Recovered$bendingStressMPa,
+      normalStressMPa = Recovered$normalStressMPa,
+      shearStressStatus = Recovered$shearStressStatus,
+      sectionStateID = "published-reference-section",
+      recoveryModelID = Recovered$recoveryModelID,
+      recoveryBasisID = Recovered$criterionID,
+      recoveryBasisStatus = Recovered$applicabilityStatus,
+      forceEffectStatus = Recovered$forceEffectStatus,
+      longitudinalBasis = Recovered$longitudinalBasis,
+      evidenceLevel = "DE",
+      stringsAsFactors = FALSE
+    )
+  })
+  OUT <- do.call(rbind, LIST)
+  rownames(OUT) <- NULL
+  OUT
+}
+
+.buildSheetStressExtremaTable <- function(sheetStress, cases) {
+  LIST <- lapply(seq_len(nrow(cases)), function(i) {
+    CaseID <- cases[["caseID", exact = TRUE]][i]
+    Values <- sheetStress[
+      sheetStress$caseID == CaseID,
+      ,
+      drop = FALSE
+    ]
+    if (nrow(Values) == 0L || any(!is.finite(Values$normalStressMPa))) {
+      stop("The sheet-stress values are incomplete.", call. = FALSE)
+    }
+    MinimumIndex <- which.min(Values$normalStressMPa)
+    MaximumIndex <- which.max(Values$normalStressMPa)
+    AbsoluteIndex <- which.max(abs(Values$normalStressMPa))
+    data.frame(
+      scenarioID = Values$scenarioID[1L],
+      caseID = CaseID,
+      sectionID = Values$sectionID[1L],
+      alpha = Values$alpha[1L],
+      minimumStressMPa = Values$normalStressMPa[MinimumIndex],
+      minimumThetaRad = Values$thetaRad[MinimumIndex],
+      minimumThetaDeg = Values$thetaDeg[MinimumIndex],
+      minimumFiberID = Values$fiberID[MinimumIndex],
+      maximumStressMPa = Values$normalStressMPa[MaximumIndex],
+      maximumThetaRad = Values$thetaRad[MaximumIndex],
+      maximumThetaDeg = Values$thetaDeg[MaximumIndex],
+      maximumFiberID = Values$fiberID[MaximumIndex],
+      maximumAbsoluteStressMPa =
+        abs(Values$normalStressMPa[AbsoluteIndex]),
+      governingSignedStressMPa = Values$normalStressMPa[AbsoluteIndex],
+      governingThetaRad = Values$thetaRad[AbsoluteIndex],
+      governingThetaDeg = Values$thetaDeg[AbsoluteIndex],
+      governingFiberID = Values$fiberID[AbsoluteIndex],
+      unit = "MPa",
+      evidenceLevel = "DE",
+      stringsAsFactors = FALSE
+    )
+  })
+  OUT <- do.call(rbind, LIST)
+  rownames(OUT) <- NULL
+  OUT
+}
+
 .buildResultantControlTable <- function(
   responses,
   cases,
@@ -1195,6 +1340,25 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
     "numerical.controls.csv" = Controls,
     "display.scales.csv" = DisplayScales
   )
+  if (Config.section[["propertyModelID", exact = TRUE]] ==
+      "published-exact-row") {
+    SheetStress <- .buildSheetStressTable(
+      resultants = Resultants,
+      cases = Cases,
+      section = Section
+    )
+    SheetExtrema <- .buildSheetStressExtremaTable(
+      sheetStress = SheetStress,
+      cases = Cases
+    )
+    Products <- c(
+      Products,
+      list(
+        "sheet.normal.stress.csv" = SheetStress,
+        "sheet.normal.stress.extrema.csv" = SheetExtrema
+      )
+    )
+  }
   .writeCalculationProducts(Products, ConfigPath, outputDirectory)
   list(
     config = Config,

@@ -20,6 +20,14 @@ loadCalculationResults <- function(
     extrema = file.path(CalculationDirectory, "section.extrema.csv"),
     controls = file.path(CalculationDirectory, "numerical.controls.csv"),
     scales = file.path(CalculationDirectory, "display.scales.csv"),
+    sheetStress = file.path(
+      CalculationDirectory,
+      "sheet.normal.stress.csv"
+    ),
+    sheetExtrema = file.path(
+      CalculationDirectory,
+      "sheet.normal.stress.extrema.csv"
+    ),
     config = file.path(CalculationDirectory, "calculation.config.json")
   )
   readProduct <- function(path, required) {
@@ -114,10 +122,48 @@ loadCalculationResults <- function(
       "graphicAmplification", "ordinateCount", "evidenceLevel"
     )
   )
+  SheetStressData <- NULL
+  SheetExtremaData <- NULL
+  if (Config$section$propertyModelID == "published-exact-row") {
+    SheetStressData <- readProduct(
+      Paths$sheetStress,
+      c(
+        "scenarioID", "caseID", "sectionID", "stressStateID", "alpha",
+        "thetaIndex", "thetaRad", "thetaDeg", "fiberID",
+        "fiberCoordinateMm", "normalForceKnPerM",
+        "bendingMomentKnMPerM", "shearForceKnPerM", "membraneStressMPa",
+        "bendingStressMPa", "normalStressMPa", "shearStressStatus",
+        "sectionStateID", "recoveryModelID", "recoveryBasisID",
+        "recoveryBasisStatus", "forceEffectStatus", "longitudinalBasis",
+        "evidenceLevel"
+      )
+    )
+    SheetExtremaData <- readProduct(
+      Paths$sheetExtrema,
+      c(
+        "scenarioID", "caseID", "sectionID", "alpha",
+        "minimumStressMPa", "minimumThetaRad", "minimumThetaDeg",
+        "minimumFiberID", "maximumStressMPa", "maximumThetaRad",
+        "maximumThetaDeg", "maximumFiberID", "maximumAbsoluteStressMPa",
+        "governingSignedStressMPa", "governingThetaRad",
+        "governingThetaDeg", "governingFiberID", "unit", "evidenceLevel"
+      )
+    )
+  }
   if (nrow(SectionData) != 1L || nrow(StressData) != 1L ||
       nrow(Resultants) == 0L || nrow(ExtremaData) == 0L ||
       nrow(Controls) == 0L || nrow(Scales) != 3L) {
     stop("The calculation products have incompatible row counts.", call. = FALSE)
+  }
+  if (!is.null(SheetStressData)) {
+    ExpectedSheetRows <- 2L * sum(Resultants$resultantID == "N")
+    if (nrow(SheetStressData) != ExpectedSheetRows ||
+        nrow(SheetExtremaData) != nrow(Config$loadCases)) {
+      stop(
+        "The sheet-stress products have incompatible row counts.",
+        call. = FALSE
+      )
+    }
   }
   ScenarioIDs <- unique(c(
     SectionData$scenarioID,
@@ -125,7 +171,9 @@ loadCalculationResults <- function(
     Resultants$scenarioID,
     ExtremaData$scenarioID,
     Controls$scenarioID,
-    Scales$scenarioID
+    Scales$scenarioID,
+    if (!is.null(SheetStressData)) SheetStressData$scenarioID,
+    if (!is.null(SheetExtremaData)) SheetExtremaData$scenarioID
   ))
   if (length(ScenarioIDs) != 1L || ScenarioIDs != Config$scenarioID) {
     stop("The calculation products do not share the configured scenarioID.", call. = FALSE)
@@ -375,6 +423,21 @@ loadCalculationResults <- function(
       "ser representativa del relleno existente."
     )
   }
+  Sheet <- NULL
+  if (!is.null(SheetStressData)) {
+    GoverningIndex <- which.max(SheetExtremaData$maximumAbsoluteStressMPa)
+    Sheet <- list(
+      stress = SheetStressData,
+      extrema = SheetExtremaData,
+      governing = as.list(
+        SheetExtremaData[GoverningIndex, , drop = FALSE]
+      )
+    )
+    FibreLabels <- c(outer = "exterior", inner = "interior")
+    Sheet$governing$fibreLabel <- unname(FibreLabels[
+      Sheet$governing$governingFiberID
+    ])
+  }
 
   list(
     scenarioID = Config$scenarioID,
@@ -385,6 +448,7 @@ loadCalculationResults <- function(
       radiusM = SectionData$analysisRadiusM
     ),
     section = Section,
+    sheet = Sheet,
     stress = StressData[1L, , drop = FALSE],
     k0DescriptionMarkdown = K0Description,
     actions = list(

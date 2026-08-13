@@ -4635,3 +4635,79 @@ El notebook Wolfram se desarrollará en paralelo como hoja de cálculo de apoyo
 para un escenario fijo. La implementación R y la memoria profesional gobiernan
 el producto; el notebook no introduce fórmulas, propiedades ni resultados que
 no existan previamente en la cadena auditada.
+
+## 38. Hito auditado de demanda elástica y casos de referencia
+
+### 38.1 Demanda de la sección publicada
+
+La primera puerta de chapa queda cerrada únicamente para la recuperación
+elástica de tensión normal circunferencial de la sección CSPI publicada. Las
+propiedades adoptadas corresponden a la fila exacta CSP 76×25 de espesor
+especificado 2,80 mm y espesor base de diseño 2,64 mm:
+
+$$
+A_p=3{,}281\ \mathrm{mm^2/mm},\qquad
+I_p=249{,}73\ \mathrm{mm^4/mm},\qquad
+S_p=17{,}81\ \mathrm{mm^3/mm}.
+$$
+
+Con tracción positiva y momento positivo cuando tracciona la fibra interior,
+las expresiones operativas son
+
+$$
+\sigma_{\theta,e}=\frac{N_\theta}{A_p}
+-1000\frac{M_\theta}{S_p},\qquad
+\sigma_{\theta,i}=\frac{N_\theta}{A_p}
++1000\frac{M_\theta}{S_p}.
+$$
+
+El productor materializa `sheet.normal.stress.csv` y
+`sheet.normal.stress.extrema.csv`; la tabla y la prosa de la memoria consumen
+esos productos. La evaluación se identifica como adopción del modelo lineal
+homogeneizado para la sección publicada. No se presenta como verificación de
+la sección neta corroída, capacidad resistente o cumplimiento AASHTO. La
+fuerza cortante $Q_\theta$ se conserva sin transformarla en tensión local.
+
+### 38.2 Casos de referencia reproducibles
+
+El Apéndice C contiene cuatro familias separadas de la aplicación:
+
+1. USACE EM 1110-2-2902, ejemplo D4;
+2. FHWA-RD-98-191, ecuación 5.1 y su tabla de compactación;
+3. Schwartz--Einstein, ejemplo HP97; y
+4. Núñez (2000), ejemplos circulares.
+
+Los datos publicados y sus localizadores residen en `data/reference/`. El
+productor `buildReferenceCaseData()` vuelve a evaluar las relaciones y
+materializa los productos en `data/benchmarks/` durante cada ejecución de la
+memoria. Las tablas no consumen fotografías numéricas ni valores escritos en
+la prosa. Cada fila distingue dato publicado, resultado publicado reproducido,
+resultado derivado o discrepancia de fuente. Los valores de $a_N$ de Núñez son
+entradas publicadas no redondeadas; $A_N$, $M_{\max}$, $N_C$ y $N_A$ se
+recalculan. Estos casos comprueban transcripción, unidades y evaluación
+aritmética dentro de sus dominios; no calibran las acciones del caso.
+
+### 38.3 Comprobaciones del hito
+
+Concluyeron `PASS` el productor de la memoria y las pruebas de contrato,
+tensión de chapa, casos de referencia, carga de productos, mecánica,
+figuras y adaptador Monte Carlo. El render
+`qrt render _master/calculation.review.es.qmd --profile html` concluyó
+correctamente y produjo `html/calculation.review.es/index.html`, SHA-256
+`c4450fc801df3a33539df10301257c599b88c8cbeff85acffbee10d21e4d0a3e`.
+
+La reauditoría editorial final concluyó `PASS` en
+`/private/tmp/ar-sad40-report-final-editorial-reaudit-2026-08-13.md`; la
+reauditoría de política y arquitectura R concluyó `PASS` en
+`/private/tmp/ar-sad40-report-final-r-policy-reaudit-2026-08-13.md`.
+La Fase 1 congelada no fue regenerada ni modificada.
+
+### 38.4 Secuencia posterior
+
+La publicación de este hito precede al soporte Wolfram. El notebook anterior
+no se extiende: se reconstruirá una candidata `.nb` autocontenida para una
+realización fija, con entradas, resultados intermedios, resultantes, extremos,
+gráficos y demanda elástica visibles. No importará productos R ni mostrará
+metadatos de paridad como resultados de ingeniería. La resistencia de la
+chapa, juntas y pernos, shotcrete y la simulación de Monte Carlo continúan como
+puertas independientes y no se infieren desde este cierre.
