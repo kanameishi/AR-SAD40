@@ -6,8 +6,9 @@ Proyección del estado biaxial y multiplicador de participación tangencial.
 
 ## Report Purpose
 
-Definir una familia reproducible de acciones prescritas entre la omisión y la
-incorporación completa de la componente tangencial proyectada.
+Definir una familia reproducible de acciones analíticas prescritas entre la
+omisión y la incorporación completa de la componente tangencial proyectada,
+sin presentarla como modelo de contacto del conducto enterrado.
 
 ## Sources Read
 
@@ -19,12 +20,14 @@ alcance; no sustentan el multiplicador adoptado.
 
 $\alpha$ multiplica la componente tangencial proyectada y varía entre cero y
 uno. La respuesta se interpola linealmente para el estado biaxial uniforme. El
-parámetro define un estado de carga prescrito.
+parámetro define un estado de carga analítico prescrito y sólo puede tratarse
+como incertidumbre de modelo dentro de esa familia.
 
 ## Claims Not Allowed
 
 No denominar $\alpha$ coeficiente de fricción, movilización de Coulomb ni
-$\tan\delta$. No afirmar que la formulación resuelve contacto.
+$\tan\delta$. No afirmar que la formulación resuelve contacto o reemplaza una
+formulación de interacción suelo--conducto.
 
 ## Equations Allowed
 
@@ -57,13 +60,10 @@ None — redacción original en español.
 
 ## Open Gaps
 
-Rango probabilístico, distribución y dependencias de $\alpha$ para el relleno
-existente.
+Justificación para conservar $\alpha$ como sensibilidad de incertidumbre de
+modelo; parámetros físicos del modelo de interacción que finalmente se adopte.
 
 ## Validation
 
-PASS dentro del ensamblado candidato. Las fórmulas cerradas y sus extremos
-fueron contrastados en G10.7; la auditoría final confirmó que $\alpha$ se
-presenta como multiplicador de la acción tangencial prescrita y no como
-coeficiente de fricción. Dictamen en
-`/private/tmp/ar-sad40-methodology-extension-closure-final.md`.
+CANDIDATO CORREGIDO EL 13 DE AGOSTO DE 2026; LAS FÓRMULAS CERRADAS CONSERVAN
+LA PARIDAD DE G10.7; PENDIENTE NUEVA AUDITORÍA EDITORIAL Y TÉCNICA.

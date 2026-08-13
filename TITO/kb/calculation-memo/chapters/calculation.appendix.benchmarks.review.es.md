@@ -1,4 +1,4 @@
-# Apéndice B. Contrastes numéricos {#sec-calculation-appendix-contrasts .unnumbered}
+# Apéndice C. Casos de referencia {#sec-calculation-appendix-contrasts .unnumbered}
 
 Este apéndice presenta comprobaciones de las ecuaciones y del procedimiento
 numérico mediante soluciones analíticas y ejemplos publicados. Cada contraste conserva
@@ -6,7 +6,7 @@ las entradas, unidades y convenciones de su fuente. Su alcance se limita a la
 relación reproducida en cada caso y no reemplaza la caracterización del relleno
 del revestimiento existente.
 
-## B.1 Baker: cargas radiales por sectores {.unnumbered}
+## C.1 Baker: cargas radiales por sectores {.unnumbered}
 
 Baker tabula resultantes adimensionales para dos sectores diametralmente
 opuestos, cada uno sometido a una presión radial uniforme $p$ sobre un
@@ -42,7 +42,7 @@ Las diferencias absolutas máximas, calculadas en este estudio, son
 $4.97\times10^{-4}$ para $\overline N$ y $4.23\times10^{-4}$ para
 $\overline M$.
 
-## B.2 USACE: ejemplo D4 {.unnumbered}
+## C.2 USACE: ejemplo D4 {.unnumbered}
 
 El ejemplo D4 considera un conducto de 36 in de diámetro, una tapada de 30 ft
 y un peso unitario de 120 lb/ft³ [@USACE2020, ap. D4, pp. 332--333].
@@ -62,7 +62,7 @@ misma fuente indica 1.05 para tuberías metálicas corrugadas. La selección de
 factores para el revestimiento requiere identificar la especificación
 gobernante.
 
-## B.3 FHWA: presión lateral equivalente de compactación {.unnumbered}
+## C.3 FHWA: presión lateral equivalente de compactación {.unnumbered}
 
 La @eq-calculation-fhwa-compaction se evaluó para los casos de la tabla 5.5 de
 FHWA [@McGrathEtAl1999, pp. 177--178].
@@ -87,7 +87,7 @@ $\phi=36^\circ$, el resultado es 0.195 kPa y redondea a 0.2 kPa. La
 discrepancia se conserva y no se utiliza para modificar la ecuación ni para
 ajustar parámetros.
 
-## B.4 Schwartz--Einstein: caso HP97 {.unnumbered}
+## C.4 Schwartz--Einstein: caso HP97 {.unnumbered}
 
 Schwartz y Einstein expresan la respuesta de un revestimiento circular en un
 medio elástico mediante razones de rigidez y coeficientes para la secuencia de
@@ -123,7 +123,7 @@ formulación representa interacción en un túnel excavado y se conserva como
 contrapartida analítica, no como generador directo de la acción del relleno
 compactado.
 
-## B.5 Núñez (2000): ejemplos circulares {.unnumbered}
+## C.5 Núñez (2000): ejemplos circulares {.unnumbered}
 
 Los ejemplos de Núñez corresponden a túneles excavados y adoptan
 $D=10$ m, profundidad del eje $H=15$ m,
@@ -173,31 +173,12 @@ La coincidencia confirma la evaluación aritmética de las expresiones de 2000;
 el parámetro de relajación de excavación y la interacción con un macizo natural
 no deben trasladarse sin reformulación al revestimiento instalado y rellenado.
 
-## B.6 Integración directa y soluciones cerradas {.unnumbered}
-
-Para el estado biaxial uniforme de la aplicación, los extremos
-$\alpha=0$ y $\alpha=1$ admiten soluciones cerradas. La
-@tbl-calculation-controls compara esas soluciones con la integración directa
-empleada para las distribuciones generales de carga.
-
-{{< include /_tbl/Calculation.controls.ES.qmd >}}
-
-Las seis diferencias son inferiores a la tolerancia de $10^{-7}$ adoptada
-para cada resultante. Esta comprobación cubre la discretización angular, la
-integración y la recuperación de $N_\theta$, $M_\theta$ y $Q_\theta$ en los dos
-extremos de transferencia tangencial.
-
-## B.7 Alcance conjunto de los contrastes {.unnumbered}
+## C.6 Alcance de los casos de referencia {.unnumbered}
 
 Los casos de Baker comprueban equilibrio, compatibilidad y evaluación de cargas
 radiales por sectores. USACE y FHWA comprueban relaciones de carga dentro de su
-dominio. Schwartz--Einstein y Núñez documentan la respuesta de formulaciones de
-interacción correspondientes a túneles excavados y fijan referencias numéricas
-para sus propias convenciones. La comparación directa con soluciones cerradas
-comprueba el procedimiento numérico empleado en la aplicación de esta memoria.
-
-CANDE constituye una referencia del estado de la práctica para el análisis
-acoplado de conductos enterrados [@KatonaEtAl1976CANDE;
-@CANDE2025Formulations]. La evidencia reunida no contiene un caso común con
-entradas y convenciones completas que permita incorporarlo como contraste
-cuantitativo de esta aplicación.
+dominio. Schwartz--Einstein y Núñez documentan formulaciones desarrolladas para
+túneles excavados y fijan referencias numéricas bajo sus propias convenciones;
+no constituyen modelos de carga del relleno compactado del conducto analizado.
+La solución cerrada y los controles numéricos propios de esta memoria se
+presentan separadamente en el Apéndice B.

@@ -4,11 +4,16 @@ buildCalculationControlsTable <- function(path) {
   }
   Data <- utils::read.csv(path, check.names = FALSE)
   Required <- c(
-    "caseID", "alpha", "resultantID", "observedValue", "unit", "limitValue",
-    "pass", "thetaPointCount", "integrationSteps", "evidenceLevel"
+    "caseID", "alpha", "controlID", "resultantID", "observedValue", "unit",
+    "limitValue", "pass"
   )
   if (length(setdiff(Required, names(Data))) > 0L) {
     stop("The numerical-control file has an invalid schema.", call. = FALSE)
+  }
+  ExpectedControls <- c("closed-form-resultants", "global-equilibrium")
+  Data <- Data[Data$controlID %in% ExpectedControls, , drop = FALSE]
+  if (nrow(Data) != 12L || !all(Data$pass)) {
+    stop("The materialized numerical controls are incomplete.", call. = FALSE)
   }
   formatScientificLatex <- function(values, digits) {
     vapply(values, function(value) {
@@ -22,11 +27,13 @@ buildCalculationControlsTable <- function(path) {
     }, character(1))
   }
   ResultantLabels <- c(
-    N = "$N_\\theta$", M = "$M_\\theta$", Q = "$Q_\\theta$"
+    N = "$N_\\theta$", M = "$M_\\theta$", Q = "$Q_\\theta$",
+    Fx = "$F_x$", Fz = "$F_z$", Mc = "$M_c$"
   )
   UnitLabels <- c(
     "kN/m" = "$\\mathrm{kN/m}$",
-    "kN m/m" = "$\\mathrm{kN\\,m/m}$"
+    "kN m/m" = "$\\mathrm{kN\\,m/m}$",
+    "-" = "—"
   )
   Resultants <- unname(ResultantLabels[Data$resultantID])
   Units <- unname(UnitLabels[Data$unit])
@@ -36,28 +43,30 @@ buildCalculationControlsTable <- function(path) {
   if (any(!is.finite(Data$alpha)) || any(Data$alpha < 0) || any(Data$alpha > 1)) {
     stop("The numerical-control alpha values are invalid.", call. = FALSE)
   }
+  ControlOrder <- match(
+    Data$resultantID,
+    c("N", "M", "Q", "Fx", "Fz", "Mc")
+  )
+  RowOrder <- order(-Data$alpha, ControlOrder)
+  Data <- Data[RowOrder, , drop = FALSE]
+  Resultants <- Resultants[RowOrder]
+  Units <- Units[RowOrder]
   Output <- data.frame(
-    Prescripcion = paste0(
-      "Componente tangencial: α = ",
-      formatC(Data$alpha, format = "f", digits = 2)
-    ),
-    Resultante = Resultants,
-    Diferencia = formatScientificLatex(Data$observedValue, 3L),
-    Unidad = Units,
-    Tolerancia = formatScientificLatex(Data$limitValue, 2L),
-    Malla = Data$thetaPointCount,
-    Pasos = Data$integrationSteps,
-    Estado = ifelse(Data$pass, "Cumple", "No cumple"),
+    Alpha = Data$alpha,
+    Resultant = Resultants,
+    Residual = formatScientificLatex(Data$observedValue, 4L),
+    Limit = formatScientificLatex(Data$limitValue, 2L),
+    Unit = Units,
     check.names = FALSE,
     stringsAsFactors = FALSE
   )
   knitr::kable(
     Output,
     col.names = c(
-      "Prescripción", "Resultante", "Diferencia máxima", "Unidad",
-      "Tolerancia", "Puntos angulares", "Pasos de integración", "Control"
+      "$\\alpha$", "$X$", "$\\varepsilon_X$",
+      "$\\varepsilon_{\\mathrm{lim}}$", "$u_X$"
     ),
-    align = c("l", "c", "r", "c", "r", "r", "r", "c"),
+    align = c("r", "c", "r", "r", "c"),
     escape = FALSE
   )
 }

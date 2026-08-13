@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "2.0.0",
+  "schemaVersion": "2.1.0",
   "scenarioID": "verification-biaxial-uniform",
   "geometry": {
     "insideDiameterM": 2.63,
@@ -8,17 +8,19 @@
   "section": {
     "nominalCorrugationPitchMm": 76.0,
     "nominalCorrugationDepthMm": 25.0,
-    "reportedThicknessMm": 3.0,
-    "analysisBaseThicknessMm": 3.0,
-    "referenceProfileID": "ncspa-3x1",
-    "propertyModelID": "linear-interpolation-base-thickness",
-    "propertyTable": "data/reference/corrugation.section.properties.csv"
+    "specifiedThicknessMm": 2.8,
+    "designBaseThicknessMm": 2.64,
+    "referenceProfileID": "cspi-76x25-csp-sheet",
+    "referenceRowID": "cspi-76x25-2.8",
+    "propertyModelID": "published-exact-row",
+    "propertyTable": "data/reference/cspi.corrugation.section.properties.csv"
   },
   "material": {
     "circumferentialYoungModulusGPa": 200.0
   },
   "stressState": {
     "statePointID": "axis",
+    "actionModelID": "prescribed-biaxial-stress-projection",
     "effectiveVerticalKPa": 100.0,
     "waterPressureDifferenceKPa": 0.0,
     "horizontalIncrementMode": "unknown-not-modeled",

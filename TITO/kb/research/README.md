@@ -19,7 +19,7 @@ El estado vigente y el orden de ejecución están en
 | Rama | Investigación | Auditoría | Estado |
 |---|---|---|---|
 | chapa corrugada | `g10.corrugated.steel.verification.es.md` | `g10.corrugated.steel.verification.audit.es.md` | evidencia `PASS`; recuperación normal condicional aceptada e implementada en G10.2; aplicación al caso y resistencia bloqueadas por datos `UNKNOWN` |
-| $K_0$ y compactación | `g10.k0.compaction.es.md` | `g10.k0.compaction.audit.es.md` | evidencia `PASS`; no requiere código nuevo con el dominio actual |
+| $K_0$ y compactación | `g10.k0.compaction.es.md` | `g10.k0.compaction.audit.es.md`; reauditoría `g10.k0.formulations.reaudit.es.md` | ecuaciones operativas `PASS`; cierre global condicionado por alcance empírico, fuente Mesri--Hayat no preservada y comparación parametrizada pendiente |
 | hormigón proyectado | `g10.shotcrete.section.verification.es.md` | `g10.shotcrete.section.verification.audit.es.md` | evidencia `PASS`; implementación bloqueada por aplicabilidad y datos `UNKNOWN` |
 
 ## Mai (2013) y deterioro

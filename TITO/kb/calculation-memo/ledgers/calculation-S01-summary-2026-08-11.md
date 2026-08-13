@@ -4,8 +4,9 @@ Resumen ejecutivo y alcance.
 
 # Report Purpose
 
-Presentar el procedimiento, las resultantes del escenario de comprobación, la
-participación tangencial adoptada y el estado real del análisis probabilístico.
+Presentar el empuje circunferencial reglamentario, las resultantes del escenario
+biaxial analítico, la participación tangencial adoptada y el estado real del
+análisis probabilístico.
 
 # Sources Read
 
@@ -14,14 +15,16 @@ memoria.
 
 # Exact Claims Allowed
 
-Se calculan acciones perimetrales y resultantes seccionales. La componente
-tangencial se prescribe mediante $P_t=\alpha p_t^*$, con
-$0\leq\alpha\leq1$. La aplicación es un escenario determinístico de comprobación. La
-simulación de Monte Carlo del proyecto no fue ejecutada.
+El empuje reglamentario satisface $T_L=P_FS/2$, pero no se evalúa mientras el
+producto, $P_F$ y $S$ no estén confirmados. Las acciones perimetrales y
+resultantes presentadas pertenecen a un escenario biaxial analítico. La
+componente tangencial se prescribe mediante $P_t=\alpha p_t^*$, con
+$0\leq\alpha\leq1$. La simulación de Monte Carlo del proyecto no fue ejecutada.
 
 # Claims Not Allowed
 
-No afirmar demanda final, verificación resistente, tensiones de chapa,
+No atribuir momentos o cortes a la ecuación de empuje seccional. No afirmar
+demanda final, verificación resistente, tensiones de chapa,
 solicitaciones de pernos, validación ni resultados probabilísticos.
 
 # Equations Allowed
@@ -41,10 +44,11 @@ designar un diagrama de resultantes.
 
 # Open Gaps
 
-Datos del relleno, compactación, agua, participación tangencial, corrosión, recuperación de
-tensiones y distribuciones conjuntas.
+Clasificación del producto, $P_F$, $S$, formulación de interacción, datos del
+relleno, compactación, agua, participación tangencial, corrosión, recuperación
+de tensiones y distribuciones conjuntas.
 
 # Validation
 
-APTO COMO RESUMEN DEL ESCENARIO DETERMINÍSTICO; RESULTADOS PROBABILÍSTICOS NO
-DISPONIBLES.
+CANDIDATO CORREGIDO EL 13 DE AGOSTO DE 2026; PENDIENTE NUEVA AUDITORÍA Y
+RENDER; RESULTADOS PROBABILÍSTICOS NO DISPONIBLES.

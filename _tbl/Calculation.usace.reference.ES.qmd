@@ -1,0 +1,25 @@
+```{r}
+#| include: false
+source("scripts/tbl/Calculation.reference.cases.R")
+ReferenceTables <- buildCalculationReferenceTables(
+  pathUSACE = "_tbl/usaceThrustBenchmark.csv",
+  pathFHWA = "_tbl/fhwaCompactionBenchmark.csv",
+  pathNunez = "_tbl/nunez2000Benchmark.csv"
+)
+CAP <- paste(
+  readLines("_captions/tbl.Calculation.usace.reference.ES.md", warn = FALSE),
+  collapse = "\n"
+)
+```
+
+```{r}
+#| label: tbl-calculation-usace-reference
+#| tbl-cap: !expr CAP
+#| echo: false
+ReferenceTables$USACE
+```
+
+```{r}
+#| include: false
+rm(CAP, ReferenceTables, buildCalculationReferenceTables)
+```

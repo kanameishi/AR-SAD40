@@ -95,3 +95,37 @@ directa en ambos extremos y en valores intermedios. Para distribuciones de
 tensión variables con la profundidad o acciones por etapas, la respuesta se
 obtiene mediante la @eq-calculation-first-order-system y la
 @eq-calculation-compatibility-constants.
+
+Las amplitudes de los tres diagramas son
+
+$$
+A_N=R\Delta\sigma\frac{1+2\alpha}{6},
+\qquad
+A_M=R^2\Delta\sigma\frac{2+\alpha}{12},
+\qquad
+A_Q=R\Delta\sigma\frac{2+\alpha}{6}.
+$$ {#eq-calculation-biaxial-amplitudes}
+
+Por lo tanto, los extremos globales del estado uniforme se obtienen sin una
+búsqueda angular:
+
+$$
+N_{\theta,\min}=-Rp_m-|A_N|,
+\qquad
+N_{\theta,\max}=-Rp_m+|A_N|,
+$$
+
+$$
+M_{\theta,\min}=M_m-|A_M|,
+\qquad
+M_{\theta,\max}=M_m+|A_M|,
+\qquad
+\max|Q_\theta|=|A_Q|.
+$$ {#eq-calculation-biaxial-extrema}
+
+La clave y el fondo corresponden a $\cos2\theta=1$; los dos puntos del
+diámetro horizontal, a $\cos2\theta=-1$. La fuerza cortante se anula en esas
+cuatro posiciones y alcanza su valor absoluto máximo en las direcciones
+$\theta=\pi/4+k\pi/2$, con $k=0,1,2,3$. Para una acción perimetral general,
+los extremos se determinan sobre cada intervalo continuo de la solución
+integrada, incluyendo ambos lados de las discontinuidades de carga.

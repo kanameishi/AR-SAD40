@@ -14,12 +14,15 @@ Baker (1968); documento metodológico aprobado; fuente de verdad de la memoria.
 # Exact Claims Allowed
 
 $\theta=0$ en clave y crece en sentido horario; cargas y resultantes conservan
-las convenciones declaradas. Cada alternativa mantiene identidad propia hasta
-la envolvente exterior.
+las convenciones declaradas. El procedimiento comienza con la clasificación
+del producto y la selección de la rama AASHTO; la rama de interacción y el escenario
+biaxial prescrito permanecen diferenciados. Cada alternativa mantiene identidad
+propia hasta la envolvente exterior.
 
 # Claims Not Allowed
 
-No convertir parámetros nominales o hipótesis en datos confirmados.
+No convertir parámetros nominales o hipótesis en datos confirmados. No
+sustituir $P_F$ por $\sigma'_{v,A}$ ni $S$ por $D_i$ sin definición explícita.
 
 # Equations Allowed
 
@@ -49,8 +52,9 @@ Tabla de diez pasos desde la caracterización hasta las figuras y tablas.
 
 # Open Gaps
 
-Identificación de casos, etapas y alternativas de la evaluación de proyecto.
+Clasificación del producto, combinaciones, formulación de interacción y etapas
+de la evaluación de proyecto.
 
 # Validation
 
-APTO.
+CANDIDATO CORREGIDO EL 13 DE AGOSTO DE 2026; PENDIENTE NUEVA AUDITORÍA.

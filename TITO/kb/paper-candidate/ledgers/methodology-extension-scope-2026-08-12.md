@@ -17,10 +17,12 @@ establecidas, sin repetir ni modificar la Fase 1.
 
 ## Exact Claims Allowed
 
-La ampliación comienza en las variables primitivas del estado lateral y termina
-en una recuperación elástica condicionada de tensión normal. La verificación
-resistente exige además producto, norma, propiedades resistentes y estados
-límite aplicables.
+La ampliación comienza con la clasificación del producto y el empuje
+circunferencial reglamentario. $K_0$ caracteriza el estado inicial para una
+formulación de interacción o un escenario analítico, pero no genera por sí
+solo la presión de contacto. La ampliación termina en una recuperación elástica
+condicionada de tensión normal. La verificación resistente exige además
+producto, norma, propiedades resistentes y estados límite aplicables.
 
 ## Claims Not Allowed
 
@@ -61,12 +63,10 @@ $N_\theta$, $M_\theta$ y $Q_\theta$.
 
 ## Open Gaps
 
-Datos del revestimiento existente y base normativa de la verificación
-resistente.
+Clasificación del producto, $P_F$, $S$, formulación de interacción y datos del
+revestimiento existente.
 
 ## Validation
 
-PASS para el ensamblado candidato. El HTML independiente resuelve los cinco
-bloques, sus citas y referencias cruzadas y conserva la línea base congelada de
-Fase 1. Dictamen final en
-`/private/tmp/ar-sad40-methodology-extension-closure-final.md`.
+CANDIDATO CORREGIDO EL 13 DE AGOSTO DE 2026; REQUIERE NUEVA AUDITORÍA Y RENDER.
+La línea base congelada de Fase 1 no se modifica.

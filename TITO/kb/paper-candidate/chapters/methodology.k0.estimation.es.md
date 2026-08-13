@@ -2,9 +2,13 @@
 
 ## Estado lateral efectivo del relleno
 
-El estado lateral efectivo constituye una entrada de la proyección de acciones
-sobre el revestimiento circular. Las relaciones siguientes permiten obtenerlo
-a partir de las propiedades del suelo y de su historia tensional.
+El coeficiente de empuje en reposo caracteriza el estado efectivo inicial del
+relleno. Interviene como dato geotécnico en modelos que representen la
+interacción suelo--conducto y, separadamente, en el estado biaxial analítico de
+control desarrollado en esta metodología. No reemplaza la presión vertical
+mayorada en la clave utilizada para obtener el empuje circunferencial
+reglamentario, ni determina por sí solo la presión de contacto sobre un
+conducto flexible.
 
 El capítulo caracteriza las formulaciones aplicables según la trayectoria
 tensional, identifica sus variables primitivas y establece la separación entre
@@ -30,8 +34,10 @@ donde $u$ es la presión intersticial. Esta separación evita aplicar $K_0$ a
 una tensión vertical total y contabilizar el agua dos veces
 [@ChristopherEtAl2006, sec. 5.4.9].
 
-La salida que consume el cálculo estructural es $\sigma'_h(z)$. Para organizar
-el procedimiento adoptado en este estudio, una rama geotécnica $m$ se expresa
+La salida de este módulo geotécnico es $\sigma'_h(z)$. Su transferencia al
+cálculo estructural requiere una formulación de interacción o un estado de
+carga analítico explícitamente prescrito. Para organizar el procedimiento, una
+rama geotécnica $m$ se expresa
 como
 
 $$
@@ -65,6 +71,13 @@ La relación es una correlación para una trayectoria de carga primaria. Las
 trayectorias de descarga y recarga, así como una eventual tensión horizontal
 retenida durante la construcción, requieren formulaciones independientes.
 
+La relación se emplea con parámetros efectivos para suelos no cohesivos y para
+suelos cohesivos normalmente consolidados en condiciones drenadas. No se le
+agrega un término genérico en $c'$: las expresiones que contienen
+$\pm2c'\sqrt K$ corresponden a estados límite activo o pasivo, no al estado en
+reposo. Un análisis no drenado en tensiones totales constituye otra rama
+constitutiva y no se habilita sin datos y evidencia propios.
+
 ### Forma de 1944 y alcance de la derivación
 
 Michalowski transcribe la forma obtenida por Jáky en 1944:
@@ -72,7 +85,7 @@ Michalowski transcribe la forma obtenida por Jáky en 1944:
 $$
 K_{0,\mathrm{J\acute{a}ky\,1944}}
 =(1-\sin\phi')
-\frac{1+\frac{2}{3}\sin^2\phi'}{1+\sin\phi'}.
+\frac{1+\frac{2}{3}\sin\phi'}{1+\sin\phi'}.
 $$
 
 Jáky eliminó posteriormente el factor fraccionario y produjo la forma
@@ -227,6 +240,49 @@ $\Delta\sigma'_{h,c}$ permanecen sin determinar hasta caracterizar la
 secuencia, el equipo, el contenido de agua, la densidad alcanzada y la
 movilidad del revestimiento.
 
+## Función dentro del análisis de conductos enterrados
+
+La referencia normativa principal es AASHTO LRFD Bridge Design
+Specifications, sección 12. La rama resistente no se selecciona a partir de la
+forma circular solamente: el índice oficial distingue los tubos, arcos y
+estructuras de arco metálicos del artículo 12.7, las estructuras de gran luz
+de chapas estructurales del artículo 12.8, el subcaso de corrugación profunda
+del artículo 12.8.9 y las chapas de acero para revestimiento de túneles del
+artículo 12.13 [@AASHTO2024TOC]. La identificación
+del producto y de su procedimiento de montaje determina qué artículo y, cuando
+corresponda, qué subartículo resultan aplicables.
+
+Para conductos metálicos corrugados, USACE reproduce como relación de empuje
+por unidad de longitud de pared [@USACE2020, ec. 4-20]
+
+$$
+T_L=P_F\frac{S}{2}.
+$$
+
+$P_F$ reúne la acción vertical mayorada del suelo y las sobrecargas, y $S$ es
+la luz. Esta expresión es una reproducción pública del procedimiento que
+USACE atribuía a AASHTO en 2020; no se presenta como transcripción verificada
+del articulado de la décima edición. Antes de utilizarla en una comprobación
+reglamentaria deben confirmarse en la edición adoptada su permanencia, las
+definiciones de las variables, los factores, las combinaciones y el dominio de
+la rama seleccionada. CIRSOC 804-4 conserva una relación coincidente y una
+numeración basada en una edición anterior de AASHTO, pero se mantiene sólo como
+contraste métrico y no como autoridad normativa de este procedimiento
+[@CIRSOC8044].
+
+En particular, el índice de AASHTO identifica una comprobación combinada de
+empuje y momento en el artículo 12.8.9.5 para corrugación profunda. Esa
+disposición no se transfiere a los artículos 12.7 o 12.13. Las ecuaciones de
+resistencia de pared o área, pandeo, costuras y conexiones permanecen
+pendientes hasta consultar el articulado vigente y clasificar el producto.
+
+Cuando se necesita la variación angular de las acciones y de las resultantes,
+debe adoptarse una formulación de interacción que represente el relleno, la
+rigidez del conducto, el arqueo, la interfaz y las etapas constructivas. En esa
+formulación $K_0$ puede definir el estado inicial de tensiones del relleno; no
+se iguala sin demostración a la relación entre presiones de contacto
+horizontal y vertical sobre la pared.
+
 ## Selección de la formulación
 
 La secuencia de selección es:
@@ -245,6 +301,90 @@ La secuencia de selección es:
 
 La relación elástica se conserva como referencia constitutiva y no se combina
 con las correlaciones de historia tensional para obtener un promedio.
+
+## Comparación entre formulaciones
+
+Las relaciones anteriores no constituyen estimadores intercambiables de una
+misma condición. La comparación debe preservar la clase de material y la
+trayectoria tensional que define cada rama. En particular, la expresión
+elástica utiliza $\nu_g$, la relación de Jáky utiliza $\phi'$ y las relaciones
+de Mayne--Kulhawy incorporan además la historia representada por OCR y
+$\mathrm{OCR}_{\max}$.
+
+FHWA y USACE no aportan, en las secciones verificadas, nuevas correlaciones
+independientes: FHWA presenta la referencia elástica y la relación abreviada
+de Jáky, mientras USACE utiliza esta última dentro de una comprobación
+específica [@ChristopherEtAl2006, sec. 5.4.9; @USACE2020, sec. 7.5.3.4.6]. En
+Núñez (2000), $K_0$ interviene como parámetro de la formulación de cargas e
+interacción; no se identificó allí una expresión independiente para estimarlo
+[@Nunez2000, pp. 13--15]. Por ello, FHWA, USACE y Núñez no se incorporan como
+tres modelos adicionales de $K_0$.
+
+Sea $s=\sin\phi'$. Para un mismo $\phi'$, la rama normalmente consolidada
+define el valor de referencia
+
+$$
+K_{0,NC}=1-s.
+$$
+
+La comparación con la descarga primaria puede escribirse sin fijar valores
+numéricos:
+
+$$
+\frac{K_{0,OC}}{K_{0,NC}}=\mathrm{OCR}^{s}.
+$$
+
+Por lo tanto, ambas ramas coinciden para $\mathrm{OCR}=1$ y, para
+$\phi'>0$, la descarga incrementa $K_0$ en forma monótona mientras la relación
+permanezca dentro de su dominio. Para descarga seguida de recarga,
+
+$$
+\frac{K_0}{K_{0,NC}}
+=\frac{\mathrm{OCR}}
+{\mathrm{OCR}_{\max}^{\,1-s}}
++\frac{3}{4}\left(
+1-\frac{\mathrm{OCR}}{\mathrm{OCR}_{\max}}
+\right).
+$$
+
+Esta forma permite comprobar directamente los límites de carga primaria y
+descarga sin introducir resultados tabulados. La igualdad formal entre la
+idealización elástica y la relación de Jáky se obtiene cuando
+
+$$
+\nu_g=\frac{1-\sin\phi'}{2-\sin\phi'}.
+$$
+
+La igualdad es sólo un control algebraico; no establece una relación
+constitutiva entre $\nu_g$ y $\phi'$ ni autoriza a derivar uno de esos
+parámetros a partir del otro.
+
+Para aislar la incidencia de $K_0$ en el estado biaxial prescrito, se mantienen
+iguales $\sigma'_v$ y $\Delta u$ entre escenarios. Entonces
+
+$$
+\sigma'_h=K_0\sigma'_v,
+\qquad
+p_m=\Delta u+\frac{1+K_0}{2}\sigma'_v,
+\qquad
+\Delta\sigma=(1-K_0)\sigma'_v.
+$$
+
+El incremento de $K_0$ aumenta la componente media con
+$\partial p_m/\partial K_0=\sigma'_v/2$ y reduce la amplitud desviadora con
+$\partial\Delta\sigma/\partial K_0=-\sigma'_v$. Para $K_0=1$ desaparece la
+componente armónica de esa proyección; para $K_0>1$ cambia su signo. Estas
+relaciones describen el escenario biaxial analítico y no sustituyen una ley
+de contacto suelo--conducto.
+
+La comparación numérica se construye a partir de casos declarados. Cada caso
+registra la formulación, sus variables primitivas, el estado de dominio y la
+misma definición de tensiones y agua empleada en la comparación. Los valores
+de $K_0$, $\sigma'_h$, $p_m$, $\Delta\sigma$ y, cuando corresponda, las
+resultantes se calculan desde esas entradas. Si la trayectoria del relleno no
+permite seleccionar una única formulación, las ramas se mantienen como
+escenarios discretos sin promediarlas ni asignarles probabilidades no
+documentadas.
 
 ## Propagación de incertidumbres
 
@@ -267,8 +407,10 @@ aplicable al revestimiento considerado.
 
 ## Alcance
 
-Las relaciones anteriores determinan el estado lateral efectivo que se
-proyecta sobre la sección circular. No calculan resultantes estructurales,
-tensiones de la chapa ni resistencia de uniones. La aplicación al
-revestimiento existente requiere todavía clasificar el relleno y reconstruir
-su historia tensional y constructiva.
+Las relaciones anteriores determinan el estado lateral efectivo del relleno.
+No calculan la presión de contacto ni las resultantes estructurales, y tampoco
+reemplazan la solicitación reglamentaria de la rama AASHTO aplicable. La aplicación
+al revestimiento existente requiere clasificar el producto, el relleno y el
+procedimiento constructivo, reconstruir la historia tensional y seleccionar
+una formulación de interacción cuando se pretendan obtener distribuciones
+angulares de $N_\theta$, $M_\theta$ y $Q_\theta$.

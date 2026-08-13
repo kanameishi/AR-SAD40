@@ -14,8 +14,16 @@ primarias mediante `bib/references.bib`.
   radiales por sectores (`Baker1968`).
 - Schwartz y Einstein (1980): formulación de interacción suelo--revestimiento y
   caso HP97 para túneles excavados (`SchwartzEinstein1980`).
-- USACE EM 1110-2-2902 (2020): fuerza normal de conductos metálicos corrugados
-  y ejemplo D4 (`USACE2020`).
+- AASHTO LRFD Bridge Design Specifications, 10.ª edición (2024): mapa oficial
+  de los artículos 12.7, 12.8 y 12.13 y del subartículo 12.8.9; el acceso se limita al índice
+  (`AASHTO2024TOC`).
+- AASHTO LRFD Bridge Construction Specifications, 4.ª edición: autoridad
+  separada para ejecución, con articulado no disponible en el corpus
+  (`AASHTOConstruction2017`).
+- USACE EM 1110-2-2902 (2020): relación pública de empuje para conductos
+  metálicos corrugados y ejemplo D4 (`USACE2020`).
+- CIRSOC 804-4 (2023): contraste métrico basado en una edición anterior de
+  AASHTO; no gobierna la comprobación (`CIRSOC8044`).
 - FHWA-RD-98-191 (1999): acción equivalente de compactación
   (`McGrathEtAl1999`).
 - FHWA NHI-05-037 (2006): relaciones de referencia para el coeficiente de
@@ -56,6 +64,38 @@ primarias mediante `bib/references.bib`.
 Estos códigos pertenecen al registro interno y no se muestran como narrativa
 en el informe profesional.
 
+## Evidencia para el empuje circunferencial reglamentario
+
+AASHTO LRFD Bridge Design Specifications, sección 12, constituye la autoridad
+de diseño. El índice oficial confirma artículos separados para tubos y arcos
+metálicos, estructuras de gran luz de chapas estructurales y chapas de acero
+para revestimiento de túneles, además del subartículo de corrugación profunda
+[@AASHTO2024TOC]. El articulado vigente no forma
+parte del corpus consultado; sus ecuaciones y factores permanecen sin
+verificar.
+
+USACE EM 1110-2-2902 reproduce para conductos metálicos corrugados la relación
+
+$$
+T_L=P_F\frac{S}{2}.
+$$
+
+El manual define $T_L$ como empuje mayorado por unidad de longitud de pared,
+$P_F$ como presión vertical mayorada en la clave debida al suelo y las
+sobrecargas, y $S$ como luz. USACE EM 1110-2-2902, ecuación 4-20, reproduce la
+misma relación y explicita las contribuciones de carga permanente y móvil. Las
+comprobaciones de área de pared, pandeo y costura se realizan en las secciones
+resistentes seleccionadas para la evaluación.
+
+Esta relación corresponde al procedimiento que USACE atribuía a AASHTO en
+2020; no se presenta como transcripción certificada de la décima edición.
+CIRSOC 804-4 contiene una expresión coincidente basada en una edición anterior
+y queda como contraste métrico. La clasificación del producto existente, el
+articulado AASHTO aplicable, $P_F$ y la luz reglamentaria permanecen
+`UNKNOWN`. La implementación materializa por ello la rama AASHTO como
+`not-evaluated`, sin sustituir esas entradas por la tensión efectiva en el eje
+o por el diámetro interior del escenario analítico.
+
 ## Evidencia para la estimación de $K_0$
 
 $K_0$ se define mediante tensiones efectivas,
@@ -78,8 +118,12 @@ Para la revisión académica, Michalowski (2005, ec. 8) transcribe la forma de
 $$
 K_{0,\mathrm{J\acute{a}ky\,1944}}
 =(1-\sin\phi')
-\frac{1+\frac{2}{3}\sin^2\phi'}{1+\sin\phi'}.
+\frac{1+\frac{2}{3}\sin\phi'}{1+\sin\phi'}.
 $$
+
+La inspección vectorial de la ecuación 8 ubica el carácter `2` sobre el `3`
+de la fracción $2/3$, antes de $\sin\phi'$. Una transcripción anterior con
+$\sin^2\phi'$ fue retirada; no corresponde a la fuente.
 
 La forma abreviada $1-\sin\phi'$ corresponde a la simplificación posterior de
 1948. Michalowski cuestiona que el campo tensional del prisma de arena de la
@@ -142,13 +186,17 @@ permanecen pendientes y no se habilitan como ecuaciones operativas.
 
 ## Afirmaciones admitidas
 
-- Las tensiones vertical y lateral efectivas se proyectan sobre el contorno
-  para obtener una presión normal efectiva y una tracción tangencial
-  disponible.
+- La solicitación reglamentaria se determina con la rama AASHTO del producto;
+  en las ramas que emplean empuje, USACE documenta su obtención desde la
+  presión vertical mayorada en clave y la luz.
+- En el escenario biaxial analítico, las tensiones vertical y lateral efectivas
+  se proyectan sobre el contorno para obtener una presión normal efectiva y una
+  tracción tangencial disponible.
 - La acción tangencial se prescribe como $P_t=\alpha p_t^*$, con
   $0\leq\alpha\leq1$. $\alpha$ es un multiplicador de la componente
   tangencial proyectada y no un coeficiente de fricción.
-- $\alpha=0$ y $\alpha=1$ son los extremos de sensibilidad del escenario de
+- $\alpha=0$ y $\alpha=1$ son los extremos de sensibilidad del escenario
+  biaxial analítico de
   comprobación; la respuesta intermedia se obtiene por superposición lineal.
 - Para acciones perimetrales prescritas y autoequilibradas, el equilibrio y la
   compatibilidad determinan $N_\theta(\theta)$, $M_\theta(\theta)$ y
@@ -172,6 +220,12 @@ permanecen pendientes y no se habilitan como ecuaciones operativas.
 
 ## Afirmaciones excluidas
 
+- No se identifica $K_0\sigma'_v$ con la presión horizontal de contacto de un
+  conducto flexible sin una formulación de interacción aplicable.
+- No se atribuyen $M_\theta$ ni $Q_\theta$ a la ecuación reglamentaria escalar
+  de empuje.
+- No se evalúa $T_L$ mientras el producto, $P_F$ y $S$ permanezcan sin
+  confirmar.
 - No se informan tensiones del revestimiento existente mientras no se conozcan
   la sección neta, las fibras y la aplicabilidad frente a la curvatura.
 - No se presenta una utilización normativa, un factor de seguridad, una
@@ -189,9 +243,9 @@ permanecen pendientes y no se habilitan como ecuaciones operativas.
 ## Ecuaciones admitidas
 
 Las ecuaciones operativas de la memoria comprenden: profundidad y tensiones
-verticales; ramas excluyentes de $K_0$ derivadas de sus variables primitivas;
-proyección del estado tensional;
-multiplicador de la componente tangencial; comparación uniforme USACE; acción temporal FHWA;
+verticales; empuje circunferencial reglamentario; ramas excluyentes de $K_0$
+derivadas de sus variables primitivas; proyección biaxial analítica;
+multiplicador de la componente tangencial; acción temporal FHWA;
 equilibrio global; sistema diferencial de primer orden; constantes de
 compatibilidad; solución cerrada en función de $\alpha$; rigideces
 circunferenciales; resultantes y extremos espaciales; y recuperación
@@ -200,6 +254,9 @@ desarrollos necesarios para comprobarlas.
 
 ## Hechos requeridos no resueltos
 
+- clasificación del producto estructural y artículos reglamentarios
+  aplicables;
+- presión vertical mayorada en clave, luz y combinaciones de acciones;
 - radio centroidal y estado geométrico medido;
 - categoría de espesor y propiedades seccionales confirmadas;
 - estratigrafía, clasificación, pesos unitarios, humedad y compactación;
@@ -207,6 +264,8 @@ desarrollos necesarios para comprobarlas.
 - aplicabilidad de una rama NC, de descarga o de recarga al relleno existente;
 - formulación y magnitud de una eventual tensión horizontal residual de
   compactación;
+- formulación de interacción suelo--conducto aplicable para determinar la
+  distribución de presiones de contacto;
 - rango y representación probabilística o por escenarios de $\alpha$;
 - niveles de agua exterior e interior;
 - espesores actuales, variación espacial de la corrosión y modelo de pérdida
@@ -224,7 +283,9 @@ desarrollos necesarios para comprobarlas.
 ## Estado
 
 La aplicación determinística y sus contrastes son aptos para la memoria como
-escenario de comprobación. La relación de recuperación normal está establecida
+escenario biaxial analítico de comprobación. La rama reglamentaria está
+implementada como relación de empuje seccional, pero permanece sin evaluar por falta de
+entradas confirmadas. La relación de recuperación normal está establecida
 pero no se evalúa con las propiedades nominales del escenario. La evaluación
 probabilística y la comprobación resistente del revestimiento existente
 permanecen pendientes de la caracterización indicada. Las formulaciones

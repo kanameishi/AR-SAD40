@@ -51,7 +51,40 @@ sys.source("scripts/R/ringFourier.R", envir = Fourier)
 Con tensiones en kPa y longitudes en m, la salida queda en kN/m para `N` y `Q`
 y en kN m/m para `M`.
 
-## Flujo mínimo
+## Escenario determinístico vigente
+
+El archivo [`calculationScenarioExample.R`](calculationScenarioExample.R)
+expone el cálculo vigente como una secuencia de etapas. No escribe productos ni
+define una implementación alternativa: llama a las mismas funciones que usa
+`buildCalculationData()` y comprueba al final la correspondencia con
+`calculateScenario()`.
+
+| Etapa | Función | Entradas principales | Salida |
+|---:|---|---|---|
+| 1 | `buildThetaMesh()` | cantidad de puntos y ángulos críticos | `theta`, en radianes |
+| 2 | `estimateK0()` | rama y primitivas de $K_0$ | estado de $K_0$ |
+| 3 | `calculateEffectiveStressState()` | $\sigma'_v$, $K_0$ y $\Delta u$ | $\sigma'_v$, $\sigma'_h$ y $\Delta u$, en kPa |
+| 4 | `interpolateCorrugatedSection()` | tabla, perfil y espesor base | $A_\theta$ e $I_\theta$ |
+| 5 | `calculateRingSection()` | $E_\theta$, $A_\theta$, $I_\theta$ y $R$ | $EA_\theta$, $EI_\theta$ y `sectionRatio` |
+| 6 | `calculatePerimeterActions()` | estado tensional, $\alpha$ y `theta` | $P_r(\theta)$ y $P_t(\theta)$ |
+| 7 | `calculateSectionResultants()` | acciones, $R$, rigidez y controles numéricos | $N_\theta$, $M_\theta$, $Q_\theta$ y diagnósticos |
+| 8 | `summarizeSectionResultants()` | respuesta de la etapa 7 | mínimos, máximos y posiciones |
+
+La ejecución independiente es:
+
+```sh
+Rscript scripts/R/calculationScenarioExample.R
+```
+
+`calculateScenario(realization, context)` compone esas mismas etapas. Para la
+realización, exige `effectiveVerticalKPa`, `waterPressureDifferenceKPa`,
+`baseThicknessMm`, `alpha` y las primitivas de la rama de $K_0$. El contexto
+contiene el modelo de $K_0$, la sección de referencia, el perfil, el módulo, el
+radio, la malla y las tolerancias. Su salida conserva `k0State`, `stressState`,
+`corrugatedSection`, `sectionRigidity`, `perimeterActions`,
+`sectionResultants` y `resultantExtrema`.
+
+## Ejemplo general de carga prescrita
 
 ```r
 Theta <- (0:720) * 2 * pi / 721
@@ -123,16 +156,25 @@ nominal de la corrugación.
 ```r
 Stress <- calculateSheetNormalStress(
   resultants = data.frame(
+    sectionID = "net-section-01",
+    combinationID = "strength-01",
+    stageID = "existing",
     theta = 0,
     thetaDeg = 0,
-    normalForce = -60,       # kN/m; tracción positiva
-    bendingMoment = 0.02     # kN m/m
+    normalForceKnPerM = -60,       # tracción positiva
+    bendingMomentKnMPerM = 0.02,   # tracción en la fibra interior
+    shearForceKnPerM = 0,
+    forceEffectStatus = "factored-strength",
+    longitudinalBasis = "per-projected-metre"
   ),
   netSection = list(
+    sectionID = "net-section-01",
     areaMm2PerMm = 4,
     inertiaMm4PerMm = 300,
-    positiveFiberCoordinateMm = 12.5,
-    negativeFiberCoordinateMm = -12.5
+    outerFiberCoordinateMm = -12.5,
+    innerFiberCoordinateMm = 12.5,
+    coordinatePositiveDirection = "inward",
+    momentSignConvention = "positive-tension-inner"
   ),
   recoveryBasis = list(
     modelID = "linear-homogenized",
@@ -142,8 +184,10 @@ Stress <- calculateSheetNormalStress(
 )
 ```
 
-La coordenada de fibra es positiva radialmente hacia afuera y un momento
-positivo comprime esa fibra. El identificador del ejemplo corresponde a un
+La coordenada de fibra es positiva radialmente hacia el interior y un momento
+positivo tracciona esa fibra. Los identificadores de sección, combinación y
+etapa se conservan en la salida; $Q_\theta$ se transporta, pero su tensión
+local queda expresamente sin evaluar. El identificador del ejemplo corresponde a un
 control sintético y no constituye un criterio de aplicabilidad aprobado. El
 usuario de la función suministra el criterio y su estado; la función no
 evalúa la curvatura.
@@ -310,7 +354,7 @@ Adaptadores disponibles:
   Mayne--Kulhawy para descarga primaria y descarga--recarga;
 - `checkK0PassiveDomain()`: estado del dominio, coeficiente pasivo y OCR
   límite usados únicamente para comprobar las relaciones anteriores;
-- `usaceCmpThrust()`: empuje escalar con factores explícitos;
+- `usaceCmpThrust()`: empuje seccional con factores explícitos;
 - `usaceUniformSurrogate()`: presión uniforme de igual empuje, marcada como
   derivada;
 - `fhwaCompactionPressure()`: ecuación 5.1 en SI;
@@ -326,7 +370,7 @@ limitaciones cuando corresponde.
 ## Productos determinísticos de la memoria
 
 `calculation.json` contiene las entradas adoptadas del escenario. Su esquema
-vigente es `2.0.0`; las siglas de los identificadores se escriben con el
+vigente es `2.1.0`; las siglas de los identificadores se escriben con el
 sufijo `ID` en configuración, tablas y código R. El comando
 
 ```sh

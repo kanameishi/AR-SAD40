@@ -1,0 +1,119 @@
+# Apéndice B. Solución cerrada y comprobación numérica {#sec-calculation-appendix-controls .unnumbered}
+
+Este apéndice desarrolla una solución cerrada del estado biaxial prescrito y
+la emplea para comprobar la integración directa. La comparación evalúa la
+consistencia matemática y numérica del procedimiento; no establece la
+representatividad de las acciones respecto del relleno existente.
+
+## B.1 Solución cerrada del estado biaxial prescrito {.unnumbered}
+
+Se parte de los invariantes de la @eq-calculation-biaxial-invariants y de las
+acciones de la @eq-calculation-biaxial-load.
+
+La respuesta contiene un término uniforme y un armónico de orden dos:
+
+$$
+N_\theta=N_0+N_2\cos2\theta,
+\qquad
+Q_\theta=Q_2\sin2\theta,
+\qquad
+M_\theta=M_m+M_2\cos2\theta.
+$$
+
+La sustitución en las tres ecuaciones de equilibrio produce
+
+$$
+N_0=-Rp_m,
+$$
+
+$$
+-2N_2=Q_2-R\alpha\frac{\Delta\sigma}{2},
+\qquad
+2Q_2=-R\frac{\Delta\sigma}{2}-N_2,
+\qquad
+-2M_2=RQ_2.
+$$
+
+La resolución del sistema y el cierre del modo uniforme dan
+
+$$
+N_2=R\Delta\sigma\frac{1+2\alpha}{6},
+\qquad
+Q_2=-R\Delta\sigma\frac{2+\alpha}{6},
+$$
+
+$$
+M_2=R^2\Delta\sigma\frac{2+\alpha}{12},
+\qquad
+M_m=-R^2p_m\frac{\eta_s}{1+\eta_s}.
+$$
+
+La sustitución de estos coeficientes en la forma armónica produce la
+@eq-calculation-biaxial-alpha-response. Esta solución corresponde a las
+acciones prescritas y a una geometría y rigideces uniformes; $\alpha$ conserva
+su definición como multiplicador de la componente tangencial.
+
+## B.2 Sustitución numérica {.unnumbered}
+
+Para
+$R=`r formatCalculationGeneral(Calculation$geometry$radiusM)`$ m,
+$p_m=`r formatCalculationGeneral(Calculation$actions$meanPressureKPa)`$ kPa,
+$\Delta\sigma=`r formatCalculationGeneral(Calculation$actions$stressDifferenceKPa)`$
+kPa y
+$\eta_s=`r formatCalculationScientificLatex(Calculation$section$sectionRatio, 12L)`$,
+los términos uniformes son
+
+$$
+N_0=-Rp_m=
+`r formatCalculationFixed(Calculation$extrema$meanNormal[1L], 7L)`
+\ \mathrm{kN/m},
+$$
+
+$$
+M_m=-R^2p_m\frac{\eta_s}{1+\eta_s}
+=`r formatCalculationFixed(Calculation$extrema$meanMoment[1L], 10L)`
+\ \mathrm{kN\,m/m}.
+$$
+
+La evaluación de la @eq-calculation-biaxial-alpha-response para
+`r Calculation$actions$tangentialMultiplierMarkdown` reproduce los valores de la @tbl-calculation-extrema y las tres
+curvas presentadas en la aplicación numérica.
+
+## B.3 Equilibrio global y diferencias numéricas {.unnumbered}
+
+Los residuos de equilibrio se normalizan con
+
+$$
+p_{\mathrm{ref}}=
+\max_{\theta_j\in\mathcal M_{1/2}}
+\left\{|P_r(\theta_j)|,|P_t(\theta_j)|\right\},
+$$
+
+$$
+\varepsilon_{F_x}=\frac{|F_x|}{2\pi Rp_{\mathrm{ref}}},
+\qquad
+\varepsilon_{F_z}=\frac{|F_z|}{2\pi Rp_{\mathrm{ref}}},
+\qquad
+\varepsilon_{M_c}=\frac{|M_c|}{2\pi R^2p_{\mathrm{ref}}},
+$$ {#eq-calculation-global-residuals}
+
+donde $\mathcal M_{1/2}$ es el conjunto de puntos medios de la malla de
+integración. Para las resultantes, la diferencia respecto de la solución
+cerrada se calcula con la @eq-calculation-control-metric.
+
+La evaluación utiliza
+`r formatCalculationGeneral(Calculation$numerics$gridPoints)` ordenadas
+angulares y
+`r formatCalculationGeneral(Calculation$numerics$integrationSteps)` divisiones
+de la malla base. La malla de integración es la unión ordenada de esa malla
+base, las ordenadas solicitadas y los puntos de discontinuidad declarados. La
+@tbl-calculation-controls presenta los seis residuos de equilibrio y las seis
+diferencias de resultantes.
+
+{{< include /_tbl/Calculation.controls.ES.qmd >}}
+
+Todos los residuos de equilibrio son inferiores a
+$`r formatCalculationScientificLatex(Calculation$numerics$balanceTolerance, 2L)`$,
+y todas las diferencias de resultantes son inferiores a
+$`r formatCalculationScientificLatex(Calculation$numerics$controlTolerance, 2L)`$
+en la unidad correspondiente.

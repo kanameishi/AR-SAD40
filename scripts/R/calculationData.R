@@ -1,6 +1,7 @@
 if (!exists("calculateRingSection", mode = "function") ||
     !exists("estimateK0", mode = "function") ||
     !exists("calculateEffectiveStressState", mode = "function") ||
+    !exists("selectCorrugatedSection", mode = "function") ||
     !exists("interpolateCorrugatedSection", mode = "function") ||
     !exists("buildThetaMesh", mode = "function") ||
     !exists("calculatePerimeterActions", mode = "function") ||
@@ -227,7 +228,7 @@ validateCalculationConfig <- function(config) {
     stop("calculation.json is missing: schemaVersion.", call. = FALSE)
   }
   SchemaVersion <- .readText(config, "schemaVersion", "calculation.json")
-  if (SchemaVersion != "2.0.0") {
+  if (SchemaVersion != "2.1.0") {
     stop("Unsupported calculation schemaVersion: ", SchemaVersion, ".", call. = FALSE)
   }
   .requireFields(
@@ -247,19 +248,26 @@ validateCalculationConfig <- function(config) {
   }
 
   Section <- .requireObject(config$section, "section")
+  PropertyModel <- .readText(Section, "propertyModelID", "section")
+  Fields.section <- switch(
+    PropertyModel,
+    "published-exact-row" = c(
+      "specifiedThicknessMm", "designBaseThicknessMm", "referenceRowID"
+    ),
+    "linear-interpolation-base-thickness" = c(
+      "reportedThicknessMm", "analysisBaseThicknessMm"
+    ),
+    stop("Unsupported section.propertyModelID: ", PropertyModel, ".", call. = FALSE)
+  )
   .requireFields(
     Section,
     c(
       "nominalCorrugationPitchMm", "nominalCorrugationDepthMm",
-      "reportedThicknessMm", "analysisBaseThicknessMm", "referenceProfileID",
-      "propertyModelID", "propertyTable"
+      "referenceProfileID", "propertyModelID", "propertyTable",
+      Fields.section
     ),
     path = "section"
   )
-  PropertyModel <- .readText(Section, "propertyModelID", "section")
-  if (PropertyModel != "linear-interpolation-base-thickness") {
-    stop("Unsupported section.propertyModelID: ", PropertyModel, ".", call. = FALSE)
-  }
 
   Material <- .requireObject(config$material, "material")
   .requireFields(Material, "circumferentialYoungModulusGPa", path = "material")
@@ -268,8 +276,8 @@ validateCalculationConfig <- function(config) {
   .requireFields(
     Stress,
     c(
-      "statePointID", "effectiveVerticalKPa", "waterPressureDifferenceKPa",
-      "horizontalIncrementMode", "k0Model"
+      "statePointID", "actionModelID", "effectiveVerticalKPa",
+      "waterPressureDifferenceKPa", "horizontalIncrementMode", "k0Model"
     ),
     path = "stressState"
   )
@@ -279,6 +287,10 @@ validateCalculationConfig <- function(config) {
       "Unsupported stressState.horizontalIncrementMode: ", IncrementMode, ".",
       call. = FALSE
     )
+  }
+  ActionModelID <- .readText(Stress, "actionModelID", "stressState")
+  if (ActionModelID != "prescribed-biaxial-stress-projection") {
+    stop("Unsupported stressState.actionModelID: ", ActionModelID, ".", call. = FALSE)
   }
 
   Numerics <- .requireObject(config$numerics, "numerics")
@@ -321,7 +333,7 @@ validateCalculationConfig <- function(config) {
       ),
       analysisRadiusRule = RadiusRule
     ),
-    section = list(
+    section = c(list(
       nominalCorrugationPitchMm = .readNumber(
         Section,
         "nominalCorrugationPitchMm",
@@ -336,24 +348,45 @@ validateCalculationConfig <- function(config) {
         minimum = 0,
         strictMinimum = TRUE
       ),
-      reportedThicknessMm = .readNumber(
-        Section,
-        "reportedThicknessMm",
-        "section",
-        minimum = 0,
-        strictMinimum = TRUE
-      ),
-      analysisBaseThicknessMm = .readNumber(
-        Section,
-        "analysisBaseThicknessMm",
-        "section",
-        minimum = 0,
-        strictMinimum = TRUE
-      ),
       referenceProfileID = .readText(Section, "referenceProfileID", "section"),
       propertyModelID = PropertyModel,
       propertyTable = .readText(Section, "propertyTable", "section")
-    ),
+    ), if (PropertyModel == "published-exact-row") {
+      list(
+        specifiedThicknessMm = .readNumber(
+          Section,
+          "specifiedThicknessMm",
+          "section",
+          minimum = 0,
+          strictMinimum = TRUE
+        ),
+        designBaseThicknessMm = .readNumber(
+          Section,
+          "designBaseThicknessMm",
+          "section",
+          minimum = 0,
+          strictMinimum = TRUE
+        ),
+        referenceRowID = .readText(Section, "referenceRowID", "section")
+      )
+    } else {
+      list(
+        reportedThicknessMm = .readNumber(
+          Section,
+          "reportedThicknessMm",
+          "section",
+          minimum = 0,
+          strictMinimum = TRUE
+        ),
+        analysisBaseThicknessMm = .readNumber(
+          Section,
+          "analysisBaseThicknessMm",
+          "section",
+          minimum = 0,
+          strictMinimum = TRUE
+        )
+      )
+    }),
     material = list(
       circumferentialYoungModulusGPa = .readNumber(
         Material,
@@ -365,6 +398,7 @@ validateCalculationConfig <- function(config) {
     ),
     stressState = list(
       statePointID = .readText(Stress, "statePointID", "stressState"),
+      actionModelID = ActionModelID,
       effectiveVerticalKPa = .readNumber(
         Stress,
         "effectiveVerticalKPa",
@@ -494,20 +528,12 @@ validateCalculationConfig <- function(config) {
   Radius <-
     config[["geometry", exact = TRUE]][["insideDiameterM", exact = TRUE]] /
       2
-  data.frame(
+  Common <- data.frame(
     scenarioID = config[["scenarioID", exact = TRUE]],
     sectionID = "circumferential-section",
     profileID = corrugatedSection[["profileID", exact = TRUE]],
     propertyModelID =
       config[["section", exact = TRUE]][["propertyModelID", exact = TRUE]],
-    analysisBaseThicknessMm =
-      corrugatedSection[["analysisBaseThicknessMm", exact = TRUE]],
-    lowerReferenceRowID =
-      corrugatedSection[["lowerReferenceRowID", exact = TRUE]],
-    upperReferenceRowID =
-      corrugatedSection[["upperReferenceRowID", exact = TRUE]],
-    interpolationFraction =
-      corrugatedSection[["interpolationFraction", exact = TRUE]],
     areaMm2PerMm = corrugatedSection[["areaMm2PerMm", exact = TRUE]],
     inertiaMm4PerMm = corrugatedSection[["inertiaMm4PerMm", exact = TRUE]],
     circumferentialYoungModulusGPa =
@@ -527,6 +553,72 @@ validateCalculationConfig <- function(config) {
     domainStatus = corrugatedSection[["domainStatus", exact = TRUE]],
     stringsAsFactors = FALSE
   )
+  if (config$section$propertyModelID == "published-exact-row") {
+    Configured <- c(
+      nominalPitchMm = config$section$nominalCorrugationPitchMm,
+      nominalDepthMm = config$section$nominalCorrugationDepthMm,
+      specifiedThicknessMm = config$section$specifiedThicknessMm,
+      designBaseThicknessMm = config$section$designBaseThicknessMm
+    )
+    Published <- c(
+      nominalPitchMm = corrugatedSection$nominalPitchMm,
+      nominalDepthMm = corrugatedSection$nominalDepthMm,
+      specifiedThicknessMm = corrugatedSection$specifiedThicknessMm,
+      designBaseThicknessMm = corrugatedSection$designBaseThicknessMm
+    )
+    if (!isTRUE(all.equal(Configured, Published, tolerance = 1e-12))) {
+      stop(
+        "The configured section does not match the selected published row.",
+        call. = FALSE
+      )
+    }
+    Exact <- data.frame(
+      referenceRowID = corrugatedSection[["referenceRowID", exact = TRUE]],
+      nominalPitchMm = corrugatedSection[["nominalPitchMm", exact = TRUE]],
+      nominalDepthMm = corrugatedSection[["nominalDepthMm", exact = TRUE]],
+      actualPitchMm = corrugatedSection[["actualPitchMm", exact = TRUE]],
+      actualDepthMm = corrugatedSection[["actualDepthMm", exact = TRUE]],
+      corrugationRadiusMm =
+        corrugatedSection[["corrugationRadiusMm", exact = TRUE]],
+      specifiedThicknessMm =
+        corrugatedSection[["specifiedThicknessMm", exact = TRUE]],
+      designBaseThicknessMm =
+        corrugatedSection[["designBaseThicknessMm", exact = TRUE]],
+      tangentLengthMm = corrugatedSection[["tangentLengthMm", exact = TRUE]],
+      tangentAngleDeg = corrugatedSection[["tangentAngleDeg", exact = TRUE]],
+      sectionModulusMm3PerMm =
+        corrugatedSection[["sectionModulusMm3PerMm", exact = TRUE]],
+      gyrationRadiusMm =
+        corrugatedSection[["gyrationRadiusMm", exact = TRUE]],
+      developedWidthFactor =
+        corrugatedSection[["developedWidthFactor", exact = TRUE]],
+      propertyEvidenceLevel =
+        corrugatedSection[["evidenceLevel", exact = TRUE]],
+      rigidityEvidenceLevel = "DE",
+      stringsAsFactors = FALSE
+    )
+    return(cbind(Common, Exact))
+  }
+  Interpolated <- data.frame(
+    analysisBaseThicknessMm =
+      corrugatedSection[["analysisBaseThicknessMm", exact = TRUE]],
+    lowerReferenceRowID =
+      corrugatedSection[["lowerReferenceRowID", exact = TRUE]],
+    upperReferenceRowID =
+      corrugatedSection[["upperReferenceRowID", exact = TRUE]],
+    interpolationFraction =
+      corrugatedSection[["interpolationFraction", exact = TRUE]],
+    stringsAsFactors = FALSE
+  )
+  cbind(
+    Common[c(
+      "scenarioID", "sectionID", "profileID", "propertyModelID"
+    )],
+    Interpolated,
+    Common[setdiff(names(Common), c(
+      "scenarioID", "sectionID", "profileID", "propertyModelID"
+    ))]
+  )
 }
 
 resolveCalculationK0 <- function(model) {
@@ -544,11 +636,21 @@ resolveCalculationK0 <- function(model) {
 
 readCalculationSection <- function(config, projectRoot) {
   Reference <- .readCalculationSectionReference(config, projectRoot)
-  CorrugatedSection <- interpolateCorrugatedSection(
-    reference = Reference,
-    profileID = config$section$referenceProfileID,
-    baseThicknessMm = config$section$analysisBaseThicknessMm
-  )
+  CorrugatedSection <- if (
+    config$section$propertyModelID == "published-exact-row"
+  ) {
+    selectCorrugatedSection(
+      reference = Reference,
+      profileID = config$section$referenceProfileID,
+      referenceRowID = config$section$referenceRowID
+    )
+  } else {
+    interpolateCorrugatedSection(
+      reference = Reference,
+      profileID = config$section$referenceProfileID,
+      baseThicknessMm = config$section$analysisBaseThicknessMm
+    )
+  }
   Radius <- config$geometry$insideDiameterM / 2
   YoungModulusKPa <- config$material$circumferentialYoungModulusGPa * 1e6
   RingSection <- calculateRingSection(
@@ -574,6 +676,8 @@ readCalculationSection <- function(config, projectRoot) {
     scenarioID = config[["scenarioID", exact = TRUE]],
     stressStateID = stressStateID,
     modelID = k0State[["modelID", exact = TRUE]],
+    actionModelID =
+      config[["stressState", exact = TRUE]][["actionModelID", exact = TRUE]],
     statePointID =
       config[["stressState", exact = TRUE]][["statePointID", exact = TRUE]],
     layerID = NA_character_,
@@ -640,17 +744,29 @@ readCalculationSection <- function(config, projectRoot) {
     .inputRow(ScenarioID, NA, "geometry", "analysis-radius-rule", "radiusRule", textValue = config$geometry$analysisRadiusRule, evidenceLevel = "HA", conditionCode = "adopted-rule"),
     .inputRow(ScenarioID, NA, "section", "nominal-corrugation-pitch", "pitch", config$section$nominalCorrugationPitchMm, unit = "mm", evidenceLevel = "PN", conditionCode = "provided-nominal"),
     .inputRow(ScenarioID, NA, "section", "nominal-corrugation-depth", "depth", config$section$nominalCorrugationDepthMm, unit = "mm", evidenceLevel = "PN", conditionCode = "provided-nominal"),
-    .inputRow(ScenarioID, NA, "section", "reported-thickness", "t_0", config$section$reportedThicknessMm, unit = "mm", evidenceLevel = "PN", conditionCode = "provided-nominal"),
-    .inputRow(ScenarioID, NA, "section", "analysis-base-thickness", "t_b", config$section$analysisBaseThicknessMm, unit = "mm", evidenceLevel = "HA", conditionCode = "adopted-base-thickness"),
     .inputRow(ScenarioID, NA, "section", "reference-profile", "profileID", textValue = config$section$referenceProfileID, evidenceLevel = "HA", conditionCode = "selected-reference"),
     .inputRow(ScenarioID, NA, "section", "property-model", "propertyModelID", textValue = config$section$propertyModelID, evidenceLevel = "HA", conditionCode = "adopted-model"),
     .inputRow(ScenarioID, NA, "material", "circumferential-young-modulus", "E_theta", config$material$circumferentialYoungModulusGPa, unit = "GPa", evidenceLevel = "HA", conditionCode = "adopted-value"),
     .inputRow(ScenarioID, NA, "stress-state", "state-point", "statePointID", textValue = config$stressState$statePointID, evidenceLevel = "HA", conditionCode = "analytical-scenario"),
+    .inputRow(ScenarioID, NA, "stress-state", "action-model", "actionModelID", textValue = config$stressState$actionModelID, evidenceLevel = "HA", conditionCode = "analytical-scenario"),
     .inputRow(ScenarioID, NA, "stress-state", "effective-vertical", "sigma'_v,A", config$stressState$effectiveVerticalKPa, unit = "kPa", evidenceLevel = "HA", conditionCode = "analytical-scenario"),
     .inputRow(ScenarioID, NA, "stress-state", "water-pressure-difference", "Delta u_A", config$stressState$waterPressureDifferenceKPa, unit = "kPa", evidenceLevel = "HA", conditionCode = "analytical-scenario"),
     .inputRow(ScenarioID, NA, "stress-state", "horizontal-increment-mode", "horizontalIncrementMode", textValue = config$stressState$horizontalIncrementMode, evidenceLevel = "HA", conditionCode = "unknown-not-modeled"),
     .inputRow(ScenarioID, NA, "stress-state", "k0-model", "modelID", textValue = config$stressState$k0Model$modelID, evidenceLevel = "HA", conditionCode = "selected-branch")
   )
+  SectionRows <- if (config$section$propertyModelID == "published-exact-row") {
+    list(
+      .inputRow(ScenarioID, NA, "section", "specified-thickness", "t_s", config$section$specifiedThicknessMm, unit = "mm", evidenceLevel = "DP", conditionCode = "published-exact-row"),
+      .inputRow(ScenarioID, NA, "section", "design-base-thickness", "t_d", config$section$designBaseThicknessMm, unit = "mm", evidenceLevel = "DP", conditionCode = "published-exact-row"),
+      .inputRow(ScenarioID, NA, "section", "reference-row", "rowID", textValue = config$section$referenceRowID, evidenceLevel = "HA", conditionCode = "selected-reference-row")
+    )
+  } else {
+    list(
+      .inputRow(ScenarioID, NA, "section", "reported-thickness", "t_0", config$section$reportedThicknessMm, unit = "mm", evidenceLevel = "PN", conditionCode = "provided-nominal"),
+      .inputRow(ScenarioID, NA, "section", "analysis-base-thickness", "t_b", config$section$analysisBaseThicknessMm, unit = "mm", evidenceLevel = "HA", conditionCode = "adopted-base-thickness")
+    )
+  }
+  Rows <- append(Rows, SectionRows, after = 4L)
   Model <- config$stressState$k0Model
   ModelValues <- c("k0", "frictionAngleDeg", "poissonRatio", "ocr", "ocrMaximum")
   Symbols <- c(
@@ -787,6 +903,7 @@ readCalculationSection <- function(config, projectRoot) {
   units
 ) {
   Columns <- c(N = "normalForce", M = "bendingMoment", Q = "shearForce")
+  Components <- c(Fx = "forceX", Fz = "forceZ", Mc = "momentCenter")
   LIST <- lapply(seq_len(nrow(cases)), function(i) {
     Response.closed <- solveBiaxialTangentialMultiplierClosed(
       effectiveVertical = stressState$effectiveVerticalKPa,
@@ -798,7 +915,7 @@ readCalculationSection <- function(config, projectRoot) {
       sectionRatio = section$sectionRatio
     )
     Response.direct <- responses[[i]]
-    do.call(rbind, lapply(names(Columns), function(s) {
+    Rows.closed <- do.call(rbind, lapply(names(Columns), function(s) {
       Error <- max(abs(
         Response.direct$values[[Columns[[s]]]] -
           Response.closed$values[[Columns[[s]]]]
@@ -821,11 +938,34 @@ readCalculationSection <- function(config, projectRoot) {
         stringsAsFactors = FALSE
       )
     }))
+    Rows.balance <- do.call(rbind, lapply(names(Components), function(s) {
+      Residual <- abs(Response.direct$diagnostics$normalizedGlobalLoads[[
+        Components[[s]]
+      ]])
+      data.frame(
+        scenarioID = scenarioID,
+        caseID = cases$caseID[i],
+        alpha = cases$alpha[i],
+        controlID = "global-equilibrium",
+        resultantID = s,
+        metricID = "absolute-normalized-residual",
+        observedValue = Residual,
+        comparison = "<=",
+        limitValue = numerics$balanceTolerance,
+        unit = "-",
+        pass = Residual <= numerics$balanceTolerance,
+        thetaPointCount = length(theta),
+        integrationSteps = numerics$integrationSteps,
+        evidenceLevel = "CI",
+        stringsAsFactors = FALSE
+      )
+    }))
+    rbind(Rows.closed, Rows.balance)
   })
   OUT <- do.call(rbind, LIST)
   rownames(OUT) <- NULL
   if (!all(OUT$pass)) {
-    stop("One or more closed-form numerical controls failed.", call. = FALSE)
+    stop("One or more numerical controls failed.", call. = FALSE)
   }
   OUT
 }
@@ -931,10 +1071,13 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
       effectiveVerticalKPa =
         Config.stress[["effectiveVerticalKPa", exact = TRUE]],
       waterPressureDifferenceKPa =
-        Config.stress[["waterPressureDifferenceKPa", exact = TRUE]],
-      baseThicknessMm =
-        Config.section[["analysisBaseThicknessMm", exact = TRUE]]
+        Config.stress[["waterPressureDifferenceKPa", exact = TRUE]]
     ),
+    if (Config.section[["propertyModelID", exact = TRUE]] ==
+        "linear-interpolation-base-thickness") {
+      list(baseThicknessMm =
+        Config.section[["analysisBaseThicknessMm", exact = TRUE]])
+    },
     Model[intersect(Fields.k0, names(Model))]
   )
   Context <- list(
@@ -944,6 +1087,9 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
       Config.stress[["horizontalIncrementMode", exact = TRUE]],
     sectionReference = Reference,
     profileID = Config.section[["referenceProfileID", exact = TRUE]],
+    sectionPropertyModelID =
+      Config.section[["propertyModelID", exact = TRUE]],
+    referenceRowID = Config.section[["referenceRowID", exact = TRUE]],
     youngModulusKPa =
       Config[["material", exact = TRUE]][[
         "circumferentialYoungModulusGPa",

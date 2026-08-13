@@ -426,13 +426,13 @@ buildRingComparisonPlot <- function(
       xAxis = AxisIndex,
       yAxis = AxisIndex,
       name = "Reference section",
-      color = "#68727D",
-      dashStyle = "ShortDash",
-      lineWidth = 1.2,
+      color = "#374151",
+      dashStyle = "Solid",
+      lineWidth = 2.4,
       marker = list(enabled = FALSE),
       enableMouseTracking = FALSE,
       showInLegend = FALSE,
-      zIndex = 2
+      zIndex = 4
     )
     LabelRadius <- Limits[j] - 0.07 * baselineRadius
     Cardinal <- data.frame(
@@ -470,16 +470,16 @@ buildRingComparisonPlot <- function(
 
   Styles <- list(
     list(
-      line = "#1F2933",
+      line = "#0072B2",
       positive = "rgba(0,114,178,0.72)",
       negative = "rgba(213,94,0,0.70)",
-      dash = "Solid"
+      dash = "ShortDash"
     ),
     list(
-      line = "#6B7280",
+      line = "#D55E00",
       positive = "rgba(0,114,178,0.52)",
       negative = "rgba(213,94,0,0.50)",
-      dash = "ShortDash"
+      dash = "Dash"
     )
   )
   GroupIDs <- paste0("section-case-", seq_along(Cases))
@@ -511,7 +511,7 @@ buildRingComparisonPlot <- function(
         name = Prescription,
         color = Style$line,
         dashStyle = Style$dash,
-        lineWidth = 2.1,
+        lineWidth = 1.6,
         marker = list(enabled = FALSE),
         requireSorting = FALSE,
         findNearestPointBy = "xy",
@@ -536,7 +536,7 @@ buildRingComparisonPlot <- function(
           name = Prescription,
           color = Style[[Sign]],
           dashStyle = Style$dash,
-          lineWidth = 0.65,
+          lineWidth = 0.55,
           marker = list(enabled = FALSE),
           requireSorting = FALSE,
           enableMouseTracking = FALSE,

@@ -1,9 +1,7 @@
-# Resultados de la aplicación y antecedentes requeridos {#sec-calculation-conclusions}
+# Resultados del caso determinístico {#sec-calculation-deterministic-results}
 
-## Resultados del escenario de comprobación
-
-La aplicación numérica considera un estado biaxial uniforme en la cota del eje
-y los valores declarados del multiplicador tangencial $\alpha$.
+La fuerza normal circunferencial es compresiva en toda la sección para los
+casos evaluados.
 
 ```{r}
 #| echo: false
@@ -11,38 +9,16 @@ y los valores declarados del multiplicador tangencial $\alpha$.
 cat(Calculation$caseSummaryMarkdown)
 ```
 
-Los valores intermedios se obtienen con la
-@eq-calculation-biaxial-alpha-response. Los seis controles de la
-@tbl-calculation-controls satisfacen la tolerancia declarada para cada
-resultante, conservando por separado las unidades de fuerza y momento.
+La incorporación completa de la componente tangencial prescrita modifica la
+amplitud de las tres resultantes.
 
-## Datos del revestimiento existente
+```{r}
+#| echo: false
+#| results: asis
+cat(Calculation$endpointComparisonMarkdown)
+```
 
-La tapada, la geometría del revestimiento, el perfil de la chapa, el acero y
-el espesor original se consideran datos determinísticos y se incorporarán
-desde los registros definitivos del proyecto. La evaluación del estado actual
-requiere completar la siguiente caracterización:
-
-1. estratigrafía, clasificación, pesos unitarios, humedad y densidad del
-   relleno;
-2. procedimiento, energía, secuencia y grado de compactación;
-3. estado tensional e historia de carga necesarios para seleccionar la rama de
-   $K_0$;
-4. hipótesis y rango aplicable del multiplicador tangencial $\alpha$;
-5. niveles de agua exterior e interior para cada estado de carga;
-6. espesores medidos, estados de lectura, perforaciones, distribución de la
-   corrosión y propiedades seccionales netas;
-7. regla para representar la variación espacial de esas propiedades en el
-   cálculo de resultantes; y
-8. criterio de aplicabilidad de la distribución lineal de tensiones frente a
-   la curvatura del perfil.
-
-La presente emisión determina $N_\theta(\theta)$,
-$M_\theta(\theta)$ y $Q_\theta(\theta)$ para las acciones declaradas. La
-relación para recuperar la tensión normal circunferencial desde
-$N_\theta$ y $M_\theta$ queda establecida en la
-@sec-calculation-sheet-stress, pero no se evalúa con las propiedades nominales
-del escenario. El tratamiento local de $Q_\theta$, la comprobación resistente
-de la chapa y la demanda de juntas y pernos permanecen separados. El plan de
-caracterización y simulación probabilística se define en la
-@sec-calculation-uncertainty.
+Los residuos de equilibrio y las diferencias respecto de la solución cerrada
+satisfacen las tolerancias declaradas. Las resultantes anteriores corresponden
+exclusivamente al estado biaxial uniforme prescrito, al radio de análisis y a
+las propiedades seccionales adoptadas.

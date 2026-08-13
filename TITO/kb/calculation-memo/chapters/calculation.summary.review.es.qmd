@@ -1,25 +1,39 @@
 # Resumen ejecutivo {.unnumbered}
 
-Esta memoria presenta el procedimiento para determinar las acciones del
-relleno sobre un revestimiento circular y calcular, en su sección transversal,
+Esta memoria presenta el procedimiento para determinar la solicitación
+reglamentaria de una estructura enterrada de acero corrugado conforme a la
+rama aplicable de AASHTO LRFD y, cuando se
+dispone de una distribución perimetral de acciones, calcular en su sección transversal
 la fuerza normal circunferencial $N_\theta(\theta)$, el momento flector
 circunferencial $M_\theta(\theta)$ y la fuerza cortante circunferencial
 $Q_\theta(\theta)$. El perfil corrugado se incorpora mediante las rigideces
 extensional y flexional de la sección en la dirección circunferencial.
 
-El cálculo comprende la determinación de las tensiones verticales efectivas y
-de la presión intersticial, la estimación del empuje lateral y de las acciones
-de compactación, la transformación de esas tensiones en acciones perimetrales
-y la integración de las ecuaciones de equilibrio y compatibilidad. La
-componente tangencial proyectada se representa mediante el multiplicador
-$\alpha$, comprendido entre 0 y 1. El valor $\alpha=0$ omite esa componente y
-$\alpha=1$ la incorpora por completo; los valores intermedios prescriben una
-participación proporcional.
+AASHTO LRFD distingue tubos y arcos metálicos, estructuras de gran luz de
+chapas estructurales y chapas de acero para revestimiento de túneles; dentro
+de las estructuras de gran luz, el subartículo de corrugación profunda
+incorpora expresamente una
+comprobación combinada de empuje y momento. La clasificación exacta del
+producto y el articulado
+aplicable no están confirmados para el caso; por lo tanto, no se evalúa una
+comprobación normativa en esta emisión. La relación $T_L=P_FS/2$ se conserva
+como referencia pública reproducida por USACE, sujeta a comprobación contra la
+edición AASHTO adoptada.
 
-La aplicación numérica corresponde a un escenario de comprobación con
+La distribución de presiones de contacto necesaria para determinar momentos y
+cortes requiere una formulación de interacción suelo--conducto que considere
+el estado inicial del relleno, la rigidez, el arqueo, el contacto y la secuencia
+constructiva. El coeficiente $K_0$ caracteriza el estado efectivo inicial; no
+determina por sí solo dicha distribución. La componente tangencial proyectada
+y su multiplicador $\alpha$ se conservan exclusivamente en el escenario
+biaxial analítico utilizado para comprobar las ecuaciones.
+
+La aplicación numérica corresponde a ese escenario analítico de comprobación con
 $D_i=`r formatCalculationGeneral(Calculation$geometry$insideDiameterM)`$ m,
-perfil corrugado nominal de
-$`r Calculation$section$nominalProfile`\times`r formatCalculationGeneral(Calculation$section$reportedThicknessMm)`$
+perfil CSPI 76×25, espesor especificado
+$t_s=`r formatCalculationGeneral(Calculation$section$specifiedThicknessMm)`$
+mm y espesor base de diseño
+$t_d=`r formatCalculationGeneral(Calculation$section$designBaseThicknessMm)`$
 mm, $R=`r formatCalculationGeneral(Calculation$geometry$radiusM)`$ m,
 $\sigma'_{v,A}=`r formatCalculationGeneral(Calculation$stress$effectiveVerticalKPa)`$
 kPa, $K_0=`r formatCalculationGeneral(Calculation$stress$k0Applied)`$ y

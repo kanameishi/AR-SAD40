@@ -1,140 +1,130 @@
-# Aplicación numérica {#sec-calculation-application}
+# Aplicación determinística de referencia {#sec-calculation-application}
 
-## Definición del escenario
+## Acciones adoptadas
 
-La aplicación comprueba la secuencia de cálculo con un estado biaxial uniforme
-en la cota del eje. No representa la caracterización del relleno existente. La
-@tbl-calculation-inputs identifica la condición de cada valor.
-
-{{< include /_tbl/Calculation.inputs.ES.qmd >}}
-
-El perfil nominal es de $`r Calculation$section$nominalProfile`$ mm y el
-espesor informado es
-$`r formatCalculationGeneral(Calculation$section$reportedThicknessMm)`$ mm. Se
-adopta
-$t_b=`r formatCalculationGeneral(Calculation$section$analysisBaseThicknessMm)`$ mm para
-el escenario y se interpolan las dos filas contiguas de la tabla 2.6 de NCSPA
-[@NCSPA2018, tabla 2.6]:
+La tensión horizontal efectiva del caso resulta
 
 $$
-\lambda=\frac{`r formatCalculationFixed(Calculation$section$analysisBaseThicknessMm, 3L)`-`r formatCalculationFixed(Calculation$section$lowerThicknessMm, 5L)`}{`r formatCalculationFixed(Calculation$section$upperThicknessMm, 5L)`-`r formatCalculationFixed(Calculation$section$lowerThicknessMm, 5L)`}
-=`r formatCalculationFixed(Calculation$section$interpolationFraction, 3L)`,
+\sigma'_h=(`r formatCalculationGeneral(Calculation$stress$k0Applied)`)
+(`r formatCalculationGeneral(Calculation$stress$effectiveVerticalKPa)`)
+=`r formatCalculationGeneral(Calculation$stress$effectiveHorizontalKPa)`
+\ \mathrm{kPa}.
 $$
-
-$$
-A_p=(1-\lambda)(`r formatCalculationFixed(Calculation$section$lowerAreaMm2PerMm, 5L)`)
-+\lambda(`r formatCalculationFixed(Calculation$section$upperAreaMm2PerMm, 5L)`)
-=`r formatCalculationFixed(Calculation$section$areaMm2PerMm, 2L)`\ \mathrm{mm^2/mm},
-$$
-
-$$
-I_p=(1-\lambda)(`r formatCalculationFixed(Calculation$section$lowerInertiaMm4PerMm, 5L)`)
-+\lambda(`r formatCalculationFixed(Calculation$section$upperInertiaMm4PerMm, 5L)`)
-=`r formatCalculationFixed(Calculation$section$inertiaMm4PerMm, 0L)`\ \mathrm{mm^4/mm}.
-$$ {#eq-calculation-section-interpolation}
-
-Con
-$E_\theta=`r formatCalculationGeneral(Calculation$section$circumferentialYoungModulusGPa)`$
-GPa y $R=`r formatCalculationGeneral(Calculation$geometry$radiusM)`$ m, la
-@eq-calculation-section-stiffness produce
-
-$$
-EA_\theta=`r formatCalculationScientificLatex(Calculation$section$extensionalRigidityKnPerM, 3L)`\ \mathrm{kN/m},
-\qquad
-EI_\theta=`r formatCalculationFixed(Calculation$section$flexuralRigidityKnM2PerM, 1L)`\ \mathrm{kN\,m^2/m},
-\qquad
-\eta_s=`r formatCalculationScientificLatex(Calculation$section$sectionRatio, 3L)`.
-$$ {#eq-calculation-adopted-section}
-
-## Acciones perimetrales
-
-Se adopta
-
-$$
-\sigma'_{v,A}=`r formatCalculationGeneral(Calculation$stress$effectiveVerticalKPa)`\ \mathrm{kPa},
-\qquad K_0=`r formatCalculationGeneral(Calculation$stress$k0Applied)`,
-\qquad \Delta u_A=`r formatCalculationGeneral(Calculation$stress$waterPressureDifferenceKPa)`\ \mathrm{kPa}.
-$$
-
-`r Calculation$k0DescriptionMarkdown` En este escenario no se incorpora un
-incremento horizontal residual por compactación; esa magnitud permanece sin
-caracterizar.
 
 Por consiguiente,
 
 $$
-\sigma'_{h,A}=`r formatCalculationGeneral(Calculation$stress$effectiveHorizontalKPa)`\ \mathrm{kPa},
-\qquad p_m=`r formatCalculationGeneral(Calculation$actions$meanPressureKPa)`\ \mathrm{kPa},
-\qquad \Delta\sigma=`r formatCalculationGeneral(Calculation$actions$stressDifferenceKPa)`\ \mathrm{kPa}.
-$$ {#eq-calculation-example-stress}
-
-La presión normal y la tracción tangencial disponible son
+p_m=`r formatCalculationGeneral(Calculation$stress$waterPressureDifferenceKPa)`
++\frac{`r formatCalculationGeneral(Calculation$stress$effectiveVerticalKPa)`
++`r formatCalculationGeneral(Calculation$stress$effectiveHorizontalKPa)`}{2}
+=`r formatCalculationGeneral(Calculation$actions$meanPressureKPa)`
+\ \mathrm{kPa},
+$$
 
 $$
-P_r(\theta)=`r formatCalculationGeneral(Calculation$actions$radialConstantKPa)``r formatCalculationSigned(Calculation$actions$radialHarmonicKPa)`\cos2\theta\ \mathrm{kPa},
+\Delta\sigma=
+`r formatCalculationGeneral(Calculation$stress$effectiveVerticalKPa)`-
+`r formatCalculationGeneral(Calculation$stress$effectiveHorizontalKPa)`
+=`r formatCalculationGeneral(Calculation$actions$stressDifferenceKPa)`
+\ \mathrm{kPa}.
+$$ {#eq-calculation-adopted-stress}
+
+Las acciones perimetrales evaluadas son
+
+$$
+P_r(\theta)=
+`r formatCalculationGeneral(Calculation$actions$radialConstantKPa)``r formatCalculationSigned(Calculation$actions$radialHarmonicKPa)`
+\cos2\theta\ \mathrm{kPa},
 \qquad
-p_t^*(\theta)=`r formatCalculationGeneral(Calculation$actions$tangentialHarmonicKPa)`\sin2\theta\ \mathrm{kPa}.
-$$ {#eq-calculation-example-load}
-
-Se evalúan
-`r Calculation$actions$tangentialMultiplierMarkdown`. Los valores 0 y 1
-definen, respectivamente, la omisión y la incorporación completa de la
-componente $p_t^*$; los estados intermedios se calculan mediante la
-@eq-calculation-tangential-multiplier.
-
-## Resultados
-
-La @tbl-calculation-extrema resume las resultantes en la clave, el fondo y los
-puntos laterales del diámetro horizontal, además del máximo absoluto de fuerza
-cortante. El momento uniforme es
-$M_m=`r formatCalculationFixed(Calculation$extrema$meanMoment[1L], 4L)`$
-kN·m/m.
-
-{{< include /_tbl/Calculation.extrema.ES.qmd >}}
+P_t(\theta)=
+`r formatCalculationGeneral(Calculation$actions$tangentialHarmonicKPa)`
+\alpha\sin2\theta\ \mathrm{kPa}.
+$$ {#eq-calculation-adopted-actions}
 
 ```{r}
 #| echo: false
 #| results: asis
-if (nzchar(Calculation$endpointComparisonMarkdown)) {
-  cat(Calculation$endpointComparisonMarkdown)
-}
+cat(Calculation$actions$rangeMarkdown)
 ```
+
+## Propiedades seccionales adoptadas
+
+La @tbl-calculation-section-reference reproduce la fila publicada adoptada,
+con espesor especificado
+$t_s=`r formatCalculationGeneral(Calculation$section$specifiedThicknessMm)`$
+mm y espesor base de diseño
+$t_d=`r formatCalculationGeneral(Calculation$section$designBaseThicknessMm)`$
+mm del perfil CSPI 76×25. La geometría tabulada tiene paso
+`r formatCalculationGeneral(Calculation$section$actualPitchMm)` mm,
+profundidad
+`r formatCalculationGeneral(Calculation$section$actualDepthMm)` mm y radio de
+corrugación
+`r formatCalculationGeneral(Calculation$section$corrugationRadiusMm)` mm
+[@CSPIHandbookChapter2, figura 2.1 y tabla 2.4].
+
+{{< include /_tbl/Calculation.section.reference.ES.qmd >}}
+
+Las propiedades por unidad de ancho proyectado son
+
+$$
+A_\theta=
+`r formatCalculationFixed(Calculation$section$areaMm2PerMm, 3L)`
+\ \mathrm{mm^2/mm},
+\qquad
+I_\theta=
+`r formatCalculationFixed(Calculation$section$inertiaMm4PerMm, 2L)`
+\ \mathrm{mm^4/mm},
+\qquad
+S_\theta=
+`r formatCalculationFixed(Calculation$section$sectionModulusMm3PerMm, 2L)`
+\ \mathrm{mm^3/mm}.
+$$ {#eq-calculation-adopted-properties}
+
+Con $E_\theta=
+`r formatCalculationGeneral(Calculation$section$circumferentialYoungModulusGPa)`$
+GPa y $R=`r formatCalculationGeneral(Calculation$geometry$radiusM)`$ m, las
+rigideces y la razón seccional son
+
+$$
+EA_\theta=
+`r formatCalculationFixed(Calculation$section$extensionalRigidityKnPerM, 6L)`
+\ \mathrm{kN/m},
+\qquad
+EI_\theta=
+`r formatCalculationFixed(Calculation$section$flexuralRigidityKnM2PerM, 9L)`
+\ \mathrm{kN\,m^2/m},
+$$
+
+$$
+\eta_s=
+`r formatCalculationScientificLatex(Calculation$section$sectionRatio, 12L)`.
+$$ {#eq-calculation-adopted-rigidities}
+
+El modo uniforme de momento asociado al cierre por compatibilidad vale
+
+$$
+M_m=-R^2p_m\frac{\eta_s}{1+\eta_s}
+=`r formatCalculationFixed(Calculation$extrema$meanMoment[1L], 10L)`
+\ \mathrm{kN\,m/m}.
+$$ {#eq-calculation-adopted-mean-moment}
+
+## Resultantes seccionales
+
+La @tbl-calculation-extrema presenta las resultantes en los dos pares de
+posiciones principales y el máximo absoluto de la fuerza cortante. Los valores
+negativos de $N_\theta$ indican compresión conforme a la convención adoptada.
+
+{{< include /_tbl/Calculation.extrema.ES.qmd >}}
 
 La @fig-calculation-normal presenta $N_\theta$; la
 @fig-calculation-moment, $M_\theta$; y la @fig-calculation-shear,
-$Q_\theta$. Los tres diagramas representan las mismas resultantes indicadas en
-la tabla y cada figura contiene un único diagrama. La circunferencia gris
-discontinua es la sección de referencia. Las curvas y las ordenadas radiales no
-representan la posición deformada del revestimiento. Se adopta una
-amplificación gráfica
-$A_g=`r formatCalculationGeneral(Calculation$display$graphicAmplification)`$,
-aplicada exclusivamente a las ordenadas; la lectura interactiva conserva las
-magnitudes físicas y sus unidades.
+$Q_\theta$. La circunferencia gris continua es la línea circular de
+referencia. Las curvas discontinuas de distinto color y sus ordenadas radiales
+son diagramas de resultantes y
+no representan la posición deformada del revestimiento. La amplificación
+gráfica
+$A_g=`r formatCalculationGeneral(Calculation$display$graphicAmplification)`$
+modifica exclusivamente la longitud de las ordenadas; la lectura interactiva
+conserva las magnitudes físicas y sus unidades.
 
 {{< include /_fig/Calculation.resultants.ES.qmd >}}
-
-## Estado de la recuperación de tensiones
-
-Las propiedades seccionales interpoladas en esta aplicación corresponden al
-perfil nominal del escenario de comprobación. No constituyen propiedades netas
-del revestimiento deteriorado. Por ello no se aplica la
-@eq-calculation-sheet-normal-stress ni se informan tensiones normales de la
-chapa.
-
-La evaluación se completará cuando se disponga de $\bar A_n$, $\bar I_n$, las
-coordenadas firmadas de las fibras interior y exterior y un criterio de
-aplicabilidad frente a la curvatura. Esta condición evita identificar el
-espesor nominal informado con el espesor metálico resistente actual. Si las
-propiedades netas adoptadas no son uniformes alrededor de la sección, también
-deberá recalcularse la respuesta mediante una formulación que represente esa
-variación de rigidez.
-
-## Comprobación numérica
-
-Los casos declarados disponen de soluciones cerradas. La
-@tbl-calculation-controls presenta la diferencia absoluta y la tolerancia de
-cada resultante por separado; no combina fuerzas y momentos en una única
-métrica dimensional. Las soluciones cerradas empleadas en esta comprobación se
-presentan en el Apéndice A.5.
-
-{{< include /_tbl/Calculation.controls.ES.qmd >}}

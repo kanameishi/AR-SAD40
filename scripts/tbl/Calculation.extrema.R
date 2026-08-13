@@ -23,14 +23,14 @@ buildCalculationExtremaTable <- function(pathResultants, pathExtrema) {
     ]
     Data$value[which.min(abs(Data$thetaRad - angle))]
   }
-  absoluteMaximum <- function(caseID, resultantID) {
+  extremum <- function(caseID, resultantID, statisticID) {
     Value <- Extrema$value[
       Extrema$caseID == caseID &
         Extrema$resultantID == resultantID &
-        Extrema$statisticID == "absolute-maximum"
+        Extrema$statisticID == statisticID
     ]
     if (length(Value) != 1L) {
-      stop("An expected absolute maximum is missing or duplicated.", call. = FALSE)
+      stop("An expected resultant extremum is missing or duplicated.", call. = FALSE)
     }
     Value
   }
@@ -38,30 +38,25 @@ buildCalculationExtremaTable <- function(pathResultants, pathExtrema) {
     CaseID <- Cases$caseID[i]
     Alpha <- Cases$alpha[i]
     data.frame(
-      Prescripcion = paste0(
-        "Componente tangencial: α = ",
-        formatC(Alpha, format = "f", digits = 2)
-      ),
-      NClaveInferior = valueAt(CaseID, "N", 0),
-      NLaterales = valueAt(CaseID, "N", pi / 2),
-      MClaveInferior = valueAt(CaseID, "M", 0),
-      MLaterales = valueAt(CaseID, "M", pi / 2),
-      QMax = absoluteMaximum(CaseID, "Q"),
+      Alpha = Alpha,
+      NormalA = valueAt(CaseID, "N", 0),
+      NormalB = valueAt(CaseID, "N", pi / 2),
+      MomentA = valueAt(CaseID, "M", 0),
+      MomentB = valueAt(CaseID, "M", pi / 2),
+      QMaximum = extremum(CaseID, "Q", "absolute-maximum"),
       check.names = FALSE,
       stringsAsFactors = FALSE
     )
   }))
+  Output <- Output[order(Output$Alpha, decreasing = TRUE), , drop = FALSE]
   knitr::kable(
     Output,
-    digits = c(0, 1, 1, 2, 2, 2),
+    digits = c(0, 4, 4, 4, 4, 4),
     col.names = c(
-      "Prescripción", "$N_\\theta$ clave/fondo ($\\mathrm{kN/m}$)",
-      "$N_\\theta$ puntos laterales ($\\mathrm{kN/m}$)",
-      "$M_\\theta$ clave/fondo ($\\mathrm{kN\\,m/m}$)",
-      "$M_\\theta$ puntos laterales ($\\mathrm{kN\\,m/m}$)",
-      "$\\lvert Q_\\theta\\rvert_{\\max}$ ($\\mathrm{kN/m}$)"
+      "$\\alpha$", "$N_A$", "$N_B$", "$M_A$", "$M_B$",
+      "$\\lvert Q_\\theta\\rvert_{\\max}$"
     ),
-    align = c("l", rep("r", 5)),
+    align = rep("r", 6),
     escape = FALSE
   )
 }

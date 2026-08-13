@@ -26,6 +26,7 @@ runCalculationDataTests <- function() {
   source(file.path(Root, "scripts", "tbl", "Calculation.inputs.R"))
   source(file.path(Root, "scripts", "tbl", "Calculation.extrema.R"))
   source(file.path(Root, "scripts", "tbl", "Calculation.controls.R"))
+  source(file.path(Root, "scripts", "tbl", "Calculation.section.reference.R"))
   source(file.path(Root, "scripts", "fig", "Calculation.resultants.R"))
 
   assertNear <- function(actual, expected, tolerance, label) {
@@ -125,6 +126,60 @@ runCalculationDataTests <- function() {
     outputDirectory = BaselineDirectory,
     calculation = loadCalculationResults(Root, BaselineDirectory)
   )
+  ExactConfigPath <- file.path(Root, "calculation.json")
+  ExactConfig <- validateCalculationConfig(readCalculationJson(ExactConfigPath))
+  ExactReference <- utils::read.csv(
+    file.path(Root, ExactConfig$section$propertyTable),
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+  ExactSelected <- selectCorrugatedSection(
+    reference = ExactReference,
+    profileID = ExactConfig$section$referenceProfileID,
+    referenceRowID = ExactConfig$section$referenceRowID
+  )
+  ExactDirectory <- file.path(TestDirectory, "published-exact-row")
+  buildCalculationData(ExactConfigPath, ExactDirectory, Root)
+  ExactSection <- utils::read.csv(
+    file.path(ExactDirectory, "section.properties.csv"),
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+  stopifnot(
+    ExactConfig$section$propertyModelID == "published-exact-row",
+    ExactSelected$referenceRowID == "cspi-76x25-2.8",
+    ExactSection$referenceRowID == ExactSelected$referenceRowID,
+    ExactSection$domainStatus == "exact-published-row"
+  )
+  assertNear(
+    c(
+      ExactSection$specifiedThicknessMm,
+      ExactSection$designBaseThicknessMm,
+      ExactSection$areaMm2PerMm,
+      ExactSection$inertiaMm4PerMm,
+      ExactSection$sectionModulusMm3PerMm
+    ),
+    c(2.8, 2.64, 3.281, 249.73, 17.81),
+    0,
+    "published exact section row"
+  )
+  ExactMismatch <- copyObject(readCalculationJson(ExactConfigPath))
+  ExactMismatch$section$designBaseThicknessMm <- 2.65
+  ExactMismatchPath <- file.path(TestDirectory, "published-exact-mismatch.json")
+  jsonlite::write_json(
+    ExactMismatch,
+    ExactMismatchPath,
+    auto_unbox = TRUE,
+    pretty = TRUE,
+    digits = NA
+  )
+  assertError(function() {
+    buildCalculationData(
+      ExactMismatchPath,
+      file.path(TestDirectory, "published-exact-mismatch"),
+      Root
+    )
+  }, "does not match the selected published row", "exact row consistency")
   Manifest <- jsonlite::fromJSON(ManifestPath)
   Environment <- Manifest$serializationEnvironment
   OpenSSLAvailable <- requireNamespace("openssl", quietly = TRUE)
@@ -167,7 +222,117 @@ runCalculationDataTests <- function() {
   Section <- readProduct(Baseline, "section.properties.csv")
   Stress <- readProduct(Baseline, "stress.state.csv")
   Inputs <- readProduct(Baseline, "calculation.inputs.csv")
+  Controls <- readProduct(Baseline, "numerical.controls.csv")
+  InputsTable <- tableText(buildCalculationInputsTable(
+    Baseline$calculation$paths$inputs,
+    Baseline$calculation$paths$section,
+    Baseline$calculation$paths$stress
+  ))
+  SectionReferenceTable <- tableText(buildCalculationSectionReferenceTable(
+    file.path(Root, BaselineJson$section$propertyTable),
+    Baseline$calculation$paths$section
+  ))
+  ClosedControls <- Controls[
+    Controls$controlID == "closed-form-resultants",
+    ,
+    drop = FALSE
+  ]
+  BalanceControls <- Controls[
+    Controls$controlID == "global-equilibrium",
+    ,
+    drop = FALSE
+  ]
   stopifnot(nrow(Section) == 1L, nrow(Stress) == 1L)
+  stopifnot(grepl("ncspa-3x1", InputsTable, fixed = TRUE))
+  stopifnot(
+    grepl("2.65684", SectionReferenceTable, fixed = TRUE),
+    grepl("3.4163", SectionReferenceTable, fixed = TRUE),
+    !grepl("ncspa-3x1-0.109", SectionReferenceTable, fixed = TRUE)
+  )
+  stopifnot(
+    nrow(Controls) == 12L,
+    nrow(ClosedControls) == 6L,
+    nrow(BalanceControls) == 6L,
+    all(Controls$pass),
+    identical(sort(unique(ClosedControls$resultantID)), c("M", "N", "Q")),
+    identical(sort(unique(BalanceControls$resultantID)), c("Fx", "Fz", "Mc")),
+    identical(unique(BalanceControls$metricID), "absolute-normalized-residual"),
+    identical(unique(BalanceControls$unit), "-"),
+    identical(unique(BalanceControls$limitValue), 1e-9),
+    all(table(BalanceControls$caseID) == 3L)
+  )
+  Config.balance <- validateCalculationConfig(copyObject(BaselineJson))
+  ExpectedCaseIDs <- rep(Config.balance$loadCases$caseID, each = 3L)
+  ExpectedAlphas <- rep(Config.balance$loadCases$alpha, each = 3L)
+  Theta.balance <- buildThetaMesh(
+    pointCount = Config.balance$numerics$baseThetaPointCount,
+    criticalAnglesDeg = Config.balance$numerics$criticalAnglesDeg
+  )
+  stopifnot(
+    identical(BalanceControls$caseID, ExpectedCaseIDs),
+    identical(as.numeric(BalanceControls$alpha), ExpectedAlphas),
+    identical(unique(BalanceControls$comparison), "<="),
+    identical(
+      unique(BalanceControls$thetaPointCount),
+      as.integer(length(Theta.balance))
+    ),
+    identical(
+      unique(BalanceControls$integrationSteps),
+      as.integer(BaselineJson$numerics$integrationSteps)
+    ),
+    identical(unique(BalanceControls$evidenceLevel), "CI")
+  )
+  Section.balance <- readCalculationSection(Config.balance, Root)
+  ExpectedBalance <- do.call(rbind, lapply(seq_len(nrow(Config.balance$loadCases)), function(i) {
+    ActionsForControl <- calculatePerimeterActions(
+      stressState = list(
+        effectiveVerticalKPa = Stress$effectiveVerticalKPa,
+        effectiveHorizontalKPa = Stress$effectiveHorizontalKPa,
+        waterPressureDifferenceKPa = Stress$waterPressureDifferenceKPa
+      ),
+      alpha = Config.balance$loadCases$alpha[i],
+      theta = Theta.balance
+    )
+    ResponseForControl <- calculateSectionResultants(
+      load = ActionsForControl$load,
+      radius = Section.balance$analysisRadiusM,
+      theta = Theta.balance,
+      sectionRatio = Section.balance$sectionRatio,
+      integrationSteps = Config.balance$numerics$integrationSteps,
+      balanceTolerance = Config.balance$numerics$balanceTolerance
+    )
+    data.frame(
+      caseID = Config.balance$loadCases$caseID[i],
+      alpha = Config.balance$loadCases$alpha[i],
+      resultantID = c("Fx", "Fz", "Mc"),
+      observedValue = abs(unname(
+        ResponseForControl$diagnostics$normalizedGlobalLoads[
+          c("forceX", "forceZ", "momentCenter")
+        ]
+      )),
+      stringsAsFactors = FALSE
+    )
+  }))
+  stopifnot(
+    identical(BalanceControls$caseID, ExpectedBalance$caseID),
+    identical(as.numeric(BalanceControls$alpha), ExpectedBalance$alpha),
+    identical(BalanceControls$resultantID, ExpectedBalance$resultantID)
+  )
+  assertNear(
+    BalanceControls$observedValue,
+    ExpectedBalance$observedValue,
+    1e-28,
+    "materialized global equilibrium diagnostics"
+  )
+  stopifnot(
+    max(BalanceControls$observedValue) <= 1e-9,
+    Baseline$calculation$numerics$maximumControlDifference ==
+      max(ClosedControls$observedValue),
+    Baseline$calculation$numerics$controlTolerance == 1e-7,
+    Baseline$calculation$numerics$maximumGlobalEquilibriumResidual ==
+      max(BalanceControls$observedValue),
+    Baseline$calculation$numerics$balanceTolerance == 1e-9
+  )
   assertNear(Section$interpolationFraction, 0.451847365233192, 1e-14, "section interpolation")
   assertNear(Section$areaMm2PerMm, 3.7304717948718, 1e-13, "section area")
   assertNear(Section$inertiaMm4PerMm, 287.902153723077, 1e-11, "section inertia")
@@ -235,6 +400,7 @@ runCalculationDataTests <- function() {
   )
   stopifnot(
     Stress$modelID == "adopted-constant",
+    Stress$actionModelID == "prescribed-biaxial-stress-projection",
     Stress$k0Input == 0.5,
     is.na(Stress$k0Derived),
     Stress$k0Applied == 0.5,
@@ -325,10 +491,18 @@ runCalculationDataTests <- function() {
     config
   })
   JakyStress <- readProduct(Jaky, "stress.state.csv")
+  JakyInputsTable <- tableText(buildCalculationInputsTable(
+    Jaky$calculation$paths$inputs,
+    Jaky$calculation$paths$section,
+    Jaky$calculation$paths$stress
+  ))
   stopifnot(
     is.na(JakyStress$k0Input),
     JakyStress$k0EvidenceLevel == "DE",
-    JakyStress$sourceKey == "ChristopherEtAl2006"
+    JakyStress$sourceKey == "ChristopherEtAl2006",
+    grepl("Jáky, carga primaria", JakyInputsTable, fixed = TRUE),
+    grepl("30", JakyInputsTable, fixed = TRUE),
+    !grepl("Valor adoptado", JakyInputsTable, fixed = TRUE)
   )
   assertNear(JakyStress$k0Derived, 0.5, 1e-14, "Jaky K0")
   assertNear(
@@ -336,6 +510,28 @@ runCalculationDataTests <- function() {
     BaselineResultants$value,
     5e-10,
     "adopted versus Jaky equivalence"
+  )
+
+  UnloadingVariant <- buildVariant("unloading-4", function(config) {
+    config$stressState$k0Model <- list(
+      modelID = "mayne-kulhawy-unloading",
+      frictionAngleDeg = 30,
+      ocr = 4
+    )
+    config
+  })
+  UnloadingInputsTable <- tableText(buildCalculationInputsTable(
+    UnloadingVariant$calculation$paths$inputs,
+    UnloadingVariant$calculation$paths$section,
+    UnloadingVariant$calculation$paths$stress
+  ))
+  stopifnot(
+    grepl(
+      "Mayne--Kulhawy, descarga primaria",
+      UnloadingInputsTable,
+      fixed = TRUE
+    ),
+    grepl("Anterior al límite pasivo", UnloadingInputsTable, fixed = TRUE)
   )
 
   Thickness <- buildVariant("thickness-3-1", function(config) {
@@ -456,8 +652,10 @@ runCalculationDataTests <- function() {
     Alpha$calculation$paths$extrema
   ))
   stopifnot(
-    grepl("α = 0.50", AlphaControls, fixed = TRUE),
-    grepl("α = 0.50", AlphaExtrema, fixed = TRUE),
+    grepl("0.5", AlphaControls, fixed = TRUE),
+    grepl("0.5", AlphaExtrema, fixed = TRUE),
+    !grepl("Prescripción", AlphaControls, fixed = TRUE),
+    !grepl("Prescripción", AlphaExtrema, fixed = TRUE),
     !grepl("middle", AlphaControls, fixed = TRUE),
     !grepl("middle", AlphaExtrema, fixed = TRUE)
   )

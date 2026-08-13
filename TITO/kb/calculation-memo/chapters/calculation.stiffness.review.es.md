@@ -23,19 +23,13 @@ $$ {#eq-calculation-section-stiffness}
 
 $A_p$ e $I_p$ son, respectivamente, el área y el momento de inercia del perfil
 corrugado por unidad de longitud proyectada; deben proceder de la geometría
-real, de tablas aplicables o de una medición documentada. La tabla 2.6 del
-manual NCSPA proporciona propiedades para perfiles normalizados y permite el
-contraste de unidades [@NCSPA2018, tabla 2.6].
+real, de tablas aplicables o de una medición documentada. La tabla 2.4 del
+manual CSPI publica estas propiedades para el perfil 76×25 y distingue el
+espesor especificado del espesor base de diseño [@CSPIHandbookChapter2, tabla
+2.4].
 
 La razón $\eta_s$ interviene en la compatibilidad del modo uniforme mediante la
 @eq-calculation-compatibility-constants. El modelo plano emplea exclusivamente
 las rigideces circunferenciales porque las acciones adoptadas no varían en la
-dirección longitudinal. La recuperación de tensiones en crestas y valles y la
-respuesta de las uniones requieren las relaciones resistentes específicas de
-esas verificaciones.
-
-En la evaluación del revestimiento existente, $A_p$ e $I_p$ deben representar
-la sección neta actual. Las mismas propiedades y el mismo eje centroidal se
-emplean en las rigideces anteriores y en la recuperación de tensiones de la
-@sec-calculation-sheet-stress. Las propiedades nominales interpoladas en la
-aplicación numérica se limitan al escenario de comprobación.
+dirección longitudinal. En esta etapa, las propiedades tabuladas se emplean
+para obtener las rigideces circunferenciales del caso analítico.

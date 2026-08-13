@@ -1,0 +1,28 @@
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) {
+  CAP <- paste(
+    readLines("_captions/tbl.Calculation.section.reference.md", warn = FALSE),
+    collapse = "\n"
+  )
+}
+source("scripts/tbl/Calculation.section.reference.R")
+```
+
+```{r}
+#| label: tbl-calculation-section-reference
+#| tbl-cap: !expr CAP
+#| echo: false
+buildCalculationSectionReferenceTable(
+  pathReference = file.path(
+    projectRoot,
+    Calculation$config$section$propertyTable
+  ),
+  pathSection = Calculation$paths$section
+)
+```
+
+```{r}
+#| include: false
+rm(CAP, buildCalculationSectionReferenceTable)
+```

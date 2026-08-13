@@ -1,6 +1,6 @@
 # Fuente de verdad — memoria de cálculo ejecutiva, Fase 2
 
-**Estado:** G0--G10.2 y G10.7 cerradas; recuperación condicionada de chapa publicada; metodología candidata de shotcrete redactada y auditada; verificaciones resistentes del caso bloqueadas por entradas
+**Estado:** G0--G10.2 y G10.7 cerradas; bloque determinístico de la memoria reconstruido con la fila métrica CSPI 2,8/2,64; MC-R y verificaciones resistentes permanecen como etapas separadas
 **Fecha de corte:** 2026-08-13
 **Aceptación:** usuario
 **Producto aprobado de referencia:** documento metodológico de Fase 1, futuro paper
@@ -18,7 +18,7 @@ Después de una compactación o al retomar el trabajo:
 2. leer `.codex-task.md`;
 3. leer esta nota completa;
 4. comprobar el estado real de Git y los archivos nombrados aquí;
-5. continuar desde la última sección declarada vigente —actualmente 30.5—,
+5. continuar desde la última sección declarada vigente —actualmente 35—,
    sin repetir trabajo aprobado.
 
 `dev/SoT/ACTIVE.md` apunta a `dev/plan/lfs-bootstrap/active.md` y pertenece a
@@ -111,6 +111,8 @@ La fase estará terminada cuando:
 
 ### 5.1 Productos de esta etapa
 
+- empuje circunferencial reglamentario `T_L`, cuando se confirmen el producto,
+  la presión vertical mayorada en clave y la luz;
 - acciones perimetrales normales y tangenciales sobre la sección circular;
 - fuerza normal circunferencial `N_theta(theta)`;
 - momento flector circunferencial `M_theta(theta)`;
@@ -276,7 +278,7 @@ metodología.
 | 1 | Resumen ejecutivo | objeto, alcance, resultados disponibles y límites de esta etapa |
 | 2 | Bases y datos de entrada | geometría, relleno, agua, construcción, sección corrugada, coordenadas, signos y unidades |
 | 3 | Procedimiento de cálculo | diagrama de flujo, casos, etapas, controles y productos de cada paso |
-| 4 | Acciones del relleno | fórmulas finales para tensiones verticales, `K_0`, compactación, agua, proyección perimetral, USACE y FHWA |
+| 4 | Acciones del relleno | clasificación del producto, presión vertical en clave, empuje circunferencial reglamentario, agua, compactación, estado inicial `K_0`, interacción suelo--conducto y escenario biaxial analítico |
 | 5 | Resultantes seccionales | ecuaciones operativas de integración/compatibilidad y soluciones cerradas de control |
 | 6 | Rigidez circunferencial | `EA_theta`, `EI_theta`, `eta_s` y datos seccionales requeridos |
 | 7 | Incertidumbres | variables, dependencias, Monte Carlo, extremos, cuantiles y envolventes de modelos |
@@ -294,17 +296,19 @@ La memoria se redactará alrededor de la secuencia siguiente y la denominará
 
 | Paso | Entradas | Operación | Salidas | Control obligatorio |
 |---:|---|---|---|---|
-| 0 | geometría confirmada, unidades, convención angular y signos | definir casos, etapas y alternativas de modelación | registro de casos y etapas | no mezclar datos confirmados con escenarios nominales |
-| 1 | estratigrafía, pesos unitarios, nivel de agua y tapada | calcular profundidad perimetral, tensiones verticales efectivas y presión intersticial | `sigma_v'(theta)`, `u(theta)`, `sigma_v(theta)` | valores de clave, eje y solera; continuidad entre estratos |
-| 2 | condición del relleno, historia tensional y compactación | definir `K_0` o presión residual de compactación mediante alternativas excluyentes | `sigma_h'(theta)` y parámetros de cada alternativa | no muestrear dos veces variables dependientes ni sumar parametrizaciones incompatibles |
-| 3 | estado tensional vertical/horizontal y agua | proyectar el tensor de tensiones sobre el contorno | acciones normales y tangenciales permanentes | equilibrio global y convención de signos |
-| 4 | equipos, tongadas, secuencia constructiva y fuentes USACE/FHWA | construir acciones por etapa y ramas de modelo | `P_r(theta,s)`, `P_t(theta,s)` por etapa/modelo | no sumar ramas alternativas ni presumir que una acción temporaria queda retenida |
-| 5 | perfil corrugado, módulo, `A_p` e `I_p` | calcular rigideces circunferenciales | `EA_theta`, `EI_theta`, `eta_s` | unidades y procedencia de propiedades; espesor condicional identificado |
-| 6 | acciones perimetrales y rigideces | integrar equilibrio y compatibilidad; aplicar soluciones cerradas cuando correspondan | `N_theta(theta)`, `M_theta(theta)`, `Q_theta(theta)` | equilibrio global, periodicidad y comparación con casos cerrados |
-| 7 | curvas por etapa y modelo | localizar mínimos, máximos y máximos absolutos por tramos | valor, signo, ángulo y etapa gobernante por realización | incluir extremos interiores, discontinuidades y límites de tramo |
-| 8 | distribuciones y dependencias aprobadas | ejecutar Monte Carlo para cada alternativa de modelación | curvas y extremos por realización | convergencia, conteo de cola y reproducibilidad de la corrida |
-| 9 | resultados de todas las realizaciones | calcular cuantiles puntuales, cuantiles de extremos y envolvente exterior de modelos | bandas angulares, intervalos escalares y casos gobernantes | no equiparar cuantiles puntuales con cuantiles de extremos |
-| 10 | tablas finales y metadatos | producir figuras, tablas y síntesis ejecutiva | memoria auditable y productos reproducibles | igualdad entre valores representados y tablas fuente |
+| 0 | producto estructural, geometría confirmada, unidades, convención angular y signos | definir artículos reglamentarios, casos, etapas y alternativas de modelación | registro de casos y etapas | no mezclar datos confirmados con escenarios nominales |
+| 1 | estratigrafía, pesos unitarios, sobrecargas, nivel de agua y tapada | calcular tensiones verticales, presión intersticial y presión vertical mayorada en clave | `sigma_v'(theta)`, `u(theta)`, `P_F` | clave, eje y fondo; continuidad entre estratos; combinación y factores |
+| 2 | `P_F` y luz `S` confirmadas | calcular `T_L=P_F S/2` | empuje seccional por combinación | seleccionar y registrar las secciones resistentes que se comprobarán |
+| 3 | agua exterior e interior | calcular la acción hidrostática neta | `Delta u(theta)` | no aplicar `K_0` a la presión intersticial |
+| 4 | equipos, tongadas y secuencia constructiva | construir acciones temporales y sólo con evidencia componentes residuales | acciones por etapa/modelo | no presumir retención ni duplicar historia tensional |
+| 5 | condición del relleno, historia tensional, rigideces, interfaz y secuencia | si se requieren acciones angulares, resolver una formulación de interacción suelo--conducto | `P_r(theta,s)`, `P_t(theta,s)` | `K_0` es estado inicial, no presión de contacto |
+| 6 | estado biaxial y `alpha` prescritos | ejecutar el escenario analítico de comprobación | acciones angulares del control | mantenerlo separado de la rama reglamentaria y del caso real |
+| 7 | perfil corrugado, módulo, `A_p` e `I_p` | calcular rigideces circunferenciales | `EA_theta`, `EI_theta`, `eta_s` | unidades y procedencia de propiedades; espesor condicional identificado |
+| 8 | acciones perimetrales cerradas y rigideces | integrar equilibrio y compatibilidad; aplicar soluciones cerradas cuando correspondan | `N_theta(theta)`, `M_theta(theta)`, `Q_theta(theta)` | equilibrio global, periodicidad y comparación con casos cerrados |
+| 9 | curvas por etapa y modelo | localizar mínimos, máximos y máximos absolutos por tramos | valor, signo, ángulo y etapa gobernante por realización | incluir extremos interiores, discontinuidades y límites de tramo |
+| 10 | distribuciones y dependencias aprobadas | ejecutar Monte Carlo para cada alternativa de modelación | curvas y extremos por realización | convergencia, conteo de cola y reproducibilidad de la corrida |
+| 11 | resultados de todas las realizaciones | calcular cuantiles puntuales, cuantiles de extremos y envolvente exterior de modelos | bandas angulares, intervalos escalares y casos gobernantes | no equiparar cuantiles puntuales con cuantiles de extremos |
+| 12 | tablas finales y metadatos | producir figuras, tablas y síntesis ejecutiva | memoria auditable y productos reproducibles | igualdad entre valores representados y tablas fuente |
 
 El cuerpo puede agrupar pasos para mejorar la lectura, pero no omitir sus
 entradas, decisiones, controles o productos. Toda alternativa debe conservar
@@ -1585,8 +1589,8 @@ determinístico de la memoria sin introducir distribuciones probabilísticas.
 
 ### 26.1 Decisión técnica
 
-El cálculo estructural consume $\sigma'_h(z)$. En las ramas basadas en una
-formulación geotécnica,
+$K_0$ caracteriza el estado efectivo inicial del relleno. En las ramas basadas
+en una formulación geotécnica,
 
 $$
 K_0^{(m)}(z)=f_m\!\left[\mathbf{x}_m(z)\right],
@@ -1597,7 +1601,10 @@ $$
 donde $m$ identifica la formulación y $\mathbf{x}_m$ contiene sólo sus
 variables primitivas. $K_0$ se materializa como resultado derivado; no se
 muestrea de manera independiente de $\phi'$, $\nu_g$, OCR o
-$\mathrm{OCR}_{\max}$ cuando esas variables lo determinan.
+$\mathrm{OCR}_{\max}$ cuando esas variables lo determinan. La transferencia de
+este estado a presiones de contacto requiere una formulación de interacción
+suelo--conducto. No se identifica directamente
+$\sigma'_h=K_0\sigma'_v$ con la presión horizontal sobre la pared.
 
 Una medición directa puede constituir una rama observada. Un valor constante
 adoptado se admite únicamente como escenario analítico explícito. El valor
@@ -1622,7 +1629,7 @@ probabilística, la forma de 1944 transcrita por Michalowski:
 $$
 K_{0,\mathrm{J\acute{a}ky\,1944}}
 =(1-\sin\phi')
-\frac{1+\frac{2}{3}\sin^2\phi'}{1+\sin\phi'}.
+\frac{1+\frac{2}{3}\sin\phi'}{1+\sin\phi'}.
 $$
 
 La forma abreviada $1-\sin\phi'$ fue adoptada por Jáky en 1948. La revisión
@@ -3446,3 +3453,1185 @@ estadística de testigos; la clasificación seccional; las armaduras o
 propiedades residuales de fibras; y los requisitos de exposición, fisuración y
 estanqueidad. Sin esas decisiones no se informan capacidad, utilización ni
 factor de seguridad del caso.
+
+## 31. Corrección de la jerarquía de acciones para el conducto enterrado
+
+La revisión técnica del 13 de agosto de 2026 sustituyó la secuencia que
+presentaba la proyección basada en $K_0$ como generador principal de las
+acciones. Esa secuencia era válida únicamente como estado biaxial analítico
+prescrito y no como metodología general de carga para un conducto flexible
+instalado y rellenado.
+
+### 31.1 Referencia reglamentaria
+
+CIRSOC 804-4 distingue dos clases que no deben confundirse:
+
+1. el artículo 12.7 comprende tubos metálicos corrugados y tubos construidos
+   con chapas estructurales; su ecuación 12.7.2.2-1 establece
+   $T_L=P_FS/2$; y
+2. el artículo 12.13 comprende chapas de acero utilizadas como revestimiento
+   de túneles; su ecuación 12.13.2-1 permite determinar la carga de suelo en
+   clave mediante $W_E=C_{dt}\gamma_sS$, considera sobrecargas y presión de
+   inyección, y remite después a los controles de pared, pandeo y costura del
+   artículo 12.7.
+
+USACE EM 1110-2-2902, sección 4.12.3.1.1 y ecuación 4-20, reproduce el empuje
+de AASHTO para conductos metálicos corrugados. $T_L$ es la solicitación por
+unidad de longitud de pared utilizada para comprobar una sección resistente.
+Las secciones de pared, pandeo y costura que se evalúan son seleccionadas por
+el análisis y por la configuración del revestimiento.
+
+### 31.2 Estado de las entradas del caso
+
+Permanecen `UNKNOWN`:
+
+- la clasificación exacta del producto estructural;
+- la presión vertical mayorada en clave $P_F$;
+- la luz $S$ que corresponde a la ecuación reglamentaria; y
+- la formulación de interacción suelo--conducto aplicable para obtener una
+  distribución angular de presión.
+
+La tensión vertical efectiva de 100 kPa en el eje y el diámetro interior de
+2.63 m pertenecen al escenario analítico existente. No se sustituyen por
+$P_F$ y $S$, respectivamente. La memoria no materializa 131.5 kN/m como
+resultado del revestimiento existente.
+
+### 31.3 Función de $K_0$, agua, cohesión y compactación
+
+$K_0=\sigma'_h/\sigma'_v$ caracteriza el estado efectivo inicial. Puede
+intervenir en una formulación de interacción o en el estado biaxial analítico,
+pero no determina por sí solo la presión de contacto sobre un conducto
+flexible. El agua se incorpora como presión intersticial separada. Las
+expresiones con $\pm2c'\sqrt K$ corresponden a estados activo o pasivo y no se
+agregan a las correlaciones de $K_0$. Un análisis no drenado en tensiones
+totales requiere otra rama constitutiva. La compactación se separa entre acción
+temporal, historia tensional y eventual tensión residual; ninguna fracción de
+retención se presume sin evidencia.
+
+La forma original de Jáky transcrita por Michalowski (2005), ecuación 8, fue
+verificada visualmente y se conserva sin modificación:
+
+$$
+K_{0,\mathrm{J\acute{a}ky\,1944}}
+=(1-\sin\phi')
+\frac{1+\frac{2}{3}\sin\phi'}{1+\sin\phi'}.
+$$
+
+La inspección visual de la ecuación 8 confirma que $\sin\phi'$ no está
+elevado al cuadrado. Cualquier nota previa que indicara $\sin^2\phi'$ queda
+sustituida por esta verificación directa. La corrección no modifica la forma
+abreviada $K_{0,NC}=1-\sin\phi'$ implementada en R.
+
+### 31.4 Separación de productos de cálculo
+
+`calculation.json` emplea el esquema 2.1.0. La rama reglamentaria se materializa
+en `data/calculation/circumferential.thrust.csv`, separada de
+`section.resultants.csv`. Mientras falten las entradas, el producto conserva
+`structuralProductID=UNKNOWN`, `evaluationStatus=not-evaluated` y valores
+numéricos vacíos. La configuración exige que $P_F$ y $S$ se suministren juntos
+y sólo admite evaluar el empuje cuando se declara la clasificación aplicable.
+
+`cirsocCorrugatedPipeThrust()` implementa exclusivamente la ecuación de empuje
+por unidad de longitud de pared. El producto no selecciona la sección
+resistente ni ejecuta sus comprobaciones. El
+estado angular vigente conserva la identificación
+`prescribed-biaxial-stress-projection`; `calculateScenario()` y sus valores de
+referencia se mantienen como oráculo analítico, sin acoplarse a la rama
+reglamentaria.
+
+### 31.5 Productos documentales corregidos
+
+La corrección afecta sólo los candidatos de Fase 2:
+
+- `_master/methodology.extension.review.es.qmd` y sus capítulos bajo
+  `TITO/kb/paper-candidate/`;
+- `_master/calculation.review.es.qmd` y sus capítulos y registros bajo
+  `TITO/kb/calculation-memo/`; y
+- la implementación y los productos determinísticos gobernados por
+  `calculation.json`.
+
+La Fase 1 congelada no se edita ni se renderiza. Los dictámenes de cierre
+anteriores de la ampliación y de la memoria quedan sustituidos para esta
+materia hasta completar las nuevas auditorías técnica, editorial, numérica y
+de artefactos.
+
+### 31.6 Puertas de cierre
+
+Antes de declarar cerrada esta corrección deben completarse:
+
+1. pruebas R de la relación CIRSOC, del contrato de datos y de la paridad de la
+   rama biaxial;
+2. render independiente de los dos masters candidatos;
+3. auditoría técnica de ecuaciones, dominios, unidades y separación de ramas;
+4. auditoría editorial de lenguaje profesional y ausencia de narrativa
+   interna; y
+5. auditoría de artefactos, referencias cruzadas, citas y preservación de la
+   Fase 1.
+
+## 32. Jerarquía normativa internacional y frontera resistente
+
+La decisión del usuario del 13 de agosto de 2026 sustituye, para las
+verificaciones resistentes, la adopción argentina desarrollada en las
+secciones 30 y 31. La autoridad principal de la chapa es AASHTO; la alternativa
+de hormigón se organiza conforme a ACI. CIRSOC se conserva como antecedente de
+correspondencia y control métrico, pero no gobierna ninguno de los dos
+procedimientos.
+
+### 32.1 Principio de independencia respecto del modelo de cargas
+
+La comprobación resistente recibe efectos seccionales ya calculados y no
+depende de que éstos provengan del escenario biaxial, de una formulación de
+interacción suelo--conducto o de otro análisis admisible. La interfaz debe
+conservar sección, combinación, etapa, signos, unidades, base longitudinal y
+estado de mayoración. Esta independencia termina en la frontera de demanda:
+la resistencia sí depende de la tipología estructural y de la rama normativa
+correspondiente.
+
+Las normas verifican la sección seleccionada por el análisis. No corresponde
+buscar en ellas una distribución angular de presiones o resultantes. Tampoco
+corresponde atribuir a una norma el campo angular construido por la metodología
+del proyecto.
+
+### 32.2 Chapa corrugada — autoridad AASHTO
+
+La autoridad de diseño será *AASHTO LRFD Bridge Design Specifications*, 10.ª
+edición de 2024, con la errata aplicable. El índice oficial disponible confirma
+tres familias relevantes y un subcaso específico:
+
+1. artículo 12.7: tubos, arcos y estructuras de arco metálicos, con empuje,
+   resistencia de pared, pandeo y costura;
+2. artículo 12.8: estructuras de gran luz de chapas estructurales, con empuje,
+   área de pared y costura;
+3. subartículo 12.8.9 dentro de 12.8: corrugación profunda, con análisis
+   estructural, empuje y momento combinados, pandeo global y conexiones; y
+4. artículo 12.13: chapas de acero para revestimiento de túneles (*steel
+   tunnel liner plate*), con cargas, área de pared, pandeo, costura y rigidez
+   de construcción.
+
+La interacción de empuje y momento del artículo 12.8.9.5 no se transfiere a
+los artículos 12.7 o 12.13. La geometría circular y el uso coloquial de la
+palabra *liner* no clasifican el producto. La clasificación exige geometría de
+corrugación, especificación de producto, forma de montaje, solapes, uniones y
+documentación del fabricante.
+
+El corpus contiene el índice oficial, no el articulado de la décima edición.
+Permanecen `UNKNOWN` las ecuaciones, los factores de resistencia, las
+propiedades efectivas y los dominios vigentes. USACE EM 1110-2-2902 conserva
+la relación pública de empuje que atribuía a AASHTO en 2020. CIRSOC 804-4
+contiene una correspondencia basada en la edición AASHTO 2012. Ninguna de esas
+fuentes sustituye la lectura del articulado vigente.
+
+La memoria ejecutiva adopta AASHTO como única referencia normativa de diseño
+para la chapa y no necesita presentar CIRSOC en su cuerpo. La correspondencia
+con la edición 2012 se conserva sólo en la trazabilidad interna y en la
+investigación metodológica histórica.
+
+*AASHTO LRFD Bridge Construction Specifications*, 4.ª edición, con las
+revisiones interinas y erratas vigentes, es una autoridad separada de
+ejecución. No suministra por sustitución las ecuaciones de resistencia de las
+especificaciones de diseño.
+
+### 32.3 Recuperación elástica de tensión en la chapa
+
+La recuperación lineal continúa siendo un helper de demanda, no de
+resistencia. Su interfaz se corrigió para coincidir con la memoria:
+
+- coordenada de fibra positiva hacia el interior;
+- `outerFiberCoordinateMm<0` e `innerFiberCoordinateMm>0`;
+- momento positivo que tracciona la fibra interior;
+- nombres de resultantes con unidades explícitas;
+- conservación de `sectionID`, `combinationID` y `stageID`;
+- base `per-projected-metre`; y
+- transporte de $Q_\theta$ con estado de tensión cortante `not-evaluated`.
+
+La ecuación operativa es
+
+$$
+\sigma_\theta
+=\frac{N_\theta}{\bar A_n}
++1000\frac{M_\theta\xi}{\bar I_n},
+$$
+
+con $\xi>0$ hacia el interior. El helper no calcula capacidad AASHTO,
+pandeo, costuras, conexiones ni pernos.
+
+### 32.4 Hormigón proyectado — autoridad ACI
+
+La jerarquía internacional de la alternativa de hormigón será:
+
+- ACI CODE-318.2-25 para una cáscara delgada de hormigón;
+- ACI CODE-318-25 como complemento y para las disposiciones generales de
+  hormigón estructural;
+- ACI CODE-562-25 para la evaluación de una estructura existente; y
+- ACI SPEC-506.2-13(18) para materiales, ejecución, ensayos y aceptación del
+  shotcrete.
+
+La vista oficial de ACI CODE-318.2-25 confirma capítulos específicos de
+estabilidad, resistencia frente a fuerzas de membrana, momento y corte, y
+armadura mínima. El texto completo de esos artículos y de las disposiciones
+correspondientes de ACI CODE-318-25/562-25 no está disponible en el corpus.
+Por ello se conserva el núcleo agnóstico de compatibilidad y equilibrio,
+
+$$
+\varepsilon(y)=\varepsilon_0+\kappa(y-y_0),
+$$
+
+$$
+P_n=\int_{A_c}\sigma_c\,dA+\sum_jA_{s,j}\sigma_{s,j},
+\qquad
+M_n=\int_{A_c}\sigma_c(y-y_0)\,dA
++\sum_jA_{s,j}\sigma_{s,j}(y_j-y_0),
+$$
+
+pero no se asignan leyes, deformaciones límite, factores $\phi$, cuantías
+mínimas ni capacidades hasta leer el articulado vigente. Los coeficientes
+CIRSOC previamente documentados no se renombran como ACI.
+
+Una cuantía $A_s=0$ no habilita automáticamente hormigón simple. Debe
+resolverse antes la clasificación como cáscara y la armadura mínima exigida.
+El corte, la estabilidad, el servicio, la durabilidad y la ejecución permanecen
+como comprobaciones separadas.
+
+### 32.5 Estado de implementación y puertas
+
+`calculation.json` identifica la rama normativa pendiente como
+`aashto-lrfd-10e-2024-section-12-pending`. No materializa un empuje AASHTO
+numérico. La única evaluación escalar habilitada en R es la relación pública de
+USACE, con `modelID=usace-em-1110-2-2902-4.20`; su salida se identifica como
+USACE y conserva la advertencia de que la correspondencia con AASHTO vigente
+debe comprobarse.
+
+Antes de implementar resistencia de chapa deben resolverse:
+
+1. producto y rama AASHTO;
+2. articulado vigente y errata;
+3. propiedades netas y efectivas admitidas;
+4. combinaciones y efectos mayorados;
+5. pared o interacción, pandeo, costura y conexiones como controles separados;
+   y
+6. procedimiento aplicable a una estructura existente.
+
+Antes de implementar resistencia de hormigón deben resolverse:
+
+1. clasificación frente a ACI CODE-318.2-25;
+2. articulado vigente en SI de ACI 318.2/318/562;
+3. admisibilidad y disposición de armadura;
+4. geometría y propiedades existentes; y
+5. tabla ecuación--artículo--unidad y controles numéricos de la misma edición.
+
+Los dictámenes independientes vigentes son `FAIL` como implementaciones
+normativas completas, debido a esos bloqueos, y `PASS` para la arquitectura
+conceptual y la identificación de las ramas. No se presentará cumplimiento
+AASHTO o ACI hasta cerrar las puertas anteriores.
+
+### 32.6 Cierre de la corrección AASHTO/ACI
+
+La auditoría independiente de jerarquía normativa identificó una atribución
+imprecisa de la relación $T_L=P_FS/2$ en el Apéndice A.2. El texto corregido la
+identifica como relación reproducida por USACE, cita la ecuación 4-20 y declara
+pendiente su correspondencia con AASHTO 10.ª edición. La reauditoría concluyó
+`PASS` en `/private/tmp/ar-sad40-aashto-aci-final-reaudit-v2.md`.
+
+La auditoría de artefactos detectó que un escenario USACE podía heredar el
+`referenceID` de la rama AASHTO pendiente. La validación R exige ahora las
+parejas cerradas
+`aashto-section-12-product-pending` /
+`aashto-lrfd-10e-2024-section-12-pending` y
+`usace-em-1110-2-2902` / `usace-em-1110-2-2902-4.20`. La prueba incluye el
+caso negativo de identidad cruzada. La reauditoría concluyó `PASS` en
+`/private/tmp/ar-sad40-final-artifact-reaudit-v2.md`.
+
+Los siete controles R vigentes concluyeron `PASS`:
+`runCalculationMemo.R`, `testCalculationData.R`,
+`testCalculationLoading.R`, `testRingMethod.R`,
+`testCalculationFigures.R`, `testCalculationMonteCarloOutput.R` y
+`testSheetStress.R`. Los dos renders con `qrt` concluyeron correctamente:
+
+- `html/calculation.review.es/index.html`, SHA-256
+  `7e4b6dc282458fd1d7f9640a96136ee22ac48a323676b434b3ca25752351d213`;
+- `html/methodology.extension.review.es/index.html`, SHA-256
+  `15c12b65b9cc37d84d80d72e39e3633983ba2bb91a503f37c2b52876cf84d30e`.
+
+La memoria no contiene CIRSOC como referencia normativa. La metodología lo
+conserva sólo como antecedente histórico de correspondencia con AASHTO 2012.
+Los trece hashes de la Fase 1 congelada permanecen idénticos. Este cierre no
+habilita una verificación resistente AASHTO o ACI: la clasificación del
+producto, el articulado vigente y los datos resistentes continúan `UNKNOWN`.
+
+## 33. Reinicio de la memoria por auditoría de pertenencia
+
+La revisión directa del usuario del 13 de agosto de 2026 rechaza la memoria
+vigente como producto profesional aplicado. La causa no es una corrección
+editorial aislada: el cuerpo mezcla el cálculo ejecutado con metodología
+general, alternativas no adoptadas, casos de control, datos pendientes y
+planes futuros. Los dictámenes de cierre anteriores quedan sustituidos para
+la memoria completa. La Fase 1 congelada y la metodología candidata conservan
+sus alcances propios.
+
+### 33.1 Puerta de producto
+
+La reescritura y el render de `_master/calculation.review.es.qmd` permanecen
+congelados hasta terminar una auditoría desde cero, sección por sección. Un
+bloque sólo pertenece al cuerpo si es necesario para reproducir o interpretar
+el cálculo ejecutado y contiene una entrada o hipótesis adoptada, una ecuación
+operativa consumida, un control ejecutado o un resultado obtenido. Debe tener
+símbolos, unidades, signos, dominio y procedencia definidos y no puede mezclar
+alternativas, investigación, planes, inventarios de `UNKNOWN` ni metadata de
+implementación o auditoría.
+
+Los destinos permitidos son cuerpo aplicado, apéndice de desarrollo, apéndice
+de control numérico, metodología/paper, SoT interna o eliminación de una
+duplicación. La matriz de trabajo y sus evidencias se conservan en
+`dev/SoT/CALCULATION-MEMO-SECTION-AUDIT.md`; este documento continúa siendo la
+única fuente de verdad de Fase 2.
+
+### 33.2 Identidad de la ejecución vigente
+
+La inspección de `calculation.json`, la composición funcional y los productos
+materializados demuestra que sólo se ejecutó el escenario
+`verification-biaxial-uniform`:
+
+- tensión vertical efectiva uniforme prescrita de 100 kPa en la elevación del
+  centro de la sección;
+- $K_0=0.5$ como valor constante adoptado y
+  $\sigma'_h=50$ kPa;
+- $\Delta u=0$;
+- $\alpha=0$ y $\alpha=1$; y
+- perfil nominal 76×25 mm con espesor base 3.0 mm y radio 1.315 m.
+
+No se consumen tapada, estratigrafía, nivel freático variable, $P_F$, $S$,
+equipo o tongadas FHWA, una formulación de interacción suelo--conducto,
+propiedades netas de la sección deteriorada ni variables aleatorias. Las
+resultantes vigentes constituyen un caso analítico determinístico de control;
+no son la demanda del revestimiento existente.
+
+### 33.3 Bloques rechazados
+
+Quedan rechazados en el cuerpo de la memoria:
+
+- la Tabla 1 del procedimiento;
+- los encabezados «Cierre físico de los estados de carga» y «Controles
+  mínimos»;
+- la clasificación AASHTO no aplicada y el empuje escalar $T_L$ no evaluado;
+- el catálogo de formulaciones de $K_0$ cuando la aplicación sólo adopta un
+  valor constante;
+- la interacción suelo--conducto como sección que declara una formulación
+  pendiente;
+- la acción FHWA de compactación no ejecutada;
+- todo el capítulo «Plan de análisis probabilístico», incluidas «Datos
+  conocidos y magnitudes por caracterizar», «Cierre del modelo determinístico»
+  y la especificación futura de Monte Carlo;
+- «Estado de la recuperación de tensiones» y cualquier promesa «se completará
+  cuando...» sobre una operación no calculada; y
+- la lista «Datos del revestimiento existente» usada como backlog público.
+
+La relación $T_L=P_FS/2$ no fue inventada: está sustentada por USACE EM
+1110-2-2902, ecuación 4-20. Su presencia en el cuerpo era impropia porque no
+alimenta el modelo angular ni se evalúa en el escenario vigente. Las funciones
+y fuentes de investigación pueden conservarse fuera de la memoria.
+
+### 33.4 Tablas
+
+Los encabezados públicos contienen símbolos o códigos compactos, no
+descripciones, unidades o metadata. Las posiciones y unidades se definen en
+el caption o en una nota de tabla. La tabla de extremos deberá usar, por
+ejemplo, $\alpha$, $N_A$, $N_B$, $M_A$, $M_B$ y
+$\max|Q_\theta|$, con $A$ y $B$ definidos fuera del encabezado. La tabla de
+entradas se reconstruirá con los valores realmente consumidos; no incluirá
+productos `UNKNOWN`, incrementos «no modelados», controles gráficos ni
+identificadores internos.
+
+### 33.5 Dictámenes vigentes y siguiente puerta
+
+La ecuación de definición de $N_\theta$ y $M_\theta$ obtuvo PASS algebraico y
+dimensional, pero FAIL documental: $\int_{A_b}(\cdot)dA$ es una integral de
+área bidimensional a $\theta$ fijo; deben definirse $dA$, el eje centroidal,
+$\xi$ como brazo firmado y la normalización $1/b$. El signo y la
+implementación R son coherentes. El informe es
+`/private/tmp/ar-sad40-eq1-integrals-audit.md`.
+
+La primera mitad y el capítulo probabilístico obtuvieron FAIL en
+`/private/tmp/ar-sad40-memo-front-sections-audit.md`. El procedimiento obtuvo
+FAIL público en `/private/tmp/ar-sad40-memo-internal-sections-audit.md`. Falta
+cerrar la auditoría de resultantes, rigidez, aplicación, conclusiones y
+apéndices. Después se presentará al usuario una arquitectura reducida y la
+lista exacta de cálculos o entradas que falten. No se editará ni renderizará el
+candidato antes de esa aprobación.
+
+### 33.6 Detención y nuevo plan de arquitectura documental y de cálculo
+
+El usuario detuvo la corrección del HTML y exigió preparar un plan antes de
+cualquier nueva implementación. La metodología auditada debe actuar como
+fuente técnica de las fórmulas y decisiones; la memoria debe contener
+exclusivamente el cálculo realizado. Las notas, metadata, dudas, poemas,
+alternativas, planes y datos pendientes se conservan en la metodología o la
+SoT según su función. Si falta una entrada necesaria, se solicita al usuario
+fuera del reporte; no se crea una sección pública para explicar que no se
+calculó.
+
+El plan debe hacer visibles dos soportes de cálculo:
+
+1. **R de producción:** inventario de cada función por etapa, con firma,
+   entradas primitivas, contexto invariante, salidas, controles y consumidores;
+   una composición de escenario debe poder leerse como una hoja de cálculo y
+   la memoria debe consumir productos materializados, no reimplementar
+   ecuaciones; y
+2. **Wolfram de comprobación:** un único notebook `.nb` nativo, secuencial y
+   autosuficiente para un escenario fijo, con texto, valores de entrada,
+   sustituciones, resultados intermedios, resultantes, extremos y gráficos
+   visibles. La comparación con R es el último control, no la razón de ser del
+   cuaderno. No se usa `wolframscript` ni se crea un `.wl` como interfaz.
+
+La auditoría de la segunda mitad ya cerró con FAIL editorial y PASS del núcleo
+determinístico ejecutado en
+`/private/tmp/ar-sad40-memo-back-sections-audit.md`. Confirmó los resultados de
+$N_\theta$, $M_\theta$ y $Q_\theta$ y los seis controles cerrados para
+$\alpha=0,1$, y confirmó que no se ejecutaron Monte Carlo, recuperación de
+tensión ni AASHTO. No se editará la memoria, el código ni el notebook mientras
+se prepara y revisa el nuevo plan.
+
+## 34. Plan candidato de reconstrucción documental y soporte de cálculo
+
+**Estado:** aprobado por el usuario el 2026-08-13. P34.1 y P34.2 se ejecutan
+sobre soportes internos; P34.3 prepara un notebook candidato; P34.4 permanece
+en la puerta de revisión del usuario. Esta aprobación no autoriza todavía la
+reescritura del master de la memoria ni un nuevo render.
+
+El objetivo observable es disponer de dos soportes de cálculo legibles y de
+una memoria profesional que documente únicamente una ejecución reproducible.
+La metodología conserva las bases, las derivaciones, las alternativas y los
+contrastes; la SoT conserva decisiones, auditorías, datos pendientes y planes.
+La existencia de una función o de una investigación no habilita su aparición
+en la memoria.
+
+### 34.1 Productos y fronteras
+
+| Producto | Ruta gobernante | Contenido propio | Contenido excluido |
+|---|---|---|---|
+| metodología de referencia | `_master/methodology.review.es.qmd`, congelada | formulación general aprobada, derivaciones y fuentes del núcleo mecánico | cambios de Fase 2 |
+| ampliación metodológica candidata | `_master/methodology.extension.review.es.qmd` | formulaciones posteriores que superen una auditoría por ecuación y por fuente | resultados del caso, promesas y texto de gestión |
+| memoria de cálculo | `_master/calculation.review.es.qmd` | entradas adoptadas, ecuaciones efectivamente utilizadas, sustituciones, resultados y controles ejecutados | alternativas no adoptadas, investigación, `UNKNOWN`, planes, metadata, benchmarks generales y cálculos no realizados |
+| implementación de producción | `scripts/R/` y `calculation.json` | funciones de cálculo, composición del escenario y productos reproducibles | prosa pública y decisiones editoriales |
+| comprobación independiente | `scripts/wolfram/calculationScenario.nb` | un escenario fijo calculado de principio a fin, con resultados visibles | interfaz de producción, `wolframscript`, archivos `.wl` y planes futuros |
+| gobierno interno | `dev/SoT/METHODOLOGY-PHASE2.md` y la matriz de auditoría | decisiones, destinos, gates, pendientes y evidencia de paridad | prosa del cliente |
+
+La «hidratación» de la memoria no se hará mediante copia libre de párrafos ni
+mediante ecuaciones reescritas dentro de fragmentos Quarto. Cada relación usada
+seguirá esta correspondencia:
+
+1. definición y dominio en la metodología auditada;
+2. entrada en el registro interno de ecuaciones y convenciones;
+3. helper R que la evalúa;
+4. producto materializado bajo `data/calculation/`; y
+5. fórmula final, sustitución y resultado en la memoria.
+
+La ampliación metodológica vigente todavía es candidata. No se la declarará
+fuente técnica auditada hasta revisar, como mínimo, las secciones consumidas
+por el escenario: estado biaxial prescrito, participación tangencial, rigidez
+circunferencial, ecuaciones de equilibrio y soluciones de comprobación. Las
+ramas AASHTO, shotcrete, Monte Carlo, compactación e interacción quedan fuera
+de esta primera reconstrucción porque no fueron ejecutadas.
+
+### 34.2 Identidad de la memoria
+
+El escenario materializado no representa todavía la demanda del revestimiento
+existente. Por ello existen dos emisiones que no deben confundirse:
+
+1. **caso analítico de referencia:** puede emitirse ahora con los datos y
+   resultados ya calculados; y
+2. **revestimiento existente:** sólo puede emitirse después de seleccionar y
+   ejecutar el modelo de acciones del relleno real con sus entradas aprobadas.
+
+Hasta cerrar esa segunda etapa, el título y las conclusiones deben identificar
+el producto como memoria del caso analítico determinístico de referencia. No
+se compensará la ausencia del caso real mediante listas de información
+faltante dentro del reporte.
+
+### 34.3 Arquitectura funcional R existente
+
+No se propone una clase general nueva ni una segunda implementación. La cadena
+de producción ya está separada en las siguientes funciones:
+
+| Etapa | Helper | Entradas | Salida usada |
+|---:|---|---|---|
+| 0 | `buildThetaMesh(pointCount, criticalAnglesDeg)` | cantidad base y ángulos críticos, en grados | vector `theta` en radianes, creciente en $[0,2\pi)$ |
+| 1 | `estimateK0(modelID, k0, frictionAngleDeg, poissonRatio, ocr, ocrMaximum)` | identificador de una única rama y sólo sus primitivas | `k0Applied` y trazabilidad de la rama; $K_0$ adimensional |
+| 2 | `calculateEffectiveStressState(effectiveVerticalKPa, k0State, waterPressureDifferenceKPa, horizontalIncrementKPa, horizontalIncrementStatus)` | tensiones en kPa y estado de $K_0$ | $\sigma'_v$, $\sigma'_h$ y diferencia de presión de agua, en kPa |
+| 3 | `interpolateCorrugatedSection(reference, profileID, baseThicknessMm)` | tabla publicada, perfil y espesor base | $A_\theta$ en mm²/mm, $I_\theta$ en mm⁴/mm y procedencia de la interpolación |
+| 4 | `calculateRingSection(youngModulus, area, inertia, radius)` | sistema coherente; en el escenario: kPa, m²/m, m⁴/m y m | $EA_\theta$, $EI_\theta$, $I_\theta/(A_\theta R^2)$ y magnitudes equivalentes |
+| 5 | `calculatePerimeterActions(stressState, alpha, theta)` | estado tensional, multiplicador $\alpha$ y malla | objeto de carga y ordenadas $P_r(\theta)$, $P_t(\theta)$ en kPa |
+| 6 | `calculateSectionResultants(load, radius, theta, sectionRatio, integrationSteps, balanceTolerance, allowUnbalanced)` | carga, geometría, rigidez relativa y controles numéricos | respuesta `ringDirectResponse` con $N_\theta$, $M_\theta$, $Q_\theta$ y diagnósticos |
+| 7 | `summarizeSectionResultants(response)` | respuesta de la etapa 6 | mínimos, máximos, máximos absolutos, signos y posiciones angulares |
+| 8 | `calculateScenario(realization, context)` | primitivas variables de una realización y contexto invariante | lista ordenada con los estados de las etapas 1 a 7 |
+| 9 | `buildCalculationData(configPath, outputDirectory, projectRoot)` | configuración, directorio de productos y raíz verificada | CSV consumidos por la memoria y copia exacta de la configuración |
+
+En la llamada vigente, `calculateScenario()` separa:
+
+- `realization`: `effectiveVerticalKPa`,
+  `waterPressureDifferenceKPa`, `baseThicknessMm`, `alpha` y las primitivas de
+  la rama de $K_0$ seleccionada; y
+- `context`: `k0ModelID`, estado del incremento horizontal, tabla y perfil de
+  la sección, módulo, radio, malla y tolerancias.
+
+La forma legible del cálculo será una única secuencia, sin repetir ecuaciones:
+
+```r
+Theta <- buildThetaMesh(...)
+K0State <- estimateK0(...)
+StressState <- calculateEffectiveStressState(...)
+CorrugatedSection <- interpolateCorrugatedSection(...)
+SectionRigidity <- calculateRingSection(...)
+PerimeterActions <- calculatePerimeterActions(...)
+SectionResultants <- calculateSectionResultants(...)
+ResultantExtrema <- summarizeSectionResultants(SectionResultants)
+```
+
+`calculateScenario()` continuará siendo la composición compacta de esa misma
+secuencia. La documentación R mostrará ambas superficies: primero el cálculo
+por etapas para auditoría y luego la fachada para repetir realizaciones. No se
+agregará un helper que sólo renombre otro helper ni una clase destinada a un
+único escenario.
+
+`runRingMonteCarlo()` y `calculateSheetNormalStress()` permanecen fuera de la
+memoria actual. La primera recibe realizaciones ya generadas y no define
+distribuciones; la segunda requiere una sección neta y condiciones de
+aplicabilidad que no fueron suministradas para esta ejecución.
+
+### 34.4 Productos numéricos y oráculo de paridad
+
+Antes de cualquier refactor se conservarán como oráculo los productos
+determinísticos vigentes y sus tolerancias. Para el escenario adoptado:
+
+- $A_\theta=3.7304717949$ mm²/mm;
+- $I_\theta=287.9021537231$ mm⁴/mm;
+- $EA_\theta=746094.35897$ kN/m;
+- $EI_\theta=57.580430745$ kN·m²/m; y
+- $I_\theta/(A_\theta R^2)=4.4630283681\times10^{-5}$.
+
+Para $\alpha=1$, los extremos calculados son
+$N_\theta\in[-131.5000,-65.7500]$ kN/m,
+$M_\theta\in[-21.6211004,21.6095246]$ kN·m/m y
+$\max|Q_\theta|=32.8750$ kN/m. Para $\alpha=0$, son
+$N_\theta\in[-109.5833333,-87.6666667]$ kN/m,
+$M_\theta\in[-14.4159963,14.4044204]$ kN·m/m y
+$\max|Q_\theta|=21.9166667$ kN/m.
+
+Los seis contrastes contra la solución cerrada presentan diferencias máximas
+del orden de $10^{-12}$ frente a una tolerancia de $10^{-7}$. La migración
+debe reproducir las curvas completas y estos productos; una prueba que sólo
+compare extremos no basta. Los extremos simétricos se contrastarán por
+posiciones analíticamente equivalentes y no por el primer ángulo seleccionado
+por un desempate numérico.
+
+### 34.5 Reconstrucción del notebook Wolfram
+
+El notebook vigente no satisface su función pública de soporte de cálculo:
+no conserva celdas `Output`, exige `schemaVersion == "2.0.0"` mientras la
+configuración vigente declara `2.1.0`, y aborta antes de mostrar resultados.
+Además dedica demasiado código a guards, lectura manual de CSV, estado de
+operaciones no ejecutadas y un `overallPass` global.
+
+Se reemplazará por un único `.nb` nativo, evaluado y guardado con la siguiente
+secuencia:
+
+1. objeto, convenciones y ecuaciones utilizadas;
+2. valores primitivos del escenario fijo, asignados explícitamente y mostrados
+   en una tabla;
+3. cálculo visible de $K_0$, $\sigma'_h$ y estado de presiones;
+4. lectura mediante funciones nativas de las filas de referencia, interpolación
+   de $A_\theta$ e $I_\theta$ y cálculo de $EA_\theta$, $EI_\theta$ y la razón
+   seccional;
+5. definición y evaluación de $P_r(\theta)$ y $P_t(\theta)$ para cada $\alpha$;
+6. resolución numérica principal de $N_\theta(\theta)$,
+   $M_\theta(\theta)$ y $Q_\theta(\theta)$;
+7. tabla de extremos y tres gráficos;
+8. solución cerrada y Fourier como controles separados; y
+9. comparación final con los productos R.
+
+La comparación con R no condicionará la ejecución de las etapas 1 a 7. Se
+eliminarán el guard de fixture, el parser CSV artesanal, la variable de entorno
+como interfaz ordinaria, el bloque de tensión de chapa no evaluada y la
+narrativa de estados pendientes. Al abrir el archivo deben verse los últimos
+resultados guardados; `Evaluation > Evaluate Notebook` debe reproducirlos sin
+internet, sin R, sin `wolframscript` y sin archivos `.wl`.
+
+### 34.6 Estructura reducida de la memoria
+
+El cuerpo candidato tendrá sólo estas funciones documentales:
+
+1. **Objeto y alcance:** identidad exacta del caso calculado y magnitudes de
+   salida;
+2. **Datos adoptados y convenciones:** valores consumidos, unidades, signos y
+   posiciones de referencia;
+3. **Procedimiento de cálculo:** fórmulas finales de las acciones aplicadas,
+   propiedades seccionales, rigideces y resultantes;
+4. **Aplicación numérica:** sustituciones, estados intermedios, tabla de
+   resultantes y tres figuras;
+5. **Comprobaciones:** controles realmente ejecutados y sus errores; y
+6. **Resultados y conclusiones:** valores obtenidos y alcance estricto de la
+   ejecución.
+
+El resumen ejecutivo se redactará al final, después de aprobar esas secciones.
+El Apéndice A contendrá únicamente los desarrollos de equilibrio,
+compatibilidad y rigidez usados. El Apéndice B contendrá la solución cerrada y
+la comparación numérica del caso. No incluirá benchmarks bibliográficos no
+aplicados.
+
+Cada tabla pública usará símbolos o códigos breves en sus encabezados. Las
+unidades, posiciones y definiciones se consignarán en el caption o en notas.
+El documento no contendrá secciones denominadas «estado de», «pendientes»,
+«controles mínimos», «cierre físico», «datos requeridos» ni formulaciones en
+tiempo futuro.
+
+### 34.7 Secuencia de ejecución y revisión del usuario
+
+La implementación sólo comenzará después de aceptar este plan y seguirá estas
+puertas, una por vez:
+
+1. **P34.1 — registro técnico:** auditar las ecuaciones consumidas y depurar el
+   registro de correspondencia; no incorporar ramas no ejecutadas.
+2. **P34.2 — soporte R:** documentar la cadena por etapas, ejecutar sus pruebas
+   vigentes y demostrar identidad de curvas y productos contra el oráculo.
+3. **P34.3 — soporte Wolfram:** reconstruir, evaluar y guardar el notebook;
+   contrastar primero sus resultados propios y luego la paridad con R.
+4. **P34.4 — primera revisión pública:** presentar al usuario sólo el título,
+   «Objeto y alcance» y «Datos adoptados y convenciones». No avanzar a la
+   siguiente sección sin su dictamen.
+5. **P34.5 — procedimiento:** presentar acciones adoptadas, rigidez y fórmulas
+   finales de resultantes.
+6. **P34.6 — aplicación:** presentar sustituciones, tablas y figuras generadas
+   desde `data/calculation/`.
+7. **P34.7 — apéndices:** presentar por separado los desarrollos y los
+   controles numéricos.
+8. **P34.8 — cierre:** redactar resultados, conclusiones y resumen; renderizar
+   una candidata sólo después de la revisión sección por sección.
+
+El primer paquete que requiere decisión del usuario será P34.4. En esa revisión
+se resolverá además si el producto mantiene el título de caso analítico de
+referencia o si debe quedar sin emisión pública hasta incorporar las acciones
+del revestimiento existente.
+
+### 34.9 Estado de ejecución al 2026-08-13
+
+- **P34.1 — cerrado técnicamente:** el registro
+  `dev/SoT/CALCULATION-EQUATION-REGISTER.md` contiene sólo CAL-E01--CAL-E10,
+  explicita el puente de signo del momento con la Fase 1 y materializa los
+  residuos normalizados de equilibrio global $F_x$, $F_z$ y $M_c$. Las ramas
+  no consumidas permanecen excluidas.
+- **P34.2 — cerrado:** `scripts/R/calculationScenarioExample.R` expone las
+  etapas del cálculo y comprueba su identidad con `calculateScenario()`. Las
+  pruebas `testRingMethod.R` y `testCalculationData.R` concluyen `PASS`. Las
+  propiedades, cargas, curvas, extremos y escalas son idénticos byte por byte
+  al oráculo previo; `numerical.controls.csv` agrega exclusivamente seis filas
+  de equilibrio global a los seis contrastes cerrados.
+- **P34.3 — en ejecución:** el notebook vigente se conserva intacto mientras
+  se evalúa un candidato nativo, secuencial y con resultados visibles.
+- **P34.4 — candidato no promovido:** el ledger
+  `TITO/kb/calculation-memo/ledgers/calculation-P01-scope-conventions-2026-08-13.md`
+  gobierna el primer paquete. El texto candidato permanece fuera de las rutas
+  públicas hasta completar dos auditorías independientes y recibir el
+  dictamen del usuario.
+
+### 34.8 Salvaguardas de implementación
+
+- La Fase 1 congelada no se edita ni se renderiza.
+- No se inspecciona `_ref`.
+- No se eliminan fuentes recuperadas.
+- No se crea otra biblioteca ni una clase ortótropa general.
+- No se asignan distribuciones Monte Carlo ni se informan resultados
+  probabilísticos antes de aprobar sus entradas.
+- No se calcula tensión de chapa, capacidad, pernos ni shotcrete dentro de esta
+  reconstrucción determinística.
+- No se cambia simultáneamente una ecuación y su oráculo. Toda modificación
+  funcional se compara primero con los productos auditados.
+- La memoria consume productos R materializados; los fragmentos Quarto no
+  reimplementan el cálculo.
+
+### 34.10 Repriorización y autorización de cierre documental
+
+El usuario dispuso el 13 de agosto de 2026 terminar primero la memoria técnica
+auditada y actualizada y postergar la reconstrucción de Wolfram. Esta decisión
+autoriza reescribir y renderizar el candidato
+`_master/calculation.review.es.qmd` conforme a la estructura reducida de la
+Sección 34.6. No autoriza modificar la Fase 1 congelada ni incorporar a la
+memoria cálculos resistentes, Monte Carlo, AASHTO, compactación o interacción
+suelo--conducto que no fueron ejecutados en el escenario materializado.
+
+El candidato Wolfram conservado fuera del repositorio queda descartado como
+producto: mezclaba el cálculo con controles de paridad y metadata de auditoría
+y no desarrollaba una hoja de cálculo autónoma hasta una comprobación
+resistente. Cuando se retome esa rama se construirá después de la memoria y se
+evitará la notación `X'[theta]` para magnitudes geotécnicas con prima, pues en
+Wolfram esa sintaxis representa una derivada.
+
+El cierre documental sigue esta secuencia vigente:
+
+1. cuerpo con objeto, entradas, procedimiento, aplicación, comprobaciones y
+   resultados del caso biaxial determinístico;
+2. Apéndice A autónomo con los desarrollos efectivamente consumidos;
+3. Apéndice B autónomo con la solución cerrada y la comparación numérica
+   ejecutada;
+4. auditorías técnica, editorial y de artefacto; y
+5. render HTML para la aceptación del usuario.
+
+### 34.11 Corrección de alcance — Monte Carlo permanece vigente
+
+El usuario aclaró el 13 de agosto de 2026 que no había solicitado excluir
+Monte Carlo. Su observación rechazaba una simulación presentada sin identificar
+los parámetros variados, sus distribuciones y sus dependencias. En
+consecuencia, la secuencia determinística de la Sección 34 sigue siendo el
+nuevo núcleo auditable por realización, pero no constituye por sí sola el
+cierre de la memoria completa.
+
+Antes de ejecutar o redactar resultados probabilísticos deben quedar aprobados
+como mínimo:
+
+1. variables primitivas aleatorias y magnitudes determinísticas;
+2. distribuciones marginales, parámetros y reglas de truncamiento;
+3. dependencias físicas y estadísticas entre variables;
+4. tratamiento de ramas discretas de modelo;
+5. cantidad de realizaciones, semilla y criterio de convergencia; y
+6. estadísticos de salida, distinguiendo cuantiles puntuales de
+   $N_\theta(\theta)$, $M_\theta(\theta)$ y $Q_\theta(\theta)$ de los
+   cuantiles de extremos espaciales.
+
+No se asignarán valores ni distribuciones por inferencia. El cuerpo
+determinístico y los Apéndices A y B pueden cerrarse como base de cálculo; el
+resumen, las conclusiones globales y la emisión final de la memoria permanecen
+abiertos hasta integrar la propagación aprobada o recibir una decisión expresa
+del usuario que defina una emisión determinística separada.
+
+### 34.12 Contrato probabilístico observado
+
+La auditoría del código existente concluye que `runRingMonteCarlo()` es un
+agregador válido, no un generador de realizaciones. Recibe una tabla ya
+muestreada, evalúa una respuesta determinística por fila y produce:
+
+- cuantiles puntuales de $N_\theta(\theta)$, $M_\theta(\theta)$ y
+  $Q_\theta(\theta)$;
+- mínimos, máximos y máximos absolutos por realización; y
+- cuantiles escalares de esos extremos, sin asignarles un ángulo ficticio.
+
+La función de escenario vigente puede variar por realización
+`effectiveVerticalKPa`, `waterPressureDifferenceKPa`, `baseThicknessMm`,
+`alpha` y las primitivas de una única rama de $K_0$. En cambio, no deriva aún
+la tensión vertical desde tapada, pesos unitarios, estratigrafía y sobrecarga;
+no incorpora presión horizontal residual de compactación; no admite una rama
+de $K_0$ variable dentro de un mismo lote; y no conecta corrosión, sección
+neta, tensión, capacidad o factor de seguridad.
+
+No existe todavía en el repositorio:
+
+- especificación de marginales, parámetros y truncamientos;
+- generador conjunto de realizaciones, semilla o dependencia estadística;
+- probabilidades de ramas discretas;
+- protocolo de tamaño de muestra y convergencia;
+- persistencia de entradas y diagnósticos de cada corrida; ni
+- una función de salida resistente conectada a la simulación.
+
+Por ello se distinguen dos puertas:
+
+1. **MC-R:** propagación hasta resultantes seccionales, una vez que se aprueben
+   las primitivas geotécnicas, sus marginales, dependencias y el tratamiento
+   de compactación y de $\alpha$; y
+2. **MC-S:** propagación hasta tensiones y factor de seguridad, sólo después de
+   definir la sección neta deteriorada, la recuperación local de tensiones y
+   la verificación resistente aplicable.
+
+$N_\theta$, $M_\theta$, $Q_\theta$, las tensiones y el factor de seguridad son
+salidas; no se muestrean como entradas. Tampoco se muestreará $K_0$ junto con
+las primitivas que lo determinan, ni $\sigma'_v$ junto con las variables de
+las cuales se derive, ni una presión residual de compactación junto con una
+historia tensional que represente el mismo efecto.
+
+Los informes completos de solo lectura están en
+`/private/tmp/ar-sad40-monte-carlo-contract-audit.md`,
+`/private/tmp/ar-sad40-monte-carlo-inputs-evidence.md` y
+`/private/tmp/ar-sad40-monte-carlo-document-boundary.md`.
+
+### 34.13 Cierre de la base por realización y evidencia probabilística
+
+La base determinística reestructurada concluyó las auditorías técnica y
+editorial con `PASS`. La memoria define $N_\theta$, $M_\theta$ y $Q_\theta$,
+declara correctamente la malla base de integración, expone el perfil NCSPA que
+gobierna la interpolación y presenta sólo entradas, sustituciones, resultados y
+comprobaciones ejecutadas. El HTML vigente se encuentra en
+`html/calculation.review.es/index.html`. Este cierre acredita el cálculo de una
+realización; no cierra la memoria completa ni reemplaza Monte Carlo.
+
+La matriz de evidencia para parametrizar MC-R se conserva en
+`TITO/kb/research/monte.carlo.parameterization.es.md`. Sus reglas vigentes son:
+
+1. las familias y dispersiones de JCSS y JRC son antecedentes condicionados
+   por clase de suelo y calidad de determinación, no *priors* del proyecto;
+2. $K_0$ es derivado de $\phi'$ y OCR cuando se adopta esa rama y no recibe
+   simultáneamente una marginal independiente;
+3. la compactación residual permanece separada del estado geostático hasta
+   seleccionar un modelo y datos de caracterización;
+4. $\alpha$ participa en Monte Carlo, pero su distribución no se presume
+   uniforme ni se identifica con $\tan\delta$;
+5. las ramas granular, cohesiva o cementada permanecen separadas sin pesos de
+   modelo sustentados; y
+6. los cuantiles puntuales de las curvas y los cuantiles de extremos
+   espaciales son productos distintos.
+
+La auditoría de fuentes descartó de la promoción una atribución no cerrada al
+procedimiento MLE/Kolmogorov--Smirnov de Caleyo et al. (2009). No se usará esa
+frase ni sus familias de picadura para MC-R. La rama de deterioro queda
+diferida a MC-S y se apoyará prioritariamente en el perfil ultrasónico del
+conducto, conforme a Mai (2013).
+
+Se recuperaron y verificaron las dos fuentes oficiales nuevas
+`jrc_2024_reliability_geotechnical_structures.pdf` y
+`mndot_2018_cpt_design_guide.pdf`; su procedencia, páginas y SHA-256 están en
+`TITO/kb/MANIFEST.md`.
+
+## 35. Recuperación selectiva de la memoria técnica
+
+La revisión directa del usuario del 13 de agosto de 2026 establece que la
+reducción de `_index/calculation.review.ES.qmd` eliminó contenido técnico que
+debía corregirse y conservarse. Esta decisión sustituye cualquier
+interpretación de la Sección 34 que autorice resolver defectos editoriales
+mediante la supresión completa de capítulos. El HTML vigente se conserva como
+evidencia del núcleo determinístico, pero queda rechazado como memoria técnica
+completa.
+
+La recuperación no se ejecuta mediante `git checkout`, reversión global ni
+reinserción literal del ensamblado anterior. Cada bloque se recupera desde su
+fuente existente, se audita contra la evidencia y se reescribe para su función
+documental antes de incorporarlo. El núcleo de cálculo por realización,
+incluidas las definiciones de $N_\theta$, $M_\theta$ y $Q_\theta$, la
+integración directa, la solución cerrada y los productos materializados, se
+conserva.
+
+### 35.1 Contenido que debe recuperarse
+
+1. La cadena de acciones: tensión vertical efectiva, agua, estimación de
+   $K_0$, compactación, acción FHWA y transformación en acciones perimetrales.
+   Las formulaciones alternativas se identifican como ramas y la aplicación
+   declara cuál se evalúa en cada escenario.
+2. La formulación conjunta de $N_\theta$, $M_\theta$ y $Q_\theta$, las
+   condiciones de equilibrio y compatibilidad y las rigideces
+   circunferenciales del perfil.
+3. Los contrastes sustentados de USACE, FHWA y Núñez. Los resultados
+   bibliográficos o reproducidos se ubican en un apéndice de referencia; no se
+   confunden con resultados del revestimiento analizado. CANDE y el trabajo de
+   Núñez--Sfriso--Laiún (2014) no se incorporan como benchmarks de la memoria.
+4. La recuperación de tensión normal de la chapa y la alternativa de
+   shotcrete se conservan en la metodología hasta que existan entradas y una
+   ejecución aplicable; no se publican capítulos de estado o promesas de
+   cálculo.
+5. Monte Carlo permanece dentro del producto final. El capítulo público se
+   incorpora sólo después de aprobar el contrato de variables, ejecutar la
+   simulación y materializar sus resultados.
+
+### 35.2 Propiedades del perfil corrugado
+
+La entrada vigente documenta paso nominal de 76 mm, profundidad nominal de
+25 mm y espesor informado de 3,0 mm. La tabla NCSPA 3×1 in utilizada hasta
+ahora es una fuente imperial y no demuestra por sí sola las propiedades del
+perfil métrico real. La interpolación de esa tabla queda excluida de la
+reconstrucción pública hasta identificar una tabla métrica del producto o
+definir la geometría completa de la onda y calcular sus propiedades.
+
+El área, la inercia, las rigideces y cualquier tensión derivada que dependa de
+ellas se marcarán internamente como condicionadas. No se sustituirá el dato
+faltante con otro perfil ni se conservarán decimales producidos por una
+interpolación cuya aplicabilidad no esté demostrada. El informe de regresión
+es `/private/tmp/ar-sad40-section-properties-regression.md`.
+
+### 35.3 Secuencia vigente
+
+1. **Cerrado:** mapa de recuperación contra Git y las fuentes conservadas.
+2. **Cerrado:** acciones, $K_0$, resultantes y rigidez corregidos y
+   reincorporados.
+3. **Cerrado:** contrastes reorganizados en apéndices autónomos.
+4. **Cerrado:** propiedades métricas resueltas mediante la fila CSPI exacta.
+5. **Pendiente:** aprobar y ejecutar MC-R hasta envolventes de resultantes.
+6. **Cerrado para la realización determinística:** auditoría de las secciones
+   públicas y render del HTML candidato; debe repetirse después de integrar
+   MC-R.
+7. **Posterior:** MC-S, tensiones, resistencia, juntas, pernos y shotcrete.
+
+Los informes que originan esta recuperación son
+`/private/tmp/ar-sad40-memo-content-regression.md`,
+`/private/tmp/ar-sad40-section-properties-regression.md` y
+`/private/tmp/ar-sad40-plot-style-regression.md`.
+
+### 35.4 Selección seccional adoptada
+
+El usuario resolvió el 13 de agosto de 2026 la puerta descrita en 35.2: para
+el cálculo se adopta la fila menor publicada por CSPI para chapa CSP de perfil
+76×25. La fila se identifica mediante espesor especificado
+$t_s=2{,}80$ mm y emplea espesor base de diseño $t_d=2{,}64$ mm. Sus
+propiedades por unidad de ancho proyectado son $A_p=3{,}281$ mm²/mm,
+$I_p=249{,}73$ mm⁴/mm y $S_p=17{,}81$ mm³/mm; la geometría publicada es
+76,2/25,4/R14,29. La evidencia y sus localizadores se conservan en
+`dev/chapa/HANDOFF-chapa-76x25-espesor-2026-08-13.md`.
+
+El productor debe seleccionar la fila `cspi-76x25-2.8` de forma exacta y
+materializar por separado $t_s$ y $t_d$. Quedan prohibidas en la rama activa
+la interpolación a 3,0 mm, la tabla NCSPA 3×1 y la sustitución por la fila
+CSPI de 3,5 mm. La función histórica de interpolación se conserva únicamente
+para reproducir los fixtures que acreditan la línea base previa; no gobierna
+el escenario del reporte.
+
+### 35.5 Cierre de la reconstrucción determinística
+
+La recuperación selectiva terminó el 13 de agosto de 2026. El ensamblado
+vigente contiene, en este orden, objeto y alcance, procedimiento de cálculo,
+acciones del relleno y estimación de $K_0$, rigideces circunferenciales,
+resultantes $N_\theta$, $M_\theta$ y $Q_\theta$, aplicación numérica,
+comprobaciones ejecutadas y resultados determinísticos. Los apéndices reúnen
+por separado el desarrollo matemático, los controles numéricos y las
+reproducciones documentales de USACE, FHWA y Núñez (2000).
+
+La configuración activa selecciona exactamente `cspi-76x25-2.8` desde
+`data/reference/cspi.corrugation.section.properties.csv`. Las propiedades
+publicadas se distinguen de las rigideces derivadas. La cita pública localiza
+la geometría en la figura 2.1 y las propiedades seccionales en la tabla 2.4
+del manual CSPI; las unidades figuran en el caption de la tabla de aplicación.
+
+Las siguientes comprobaciones concluyeron `PASS`:
+
+- generación reproducible de `data/calculation/` desde `calculation.json`;
+- contrato de datos, cargas, mecánica, figuras, adaptador de salida Monte
+  Carlo y recuperación condicional de tensión normal;
+- igualdad entre el cálculo por etapas y `calculateScenario()`;
+- auditoría técnica de las acciones;
+- auditoría editorial del ensamblado; y
+- auditoría independiente de la integración seccional métrica.
+
+El HTML candidato es `html/calculation.review.es/index.html`, SHA-256
+`3ed1fc08e3463ad76e04fe8b6aa56048cd913422b2096a4afa0cf34cea0d1205`.
+Este producto representa una realización determinística de referencia. No
+informa aún envolventes Monte Carlo ni resistencia de chapa, juntas, pernos o
+shotcrete. La etapa siguiente es acordar el contrato MC-R sin asignar
+distribuciones o dependencias por inferencia.
+
+## 36. Auditoría y comparación paramétrica de $K_0$
+
+### 36.1 Corrección documental verificada
+
+La ecuación 8 de Michalowski (2005) transcribe la forma de Jáky de 1944 como
+
+$$
+K_{0,\mathrm{J\acute{a}ky\,1944}}
+=(1-\sin\phi')
+\frac{1+\frac{2}{3}\sin\phi'}{1+\sin\phi'}.
+$$
+
+La versión con $\sin^2\phi'$ era una transcripción errónea. La inspección del
+PDF vectorial localizó el carácter `2` sobre el carácter `3`, ambos antes de
+la palabra `sin`; ese carácter pertenece a la fracción $2/3$ y no es un
+exponente. La corrección afecta la SoT, el ledger de evidencia y el candidato
+metodológico. No modifica la forma abreviada
+$K_{0,NC}=1-\sin\phi'$ implementada en R.
+
+### 36.2 Formulaciones que pueden compararse
+
+Las ramas actualmente respaldadas e implementadas son:
+
+| Rama | Variables primitivas | Condición representada |
+|---|---|---|
+| valor adoptado | $K_0$ declarado | hipótesis de comprobación o sensibilidad; no es una estimación del relleno |
+| elasticidad confinada | $\nu_g$ | continuo elástico lineal e isótropo con deformación lateral impedida |
+| Jáky | $\phi'$ | carga primaria o estado normalmente consolidado |
+| Mayne--Kulhawy, descarga | $\phi'$, OCR | descarga primaria desde compresión virgen |
+| Mayne--Kulhawy, recarga | $\phi'$, OCR, $\mathrm{OCR}_{\max}$ | descarga seguida de recarga con historia máxima identificable |
+
+Las ramas no son estimadores intercambiables que puedan evaluarse con un único
+vector de parámetros. Una medición representativa, Brooker--Ireland,
+Mesri--Hayat, una corrección por cementación y una presión residual de
+compactación para el conducto no están habilitadas como ramas operativas.
+Permanecen fuera de una comparación numérica hasta preservar y verificar la
+fuente primaria y, cuando corresponda, implementar su dominio.
+
+FHWA y USACE reproducen relaciones ya catalogadas dentro de sus respectivos
+contextos; no constituyen nuevas formulaciones de $K_0$. Núñez (2000) recibe
+$K_0$ como parámetro de su formulación de cargas e interacción y no aporta, en
+las páginas verificadas, una correlación independiente para estimarlo. Las
+comparaciones de cargas de esas fuentes permanecen separadas de la comparación
+geotécnica de $K_0$.
+
+Con $s=\sin\phi'$, las comparaciones algebraicas auditables son
+
+$$
+\frac{K_{0,OC}}{K_{0,NC}}=\mathrm{OCR}^{s},
+$$
+
+$$
+\frac{K_{0,R}}{K_{0,NC}}
+=\frac{\mathrm{OCR}}
+{\mathrm{OCR}_{\max}^{\,1-s}}
++\frac{3}{4}\left(
+1-\frac{\mathrm{OCR}}{\mathrm{OCR}_{\max}}
+\right),
+$$
+
+y la igualdad puramente algebraica entre Jáky y la idealización elástica se
+produce para
+
+$$
+\nu_g=\frac{1-\sin\phi'}{2-\sin\phi'}.
+$$
+
+Esta última identidad no define una correlación entre $\nu_g$ y $\phi'$.
+
+### 36.3 Incidencia en el caso biaxial prescrito
+
+Manteniendo iguales $\sigma'_v$ y $\Delta u$ para aislar la influencia de
+$K_0$,
+
+$$
+\sigma'_h=K_0\sigma'_v,
+\qquad
+p_m=\Delta u+\frac{1+K_0}{2}\sigma'_v,
+\qquad
+\Delta\sigma=(1-K_0)\sigma'_v.
+$$
+
+Por lo tanto, la componente media aumenta con pendiente $\sigma'_v/2$ y la
+amplitud desviadora disminuye con pendiente $-\sigma'_v$. Para $K_0=1$ la
+proyección biaxial no contiene una componente armónica; para $K_0>1$ ésta
+cambia de signo. Estas relaciones pertenecen al caso prescrito y no convierten
+$K_0\sigma'_v$ en una ley general de contacto para un conducto flexible.
+
+### 36.4 Frontera documental y de datos
+
+La tabla de entradas y la aplicación numérica de la memoria presentan sólo la
+rama aplicada, sus primitivas, $K_0$ calculado, $\sigma'_v$, $\sigma'_h$ y el
+estado de control. Esos valores se leen de
+`data/calculation/stress.state.csv`; no se transcriben en prosa o tablas. El
+capítulo de acciones conserva las fórmulas finales de las ramas seleccionables
+como parte del procedimiento, pero no les atribuye resultados alternativos no
+ejecutados. El valor $K_0=0.50$ vigente es una entrada explícita de
+`calculation.json` para el escenario de comprobación, no una estimación del
+relleno existente.
+
+La comparación completa pertenece al candidato metodológico o a un apéndice
+de sensibilidad expresamente aprobado. Su arquitectura mínima será:
+
+1. conservar `stressState.k0Model` como la única rama aplicada;
+2. admitir una colección opcional de casos de estudio, cada uno con un
+   identificador único, una formulación y sólo sus variables primitivas;
+3. evaluar cada caso mediante `estimateK0()` y
+   `calculateEffectiveStressState()`, sin duplicar ecuaciones;
+4. materializar una tabla `data/calculation/k0.cases.csv` con entradas,
+   resultado, dominio y fuente;
+5. construir tablas y figuras exclusivamente desde ese producto; y
+6. propagar cada caso a `calculateScenario()` sólo después de aprobar la
+   comparación estructural y sus entradas.
+
+No se asignarán probabilidades, pesos ni promedios entre formulaciones. En
+Monte Carlo se muestrean las variables primitivas de una rama aprobada; $K_0$
+es una salida derivada. Si la selección de rama permanece incierta y no hay
+pesos sustentados, cada rama contribuye como escenario discreto a una
+envolvente exterior.
+
+El campo `domainStatus` vigente en las ramas Mayne--Kulhawy controla sólo si
+se alcanzó el límite pasivo. No demuestra que el estado se encuentre dentro
+del intervalo empírico: para descarga debe distinguirse $\mathrm{OCR}<15$ de
+una extrapolación anterior al límite pasivo, y la recarga debe conservar la
+advertencia de evidencia limitada. Ese estado adicional es obligatorio antes
+de habilitar estas ramas en Monte Carlo; no se impondrá mediante truncamiento.
+
+### 36.5 Datos pendientes para la comparación numérica
+
+Antes de materializar casos deben definirse, sin inferencia:
+
+- clase y condición de drenaje del relleno;
+- intervalo y base de $\phi'$;
+- intervalo de $\nu_g$ si se mantiene el escenario elástico;
+- OCR y $\mathrm{OCR}_{\max}$ o las tensiones históricas que los determinan;
+- tratamiento de la compactación: historia representada por $K_0$ o incremento
+  residual separado, sin doble conteo; y
+- si la comparación mantiene fijo el estado vertical y el agua para aislar
+  $K_0$, o si cada escenario reconstruye también su historia vertical.
+
+Hasta recibir estas decisiones, sólo se publican las comparaciones analíticas
+anteriores y la rama determinística aplicada. Los números utilizados en
+pruebas R continúan siendo controles internos y no resultados de la memoria.
+
+### 36.6 Estado de ejecución
+
+La reauditoría de fuentes se conserva en
+`TITO/kb/research/g10.k0.formulations.reaudit.es.md`; el informe independiente
+completo está en
+`/private/tmp/ar-sad40-k0-source-reaudit-2026-08-13.md`. La auditoría de
+parametrización está en
+`/private/tmp/ar-sad40-k0-parameterization-audit-2026-08-13.md`.
+
+`Rscript scripts/R/testCalculationData.R` concluyó `PASS` después de probar la
+actualización documental para una rama adoptada, Jáky y Mayne--Kulhawy en
+descarga. `git diff --check` concluyó `PASS`. Los renders concluyeron:
+
+- metodología ampliada: SHA-256
+  `a7b870a96c22a1ddb3f4c7ec3da74095f18240f0f42cc1928acbc55bc28fa3fb`; y
+- memoria de cálculo: SHA-256
+  `b182fec755dc90bbfa13f38a1a461922e78a93ff70f08e0f2c8b4cc6b5e4a80d`.
+
+La comparación numérica no está ejecutada. Su ausencia es deliberada: aún no
+se han aprobado las primitivas ni las trayectorias que deben definir los
+casos. No debe interpretarse el valor constante vigente como estimación del
+relleno ni como distribución para Monte Carlo.
+
+## 37. Transición aprobada a la evaluación estructural
+
+### 37.1 Base documental preservada
+
+El usuario aprobó el 13 de agosto de 2026 la memoria determinística vigente y
+la presentación de las formulaciones de $K_0$. Esta versión se conserva como
+base de la ampliación siguiente. La incorporación de nuevas comprobaciones no
+autoriza a retirar acciones, formulaciones de $K_0$, rigideces, resultantes,
+controles ni resultados ya aceptados.
+
+La sustitución aritmética visible de valores en la sección de aplicación está
+parametrizada mediante R y no constituye un valor escrito manualmente. Su
+simplificación editorial puede realizarse sin alterar el productor de datos:
+las entradas permanecen en `calculation.json`, los resultados en
+`data/calculation/` y la prosa consume exclusivamente esos productos.
+
+### 37.2 Benchmarks
+
+Los contrastes reproducibles de Einstein--Schwartz, Núñez, FHWA, USACE u otras
+fuentes se ubicarán después de los resultados del caso determinístico, en un
+apéndice independiente. Cada contraste deberá distinguir datos publicados,
+resultados publicados reproducidos, resultados derivados y controles internos.
+No se incorporará una comparación sin fuente primaria, localizador, unidades,
+convenciones y ejecución reproducible. Los benchmarks no modificarán las
+acciones adoptadas ni se presentarán como calibración del caso.
+
+### 37.3 Secuencia estructural
+
+La ampliación se ejecutará mediante puertas separadas:
+
+1. **chapa:** recuperar la demanda normal circunferencial desde
+   $N_\theta$ y $M_\theta$ con propiedades seccionales declaradas; incorporar
+   una comprobación resistente sólo cuando la clasificación del producto, la
+   rama normativa, el acero, la sección neta por corrosión y los efectos de
+   cálculo estén definidos;
+2. **juntas y pernos:** abrir la transformación de resultantes a demandas de
+   junta únicamente después de recibir geometría, cantidad, disposición,
+   material y mecanismo resistente de los pernos; y
+3. **shotcrete u hormigón simple:** evaluar como sección estructural autónoma o
+   compuesta sólo después de definir su función, geometría, materiales,
+   armadura y transferencia de acciones.
+
+La falta de datos de las puertas segunda y tercera no se representa mediante
+valores supuestos ni mediante capítulos públicos de trabajo pendiente.
+
+### 37.4 Parametrización obligatoria
+
+La evaluación de chapa seguirá la arquitectura ya aplicada al caso
+determinístico: entradas declaradas, funciones R puras, productos tabulares en
+`data/calculation/` y consumidores Quarto sin resultados escritos manualmente.
+La recuperación de tensiones, la resistencia de pared, el pandeo, las costuras
+y las conexiones son productos diferentes y conservarán estados de evaluación
+separados. Una razón respecto de la primera fluencia no se denominará factor de
+seguridad AASHTO ni verificación global.
+
+El notebook Wolfram se desarrollará en paralelo como hoja de cálculo de apoyo
+para un escenario fijo. La implementación R y la memoria profesional gobiernan
+el producto; el notebook no introduce fórmulas, propiedades ni resultados que
+no existan previamente en la cadena auditada.

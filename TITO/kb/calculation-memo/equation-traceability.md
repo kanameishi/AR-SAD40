@@ -27,6 +27,7 @@ $Q_\theta$ conservan sus signos.
 
 | Fórmula de la memoria | Etiquetas de Fase 1 |
 |---|---|
+| `eq-calculation-standard-thrust` | sin equivalente operativo en Fase 1; USACE EM 1110-2-2902, ec. 4-20; correspondencia con AASHTO 10.ª edición pendiente de comprobar |
 | `eq-calculation-depth`, `eq-calculation-vertical-stress` | `eq-depth-theta`, `eq-effective-vertical`, `eq-pore-pressure` |
 | `eq-calculation-k0` | `eq-k0-definition` |
 | `eq-calculation-k0-reference` | `eq-k0-elastic`, `eq-k0-jaky`; FHWA NHI-05-037, ecs. 5.37--5.38 |

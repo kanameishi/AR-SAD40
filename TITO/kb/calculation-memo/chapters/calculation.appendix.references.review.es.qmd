@@ -1,0 +1,104 @@
+# Apéndice C. Casos de referencia de acciones y resultantes {#sec-calculation-appendix-references .unnumbered}
+
+Los casos siguientes comprueban la transcripción, las unidades y la
+evaluación aritmética de relaciones publicadas. Cada caso conserva el dominio
+y las convenciones de su fuente. Las coincidencias obtenidas no constituyen
+una calibración del modelo ni sustituyen las acciones adoptadas para el
+revestimiento analizado.
+
+## C.1 USACE EM 1110-2-2902: ejemplo D4 {.unnumbered}
+
+USACE expresa el empuje factorizado por unidad de longitud de pared de un
+conducto metálico corrugado mediante [@USACE2020, ec. 4-20]
+
+$$
+T_L=\gamma_{DL}\frac{P_{FD}S}{2}
++\gamma_{LL}\frac{P_{FL}C_LF_1}{2},
+$$ {#eq-calculation-usace-thrust}
+
+donde $P_{FD}$ y $P_{FL}$ son las presiones verticales en la clave debidas a
+las cargas permanente y móvil; $S$ es la luz; $C_L$ es el ancho cargado; y
+$F_1$ es el factor de distribución de la carga móvil. El ejemplo D4 considera
+un conducto corrugado de aluminio de 36 in de diámetro exterior, una tapada de
+30 ft y un peso unitario de 120 lb/ft³; la carga móvil se omite
+[@USACE2020, ap. D4, pp. 332--333].
+
+{{< include /_tbl/Calculation.usace.reference.ES.qmd >}}
+
+El valor $T_G=5400\ \mathrm{lb/ft}$ resulta de aplicar la relación sin
+factores y es derivado en este estudio. Los restantes valores de la tabla se
+publican en D4. El ejemplo identifica por error la expresión de empuje como
+ecuación 4-24; la expresión mostrada corresponde a la ecuación 4-20. Asimismo,
+el modificador 1,10 pertenece al ejemplo de aluminio, mientras que la ecuación
+4-21 indica 1,05 para conductos metálicos corrugados. Ninguno de esos valores
+se transfiere al revestimiento de acero sin establecer la disposición
+aplicable.
+
+## C.2 FHWA-RD-98-191: presión equivalente de compactación {.unnumbered}
+
+La @eq-calculation-fhwa-compaction representa el efecto lateral del equipo de
+compactación mediante la correlación publicada por FHWA
+[@McGrathEtAl1999, ec. 5.1, pp. 176--178]. El caso siguiente comprueba su
+evaluación aritmética con las combinaciones de $P$, $d_c$ y $\phi$ tabuladas
+por la fuente.
+
+{{< include /_tbl/Calculation.fhwa.reference.ES.qmd >}}
+
+Las ocho filas reproducen la columna correspondiente a la ecuación 5.1 de la
+tabla 5.5 al aplicar su redondeo. Una fila adicional impresa para piedra,
+$P=4,0\ \mathrm{kN}$, $d_c=1575\ \mathrm{mm}$ y
+$\phi=28^\circ$ informa $0,2\ \mathrm{kPa}$, aunque la sustitución literal
+produce $0,416\ \mathrm{kPa}$. Con $\phi=36^\circ$, coherente con las demás
+filas de piedra, se obtiene $0,195\ \mathrm{kPa}$. Esta observación se conserva
+como discrepancia de los datos impresos; no modifica la ecuación ni ajusta sus
+parámetros.
+
+## C.3 Núñez (2000): ejemplos circulares {.unnumbered}
+
+Núñez desarrolla una formulación para revestimientos de túneles excavados. La
+especialización circular sin presión de agua empleada en sus ejemplos define
+[@Nunez2000, pp. 13--15]
+
+$$
+a_N=\frac{16}{\chi_N}\frac{\bar E_\ell}{\bar E_g}
+\left(\frac{e}{D}\right)^3,
+\qquad
+A_N=\frac{a_N}{1+a_N},
+$$
+
+$$
+p_0=\gamma H+q,
+\qquad
+p_d=\eta_N(1-K_0)p_0,
+\qquad
+p_h=\frac{p_d}{1+a_N},
+$$
+
+$$
+M_{\max}=\frac{p_dD^2}{16}A_N,
+\qquad
+N_C=\frac{D}{2}(K_0p_d+p_h),
+\qquad
+N_A=\frac{D}{2}(\eta_N\gamma H+q).
+$$ {#eq-calculation-nunez-reference}
+
+$N_C$ corresponde a la clave y $N_A$ al punto lateral del diámetro horizontal
+—denominado arranque en la fuente—; Núñez adopta la compresión como positiva.
+Los ejemplos utilizan $D=10\ \mathrm{m}$, profundidad al centro
+$H=15\ \mathrm{m}$, $\gamma=1,9\ \mathrm{tf/m^3}$,
+$q=1\ \mathrm{tf/m^2}$ y $K_0=0,5$.
+
+{{< include /_tbl/Calculation.nunez.reference.ES.qmd >}}
+
+La diferencia relativa máxima entre los valores publicados, redondeados, y
+los recalculados es 1,31 %. El parámetro $\eta_N$ representa la relajación
+asociada a la excavación. Por consiguiente, este caso comprueba la evaluación
+de la formulación de Núñez dentro de su dominio y no constituye un modelo de
+acción para un conducto colocado y posteriormente rellenado.
+
+## C.4 Alcance conjunto {.unnumbered}
+
+USACE y FHWA comprueban relaciones de acciones dentro de sus respectivos
+dominios; Núñez comprueba una formulación de interacción para túneles
+excavados. Ninguna de estas relaciones reemplaza la solución angular empleada
+para obtener $N_\theta$, $M_\theta$ y $Q_\theta$.

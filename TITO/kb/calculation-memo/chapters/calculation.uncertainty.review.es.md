@@ -20,17 +20,21 @@ magnitudes que permanecen por caracterizar.
 
 | Grupo | Magnitudes primitivas | Relación dentro del cálculo | Estado |
 |---|---|---|---|
-| relleno | clasificación, estratigrafía, $\gamma'$, humedad y parámetros resistentes | determina $\sigma_v'$, la rama aplicable de $K_0$ y la condición drenada o no drenada | pendiente de caracterización |
-| estado lateral | rama de estado lateral y sus variables primitivas; $K_0$ sólo como medición directa o valor adoptado; incremento residual de compactación cuando corresponda | determina $\sigma_h'(\theta)$ | definir una rama sin duplicar variables dependientes |
+| referencia reglamentaria | producto estructural, rama y edición AASHTO, acciones, geometría, factores y combinaciones | determina la solicitación seccional exigida por el artículo aplicable | producto, articulado y acciones pendientes de confirmación |
+| relleno | clasificación, estratigrafía, $\gamma'$, humedad y parámetros resistentes | determina $\sigma_v'$, la condición drenada o no drenada y las entradas de interacción | pendiente de caracterización |
+| estado lateral | rama de estado lateral y sus variables primitivas; $K_0$ sólo como medición directa o valor adoptado; incremento residual de compactación cuando corresponda | caracteriza $\sigma_h'$ inicial para el modelo de interacción o el escenario biaxial prescrito | definir una rama sin duplicar variables dependientes |
+| interacción suelo--conducto | rigideces del relleno y el conducto, arqueo, interfaz, geometría de zanja y etapas | determina las distribuciones de presión de contacto requeridas para $M_\theta$ y $Q_\theta$ | formulación pendiente de selección y contraste |
 | compactación | equipo, energía, tongadas, secuencia y retención | determina acciones temporales y, si existe evidencia, componentes residuales | pendiente de registros de obra |
-| participación tangencial | multiplicador $\alpha$ | $P_t=\alpha p_t^*$ mediante la @eq-calculation-tangential-multiplier | variable de Monte Carlo; distribución y dependencias pendientes |
+| escenario biaxial analítico | multiplicador $\alpha$ | $P_t=\alpha p_t^*$ mediante la @eq-calculation-tangential-multiplier | sólo sensibilidad de incertidumbre de modelo; no sustituye parámetros de interfaz |
 | corrosión | espesor medido, estado de lectura, perforación y eventual pérdida futura | obtener un espesor de cálculo no negativo mediante una regla espacial documentada; recalcular $A_p$, $I_p$, $EA_\theta$ y $EI_\theta$ sin descontar dos veces la pérdida ya medida | pendiente de inspección, regla espacial y definición de rigidez uniforme o variable |
 | agua | niveles exterior e interior y variación temporal | determina $\Delta u(\theta)$ | confirmar para cada estado de carga |
 
 : Variables que requieren caracterización antes de ejecutar Monte Carlo. {#tbl-calculation-probabilistic-inputs}
 
-$\alpha$ integra el vector de variables de Monte Carlo, junto con $\phi'$ y
-las variables que controlen $K_0$ en la rama geotécnica adoptada. $K_0$ no se
+$\alpha$ puede integrar el vector de variables de Monte Carlo únicamente en la
+familia biaxial prescrita. En una formulación física de interacción se
+muestrearán sus parámetros constitutivos y de contacto. En cualquiera de las
+ramas, $K_0$ no se
 muestreará simultáneamente con todas las variables de una relación que ya lo
 determine. En particular, si una rama calcula $K_0$ a partir de $\phi'$, ambos
 no se tratarán como entradas independientes. Esta formulación tampoco calcula
@@ -44,15 +48,20 @@ se establecerán a partir de datos; no se asignarán por conveniencia numérica.
 
 Antes de generar realizaciones deberán definirse:
 
-1. las ramas de empuje lateral y compactación aplicables a cada tipo de
+1. la clasificación reglamentaria del producto, $P_F$, $S$ y las
+   combinaciones aplicables;
+2. la formulación de interacción suelo--conducto para obtener distribuciones
+   angulares de acción;
+3. las ramas de estado lateral y compactación aplicables a cada tipo de
    relleno;
-2. la relación entre pérdida de espesor y propiedades seccionales actuales;
-3. la distribución y las dependencias de $\alpha$ dentro del modelo conjunto;
-4. las propiedades netas, las fibras, la representación espacial de la rigidez
+4. la relación entre pérdida de espesor y propiedades seccionales actuales;
+5. la distribución y las dependencias de $\alpha$ sólo si el escenario
+   biaxial se conserva como rama de sensibilidad;
+6. las propiedades netas, las fibras, la representación espacial de la rigidez
    y el criterio de curvatura necesarios para aplicar la recuperación de
    tensiones normales desde $N_\theta$ y $M_\theta$;
-5. la contribución de $Q_\theta$ a las tensiones locales de la chapa; y
-6. la conversión de $N_\theta$ en fuerza tributaria de la junta longitudinal,
+7. la contribución de $Q_\theta$ a las tensiones locales de la chapa; y
+8. la conversión de $N_\theta$ en fuerza tributaria de la junta longitudinal,
    su distribución entre pernos y la eventual contribución de
    $M_\theta$ o $Q_\theta$.
 
@@ -72,8 +81,10 @@ estabilidad de los resultados.
 
 Cada realización conservará sus valores de entrada y calculará, por etapa:
 
-1. $P_r(\theta)$ y $P_t(\theta)$;
-2. $N_\theta(\theta)$, $M_\theta(\theta)$ y $Q_\theta(\theta)$;
+1. $T_L$ para la rama reglamentaria y, cuando corresponda, $P_r(\theta)$ y
+   $P_t(\theta)$ para la rama de interacción o sensibilidad;
+2. $N_\theta(\theta)$, $M_\theta(\theta)$ y $Q_\theta(\theta)$ sólo para
+   distribuciones perimetrales cerradas;
 3. los mínimos, máximos y máximos absolutos, con su posición angular; y
 4. una vez cerrada la recuperación de demanda y, separadamente, la base
    resistente, las tensiones de la chapa y las demandas de las uniones.

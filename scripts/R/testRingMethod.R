@@ -623,7 +623,7 @@ assertError(
   "requires radius"
 )
 
-# 4. FHWA Eq. 5.1 and Table 5.5, printed pp. 177-178/PDF pp. 192-193.
+# 5. FHWA Eq. 5.1 and Table 5.5, printed pp. 177-178/PDF pp. 192-193.
 Fhwa <- data.frame(
   forceKn = c(20.5, 20.5, 5.2, 5.2, 5.2, 5.2, 4, 4, 4),
   phiDeg = c(36, 28, 36, 28, 36, 28, 36, 28, 36),

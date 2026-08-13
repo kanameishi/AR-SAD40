@@ -21,7 +21,13 @@ source(
 )
 
 Config <- validateCalculationConfig(
-  readCalculationJson(file.path(ProjectRoot, "calculation.json"))
+  readCalculationJson(file.path(
+    ProjectRoot,
+    "scripts",
+    "R",
+    "fixtures",
+    "calculation.schema.json"
+  ))
 )
 SectionReference <- utils::read.csv(
   file.path(ProjectRoot, Config$section$propertyTable),

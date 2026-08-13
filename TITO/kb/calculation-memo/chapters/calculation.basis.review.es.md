@@ -1,49 +1,84 @@
-# Bases y datos de entrada {#sec-calculation-basis}
+# Objeto y alcance {#sec-calculation-scope}
 
-## Alcance mecánico
+Esta memoria documenta el cálculo de las resultantes seccionales de un
+revestimiento circular, expresadas por unidad de ancho axial proyectado, bajo
+las acciones perimetrales obtenidas al proyectar sobre el contorno un estado
+tensional biaxial uniforme prescrito. El estado tensional prescrito es
+uniforme; las componentes radial $P_r(\theta)$ y tangencial $P_t(\theta)$ de
+la acción sobre el contorno varían con la coordenada angular.
 
-Se considera una franja de revestimiento de longitud unitaria en la dirección
-del eje. La respuesta se resuelve en la sección transversal, sin variación
-longitudinal de las acciones. La formulación admite distribuciones generales de
-acción radial $P_r(\theta)$ y tangencial $P_t(\theta)$ siempre que el estado de
-carga incluya todas las fuerzas y reacciones necesarias para satisfacer el
-equilibrio global.
+El cálculo determina la fuerza normal circunferencial $N_\theta(\theta)$, el
+momento flector circunferencial $M_\theta(\theta)$ y la fuerza cortante
+circunferencial $Q_\theta(\theta)$, junto con sus extremos, para los valores
+adoptados de $\alpha$, que multiplica la componente tangencial prescrita. El
+caso constituye la evaluación determinística de referencia para comprobar la
+resolución numérica. Sus resultados corresponden al estado de acciones adoptado y
+no representan por sí solos la demanda del revestimiento existente.
 
-El procedimiento entrega resultantes por unidad de longitud del eje. A partir
-de $N_\theta$ y $M_\theta$ puede recuperarse la tensión normal circunferencial
-de una sección homogeneizada cuando se conocen sus propiedades netas y se
-satisface la condición de curvatura. Las tensiones locales de la corrugación y
-la evaluación de las uniones requieren formulaciones resistentes específicas.
+# Datos adoptados y convenciones {#sec-calculation-basis}
 
-## Coordenada angular, signos y unidades
+## Datos del caso
 
-El ángulo $\theta$ se mide desde la clave y aumenta en sentido horario. Los
-valores $\theta=\pi/2$ y $3\pi/2$ corresponden, respectivamente, a los puntos
-laterales derecho e izquierdo del diámetro horizontal; $\theta=\pi$
-corresponde al fondo de la sección. La dirección radial positiva apunta hacia el exterior y la dirección
-tangencial positiva coincide con $\theta$ creciente.
+La @tbl-calculation-inputs reúne las magnitudes empleadas en la evaluación
+determinística. El diámetro define la línea circular de referencia. Las
+propiedades seccionales corresponden a la fila exacta de 2,8 mm del perfil
+CSPI 76×25: el espesor especificado es $t_s=2{,}80$ mm y el espesor base de
+diseño es $t_d=2{,}64$ mm. El área y el momento de inercia se toman
+directamente de esa fila.
+El módulo $E_\theta$, el estado tensional efectivo y los valores adoptados de
+$\alpha$ completan las entradas del caso.
 
-Sea $b$ el ancho longitudinal proyectado de una franja, $A_b$ el área de su
-sección resistente y $\xi$ la coordenada local del perfil, positiva hacia la
-fibra interior. Las resultantes por unidad de longitud del eje se definen
-sobre la cara positiva de la sección mediante
+{{< include /_tbl/Calculation.inputs.ES.qmd >}}
+
+La tabla identifica la formulación empleada para obtener $K_0$, sus variables
+primitivas y el valor aplicado. Una rama de valor adoptado constituye una
+hipótesis del caso; las demás ramas calculan $K_0$ mediante las relaciones y
+los dominios establecidos en la @sec-calculation-k0-estimation. El parámetro
+$\alpha$ es un multiplicador de la componente tangencial prescrita y no un
+coeficiente de fricción ni una ley constitutiva de la interfaz.
+
+## Coordenada angular y convenciones de signo
+
+La coordenada angular se define con $\theta=0$ en la clave y sentido positivo
+horario. El versor radial $\mathbf e_r$ es positivo hacia el exterior del
+revestimiento y el versor tangencial $\mathbf e_t$ sigue el sentido creciente
+de $\theta$. En consecuencia, $P_r>0$ actúa hacia el exterior y $P_t>0$ actúa
+en la dirección de $\mathbf e_t$.
+
+La fuerza normal circunferencial es positiva a tracción. La coordenada
+seccional $\xi$ es positiva hacia la fibra interior; por lo tanto,
+$M_\theta>0$ produce tracción en esa fibra. En la cara positiva del elemento
+diferencial, cuya normal sigue $\mathbf e_t$, $Q_\theta>0$ actúa hacia el
+centro de la sección circular. Las componentes de acción perimetral $P_r$ y
+$P_t$ se expresan en kPa; $N_\theta$ y $Q_\theta$, en kN/m; y $M_\theta$, en
+kN·m/m.
+
+## Definición de las resultantes seccionales
+
+Para una posición angular $\theta$ fija, sea $A_b$ el dominio material de la
+sección resistente idealizada comprendido en una franja de ancho axial
+proyectado $b$, en un corte normal a la dirección circunferencial. Sean $x_L$
+la coordenada axial y $\xi$ la coordenada radial local medida desde el eje
+centroidal de esa sección; $dA$ denota un elemento diferencial de $A_b$.
+La tensión tangencial $\tau_{\theta\xi}$ es positiva en la dirección de
+$\xi>0$. Las resultantes por unidad de ancho se definen mediante
 
 $$
-N_\theta=\frac{1}{b}\int_{A_b}\sigma_\theta\,dA,
-\qquad
-M_\theta=\frac{1}{b}\int_{A_b}\sigma_\theta\xi\,dA.
-$$ {#eq-calculation-resultant-signs}
+\begin{aligned}
+N_\theta(\theta)
+&=\frac{1}{b}\iint_{A_b}
+\sigma_\theta(\theta,x_L,\xi)\,dA,\\
+M_\theta(\theta)
+&=\frac{1}{b}\iint_{A_b}
+\sigma_\theta(\theta,x_L,\xi)\,\xi\,dA,\\
+Q_\theta(\theta)
+&=\frac{1}{b}\iint_{A_b}
+\tau_{\theta\xi}(\theta,x_L,\xi)\,dA.
+\end{aligned}
+$$ {#eq-calculation-resultant-definitions}
 
-Se adopta $N_\theta>0$ para tracción, $M_\theta>0$ cuando produce tracción en
-la fibra interior y $Q_\theta>0$ cuando actúa hacia el centro sobre la cara
-positiva. Con $P_r$ y $P_t$ en kPa y $R$ en m, $N_\theta$ y $Q_\theta$ se
-expresan en kN/m y $M_\theta$ en kN·m/m.
-
-## Datos de cálculo
-
-Los datos necesarios se agrupan en: geometría resistente; propiedades
-seccionales del perfil corrugado; estratigrafía y propiedades del relleno;
-agua exterior e interior; estado de tensiones laterales; sobrecargas; equipos y
-tongadas de compactación; secuencia constructiva; y condición de contacto entre
-el relleno y el revestimiento. Cada tabla indica si el valor procede de un dato
-suministrado, de una hipótesis del escenario o de una operación de cálculo.
+En una descripción cartesiana local, $dA=dx_L\,d\xi$. Para la sección de
+material homogéneo considerada, el origen de $\xi$ satisface
+$\iint_{A_b}\xi\,dA=0$; $\xi>0$ corresponde a la fibra interior y $\xi<0$ a
+la exterior. Las tres expresiones son integrales bidimensionales sobre $A_b$ con
+$\theta$ constante; no integran alrededor de la circunferencia.

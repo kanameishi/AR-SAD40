@@ -1,6 +1,6 @@
 {
   "comparisonCommit": "953e0c7",
-  "intentionalDifference": "Project-owned identifier suffixes use ID instead of Id; schemaVersion is 2.0.0.",
+  "intentionalDifference": "Project-owned identifier suffixes use ID instead of Id; schemaVersion is 2.1.0; stressState.actionModelID identifies the applied action model; numerical.controls.csv adds three global-equilibrium residuals per load case without changing the six closed-form controls.",
   "serializationEnvironment": {
     "rVersion": "R version 4.6.0 (2026-04-24)",
     "platform": "aarch64-apple-darwin23",
@@ -17,11 +17,11 @@
   "products": [
     {
       "fileName": "calculation.config.json",
-      "sha256": "c676902ef0aeaa440111f3bc0c663ca2be3853f610fcffea3547d9fed473922f"
+      "sha256": "39ca7543a1e1265795b81ee14b543c45ce6f1fe1a0c1f5f9c8b8a9bc31ef8c69"
     },
     {
       "fileName": "calculation.inputs.csv",
-      "sha256": "2a0989218af410fb8bcff280a31024501c3ac51c5f99e1eb55fa29d47a03db5c"
+      "sha256": "2afec7ca88f7b47119008e56c6a23357b0b7942ee2c2c85cd9d8a5a13d21e0c0"
     },
     {
       "fileName": "section.properties.csv",
@@ -29,7 +29,7 @@
     },
     {
       "fileName": "stress.state.csv",
-      "sha256": "e3fced0421d6e0dbcf991cd0e87218c9034e2c70160b2aa9589865b2027c779c"
+      "sha256": "44dfb2c20d443032ad90497fbe94b5382be85f84ec809806ced3ddd9222f27dd"
     },
     {
       "fileName": "perimeter.loads.csv",
@@ -45,7 +45,7 @@
     },
     {
       "fileName": "numerical.controls.csv",
-      "sha256": "314771834f2683241375a78944e5282128fe9d17423f72de98accad1419b769c"
+      "sha256": "0c562cf584da8eb02b24fefbc70300e39efc740b98ff5fa216e8aef54859b8e3"
     },
     {
       "fileName": "display.scales.csv",

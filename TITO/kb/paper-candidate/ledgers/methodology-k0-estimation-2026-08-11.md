@@ -17,6 +17,7 @@ residual de compactación.
 - Mayne y Kulhawy (1982), texto completo y ecuaciones 6--18.
 - Michalowski (2005), texto completo y ecuación 8.
 - McGrath et al. (1999), ecuación 5.1 y alcance de la acción de compactación.
+- CIRSOC 804-4 (2023), artículos 12.7.2.2 y 12.13.2--12.13.3.
 
 ## Exact Claims Allowed
 
@@ -27,7 +28,9 @@ Rankine establece el límite adoptado por esos autores para la rama de descarga.
 La forma de Jáky de 1944 y la crítica de Michalowski se presentan como revisión
 histórica, no como una rama probabilística adicional. La acción de compactación
 de FHWA-RD-98-191 representa una etapa constructiva y no determina una tensión
-residual permanente.
+residual permanente. $K_0$ caracteriza el estado efectivo inicial; no se
+identifica con la presión lateral de contacto de un conducto flexible. La
+referencia reglamentaria obtiene el empuje desde $P_F$ en clave y $S$.
 
 ## Claims Not Allowed
 
@@ -36,6 +39,8 @@ No atribuir la ecuación de recarga adoptada a FHWA NHI-05-037, cuya ecuación
 Mesri--Hayat ni una ley cuantitativa de tensión residual sin leer y registrar
 evidencia primaria aplicable. No interpretar OCR como indicador automático de
 compactación ni combinar dos formulaciones que representen la misma historia.
+No añadir a $K_0$ términos de cohesión correspondientes a estados activo o
+pasivo. No usar $K_0$ como sustituto de un modelo de interacción.
 
 ## Equations Allowed
 
@@ -81,11 +86,11 @@ $K_0$, $K_p$ y las restantes notaciones matemáticas empleadas por las fuentes.
 
 Clasificación y propiedades del relleno existente; trayectoria tensional;
 OCR y $\mathrm{OCR}_{\max}$; mediciones representativas de $K_0$; modelo y
-magnitud de $\Delta\sigma'_{h,c}$; fuentes primarias para las correlaciones
-excluidas.
+magnitud de $\Delta\sigma'_{h,c}$; clasificación del producto, $P_F$, $S$ y
+formulación de interacción; fuentes primarias para las correlaciones excluidas.
 
 ## Validation
 
-CANDIDATO ACADÉMICO APTO PARA REVISIÓN; ECUACIONES OPERATIVAS CONTRASTADAS CON
-LAS FUENTES PRIMARIAS REGISTRADAS; APLICACIÓN AL CASO EXISTENTE PENDIENTE DE
-CARACTERIZACIÓN.
+CANDIDATO CORREGIDO EL 13 DE AGOSTO DE 2026; ECUACIONES DE $K_0$ Y FORMA DE
+JÁKY DE 1944 CONTRASTADAS CON LAS FUENTES REGISTRADAS; PENDIENTE NUEVA
+AUDITORÍA DEL ENSAMBLADO.

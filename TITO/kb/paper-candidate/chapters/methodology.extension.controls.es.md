@@ -8,7 +8,23 @@ concordancia entre formulaciones y programas comprueba ecuaciones, signos,
 unidades y transferencias de datos; no constituye una validación física del
 estado del relleno ni de la resistencia del revestimiento.
 
-## A.2 Estado biaxial uniforme {.unnumbered}
+## A.2 Empuje circunferencial de referencia {.unnumbered}
+
+La relación de empuje reproducida por USACE,
+$T_L=P_FS/2$, tiene dimensiones de presión por longitud y, por lo tanto,
+entrega fuerza por unidad de longitud de pared [@USACE2020, ec. 4-20]. Su
+implementación se comprueba con entradas sintéticas independientes del caso
+existente. El producto conserva únicamente $P_F$, $S$ y $T_L$; la sección
+resistente que se comprueba se selecciona en la evaluación estructural. La
+correspondencia de esta relación con la rama aplicable de AASHTO LRFD, 10.ª
+edición, permanece pendiente de comprobar.
+
+Para el revestimiento existente, el control permanece sin evaluar porque la
+clasificación del producto, $P_F$ y $S$ no están confirmadas. La tensión
+vertical efectiva en el eje y el diámetro interior del escenario biaxial no se
+utilizan como sustitutos de esas entradas.
+
+## A.3 Estado biaxial uniforme {.unnumbered}
 
 La solución cerrada del estado biaxial uniforme se contrastó con la integración
 directa de las ecuaciones de equilibrio y con una descomposición analítica en
@@ -77,7 +93,7 @@ equivalentes. Cada cálculo conserva una regla determinística para seleccionar
 un representante, pero la comparación acepta cualquier posición del mismo
 conjunto siempre que el valor con signo coincida.
 
-## A.3 Límite de presión uniforme {.unnumbered}
+## A.4 Límite de presión uniforme {.unnumbered}
 
 En el límite puramente membranal $\eta_s=0$, una presión radial uniforme $p$
 hacia el interior produce
@@ -101,7 +117,7 @@ La integración directa con $p=12.3$ kPa produjo los residuos siguientes:
 Este control no impone $M_\theta=0$ cuando la compatibilidad incorpora
 $\eta_s>0$; en ese caso permanece el acoplamiento del modo uniforme.
 
-## A.4 Recuperación elástica de la tensión normal {.unnumbered}
+## A.5 Recuperación elástica de la tensión normal {.unnumbered}
 
 Para una sección recta sintética con
 $\bar A_n=4$ mm²/mm, $\bar I_n=300$ mm⁴/mm,
@@ -125,7 +141,7 @@ $\bar A_n$ y $\bar I_n$, y la independencia respecto de $Q_\theta$. Se trata
 de una comprobación matemática interna; no representa una sección del
 revestimiento existente.
 
-## A.5 Contrastes seccionales de Mai {.unnumbered}
+## A.6 Contrastes seccionales de Mai {.unnumbered}
 
 Mai publicó, para una corrugación $152\times51$ mm y $E=200$ GPa, los cuatro
 estados de sección corrugada de la tabla 2.1. El espesor nominal era 3 mm y el
@@ -171,7 +187,7 @@ Los casos de carga viva, los análisis CANDE y el ensayo último CSP1 se reserva
 como antecedentes sobre las limitaciones del modelo lineal. No forman parte de
 la comprobación del cálculo geostático ni de la memoria profesional.
 
-## A.6 Alcance de la evidencia numérica {.unnumbered}
+## A.7 Alcance de la evidencia numérica {.unnumbered}
 
 Los controles anteriores sostienen la correspondencia de las ecuaciones y la
 implementación para los dominios declarados. La aplicación al revestimiento

@@ -80,8 +80,20 @@ stopifnot(identical(
     "Componente tangencial: α = 1.00",
     "Componente tangencial: α = 0.00"
   )]),
-  c("Solid", "ShortDash")
+  c("ShortDash", "Dash")
 ))
+ReferenceSeries <- Filter(function(x) {
+  identical(x$name, "Reference section")
+}, Series)
+stopifnot(
+  length(ReferenceSeries) == 3L,
+  all(vapply(ReferenceSeries, function(x) {
+    identical(x$dashStyle, "Solid") && identical(x$lineWidth, 2.4)
+  }, logical(1))),
+  all(vapply(LegendSeries, function(x) {
+    identical(x$lineWidth, 1.6)
+  }, logical(1)))
+)
 GroupIDs <- attr(Interactive, "sectionCaseIDs")
 stopifnot(length(GroupIDs) == 2L)
 stopifnot(all(GroupIDs %in% vapply(Series, function(x) {

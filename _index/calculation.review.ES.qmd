@@ -1,22 +1,18 @@
 {{< include /_results/calculation.results.es.qmd >}}
 
-{{< include /TITO/kb/calculation-memo/chapters/calculation.summary.review.es.qmd >}}
-
 {{< include /TITO/kb/calculation-memo/chapters/calculation.basis.review.es.md >}}
 
 {{< include /TITO/kb/calculation-memo/chapters/calculation.procedure.review.es.md >}}
 
 {{< include /TITO/kb/calculation-memo/chapters/calculation.actions.review.es.md >}}
 
-{{< include /TITO/kb/calculation-memo/chapters/calculation.response.review.es.md >}}
-
 {{< include /TITO/kb/calculation-memo/chapters/calculation.stiffness.review.es.md >}}
 
-{{< include /TITO/kb/calculation-memo/chapters/calculation.sheet.review.es.md >}}
-
-{{< include /TITO/kb/calculation-memo/chapters/calculation.uncertainty.review.es.md >}}
+{{< include /TITO/kb/calculation-memo/chapters/calculation.response.review.es.md >}}
 
 {{< include /TITO/kb/calculation-memo/chapters/calculation.application.review.es.qmd >}}
+
+{{< include /TITO/kb/calculation-memo/chapters/calculation.controls.review.es.qmd >}}
 
 {{< include /TITO/kb/calculation-memo/chapters/calculation.conclusions.review.es.qmd >}}
 

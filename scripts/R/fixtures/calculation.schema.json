@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "2.0.0",
+  "schemaVersion": "2.1.0",
   "scenarioID": "verification-biaxial-uniform",
   "geometry": {
     "insideDiameterM": 2.63,
@@ -19,6 +19,7 @@
   },
   "stressState": {
     "statePointID": "axis",
+    "actionModelID": "prescribed-biaxial-stress-projection",
     "effectiveVerticalKPa": 100.0,
     "waterPressureDifferenceKPa": 0.0,
     "horizontalIncrementMode": "unknown-not-modeled",

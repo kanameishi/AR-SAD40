@@ -1,1 +1,1 @@
-Comprobación de la integración directa mediante las soluciones cerradas correspondientes a los valores declarados de $\alpha$. La tolerancia se aplica a la diferencia absoluta de cada resultante.
+Comprobaciones numéricas por caso. Para $X=N_\theta,M_\theta,Q_\theta$, $\varepsilon_X$ es la diferencia máxima absoluta respecto de la solución cerrada y conserva la unidad indicada. Para $X=F_x,F_z,M_c$, $\varepsilon_X$ es el residuo global normalizado y adimensional.

@@ -8,9 +8,15 @@ calculateScenario <- function(realization, context) {
     stop("context must be one named list.", call. = FALSE)
   }
 
+  SectionPropertyModelID <- context[["sectionPropertyModelID", exact = TRUE]]
+  if (is.null(SectionPropertyModelID)) {
+    SectionPropertyModelID <- "linear-interpolation-base-thickness"
+  }
   Fields.realization <- c(
-    "effectiveVerticalKPa", "waterPressureDifferenceKPa",
-    "baseThicknessMm", "alpha"
+    "effectiveVerticalKPa", "waterPressureDifferenceKPa", "alpha",
+    if (SectionPropertyModelID == "linear-interpolation-base-thickness") {
+      "baseThicknessMm"
+    }
   )
   Fields.context <- c(
     "k0ModelID", "horizontalIncrementKPa", "horizontalIncrementStatus",
@@ -58,11 +64,27 @@ calculateScenario <- function(realization, context) {
     horizontalIncrementStatus =
       context[["horizontalIncrementStatus", exact = TRUE]]
   )
-  CorrugatedSection <- interpolateCorrugatedSection(
-    reference = context[["sectionReference", exact = TRUE]],
-    profileID = context[["profileID", exact = TRUE]],
-    baseThicknessMm = realization[["baseThicknessMm", exact = TRUE]]
-  )
+  CorrugatedSection <- if (SectionPropertyModelID == "published-exact-row") {
+    selectCorrugatedSection(
+      reference = context[["sectionReference", exact = TRUE]],
+      profileID = context[["profileID", exact = TRUE]],
+      referenceRowID = context[["referenceRowID", exact = TRUE]]
+    )
+  } else if (SectionPropertyModelID ==
+      "linear-interpolation-base-thickness") {
+    interpolateCorrugatedSection(
+      reference = context[["sectionReference", exact = TRUE]],
+      profileID = context[["profileID", exact = TRUE]],
+      baseThicknessMm = realization[["baseThicknessMm", exact = TRUE]]
+    )
+  } else {
+    stop(
+      "Unsupported sectionPropertyModelID: ",
+      SectionPropertyModelID,
+      ".",
+      call. = FALSE
+    )
+  }
   SectionRigidity <- calculateRingSection(
     youngModulus = context[["youngModulusKPa", exact = TRUE]],
     # mm2/mm -> m2/m; mm4/mm -> m4/m.

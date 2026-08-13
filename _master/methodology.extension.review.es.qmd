@@ -1,8 +1,8 @@
 ---
 lang: es
 title: "Ampliaciones de la metodología para el análisis de revestimientos circulares"
-subtitle: "Estado lateral del relleno, evaluación de la chapa corrugada y alternativa de hormigón proyectado"
-date: "2026-08-12"
+subtitle: "Acciones del relleno y bases AASHTO/ACI para la evaluación estructural"
+date: "2026-08-13"
 bibliography:
   - bib/references.bib
 format:

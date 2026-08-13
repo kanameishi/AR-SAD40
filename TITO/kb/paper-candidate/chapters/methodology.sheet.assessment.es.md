@@ -10,10 +10,40 @@ revestimiento.
 
 La relación desarrollada en este capítulo recupera la tensión normal
 circunferencial de una sección homogeneizada en régimen elástico. Constituye
-una medida de demanda para interpretar la primera fluencia. La resistencia de
-pared, el pandeo, la continuidad de ligamentos, las costuras y los pernos son
-estados diferentes y se verifican mediante la rama normativa correspondiente
-al producto instalado [@USACE2020, tabla 4-2 y sec. 4.12].
+una medida de demanda para interpretar la primera fluencia. No constituye por
+sí misma una comprobación AASHTO. La resistencia de pared o área, el pandeo,
+la continuidad de ligamentos, las costuras y las conexiones son estados
+diferentes y se verifican mediante la rama normativa correspondiente al
+producto instalado.
+
+## Base normativa y clasificación
+
+La evaluación se organiza conforme a AASHTO LRFD Bridge Design
+Specifications, sección 12. El índice oficial de la décima edición permite
+establecer tres familias y un subcaso que no son intercambiables
+[@AASHTO2024TOC]:
+
+| Producto estructural | Rama de diseño | Solicitación o controles identificados en el índice oficial |
+|---|---|---|
+| tubo, arco o estructura de arco metálico | artículo 12.7 | empuje, resistencia de pared, pandeo y costura |
+| estructura de gran luz de chapas estructurales | artículo 12.8 | empuje, área de pared y resistencia de costura |
+| estructura de chapas de corrugación profunda | subartículo 12.8.9 dentro de 12.8 | análisis estructural, empuje y momento combinados, pandeo global y conexiones |
+| chapa de acero para revestimiento de túnel | artículo 12.13 | cargas, área de pared, pandeo, costura y rigidez de construcción |
+
+La geometría circular no decide por sí sola cuál de estas ramas corresponde.
+La clasificación exige identificar el producto, el perfil de corrugación, la
+forma de fabricación y montaje y la especificación del material. La
+comprobación combinada de empuje y momento del artículo 12.8.9.5 pertenece a
+la corrugación profunda y no se transfiere a los artículos 12.7 o 12.13.
+
+El corpus consultado contiene el índice oficial, pero no el articulado de la
+décima edición. Por ello, las ecuaciones de resistencia, sus factores y sus
+límites permanecen pendientes de comprobación contra el texto adoptado. USACE
+EM 1110-2-2902 documenta las disposiciones que atribuía a AASHTO en 2020 y se
+utiliza como contraste técnico público; no prueba la identidad con la edición
+vigente [@USACE2020]. CIRSOC 804-4, basado en una edición anterior de AASHTO,
+se conserva únicamente como contraste métrico [@CIRSOC8044]. Las especificaciones AASHTO de
+construcción se aplican separadamente a la ejecución [@AASHTOConstruction2017].
 
 ## Representación del deterioro
 
@@ -198,7 +228,7 @@ $$ {#eq-methodology-first-yield-ratio}
 
 donde $F_y$ es la tensión de fluencia y $y_o$, $y_i$ son las fibras exterior e
 interior. $r_y=1$ representa la primera fluencia dentro de la idealización
-elástica. El cociente no es una utilización normativa general ni un factor de
+elástica. El cociente no es una utilización AASHTO ni un factor de
 seguridad global: no incluye pandeo, costuras, sección efectiva, perforaciones,
 fatiga ni factores de resistencia o carga.
 
@@ -234,7 +264,7 @@ La comprobación del revestimiento existente requiere, además de las
 resultantes:
 
 1. identificación del producto y orientación de la corrugación;
-2. norma, edición y combinaciones de acciones adoptadas;
+2. rama AASHTO, edición, errata y combinaciones de acciones adoptadas;
 3. mapa de espesores, estados de lectura, perforaciones y regla de reducción;
 4. propiedades netas y coordenadas de las fibras;
 5. grado de acero y evidencia de $F_y$, $F_u$ y $E$;

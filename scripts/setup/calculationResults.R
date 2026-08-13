@@ -43,12 +43,28 @@ loadCalculationResults <- function(
   }
 
   Config <- validateCalculationConfig(readCalculationJson(Paths$config))
+  SectionFields <- if (
+    Config$section$propertyModelID == "published-exact-row"
+  ) {
+    c(
+      "referenceRowID", "nominalPitchMm", "nominalDepthMm",
+      "actualPitchMm", "actualDepthMm", "corrugationRadiusMm",
+      "specifiedThicknessMm", "designBaseThicknessMm", "tangentLengthMm",
+      "tangentAngleDeg", "sectionModulusMm3PerMm", "gyrationRadiusMm",
+      "developedWidthFactor", "propertyEvidenceLevel",
+      "rigidityEvidenceLevel"
+    )
+  } else {
+    c(
+      "analysisBaseThicknessMm", "lowerReferenceRowID",
+      "upperReferenceRowID", "interpolationFraction"
+    )
+  }
   SectionData <- readProduct(
     Paths$section,
     c(
       "scenarioID", "sectionID", "profileID", "propertyModelID",
-      "analysisBaseThicknessMm", "lowerReferenceRowID", "upperReferenceRowID",
-      "interpolationFraction", "areaMm2PerMm", "inertiaMm4PerMm",
+      SectionFields, "areaMm2PerMm", "inertiaMm4PerMm",
       "circumferentialYoungModulusGPa", "analysisRadiusM",
       "extensionalRigidityKnPerM", "flexuralRigidityKnM2PerM", "sectionRatio",
       "evidenceLevel", "sourceKey", "sourceLocator", "domainStatus"
@@ -57,7 +73,8 @@ loadCalculationResults <- function(
   StressData <- readProduct(
     Paths$stress,
     c(
-      "scenarioID", "stressStateID", "modelID", "statePointID", "layerID",
+      "scenarioID", "stressStateID", "modelID", "actionModelID",
+      "statePointID", "layerID",
       "thetaIndex", "thetaRad", "depthM", "effectiveVerticalKPa",
       "frictionAngleDeg", "poissonRatio", "ocr", "ocrMaximum", "k0Input",
       "k0Derived", "k0Applied", "horizontalIncrementKPa",
@@ -116,6 +133,30 @@ loadCalculationResults <- function(
   if (!all(Controls$pass)) {
     stop("One or more materialized numerical controls failed.", call. = FALSE)
   }
+  ClosedControls <- Controls[
+    Controls$controlID == "closed-form-resultants",
+    ,
+    drop = FALSE
+  ]
+  BalanceControls <- Controls[
+    Controls$controlID == "global-equilibrium",
+    ,
+    drop = FALSE
+  ]
+  if (nrow(ClosedControls) == 0L || nrow(BalanceControls) == 0L ||
+      length(unique(ClosedControls$limitValue)) != 1L ||
+      length(unique(BalanceControls$limitValue)) != 1L) {
+    stop("The materialized numerical controls are incomplete.", call. = FALSE)
+  }
+  maximumClosedDifference <- function(resultantID) {
+    Values <- ClosedControls$observedValue[
+      ClosedControls$resultantID == resultantID
+    ]
+    if (length(Values) == 0L || any(!is.finite(Values))) {
+      stop("A closed-form control is missing.", call. = FALSE)
+    }
+    max(Values)
+  }
 
   ReferencePath <- file.path(Root, Config$section$propertyTable)
   Reference <- utils::read.csv(
@@ -123,18 +164,29 @@ loadCalculationResults <- function(
     check.names = FALSE,
     stringsAsFactors = FALSE
   )
-  Lower <- Reference[
-    Reference$referenceRowID == SectionData$lowerReferenceRowID,
-    ,
-    drop = FALSE
-  ]
-  Upper <- Reference[
-    Reference$referenceRowID == SectionData$upperReferenceRowID,
-    ,
-    drop = FALSE
-  ]
-  if (nrow(Lower) != 1L || nrow(Upper) != 1L) {
-    stop("The section product does not resolve to two reference rows.", call. = FALSE)
+  if (Config$section$propertyModelID == "published-exact-row") {
+    ReferenceRow <- Reference[
+      Reference$referenceRowID == SectionData$referenceRowID,
+      ,
+      drop = FALSE
+    ]
+    if (nrow(ReferenceRow) != 1L) {
+      stop("The section product does not resolve to one reference row.", call. = FALSE)
+    }
+  } else {
+    Lower <- Reference[
+      Reference$referenceRowID == SectionData$lowerReferenceRowID,
+      ,
+      drop = FALSE
+    ]
+    Upper <- Reference[
+      Reference$referenceRowID == SectionData$upperReferenceRowID,
+      ,
+      drop = FALSE
+    ]
+    if (nrow(Lower) != 1L || nrow(Upper) != 1L) {
+      stop("The section product does not resolve to two reference rows.", call. = FALSE)
+    }
   }
 
   valueAt <- function(caseID, resultantID, angle) {
@@ -179,6 +231,10 @@ loadCalculationResults <- function(
       momentMinimum = MomentMinimum,
       momentMaximum = MomentMaximum,
       maximumAbsoluteShear = extremumAt(CaseID, "Q", "absolute-maximum"),
+      meanNormal = (
+        extremumAt(CaseID, "N", "minimum") +
+          extremumAt(CaseID, "N", "maximum")
+      ) / 2,
       meanMoment = (MomentMinimum + MomentMaximum) / 2,
       stringsAsFactors = FALSE
     )
@@ -208,30 +264,30 @@ loadCalculationResults <- function(
   Zero <- which(abs(Extrema$tangentialMultiplier) < 1e-12)
   One <- which(abs(Extrema$tangentialMultiplier - 1) < 1e-12)
   if (length(Zero) == 1L && length(One) == 1L) {
-    NormalAmplitudeZero <-
-      (Extrema$normalMaximum[Zero] - Extrema$normalMinimum[Zero]) / 2
-    NormalAmplitudeOne <-
-      (Extrema$normalMaximum[One] - Extrema$normalMinimum[One]) / 2
-    MomentAmplitudeZero <-
-      (Extrema$momentMaximum[Zero] - Extrema$momentMinimum[Zero]) / 2
-    MomentAmplitudeOne <-
-      (Extrema$momentMaximum[One] - Extrema$momentMinimum[One]) / 2
+    NormalMaximumZero <- max(abs(c(
+      Extrema$normalMinimum[Zero], Extrema$normalMaximum[Zero]
+    )))
+    NormalMaximumOne <- max(abs(c(
+      Extrema$normalMinimum[One], Extrema$normalMaximum[One]
+    )))
+    MomentMaximumZero <- max(abs(c(
+      Extrema$momentMinimum[Zero], Extrema$momentMaximum[Zero]
+    )))
+    MomentMaximumOne <- max(abs(c(
+      Extrema$momentMinimum[One], Extrema$momentMaximum[One]
+    )))
     EndpointComparison <- paste0(
-      "Entre $\\alpha=0$ y $\\alpha=1$, la amplitud variable de ",
-      "$N_\\theta$ aumenta por un factor ",
-      formatCalculationGeneral(NormalAmplitudeOne / NormalAmplitudeZero, 4L),
-      " y las amplitudes de $M_\\theta$ y $Q_\\theta$ por factores ",
-      formatCalculationGeneral(MomentAmplitudeOne / MomentAmplitudeZero, 4L),
-      " y ",
-      formatCalculationGeneral(
-        Extrema$maximumAbsoluteShear[One] /
-          Extrema$maximumAbsoluteShear[Zero],
-        4L
-      ),
-      ", respectivamente. Estos factores corresponden al estado de tensiones ",
-      "declarado; la selección de $\\alpha$ para el revestimiento existente ",
-      "requiere una hipótesis de transferencia tangencial compatible con el ",
-      "relleno y el procedimiento constructivo."
+      "Entre $\\alpha=0$ y $\\alpha=1$, la máxima compresión ",
+      "circunferencial aumenta de ",
+      formatCalculationFixed(NormalMaximumZero, 4L), " a ",
+      formatCalculationFixed(NormalMaximumOne, 4L),
+      " kN/m; el máximo absoluto del momento aumenta de ",
+      formatCalculationFixed(MomentMaximumZero, 4L), " a ",
+      formatCalculationFixed(MomentMaximumOne, 4L),
+      " kN·m/m; y el máximo absoluto de la fuerza cortante aumenta de ",
+      formatCalculationFixed(Extrema$maximumAbsoluteShear[Zero], 4L), " a ",
+      formatCalculationFixed(Extrema$maximumAbsoluteShear[One], 4L),
+      " kN/m."
     )
   }
 
@@ -261,19 +317,51 @@ loadCalculationResults <- function(
       AlphaLabels[length(AlphaLabels)]
     )
   }
+  RadialMinimum <- -MeanPressure - abs(StressDifference / 2)
+  RadialMaximum <- -MeanPressure + abs(StressDifference / 2)
+  ActionCaseParagraphs <- vapply(
+    sort(unique(Config$loadCases$alpha), decreasing = TRUE),
+    function(alpha) {
+      TangentialMaximum <- abs(alpha * StressDifference / 2)
+      if (TangentialMaximum == 0) {
+        return(paste0(
+          "Para $\\alpha=", formatCalculationGeneral(alpha, 4L),
+          "$ la componente tangencial es nula."
+        ))
+      }
+      paste0(
+        "Para $\\alpha=", formatCalculationGeneral(alpha, 4L),
+        "$ la componente tangencial varía entre $",
+        formatCalculationGeneral(-TangentialMaximum, 6L), "$ y $",
+        formatCalculationGeneral(TangentialMaximum, 6L), "$ kPa."
+      )
+    },
+    character(1)
+  )
+  ActionRangeMarkdown <- paste0(
+    "La componente radial varía entre $",
+    formatCalculationGeneral(RadialMinimum, 6L), "$ y $",
+    formatCalculationGeneral(RadialMaximum, 6L), "$ kPa. ",
+    paste(ActionCaseParagraphs, collapse = " ")
+  )
   Section <- as.list(SectionData[1L, , drop = FALSE])
   Section$nominalProfile <- paste0(
     formatCalculationGeneral(Config$section$nominalCorrugationPitchMm),
     "\\times",
     formatCalculationGeneral(Config$section$nominalCorrugationDepthMm)
   )
-  Section$reportedThicknessMm <- Config$section$reportedThicknessMm
-  Section$lowerThicknessMm <- Lower$baseThicknessMm
-  Section$upperThicknessMm <- Upper$baseThicknessMm
-  Section$lowerAreaMm2PerMm <- Lower$areaMm2PerMm
-  Section$upperAreaMm2PerMm <- Upper$areaMm2PerMm
-  Section$lowerInertiaMm4PerMm <- Lower$inertiaMm4PerMm
-  Section$upperInertiaMm4PerMm <- Upper$inertiaMm4PerMm
+  if (Config$section$propertyModelID == "published-exact-row") {
+    Section$specifiedThicknessMm <- ReferenceRow$specifiedThicknessMm
+    Section$designBaseThicknessMm <- ReferenceRow$designBaseThicknessMm
+  } else {
+    Section$reportedThicknessMm <- Config$section$reportedThicknessMm
+    Section$lowerThicknessMm <- Lower$baseThicknessMm
+    Section$upperThicknessMm <- Upper$baseThicknessMm
+    Section$lowerAreaMm2PerMm <- Lower$areaMm2PerMm
+    Section$upperAreaMm2PerMm <- Upper$areaMm2PerMm
+    Section$lowerInertiaMm4PerMm <- Lower$inertiaMm4PerMm
+    Section$upperInertiaMm4PerMm <- Upper$inertiaMm4PerMm
+  }
   K0Description <- if (StressData$modelID == "adopted-constant") {
     paste(
       "El valor de $K_0$ es una hipótesis del escenario de comprobación y no",
@@ -307,11 +395,17 @@ loadCalculationResults <- function(
       stressDifferenceKPa = StressDifference,
       radialConstantKPa = -MeanPressure,
       radialHarmonicKPa = -StressDifference / 2,
-      tangentialHarmonicKPa = StressDifference / 2
+      tangentialHarmonicKPa = StressDifference / 2,
+      rangeMarkdown = ActionRangeMarkdown
     ),
     numerics = list(
-      maximumControlDifference = max(Controls$observedValue),
-      controlTolerance = unique(Controls$limitValue),
+      maximumControlDifference = max(ClosedControls$observedValue),
+      maximumNormalDifference = maximumClosedDifference("N"),
+      maximumMomentDifference = maximumClosedDifference("M"),
+      maximumShearDifference = maximumClosedDifference("Q"),
+      controlTolerance = unique(ClosedControls$limitValue),
+      maximumGlobalEquilibriumResidual = max(BalanceControls$observedValue),
+      balanceTolerance = unique(BalanceControls$limitValue),
       gridPoints = unique(Controls$thetaPointCount),
       integrationSteps = unique(Controls$integrationSteps)
     ),

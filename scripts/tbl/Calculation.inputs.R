@@ -6,19 +6,14 @@ buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
   Inputs <- utils::read.csv(pathInputs, check.names = FALSE, na.strings = "")
   Section <- utils::read.csv(pathSection, check.names = FALSE, na.strings = "")
   Stress <- utils::read.csv(pathStress, check.names = FALSE, na.strings = "")
-  RequiredInputs <- c(
-    "parameterID", "numericValue", "textValue", "unit", "evidenceLevel",
-    "conditionCode"
-  )
+  RequiredInputs <- c("parameterID", "numericValue", "textValue", "unit")
   RequiredSection <- c(
-    "analysisBaseThicknessMm", "areaMm2PerMm", "inertiaMm4PerMm",
-    "circumferentialYoungModulusGPa", "extensionalRigidityKnPerM",
-    "flexuralRigidityKnM2PerM", "sectionRatio", "analysisRadiusM"
+    "propertyModelID", "circumferentialYoungModulusGPa", "analysisRadiusM"
   )
   RequiredStress <- c(
-    "modelID", "effectiveVerticalKPa", "k0Applied",
-    "horizontalIncrementStatus", "effectiveHorizontalKPa",
-    "waterPressureDifferenceKPa", "k0EvidenceLevel"
+    "modelID", "effectiveVerticalKPa", "frictionAngleDeg",
+    "poissonRatio", "ocr", "ocrMaximum", "k0Applied",
+    "effectiveHorizontalKPa", "waterPressureDifferenceKPa", "domainStatus"
   )
   if (length(setdiff(RequiredInputs, names(Inputs))) > 0L ||
       length(setdiff(RequiredSection, names(Section))) > 0L ||
@@ -43,68 +38,126 @@ buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
   formatGeneral <- function(value, digits = 6L) {
     format(signif(value, digits), trim = TRUE, scientific = FALSE)
   }
-  formatScientificLatex <- function(value, digits) {
-    Exponent <- floor(log10(abs(value)))
-    Mantissa <- value / 10^Exponent
-    paste0(
-      "$", format(signif(Mantissa, digits), trim = TRUE, scientific = FALSE),
-      "\\times10^{", Exponent, "}$"
-    )
-  }
-  row <- function(group, magnitude, symbol, value, unit, condition) {
+  row <- function(symbol, value, unit) {
     data.frame(
-      Grupo = group,
-      Magnitud = magnitude,
-      Simbolo = symbol,
-      Valor = value,
-      Unidad = unit,
-      Condicion = condition,
+      Symbol = symbol,
+      Value = value,
+      Unit = unit,
       check.names = FALSE,
       stringsAsFactors = FALSE
     )
   }
-  ModelLabels <- c(
-    "adopted-constant" = "Valor constante adoptado",
-    "elastic-confined" = "Idealización elástica confinada",
-    "jaky-nc" = "Relación de Jáky para carga primaria",
-    "mayne-kulhawy-unloading" = "Relación de descarga de Mayne--Kulhawy",
-    "mayne-kulhawy-reload" = "Relación de recarga de Mayne--Kulhawy"
-  )
-  ModelLabel <- unname(ModelLabels[Stress$modelID])
-  if (is.na(ModelLabel)) {
-    stop("The public K0 model mapping is incomplete.", call. = FALSE)
-  }
   AlphaValues <- Inputs$numericValue[Inputs$parameterID == "tangential-multiplier"]
-  AlphaText <- paste(format(sort(AlphaValues), trim = TRUE), collapse = "; ")
-  ProfileText <- paste0(
-    formatGeneral(inputNumber("nominal-corrugation-pitch")),
-    " × ",
-    formatGeneral(inputNumber("nominal-corrugation-depth"))
+  if (length(AlphaValues) == 0L || any(!is.finite(AlphaValues))) {
+    stop("The tangential multiplier inputs are not available.", call. = FALSE)
+  }
+  AlphaText <- paste(format(sort(unique(AlphaValues)), trim = TRUE), collapse = "; ")
+  K0ModelLabels <- c(
+    "adopted-constant" = "Valor adoptado (hipótesis del caso)",
+    "elastic-confined" = "Elasticidad lineal con deformación lateral impedida",
+    "jaky-nc" = "Jáky, carga primaria",
+    "mayne-kulhawy-unloading" = "Mayne--Kulhawy, descarga primaria",
+    "mayne-kulhawy-reload" = "Mayne--Kulhawy, descarga y recarga"
   )
-  Output <- do.call(rbind, list(
-    row("Geometría", "Diámetro interior nominal", "$D_i$", formatGeneral(inputNumber("inside-diameter")), "$\\mathrm{m}$", "Parámetro nominal suministrado"),
-    row("Geometría", "Radio empleado", "$R$", formatGeneral(Section$analysisRadiusM), "$\\mathrm{m}$", "Aproximación $D_i/2$; radio centroidal pendiente de confirmación"),
-    row("Geometría", "Corrugación nominal", "—", ProfileText, "$\\mathrm{mm}$", "Parámetro nominal suministrado"),
-    row("Geometría", "Espesor informado", "$t_0$", formatGeneral(inputNumber("reported-thickness")), "$\\mathrm{mm}$", "Categoría pendiente"),
-    row("Sección corrugada", "Espesor base del escenario", "$t_b$", formatGeneral(Section$analysisBaseThicknessMm), "$\\mathrm{mm}$", "Hipótesis condicional $t_0=t_b$"),
-    row("Sección corrugada", "Área por unidad de longitud", "$A_p$", formatGeneral(Section$areaMm2PerMm), "$\\mathrm{mm^2/mm}$", "Interpolación de NCSPA bajo $t_0=t_b$"),
-    row("Sección corrugada", "Momento de inercia por unidad de longitud", "$I_p$", formatGeneral(Section$inertiaMm4PerMm), "$\\mathrm{mm^4/mm}$", "Interpolación de NCSPA bajo $t_0=t_b$"),
-    row("Sección corrugada", "Módulo circunferencial", "$E_\\theta$", formatGeneral(Section$circumferentialYoungModulusGPa), "$\\mathrm{GPa}$", "Valor adoptado"),
-    row("Sección corrugada", "Rigidez extensional circunferencial", "$EA_\\theta$", formatScientificLatex(Section$extensionalRigidityKnPerM, 6L), "$\\mathrm{kN/m}$", "Resultado derivado"),
-    row("Sección corrugada", "Rigidez flexional circunferencial", "$EI_\\theta$", formatGeneral(Section$flexuralRigidityKnM2PerM), "$\\mathrm{kN\\,m^2/m}$", "Resultado derivado"),
-    row("Sección corrugada", "Razón seccional", "$\\eta_s$", formatScientificLatex(Section$sectionRatio, 4L), "—", "Resultado derivado"),
-    row("Estado de tensiones y acciones", "Rama de empuje en reposo", "—", ModelLabel, "—", "Selección declarada"),
-    row("Estado de tensiones y acciones", "Tensión vertical efectiva en el eje", "$\\sigma'_{v,A}$", formatGeneral(Stress$effectiveVerticalKPa), "$\\mathrm{kPa}$", "Escenario analítico"),
-    row("Estado de tensiones y acciones", "Coeficiente de empuje aplicado", "$K_0$", formatGeneral(Stress$k0Applied), "—", if (Stress$k0EvidenceLevel == "HA") "Valor adoptado para el escenario" else "Resultado de la rama seleccionada"),
-    row("Estado de tensiones y acciones", "Incremento horizontal residual", "$\\Delta\\sigma'_{h,c}$", "No modelado", "—", "Magnitud física no caracterizada"),
-    row("Estado de tensiones y acciones", "Diferencia de presión de agua", "$\\Delta u_A$", formatGeneral(Stress$waterPressureDifferenceKPa), "$\\mathrm{kPa}$", "Escenario analítico"),
-    row("Estado de tensiones y acciones", "Tensión horizontal efectiva en el eje", "$\\sigma'_{h,A}$", formatGeneral(Stress$effectiveHorizontalKPa), "$\\mathrm{kPa}$", "Resultado derivado"),
-    row("Estado de tensiones y acciones", "Multiplicador de la componente tangencial", "$\\alpha$", AlphaText, "—", "Casos de carga prescritos")
-  ))
+  if (!(Stress$modelID %in% names(K0ModelLabels))) {
+    stop("The calculation K0 model is not supported by the table.", call. = FALSE)
+  }
+  K0Rows <- list(
+    row("$m_{K_0}$", K0ModelLabels[[Stress$modelID]], "—")
+  )
+  if (is.finite(Stress$frictionAngleDeg)) {
+    K0Rows[[length(K0Rows) + 1L]] <- row(
+      "$\\phi'$",
+      formatGeneral(Stress$frictionAngleDeg),
+      "$^{\\circ}$"
+    )
+  }
+  if (is.finite(Stress$poissonRatio)) {
+    K0Rows[[length(K0Rows) + 1L]] <- row(
+      "$\\nu_g$",
+      formatGeneral(Stress$poissonRatio),
+      "—"
+    )
+  }
+  if (is.finite(Stress$ocr)) {
+    K0Rows[[length(K0Rows) + 1L]] <- row(
+      "$\\mathrm{OCR}$",
+      formatGeneral(Stress$ocr),
+      "—"
+    )
+  }
+  if (is.finite(Stress$ocrMaximum)) {
+    K0Rows[[length(K0Rows) + 1L]] <- row(
+      "$\\mathrm{OCR}_{\\max}$",
+      formatGeneral(Stress$ocrMaximum),
+      "—"
+    )
+  }
+  K0Rows[[length(K0Rows) + 1L]] <- row(
+    "$K_0$",
+    formatGeneral(Stress$k0Applied),
+    "—"
+  )
+  K0Rows[[length(K0Rows) + 1L]] <- row(
+    "$\\sigma'_h$",
+    formatGeneral(Stress$effectiveHorizontalKPa),
+    "$\\mathrm{kPa}$"
+  )
+  if (Stress$domainStatus != "not-applicable") {
+    DomainLabels <- c(
+      "within-domain" = "Anterior al límite pasivo",
+      "passive-limit-reached" = "Límite pasivo alcanzado"
+    )
+    if (!(Stress$domainStatus %in% names(DomainLabels))) {
+      stop("The calculation K0 domain status is not supported by the table.", call. = FALSE)
+    }
+    K0Rows[[length(K0Rows) + 1L]] <- row(
+      "$d_{K_0}$",
+      DomainLabels[[Stress$domainStatus]],
+      "—"
+    )
+  }
+  SectionRows <- if (Section$propertyModelID == "published-exact-row") {
+    RequiredExact <- c(
+      "actualPitchMm", "actualDepthMm", "corrugationRadiusMm",
+      "specifiedThicknessMm", "designBaseThicknessMm"
+    )
+    if (length(setdiff(RequiredExact, names(Section))) > 0L) {
+      stop("The exact section-property product is incomplete.", call. = FALSE)
+    }
+    list(
+      row("$p_c$", formatGeneral(Section$actualPitchMm), "$\\mathrm{mm}$"),
+      row("$h_c$", formatGeneral(Section$actualDepthMm), "$\\mathrm{mm}$"),
+      row("$r_c$", formatGeneral(Section$corrugationRadiusMm), "$\\mathrm{mm}$"),
+      row("$\\mathcal P$", inputText("reference-profile"), "—"),
+      row("$t_s$", formatGeneral(Section$specifiedThicknessMm), "$\\mathrm{mm}$"),
+      row("$t_d$", formatGeneral(Section$designBaseThicknessMm), "$\\mathrm{mm}$")
+    )
+  } else {
+    if (!("analysisBaseThicknessMm" %in% names(Section))) {
+      stop("The interpolated section-property product is incomplete.", call. = FALSE)
+    }
+    list(
+      row("$p_c$", formatGeneral(inputNumber("nominal-corrugation-pitch")), "$\\mathrm{mm}$"),
+      row("$h_c$", formatGeneral(inputNumber("nominal-corrugation-depth")), "$\\mathrm{mm}$"),
+      row("$\\mathcal P$", inputText("reference-profile"), "—"),
+      row("$t_b$", formatGeneral(Section$analysisBaseThicknessMm), "$\\mathrm{mm}$")
+    )
+  }
+  Output <- do.call(rbind, c(list(
+    row("$D_i$", formatGeneral(inputNumber("inside-diameter")), "$\\mathrm{m}$"),
+    row("$R=D_i/2$", formatGeneral(Section$analysisRadiusM), "$\\mathrm{m}$")
+  ), SectionRows, list(
+    row("$E_\\theta$", formatGeneral(Section$circumferentialYoungModulusGPa), "$\\mathrm{GPa}$"),
+    row("$\\sigma'_v$", formatGeneral(Stress$effectiveVerticalKPa), "$\\mathrm{kPa}$")
+  ), K0Rows, list(
+    row("$\\Delta u$", formatGeneral(Stress$waterPressureDifferenceKPa), "$\\mathrm{kPa}$"),
+    row("$\\alpha$", AlphaText, "—")
+  )))
   knitr::kable(
     Output,
-    col.names = c("Grupo", "Magnitud", "Símbolo", "Valor", "Unidad", "Condición"),
-    align = c("l", "l", "c", "r", "c", "l"),
+    col.names = c("$x_i$", "$v_i$", "$u_i$"),
+    align = c("c", "r", "c"),
     escape = FALSE
   )
 }

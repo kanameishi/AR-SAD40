@@ -1,0 +1,1 @@
+Propiedades publicadas para la fila adoptada del perfil CSPI 76×25. $t_s$ y $t_d$ se expresan en mm; $A_p$, en mm²/mm; $I_p$, en mm⁴/mm; y $S_p$, en mm³/mm, por unidad de ancho proyectado [@CSPIHandbookChapter2, tabla 2.4].

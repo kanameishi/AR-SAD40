@@ -1,11 +1,15 @@
-# Participación de la componente tangencial
+# Estado biaxial analítico y componente tangencial
 
 ## Acciones proyectadas sobre el contorno
 
+Esta sección define un estado de carga analítico prescrito para comprobar las
+ecuaciones de la sección circular y estudiar su sensibilidad. No constituye
+una ley de contacto ni una distribución reglamentaria de presiones para un
+conducto enterrado.
+
 La proyección de un estado biaxial sobre una circunferencia contiene una
-componente normal y una componente tangencial. Como el grado de transferencia
-de esta última no está caracterizado para el relleno existente, la metodología
-define una familia continua de acciones prescritas entre su omisión y su
+componente normal y una componente tangencial. El multiplicador adoptado
+define una familia continua de acciones analíticas entre su omisión y su
 incorporación completa.
 
 ## Proyección del estado tensional
@@ -76,14 +80,14 @@ Q_\theta&=-R\Delta\sigma\frac{2+\alpha}{6}\sin2\theta.
 \end{aligned}
 $$
 
-## Incorporación en el análisis probabilístico
+## Uso en análisis de sensibilidad
 
-$\alpha$ integra el vector de variables de Monte Carlo junto con $\phi'$ y
-las restantes variables primitivas que determinen $K_0$. Su dominio,
-distribución y dependencias deben definirse antes de la simulación. Cuando
-$K_0$ se calcula desde $\phi'$ u otras propiedades, esas magnitudes no se
-muestrean además como entradas independientes.
+$\alpha$ puede tratarse como variable de incertidumbre de modelo únicamente
+dentro de esta familia biaxial prescrita. Su dominio, distribución y
+dependencias deben justificarse antes de una simulación. Cuando $K_0$ se
+calcula desde $\phi'$ u otras propiedades, esas magnitudes no se muestrean
+además como entradas independientes.
 
-No se asigna a $\alpha$ una relación con parámetros geotécnicos de interfaz
-dentro de esta formulación. Una ley constitutiva de contacto requeriría otros
-parámetros y un procedimiento de solución propio.
+No se asigna a $\alpha$ una relación con parámetros geotécnicos de interfaz.
+Una simulación basada en un modelo físico de interacción deberá muestrear los
+parámetros de ese modelo y no utilizar $\alpha$ como sustituto automático.

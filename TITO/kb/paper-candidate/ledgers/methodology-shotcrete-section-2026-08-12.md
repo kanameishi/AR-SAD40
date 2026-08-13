@@ -2,93 +2,80 @@
 
 ## Sección
 
-Base reglamentaria condicionada, caracterización de una estructura existente y
+Base ACI condicionada, caracterización de una estructura existente y
 comprobación seccional de un revestimiento circular autónomo de hormigón
 proyectado.
 
 ## Finalidad
 
-Establecer la transformación de las resultantes circunferenciales a las
-acciones de una franja longitudinal y las formulaciones de flexocompresión y
-corte aplicables a una sección clasificada como hormigón simple o armado.
+Establecer una comprobación de fuerza normal y momento flector para una
+sección arbitraria, independiente del modelo que produjo las solicitaciones,
+y separar el núcleo mecánico de las disposiciones resistentes que dependen de
+la clasificación y del articulado ACI aplicable.
 
 ## Fuentes leídas
 
-- Resolución SOP 11/2026, artículos 1 a 3.
-- CIRSOC 200-24, artículos 6.5 y 9.4.
-- CIRSOC 201-25, artículos 1.2.2, 1.2.10.7, 1.2.11 y 2.1; capítulos 14,
-  21, 22 y 27.
-- CIRSOC 804-4, artículo 12.1 y capítulo 12.
-- TITO/kb/research/g10.shotcrete.section.verification.es.md y su auditoría
-  cruzada.
+- índice y alcance oficiales de ACI CODE-318.2-25;
+- portal oficial de ACI CODE-318-25;
+- alcance oficial de ACI CODE-562-25;
+- alcance oficial de ACI SPEC-506.2-13(18); y
+- `TITO/kb/research/g10.aci.concrete.section.verification.es.md`.
 
-Las copias oficiales y sus huellas digitales están registradas en
-TITO/kb/MANIFEST.md.
+La vista oficial de ACI CODE-318.2-25 y su huella digital están registradas en
+`TITO/kb/MANIFEST.md`. El informe CIRSOC anterior se conserva únicamente como
+antecedente histórico no gobernante en
+`TITO/kb/research/g10.shotcrete.section.verification.es.md`.
 
 ## Afirmaciones admitidas
 
-- La vigencia nacional de CIRSOC 200-24 y CIRSOC 201-25 comenzó el
-  22 de enero de 2026; la adhesión jurisdiccional y la adopción contractual del
-  caso deben comprobarse.
-- La aplicación de CIRSOC 201-25 al revestimiento circular está condicionada
-  por su exclusión de cáscaras delgadas y por las vías de aplicación básica o
-  complementaria.
-- CIRSOC 200-24 regula tecnología, ejecución y aceptación; la vía húmeda y la
-  vía seca no se consideran indistintamente.
-- La resistencia efectiva de producción y la resistencia especificada
-  equivalente de una estructura existente cumplen funciones diferentes.
-- La clasificación como hormigón simple o armado depende de la tipología, los
-  mínimos y el detallado, no únicamente del valor de la armadura.
+- ACI CODE-318.2-25 gobierna cuando el revestimiento se clasifica como una
+  cáscara delgada; ACI CODE-318-25 lo complementa.
+- ACI CODE-562-25 proporciona el marco para evaluar una estructura existente.
+- ACI SPEC-506.2-13(18) regula materiales, ejecución, ensayos y aceptación del
+  shotcrete; no sustituye la comprobación resistente.
 - Una alternativa autónoma de hormigón proyectado requiere recalcular
   $N_\theta$, $M_\theta$ y $Q_\theta$ con sus propias rigideces.
+- La clasificación y la armadura mínima preceden a la selección de una rama
+  resistente; $A_s=0$ no demuestra que el hormigón simple sea admisible.
 
 ## Afirmaciones excluidas
 
-- Aplicabilidad reglamentaria directa de CIRSOC 201-25 o CIRSOC 804-4 al caso.
-- Acción compuesta entre chapa y hormigón sin interfaz, adherencia, secuencia y
-  transferencia demostradas.
-- Adopción de una resistencia mínima de obra nueva como propiedad del
-  revestimiento existente.
-- Selección de hormigón simple por $A_s=0$ o de hormigón armado por $A_s>0$.
-- Contribución postfisuración de fibras sin propiedades residuales y
-  formulación normativa.
-- Resultados de capacidad, utilización o reserva del caso con valores
-  supuestos.
+- aplicación de coeficientes CIRSOC bajo una etiqueta ACI;
+- ecuaciones de capacidad, deformaciones límite, factores de reducción o
+  cuantías mínimas no comprobados en el articulado vigente;
+- acción compuesta entre chapa y hormigón sin demostrar interfaz, adherencia,
+  secuencia y transferencia;
+- contribución postfisuración de fibras sin propiedades residuales y una
+  formulación normativa aplicable; y
+- resultados de capacidad, utilización o reserva con valores supuestos.
 
 ## Ecuaciones admitidas
 
-- transformación de $N_\theta$, $M_\theta$ y $Q_\theta$ a
-  $P_u$, $M_u$ y $V_u$ para una franja declarada;
-- resistencia de hormigón simple conforme a los artículos 14.5.2.1,
-  14.5.3.1, 14.5.4.1 y 14.5.5.1;
-- compatibilidad, equilibrio, bloque rectangular equivalente, $\beta_1$,
-  compresión pura y factores $\phi$ punto a punto para hormigón armado;
-- corte unidireccional condicionado por la clasificación de la franja; y
-- multiplicador proporcional de reserva respecto del dominio de cálculo.
+- transformación explícita de $N_\theta$, $M_\theta$ y $Q_\theta$ a las
+  acciones de una franja longitudinal declarada;
+- compatibilidad de deformaciones planas; y
+- equilibrio integral de fuerza normal y momento para leyes constitutivas que
+  se definan posteriormente desde el articulado ACI aplicable.
 
-## Ecuaciones excluidas
-
-Acción compuesta, estabilidad global, segundo orden, fibras, transferencia en
-interfaces, fisuración, estanqueidad, durabilidad y cualquier combinación de
-familias normativas.
+Estas relaciones son de mecánica seccional. No constituyen por sí mismas una
+comprobación ACI.
 
 ## Capítulos candidatos
 
-- TITO/kb/paper-candidate/chapters/methodology.shotcrete.scope.es.md;
-- TITO/kb/paper-candidate/chapters/methodology.shotcrete.section.es.md; y
-- TITO/kb/paper-candidate/chapters/methodology.shotcrete.controls.es.md.
+- `TITO/kb/paper-candidate/chapters/methodology.shotcrete.scope.es.md`;
+- `TITO/kb/paper-candidate/chapters/methodology.shotcrete.section.es.md`; y
+- `TITO/kb/paper-candidate/chapters/methodology.shotcrete.controls.es.md`.
 
 ## Datos pendientes
 
-Jurisdicción y contrato; tipología frente a la exclusión de cáscaras; función
-de CIRSOC 804-4; alternativa autónoma o compuesta; proceso húmedo o seco;
-combinaciones últimas y de servicio; espesor resistente; defectos; juntas;
-$f'_{c,\mathrm{eq}}$ y estadística de testigos; clasificación seccional;
-armaduras, propiedades residuales de fibras, exposición, fisuración y
-estanqueidad.
+Clasificación frente a ACI CODE-318.2-25; articulado vigente en SI de ACI
+318.2, ACI 318 y ACI 562; alternativa autónoma o compuesta; combinaciones
+últimas y de servicio; espesor resistente; defectos; juntas; resistencia de
+diseño del hormigón existente; capas de armadura; propiedades residuales de
+fibras; estabilidad, exposición, fisuración y estanqueidad.
 
 ## Estado
 
-Metodología condicionada. No constituye una comprobación resistente del caso y
-no se traslada a la memoria profesional hasta que las decisiones y los datos
-que modifican demanda, resistencia o campo de validez estén definidos.
+La arquitectura conceptual es admisible. La verificación ACI ejecutable
+permanece bloqueada hasta cerrar la clasificación, el articulado y los datos
+anteriores; no se informa capacidad ni cumplimiento del caso.

@@ -1,116 +1,105 @@
 # Alternativa de revestimiento de hormigón proyectado
 
-## Objeto y alcance
+## Objeto
 
-Esta metodología establece la comprobación seccional de un revestimiento
-circular de hormigón proyectado sometido a las resultantes seccionales
-$N_\theta$, $M_\theta$ y $Q_\theta$. El análisis se formula para una sección
-transversal plana y una franja longitudinal de ancho declarado.
+Esta metodología establece la secuencia para comprobar una sección de
+hormigón proyectado sometida a fuerza normal y momento flector. La comprobación
+seccional recibe las resultantes ya calculadas y es independiente del método
+empleado para obtenerlas. Las combinaciones y los factores de las acciones se
+definen antes de ingresar a la comprobación resistente.
 
-La formulación considera inicialmente un revestimiento de hormigón proyectado
-que constituye un sistema resistente autónomo. Las resultantes de una chapa
-existente no se transfieren directamente a esta sección: la respuesta de la
-sección transversal debe calcularse nuevamente con la geometría, las rigideces
-y la trayectoria de carga que correspondan al revestimiento de hormigón. Si se
-pretende que el hormigón proyectado y la chapa trabajen conjuntamente, deben
-establecerse la transferencia de corte en la interfaz, el posible deslizamiento,
-la secuencia constructiva y el reparto de acciones. Esa situación requiere una
-formulación específica y no está incluida aquí.
+El revestimiento de hormigón proyectado se considera inicialmente un sistema
+resistente autónomo. Sus resultantes deben calcularse con la geometría, las
+rigideces y la secuencia de carga de esa alternativa. No se transfieren las
+resultantes de la chapa existente. Una eventual acción conjunta requiere una
+formulación específica de adherencia, deslizamiento, transferencia de corte y
+secuencia constructiva.
 
-El procedimiento comprende:
+## Referencias normativas
 
-1. definición de la base reglamentaria y de la tipología estructural;
-2. caracterización de la geometría resistente y de los materiales existentes;
-3. cálculo de las resultantes $N_\theta$, $M_\theta$ y $Q_\theta$ con las
-   rigideces del sistema analizado;
-4. transformación de las resultantes por unidad de longitud a las acciones de
-   una franja de cálculo;
-5. clasificación reglamentaria de la sección como hormigón simple, armado o
-   reforzado con fibras;
-6. comprobación de flexocompresión y corte mediante la formulación aplicable;
-7. determinación de la condición gobernante a lo largo de la circunferencia; y
-8. comprobaciones independientes de servicio, durabilidad, estabilidad,
-   juntas y anclajes.
+La familia internacional adoptada es ACI:
 
-## Condiciones previas de aplicación
+- ACI CODE-318.2-25 gobierna el análisis, el diseño y la construcción cuando
+  el revestimiento se clasifica como cáscara delgada de hormigón; sus
+  disposiciones se complementan con ACI CODE-318-25 [@ACI318225; @ACI31825].
+- ACI CODE-318-25 proporciona las disposiciones generales de materiales,
+  análisis, resistencia, servicio, durabilidad y detallado del hormigón
+  estructural, incluido el hormigón proyectado [@ACI31825].
+- ACI CODE-562-25 establece el marco para evaluar una estructura existente,
+  incluidas la investigación de campo, las propiedades medidas, el deterioro
+  y los factores de evaluación que correspondan [@ACI56225].
+- ACI SPEC-506.2-13(18) regula los materiales, la ejecución, los ensayos y la
+  aceptación del hormigón proyectado; no sustituye la comprobación resistente
+  de la sección [@ACISPEC506213].
 
-La Resolución SOP 11/2026 puso en vigencia nacional CIRSOC 200-24 y CIRSOC
-201-25 a partir del 22 de enero de 2026 e invitó a las jurisdicciones locales a
-adherir [@SOP112026]. La jurisdicción, la adhesión y la base contractual de la
-obra deben comprobarse antes de adoptar esos Reglamentos.
+La vista oficial disponible de ACI CODE-318.2-25 confirma disposiciones
+específicas para estabilidad, fuerzas de membrana, momento, corte y armadura
+mínima. El texto completo de esos artículos y el de las disposiciones
+correspondientes de ACI CODE-318-25 y ACI CODE-562-25 no forman parte del
+corpus consultado. Por ello, esta emisión define el procedimiento y el núcleo
+de equilibrio seccional, pero no reproduce coeficientes, deformaciones límite,
+factores de reducción ni cuantías mínimas de la edición vigente.
 
-CIRSOC 201-25 excluye de su campo de validez el diseño de cáscaras delgadas y
-estructuras de placas plegadas. El mismo Reglamento contempla condiciones de
-aplicación básica o complementaria a otras estructuras. CIRSOC 804-4 es el
-Reglamento específico de estructuras enterradas y revestimientos para túneles,
-pero su artículo 12.1 no identifica expresamente un revestimiento circular de
-hormigón proyectado [@CIRSOC20125, arts. 1.2.2, 1.2.10.7 y 1.2.11;
-@CIRSOC8044, art. 12.1]. En consecuencia, antes de efectuar una comprobación
-reglamentaria se debe documentar:
+## Clasificación estructural
 
-- si el análisis local se admite como el de una franja o arco, o si resulta
-  aplicable la exclusión correspondiente a cáscaras delgadas;
-- si CIRSOC 201-25 se adopta como Reglamento básico o complementario;
-- qué disposiciones de CIRSOC 804-4 gobiernan el revestimiento; y
-- la edición y los artículos contractualmente exigibles.
+La clasificación precede al cálculo de capacidad:
 
-CIRSOC 200-24 regula la tecnología, la ejecución y la aceptación del hormigón
-proyectado. Su artículo 9.4 tiene alcance directo para el proceso por vía húmeda
-utilizado como soporte del terreno; la aplicación a la vía seca exige considerar
-las particularidades del proceso [@CIRSOC20024, art. 9.4.1.1 y comentario]. La
-identificación de la vía de proyección es, por tanto, un dato necesario, pero no
-modifica por sí misma las ecuaciones de equilibrio y compatibilidad de la
-sección.
+1. determinar si la geometría y el comportamiento corresponden al alcance de
+   ACI CODE-318.2-25;
+2. si corresponde una cáscara delgada, aplicar ACI CODE-318.2-25 como documento
+   principal y ACI CODE-318-25 como complemento;
+3. si se pretende emplear otra tipología de elemento, documentar el artículo
+   que la habilita y comprobar que no contradiga la clasificación como
+   cáscara; y
+4. clasificar la sección como hormigón armado, hormigón simple candidato o
+   sección con fibras mediante los requisitos del código, no sólo mediante el
+   valor del área de armadura.
 
-## Clasificación de la sección
-
-La presencia o ausencia de una armadura no selecciona por sí sola la
-formulación resistente. CIRSOC 201-25 incluye dentro del hormigón simple al
-hormigón cuya armadura es inferior a la mínima especificada para hormigón
-armado [@CIRSOC20125, art. 2.1]. La clasificación debe sustentarse en la
-tipología del elemento, las cuantías mínimas, el detallado y las disposiciones
-aplicables:
-
-- **hormigón simple**: requiere demostrar la aplicabilidad del capítulo 14,
-  aunque exista armadura discreta;
-- **hormigón armado**: requiere satisfacer los mínimos y el detallado que
-  correspondan al elemento; y
-- **hormigón reforzado con fibras**: requiere propiedades residuales medidas y
-  una formulación normativa específica.
-
-La formulación inicial cubre hormigón simple y hormigón armado convencional.
-La contribución postfisuración de fibras no se incorpora mientras no se
-disponga de propiedades residuales, método de ensayo y base normativa
-aprobados.
+Una cuantía de armadura igual a cero no habilita automáticamente una rama de
+hormigón simple. En una cáscara no pretensada deben comprobarse primero las
+disposiciones de armadura mínima de ACI CODE-318.2-25. La contribución
+postfisuración de fibras sólo puede considerarse con propiedades residuales
+medidas y una disposición normativa aplicable.
 
 ## Estructura existente
 
-La evaluación de una estructura existente debe emplear dimensiones y
-propiedades verificadas en campo. El espesor resistente excluye vacíos,
-delaminaciones y material sin transferencia demostrada; la posición y el área
-neta de las armaduras se determinan para cada capa. La corrosión reduce el área
-de acero y no el espesor de hormigón.
+La sección resistente se define con dimensiones y propiedades verificadas. El
+espesor excluye vacíos, delaminaciones y material cuya transferencia no esté
+demostrada. Las armaduras se representan mediante áreas netas y posiciones por
+capa; una cuantía global en cm²/m no define el brazo mecánico. La corrosión de
+las barras reduce su área y debe conservarse separada de cualquier pérdida del
+espesor de hormigón.
 
-La resistencia efectiva empleada durante la producción y aceptación del
-hormigón proyectado no se sustituye automáticamente por una propiedad de
-diseño. La comprobación resistente utiliza una resistencia especificada
-equivalente $f'_{c,\mathrm{eq}}$ obtenida mediante el procedimiento estadístico
-adoptado para la estructura existente, con trazabilidad a los testigos, sus
-localizaciones y sus condiciones de ensayo [@CIRSOC20024, arts. 6.5 y 9.4;
-@CIRSOC20125, arts. 27.3.1.1--27.3.1.5].
+La resistencia de diseño del hormigón existente se adopta mediante el
+procedimiento de evaluación y ensayos aprobado conforme a ACI CODE-562-25. La
+función seccional recibe ese valor y su procedencia; no transforma por sí sola
+resultados de testigos en una resistencia de diseño.
+
+## Secuencia de comprobación
+
+1. registrar norma, edición, sistema de unidades, errata y base de adopción;
+2. clasificar el revestimiento y la sección resistente;
+3. definir geometría efectiva, materiales y capas de armadura;
+4. recibir fuerza normal y momento factorizados para una sección y combinación
+   identificadas;
+5. construir el dominio nominal mediante compatibilidad de deformaciones y
+   equilibrio;
+6. aplicar, punto por punto, los límites y factores de resistencia de los
+   artículos ACI correspondientes;
+7. comparar la demanda con el dominio de resistencia de cálculo; y
+8. verificar separadamente estabilidad, corte, servicio, durabilidad,
+   detallado, juntas y anclajes.
+
+La rama numérica no se habilita hasta disponer del articulado vigente y de una
+tabla trazable que relacione cada coeficiente con su cláusula y su sistema de
+unidades. Hasta entonces no se informa capacidad, utilización ni cumplimiento
+ACI del revestimiento.
 
 ## Límites
 
-La comprobación seccional no demuestra por sí sola:
-
-- estabilidad del revestimiento como arco o cáscara;
-- efectos de segundo orden;
-- acción compuesta con la chapa existente;
-- resistencia postfisuración de hormigón con fibras;
-- transferencia en juntas o interfaces;
-- fisuración, estanqueidad y deformaciones en servicio;
-- durabilidad, recubrimiento y vida remanente; ni
-- aptitud de anclajes, empalmes y discontinuidades.
-
-Estas verificaciones se presentan como estados separados y no se sustituyen
-por un único cociente capacidad--demanda.
+La comprobación seccional de fuerza normal y momento no demuestra por sí sola
+la estabilidad del revestimiento como cáscara, los efectos de segundo orden,
+la resistencia al corte, la acción conjunta con la chapa, la fisuración y
+estanqueidad en servicio, la durabilidad, las juntas, los anclajes ni la
+ejecución del hormigón proyectado. Cada una de esas verificaciones conserva sus
+acciones, datos y artículos propios.

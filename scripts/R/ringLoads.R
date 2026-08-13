@@ -491,7 +491,7 @@ usaceCmpThrust <- function(
   structure(list(
     source = "USACE EM 1110-2-2902 (2020)",
     sourceLocation = "Eq. 4-20, printed p. 86/PDF p. 100",
-    evidenceLevel = "published scalar equation",
+    evidenceLevel = "published sectional thrust equation",
     factorBasis = factorBasis,
     warning = paste(
       "EM 1110-2-2902 is internally inconsistent:",
@@ -504,10 +504,7 @@ usaceCmpThrust <- function(
     deadServiceThrust = DeadService,
     liveServiceThrust = LiveService,
     factoredThrust = Factored,
-    designDemand = demandModifier * Factored,
-    angularTractionPublished = FALSE,
-    momentPublished = FALSE,
-    shearPublished = FALSE
+    designDemand = demandModifier * Factored
   ), class = "usaceCmpThrust")
 }
 

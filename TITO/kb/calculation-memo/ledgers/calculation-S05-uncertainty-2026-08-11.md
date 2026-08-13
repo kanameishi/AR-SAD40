@@ -15,8 +15,10 @@ documento metodológico aprobado.
 # Exact Claims Allowed
 
 La evaluación probabilística no fue ejecutada. La tapada, geometría, acero y
-espesor original se tratan como datos determinísticos. Suelo, compactación,
-participación tangencial y espesor neto requieren caracterización. Las tensiones y demandas de
+espesor original se tratan como datos determinísticos. Producto estructural,
+acciones reglamentarias, interacción suelo--conducto, suelo, compactación,
+participación tangencial del escenario analítico y espesor neto requieren
+caracterización. Las tensiones y demandas de
 uniones serán salidas una vez aprobadas sus relaciones de recuperación. Los
 cuantiles puntuales y los de extremos espaciales son productos distintos.
 
@@ -33,10 +35,12 @@ documenta la especificación que deberá aprobarse antes de la corrida.
 
 # Open Gaps
 
-Fuentes de datos, marginales, dependencias, corrosión, tratamiento de
+Producto, $P_F$, $S$, formulación de interacción, fuentes de datos, marginales,
+dependencias, corrosión, tratamiento de
 $Q_\theta$, recuperación de tensiones, demanda de pernos, cuantiles objetivo y
 criterios de estabilidad.
 
 # Validation
 
-APTO COMO PLAN; SIMULACIÓN Y RESULTADOS PROBABILÍSTICOS NO EJECUTADOS.
+CANDIDATO CORREGIDO EL 13 DE AGOSTO DE 2026; PENDIENTE NUEVA AUDITORÍA;
+SIMULACIÓN Y RESULTADOS PROBABILÍSTICOS NO EJECUTADOS.

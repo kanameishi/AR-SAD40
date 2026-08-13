@@ -1,1 +1,1 @@
-Resultantes seccionales en las posiciones principales del escenario de comprobación.
+Resultantes seccionales del caso analítico. $A=\{0,\pi\}$ identifica la clave y el punto inferior; $B=\{\pi/2,3\pi/2\}$ identifica las intersecciones con el diámetro horizontal. $N_A$, $N_B$ y $|Q_\theta|_{\max}$ se expresan en kN/m; $M_A$ y $M_B$, en kN·m/m. El máximo absoluto de $Q_\theta$ ocurre en $\theta=\pi/4,3\pi/4,5\pi/4,7\pi/4$, con signo alternado.

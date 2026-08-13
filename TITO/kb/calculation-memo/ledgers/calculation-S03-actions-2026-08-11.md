@@ -6,27 +6,31 @@ Acciones del relleno, agua, compactación y participación tangencial.
 
 ## Report Purpose
 
-Obtener $P_r(\theta)$ y $P_t(\theta)$ mediante relaciones finales que separen
-tensiones efectivas, agua, historia de compactación y el multiplicador de la
-componente tangencial proyectada.
+Identificar la solicitación reglamentaria AASHTO y organizar, como ramas
+separadas, agua, compactación, interacción suelo--conducto y el escenario
+biaxial analítico.
 
 ## Sources Read
 
-Christopher et al. (2006); Mayne y Kulhawy (1982); USACE (2020); McGrath et
-al. (1999); documento metodológico aprobado. Michalowski (2005) se leyó para
+Christopher et al. (2006); Mayne y Kulhawy (1982); índice oficial de AASHTO
+LRFD 10.ª edición; AASHTO LRFD Bridge Construction Specifications; USACE
+(2020); McGrath et al. (1999); documento metodológico aprobado. Michalowski (2005) se leyó para
 contrastar la forma original de Jáky, excluida de la memoria y reservada para
 el desarrollo académico.
 
 ## Exact Claims Allowed
 
-La tensión vertical efectiva varía con la profundidad y se integra por
+La rama reglamentaria se selecciona entre los artículos 12.7, 12.8 y 12.13 de
+AASHTO después de clasificar el producto; el subartículo 12.8.9 se aplica
+cuando corresponde a una estructura de corrugación profunda. USACE reproduce
+$T_L=P_FS/2$ como referencia pública para conductos metálicos. La tensión vertical efectiva varía con la profundidad y se integra por
 estratos. $K_0$ relaciona tensiones efectivas y se obtiene de una única rama
 compatible con el material y la trayectoria tensional. Las relaciones de
 Mayne--Kulhawy representan descarga primaria y descarga seguida de recarga;
-su límite pasivo controla el dominio de aplicación. La proyección del estado
-tensional define $p_n'$ y $p_t^*$. La acción tangencial satisface
+su límite pasivo controla el dominio de aplicación. En el escenario biaxial
+analítico, la proyección del estado tensional define $p_n'$ y $p_t^*$. La acción tangencial satisface
 $P_t=\alpha p_t^*$, con $0\leq\alpha\leq1$. USACE contrasta la componente
-uniforme y FHWA define una acción equivalente de compactación.
+escalar de empuje y FHWA define una acción equivalente de compactación.
 
 ## Claims Not Allowed
 
@@ -35,7 +39,8 @@ contacto; no adoptar retención permanente universal; no sumar ramas
 incompatibles de compactación. No emplear la transcripción de FHWA NHI-05-037,
 ec. 5.39, para la recarga; no habilitar la forma de Jáky de 1944,
 Brooker--Ireland, Mesri--Hayat ni una tensión residual de compactación sin un
-modelo aplicable.
+modelo aplicable. No identificar $K_0\sigma'_v$ con la presión de contacto ni
+atribuir $M_\theta$ o $Q_\theta$ a la ecuación reglamentaria escalar.
 
 ## Equations Allowed
 
@@ -43,8 +48,9 @@ Profundidad, tensión vertical, presión intersticial;
 `eq-calculation-k0`, `eq-calculation-k0-reference`,
 `eq-calculation-k0-unloading`, `eq-calculation-k0-reloading`,
 `eq-calculation-k0-passive-limit` y
-`eq-calculation-compaction-history`; proyección del estado tensional,
-multiplicador tangencial, USACE y acción temporal FHWA.
+`eq-calculation-compaction-history`; `eq-calculation-standard-thrust` como
+relación USACE sujeta a comprobación AASHTO; proyección biaxial analítica,
+multiplicador tangencial y acción temporal FHWA.
 
 ## Equations Excluded
 
@@ -76,10 +82,12 @@ símbolos matemáticos conservan la notación de las fuentes.
 
 ## Open Gaps
 
-Estratigrafía, agua, trayectoria tensional, OCR,
+Clasificación del producto, articulado AASHTO, $P_F$, $S$, formulación de interacción,
+estratigrafía, agua, trayectoria tensional, OCR,
 $\mathrm{OCR}_{\max}$, $\Delta\sigma'_{h,c}$, rango de $\alpha$ y secuencia
 constructiva reales.
 
 ## Validation
 
-APTO COMO FORMULACIÓN OPERATIVA; PARÁMETROS DEL CASO EXISTENTE PENDIENTES.
+CANDIDATO CORREGIDO EL 13 DE AGOSTO DE 2026; PENDIENTE NUEVA AUDITORÍA;
+PARÁMETROS DEL CASO EXISTENTE PENDIENTES.
