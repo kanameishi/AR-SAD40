@@ -4711,3 +4711,47 @@ gráficos y demanda elástica visibles. No importará productos R ni mostrará
 metadatos de paridad como resultados de ingeniería. La resistencia de la
 chapa, juntas y pernos, shotcrete y la simulación de Monte Carlo continúan como
 puertas independientes y no se infieren desde este cierre.
+
+## 39. Notebook Wolfram de apoyo al escenario determinístico
+
+### 39.1 Producto
+
+El soporte independiente se materializa en
+`scripts/wolfram/calculation.workbook.nb`. Es un notebook nativo, autónomo y
+de lectura secuencial; no sustituye la implementación R ni consume sus
+productos. El notebook histórico `calculationScenario.nb` permanece sin
+modificación y no gobierna esta etapa.
+
+La hoja contiene, en orden:
+
+1. convenciones y ecuaciones de equilibrio;
+2. una única asociación editable de entradas;
+3. geometría y rigideces circunferenciales de la fila CSPI adoptada;
+4. estado tensional con $K_0$ adoptado;
+5. acciones perimetrales para $\alpha=0$ y $\alpha=1$;
+6. $N_\theta(\theta)$, $M_\theta(\theta)$ y $Q_\theta(\theta)$, sus
+   extremos y tres gráficos independientes;
+7. demanda elástica en las fibras exterior e interior;
+8. resumen del escenario; y
+9. controles secundarios de equilibrio, presión uniforme y modos $n=0$ y
+   $n=2$.
+
+### 39.2 Frontera
+
+El notebook no importa R ni CSV, no usa `wolframscript`, no depende de un
+archivo `.wl` y no presenta hashes o metadatos de paridad como resultados de
+ingeniería. Tampoco calcula resistencia, utilización, factor de seguridad,
+corrosión, juntas, pernos, shotcrete ni tensión cortante local a partir de
+$Q_\theta$. Para usarlo se abre el archivo en Wolfram y se ejecuta
+`Evaluation > Evaluate Notebook`.
+
+### 39.3 Comprobación
+
+Wolfram Kernel 15.0.1 leyó el archivo como una expresión `Notebook` válida y
+evaluó secuencialmente sus 13 celdas `Input` sin error. Los valores reproducen
+los extremos materializados por R para las resultantes y para ambas fibras;
+los residuos simbólicos son $\{0,0,0\}$, el límite uniforme es
+$\{-pR,0,0\}$ y las diferencias modales son nulas. El archivo tiene SHA-256
+`1d1ddb6d1d379a8407d5f31e02533d6d1d1cab25aae4dd3424ff270d1f2b0e02`.
+El informe de construcción está en
+`/private/tmp/ar-sad40-calculation-support-build.md`.

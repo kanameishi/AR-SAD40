@@ -1,0 +1,367 @@
+Notebook[{
+  Cell["Revestimiento circular enterrado", "Title"],
+  Cell["Hoja de cálculo para un escenario determinístico", "Subtitle"],
+
+  Cell["Objeto y alcance", "Section"],
+  Cell["Este cuaderno calcula las acciones perimetrales, las resultantes seccionales y la demanda elástica de tensión normal circunferencial de una sección corrugada CSPI de referencia. La coordenada angular θ vale cero en la clave y aumenta en sentido horario. Todas las resultantes se expresan por metro de longitud del conducto.", "Text"],
+  Cell["El cálculo corresponde a un único estado biaxial uniforme prescrito. No calcula resistencia, utilización, factor de seguridad, capacidad de juntas o pernos, corrosión ni una alternativa de hormigón proyectado. Qθ se conserva como resultante seccional y no se transforma en una tensión cortante local.", "Text"],
+  Cell["Uso: abrir el archivo en Wolfram y seleccionar Evaluation > Evaluate Notebook. El cuaderno es autocontenido y no requiere R, archivos de datos ni conexión a internet.", "Text"],
+
+  Cell["1. Convenciones y ecuaciones de equilibrio", "Section"],
+  Cell["Pr es positiva hacia el exterior y Pt es positiva en el sentido creciente de θ. Nθ es positiva a tracción. Los signos de Mθ y Qθ quedan definidos por las ecuaciones de equilibrio siguientes.", "Text"],
+  Cell["dNθ/dθ - Qθ + R Pt = 0", "Equation"],
+  Cell["dQθ/dθ + Nθ - R Pr = 0", "Equation"],
+  Cell["dMθ/dθ - R Qθ = 0", "Equation"],
+  Cell["El multiplicador 0 ≤ α ≤ 1 escala exclusivamente la componente tangencial prescrita. Los casos α = 0 y α = 1 representan, respectivamente, su omisión y su incorporación completa; α no es un coeficiente de fricción.", "Text"],
+
+  Cell["2. Entradas del escenario", "Section"],
+  Cell[BoxData["ClearAll[\"Global`*\"];
+Inputs = <|
+  \"insideDiameterM\" -> 2.63,
+  \"effectiveVerticalStressKPa\" -> 100.,
+  \"k0\" -> 0.50,
+  \"waterPressureDifferenceKPa\" -> 0.,
+  \"alphaValues\" -> {1., 0.},
+  \"youngModulusGPa\" -> 200.,
+  \"nominalProfileMm\" -> \"76 x 25\",
+  \"specifiedThicknessMm\" -> 2.80,
+  \"designBaseThicknessMm\" -> 2.64,
+  \"areaMm2PerMm\" -> 3.281,
+  \"inertiaMm4PerMm\" -> 249.73,
+  \"sectionModulusMm3PerMm\" -> 17.81
+|>;
+InputRows = {
+  {\"D_i\", Inputs[\"insideDiameterM\"], \"m\"},
+  {\"sigma'_v\", Inputs[\"effectiveVerticalStressKPa\"], \"kPa\"},
+  {\"K_0\", Inputs[\"k0\"], \"-\"},
+  {\"Delta u\", Inputs[\"waterPressureDifferenceKPa\"], \"kPa\"},
+  {\"alpha\", Row[Inputs[\"alphaValues\"], \", \"], \"-\"},
+  {\"E_theta\", Inputs[\"youngModulusGPa\"], \"GPa\"},
+  {\"perfil\", Inputs[\"nominalProfileMm\"], \"mm\"},
+  {\"t_s\", Inputs[\"specifiedThicknessMm\"], \"mm\"},
+  {\"t_d\", Inputs[\"designBaseThicknessMm\"], \"mm\"},
+  {\"A_p\", Inputs[\"areaMm2PerMm\"], \"mm^2/mm\"},
+  {\"I_p\", Inputs[\"inertiaMm4PerMm\"], \"mm^4/mm\"},
+  {\"S_p\", Inputs[\"sectionModulusMm3PerMm\"], \"mm^3/mm\"}
+};
+Grid[
+  Prepend[InputRows, {Style[\"Símbolo\", Bold], Style[\"Valor\", Bold], Style[\"Unidad\", Bold]}],
+  Frame -> All,
+  Alignment -> {{Left, Right, Left}, Center},
+  Background -> {None, {LightGray, None}}
+]"], "Input"],
+  Cell["Las propiedades A_p, I_p y S_p corresponden a la fila exacta CSPI 76 x 25 de 2,80 mm de espesor especificado y 2,64 mm de espesor base de diseño. No se interpola una fila para 3,0 mm.", "Text"],
+
+  Cell["3. Geometría y propiedades circunferenciales", "Section"],
+  Cell["R = D_i/2,    EAθ = Eθ A_p,    EIθ = Eθ I_p,    η = I_p/(A_p R²),    c_p = I_p/S_p", "Equation"],
+  Cell[BoxData["RadiusM = Inputs[\"insideDiameterM\"]/2;
+AreaM2PerM = Inputs[\"areaMm2PerMm\"] 10^-3;
+InertiaM4PerM = Inputs[\"inertiaMm4PerMm\"] 10^-9;
+YoungModulusKPa = Inputs[\"youngModulusGPa\"] 10^6;
+ExtensionalRigidityKNPerM = YoungModulusKPa AreaM2PerM;
+FlexuralRigidityKNM2PerM = YoungModulusKPa InertiaM4PerM;
+SectionRatio = InertiaM4PerM/(AreaM2PerM RadiusM^2);
+FiberDistanceMm = Inputs[\"inertiaMm4PerMm\"]/Inputs[\"sectionModulusMm3PerMm\"];
+GeometryRows = {
+  {\"R\", RadiusM, \"m\"},
+  {\"EA_theta\", ExtensionalRigidityKNPerM, \"kN/m\"},
+  {\"EI_theta\", FlexuralRigidityKNM2PerM, \"kN m^2/m\"},
+  {\"eta\", SectionRatio, \"-\"},
+  {\"c_p\", FiberDistanceMm, \"mm\"}
+};
+Grid[
+  Prepend[
+    ({#[[1]], NumberForm[N[#[[2]]], {14, 10}], #[[3]]} & /@ GeometryRows),
+    {Style[\"Símbolo\", Bold], Style[\"Valor\", Bold], Style[\"Unidad\", Bold]}
+  ],
+  Frame -> All,
+  Alignment -> {{Left, Right, Left}, Center},
+  Background -> {None, {LightGray, None}}
+]"], "Input"],
+
+  Cell["4. Estado de tensiones efectivas", "Section"],
+  Cell["El escenario adopta K_0 = 0,50. No se comparan aquí formulaciones alternativas de K_0.", "Text"],
+  Cell["sigma'_h = K_0 sigma'_v,    p_m = Delta u + (sigma'_v + sigma'_h)/2,    Delta sigma = sigma'_v - sigma'_h", "Equation"],
+  Cell[BoxData["EffectiveVerticalStressKPa = Inputs[\"effectiveVerticalStressKPa\"];
+K0 = Inputs[\"k0\"];
+WaterPressureDifferenceKPa = Inputs[\"waterPressureDifferenceKPa\"];
+EffectiveHorizontalStressKPa = K0 EffectiveVerticalStressKPa;
+MeanPressureKPa = WaterPressureDifferenceKPa +
+  (EffectiveVerticalStressKPa + EffectiveHorizontalStressKPa)/2;
+StressDifferenceKPa = EffectiveVerticalStressKPa - EffectiveHorizontalStressKPa;
+StressRows = {
+  {\"sigma'_v\", EffectiveVerticalStressKPa, \"kPa\"},
+  {\"sigma'_h\", EffectiveHorizontalStressKPa, \"kPa\"},
+  {\"p_m\", MeanPressureKPa, \"kPa\"},
+  {\"Delta sigma\", StressDifferenceKPa, \"kPa\"}
+};
+Grid[
+  Prepend[StressRows, {Style[\"Símbolo\", Bold], Style[\"Valor\", Bold], Style[\"Unidad\", Bold]}],
+  Frame -> All,
+  Alignment -> {{Left, Right, Left}, Center},
+  Background -> {None, {LightGray, None}}
+]"], "Input"],
+
+  Cell["5. Acciones perimetrales", "Section"],
+  Cell["Pr(θ) = -p_m - (Delta sigma/2) cos(2θ)", "Equation"],
+  Cell["Pt(α,θ) = α (Delta sigma/2) sin(2θ)", "Equation"],
+  Cell[BoxData["ClearAll[radialPressure, tangentialPressure];
+radialPressure[theta_] := -MeanPressureKPa -
+  StressDifferenceKPa/2 Cos[2 theta];
+tangentialPressure[alpha_, theta_] := alpha StressDifferenceKPa/2 Sin[2 theta];
+AlphaValues = Inputs[\"alphaValues\"];
+ActionAnglesDeg = {0, 45, 90, 135};
+ActionRows = Flatten[
+  Table[
+    {
+      angle,
+      alpha,
+      radialPressure[angle Degree],
+      tangentialPressure[alpha, angle Degree]
+    },
+    {alpha, AlphaValues},
+    {angle, ActionAnglesDeg}
+  ],
+  1
+];
+Grid[
+  Prepend[
+    ({#[[1]], #[[2]], NumberForm[#[[3]], {9, 3}], NumberForm[#[[4]], {9, 3}]} & /@ ActionRows),
+    {Style[\"theta [deg]\", Bold], Style[\"alpha\", Bold], Style[\"P_r [kPa]\", Bold], Style[\"P_t [kPa]\", Bold]}
+  ],
+  Frame -> All,
+  Alignment -> Center,
+  Background -> {None, {LightGray, None}}
+]"], "Input"],
+
+  Cell["6. Resultantes seccionales", "Section"],
+  Cell["Para los modos uniforme y n = 2 del estado prescrito, la solución cerrada es:", "Text"],
+  Cell["Nθ(α,θ) = -R p_m + R Delta sigma (1 + 2α) cos(2θ)/6", "Equation"],
+  Cell["Mθ(α,θ) = -R² p_m η/(1 + η) + R² Delta sigma (2 + α) cos(2θ)/12", "Equation"],
+  Cell["Qθ(α,θ) = -R Delta sigma (2 + α) sin(2θ)/6", "Equation"],
+  Cell[BoxData["ClearAll[normalForce, bendingMoment, shearForce];
+normalForce[alpha_, theta_] := -RadiusM MeanPressureKPa +
+  RadiusM StressDifferenceKPa (1 + 2 alpha)/6 Cos[2 theta];
+bendingMoment[alpha_, theta_] :=
+  -RadiusM^2 MeanPressureKPa SectionRatio/(1 + SectionRatio) +
+  RadiusM^2 StressDifferenceKPa (2 + alpha)/12 Cos[2 theta];
+shearForce[alpha_, theta_] :=
+  -RadiusM StressDifferenceKPa (2 + alpha)/6 Sin[2 theta];
+AngleDegrees = Range[0, 359];
+AngleRadians = AngleDegrees Degree;
+ClearAll[resultantRecord];
+resultantRecord[alpha_] := Module[
+  {NormalValues, MomentValues, ShearValues},
+  NormalValues = normalForce[alpha, #] & /@ AngleRadians;
+  MomentValues = bendingMoment[alpha, #] & /@ AngleRadians;
+  ShearValues = shearForce[alpha, #] & /@ AngleRadians;
+  <|
+    \"alpha\" -> alpha,
+    \"normalMin\" -> Min[NormalValues],
+    \"normalMax\" -> Max[NormalValues],
+    \"momentMin\" -> Min[MomentValues],
+    \"momentMax\" -> Max[MomentValues],
+    \"shearAbsoluteMax\" -> Max[Abs[ShearValues]]
+  |>
+];
+ResultantRecords = resultantRecord /@ AlphaValues;
+ResultantRows = ({
+  #[\"alpha\"],
+  NumberForm[#[\"normalMin\"], {12, 7}],
+  NumberForm[#[\"normalMax\"], {12, 7}],
+  NumberForm[#[\"momentMin\"], {12, 7}],
+  NumberForm[#[\"momentMax\"], {12, 7}],
+  NumberForm[#[\"shearAbsoluteMax\"], {12, 7}]
+} &) /@ ResultantRecords;
+Column[{
+  Grid[
+    Prepend[
+      ResultantRows,
+      {Style[\"alpha\", Bold], Style[\"N_min\", Bold], Style[\"N_max\", Bold],
+       Style[\"M_min\", Bold], Style[\"M_max\", Bold], Style[\"|Q|_max\", Bold]}
+    ],
+    Frame -> All,
+    Alignment -> Center,
+    Background -> {None, {LightGray, None}}
+  ],
+  Style[\"N y Q en kN/m; M en kN m/m.\", Smaller]
+}]"], "Input"],
+
+  Cell["Los diagramas siguientes presentan cada resultante en una figura independiente. Las dos curvas corresponden a α = 1 y α = 0.", "Text"],
+  Cell[BoxData["ResultantStyles = {
+  Directive[RGBColor[0.10, 0.35, 0.70], AbsoluteThickness[2.2]],
+  Directive[RGBColor[0.80, 0.25, 0.15], AbsoluteThickness[2.2], Dashed]
+};
+Plot[
+  Evaluate[normalForce[#, angle Degree] & /@ AlphaValues],
+  {angle, 0, 360},
+  Frame -> True,
+  Axes -> False,
+  FrameLabel -> {\"theta [deg]\", \"N_theta [kN/m]\"},
+  PlotLegends -> Placed[{\"alpha = 1\", \"alpha = 0\"}, Above],
+  PlotStyle -> ResultantStyles,
+  PlotRange -> All,
+  GridLines -> {Range[0, 360, 45], {0}},
+  ImageSize -> Large
+]"], "Input"],
+  Cell[BoxData["Plot[
+  Evaluate[bendingMoment[#, angle Degree] & /@ AlphaValues],
+  {angle, 0, 360},
+  Frame -> True,
+  Axes -> False,
+  FrameLabel -> {\"theta [deg]\", \"M_theta [kN m/m]\"},
+  PlotLegends -> Placed[{\"alpha = 1\", \"alpha = 0\"}, Above],
+  PlotStyle -> ResultantStyles,
+  PlotRange -> All,
+  GridLines -> {Range[0, 360, 45], {0}},
+  ImageSize -> Large
+]"], "Input"],
+  Cell[BoxData["Plot[
+  Evaluate[shearForce[#, angle Degree] & /@ AlphaValues],
+  {angle, 0, 360},
+  Frame -> True,
+  Axes -> False,
+  FrameLabel -> {\"theta [deg]\", \"Q_theta [kN/m]\"},
+  PlotLegends -> Placed[{\"alpha = 1\", \"alpha = 0\"}, Above],
+  PlotStyle -> ResultantStyles,
+  PlotRange -> All,
+  GridLines -> {Range[0, 360, 45], {0}},
+  ImageSize -> Large
+]"], "Input"],
+
+  Cell["7. Demanda elástica de tensión normal circunferencial", "Section"],
+  Cell["La coordenada de fibra ξ es positiva hacia el interior. Para la sección CSPI publicada se adoptan ξ_e = -c_p y ξ_i = +c_p.", "Text"],
+  Cell["sigma_theta(α,θ,ξ) = Nθ(α,θ)/A_p + 1000 Mθ(α,θ) ξ/I_p    [MPa]", "Equation"],
+  Cell["sigma_theta,e = Nθ/A_p - 1000 Mθ/S_p,    sigma_theta,i = Nθ/A_p + 1000 Mθ/S_p", "Equation"],
+  Cell[BoxData["ClearAll[normalStress, formatAngles, stressRecord];
+normalStress[alpha_, theta_, fiberCoordinateMm_] :=
+  normalForce[alpha, theta]/Inputs[\"areaMm2PerMm\"] +
+  1000 bendingMoment[alpha, theta] fiberCoordinateMm/Inputs[\"inertiaMm4PerMm\"];
+formatAngles[angles_] := StringRiffle[(ToString[#] <> \" deg\") & /@ angles, \", \" ];
+FiberCoordinates = <|
+  \"exterior\" -> -FiberDistanceMm,
+  \"interior\" -> FiberDistanceMm
+|>;
+stressRecord[alpha_, fiberName_, fiberCoordinateMm_] := Module[
+  {StressValues, StressMin, StressMax, AnglesMin, AnglesMax},
+  StressValues = normalStress[alpha, #, fiberCoordinateMm] & /@ AngleRadians;
+  StressMin = Min[StressValues];
+  StressMax = Max[StressValues];
+  AnglesMin = Pick[AngleDegrees, Abs[StressValues - StressMin], x_ /; x <= 10^-8];
+  AnglesMax = Pick[AngleDegrees, Abs[StressValues - StressMax], x_ /; x <= 10^-8];
+  <|
+    \"alpha\" -> alpha,
+    \"fiber\" -> fiberName,
+    \"stressMinMPa\" -> StressMin,
+    \"anglesMinDeg\" -> AnglesMin,
+    \"stressMaxMPa\" -> StressMax,
+    \"anglesMaxDeg\" -> AnglesMax,
+    \"stressAbsoluteMaxMPa\" -> Max[Abs[{StressMin, StressMax}]]
+  |>
+];
+StressRecords = Flatten[
+  Table[
+    stressRecord[alpha, fiberName, FiberCoordinates[fiberName]],
+    {alpha, AlphaValues},
+    {fiberName, Keys[FiberCoordinates]}
+  ],
+  1
+];
+StressRows = ({
+  #[\"alpha\"],
+  #[\"fiber\"],
+  NumberForm[#[\"stressMinMPa\"], {14, 7}],
+  formatAngles[#[\"anglesMinDeg\"]],
+  NumberForm[#[\"stressMaxMPa\"], {14, 7}],
+  formatAngles[#[\"anglesMaxDeg\"]],
+  NumberForm[#[\"stressAbsoluteMaxMPa\"], {14, 7}]
+} &) /@ StressRecords;
+Grid[
+  Prepend[
+    StressRows,
+    {Style[\"alpha\", Bold], Style[\"fibra\", Bold], Style[\"sigma_min [MPa]\", Bold],
+     Style[\"theta_min\", Bold], Style[\"sigma_max [MPa]\", Bold],
+     Style[\"theta_max\", Bold], Style[\"|sigma|_max [MPa]\", Bold]}
+  ],
+  Frame -> All,
+  Alignment -> Center,
+  Background -> {None, {LightGray, None}}
+]"], "Input"],
+  Cell["Las tensiones anteriores son demandas elásticas de la sección publicada de referencia. No representan la sección neta actual afectada por corrosión ni una comprobación resistente conforme a AASHTO.", "Text"],
+
+  Cell["8. Resumen del escenario", "Section"],
+  Cell[BoxData["GoverningStress = First[MaximalBy[StressRecords, #[\"stressAbsoluteMaxMPa\"] &]];
+SummaryRows = {
+  {\"sigma'_h\", EffectiveHorizontalStressKPa, \"kPa\", \"estado adoptado\"},
+  {\"p_m\", MeanPressureKPa, \"kPa\", \"estado adoptado\"},
+  {\"N_min\", Min[Lookup[ResultantRecords, \"normalMin\"]], \"kN/m\", \"alpha = 1; theta = 90, 270 deg\"},
+  {\"N_max\", Max[Lookup[ResultantRecords, \"normalMax\"]], \"kN/m\", \"alpha = 1; theta = 0, 180 deg\"},
+  {\"M_min\", Min[Lookup[ResultantRecords, \"momentMin\"]], \"kN m/m\", \"alpha = 1; theta = 90, 270 deg\"},
+  {\"M_max\", Max[Lookup[ResultantRecords, \"momentMax\"]], \"kN m/m\", \"alpha = 1; theta = 0, 180 deg\"},
+  {\"|Q|_max\", Max[Lookup[ResultantRecords, \"shearAbsoluteMax\"]], \"kN/m\", \"alpha = 1; theta = 45, 135, 225, 315 deg\"},
+  {\"|sigma|_max\", GoverningStress[\"stressAbsoluteMaxMPa\"], \"MPa\",
+   \"alpha = \" <> ToString[GoverningStress[\"alpha\"]] <> \"; fibra \" <>
+    GoverningStress[\"fiber\"] <> \"; theta = \" <>
+    formatAngles[GoverningStress[\"anglesMinDeg\"]]}
+};
+Grid[
+  Prepend[
+    ({#[[1]], If[NumericQ[#[[2]]], NumberForm[#[[2]], {14, 7}], #[[2]]], #[[3]], #[[4]]} & /@ SummaryRows),
+    {Style[\"Magnitud\", Bold], Style[\"Valor\", Bold], Style[\"Unidad\", Bold], Style[\"Posición\", Bold]}
+  ],
+  Frame -> All,
+  Alignment -> {{Left, Right, Left, Left}, Center},
+  Background -> {None, {LightGray, None}}
+]"], "Input"],
+
+  Cell["9. Comprobaciones matemáticas secundarias", "Section"],
+  Cell["Estas comprobaciones no alimentan las tablas anteriores. Verifican el equilibrio de la solución cerrada, el límite de presión uniforme y su reconstrucción con los modos n = 0 y n = 2.", "Text"],
+  Cell[BoxData["ClearAll[r, p, d, a, x, h, radialSymbolic, tangentialSymbolic,
+  normalSymbolic, momentSymbolic, shearSymbolic];
+radialSymbolic[x_] := -p - d/2 Cos[2 x];
+tangentialSymbolic[a_, x_] := a d/2 Sin[2 x];
+normalSymbolic[a_, x_] := -r p + r d (1 + 2 a)/6 Cos[2 x];
+momentSymbolic[a_, x_] := -r^2 p h/(1 + h) +
+  r^2 d (2 + a)/12 Cos[2 x];
+shearSymbolic[a_, x_] := -r d (2 + a)/6 Sin[2 x];
+EquilibriumResiduals = FullSimplify[{
+  D[normalSymbolic[a, x], x] - shearSymbolic[a, x] + r tangentialSymbolic[a, x],
+  D[shearSymbolic[a, x], x] + normalSymbolic[a, x] - r radialSymbolic[x],
+  D[momentSymbolic[a, x], x] - r shearSymbolic[a, x]
+}];
+EquilibriumResiduals"], "Input"],
+  Cell[BoxData["UniformPressureLimit = FullSimplify[{
+  normalSymbolic[a, x],
+  momentSymbolic[a, x],
+  shearSymbolic[a, x]
+} /. {d -> 0, h -> 0}];
+UniformPressureLimit"], "Input"],
+  Cell[BoxData["ClearAll[normalModal, momentModal, shearModal];
+normalModal[alpha_, theta_] := -RadiusM MeanPressureKPa +
+  RadiusM StressDifferenceKPa (1 + 2 alpha)/6 Cos[2 theta];
+momentModal[alpha_, theta_] :=
+  -RadiusM^2 MeanPressureKPa SectionRatio/(1 + SectionRatio) +
+  RadiusM^2 StressDifferenceKPa (2 + alpha)/12 Cos[2 theta];
+shearModal[alpha_, theta_] :=
+  -RadiusM StressDifferenceKPa (2 + alpha)/6 Sin[2 theta];
+ModalDifferences = Table[
+  {
+    alpha,
+    Max[Abs[(normalForce[alpha, #] - normalModal[alpha, #]) & /@ AngleRadians]],
+    Max[Abs[(bendingMoment[alpha, #] - momentModal[alpha, #]) & /@ AngleRadians]],
+    Max[Abs[(shearForce[alpha, #] - shearModal[alpha, #]) & /@ AngleRadians]]
+  },
+  {alpha, AlphaValues}
+];
+Grid[
+  Prepend[ModalDifferences, {\"alpha\", \"max |Delta N|\", \"max |Delta M|\", \"max |Delta Q|\"}],
+  Frame -> All,
+  Alignment -> Center,
+  Background -> {None, {LightGray, None}}
+]"], "Input"]
+},
+WindowTitle -> "Revestimiento circular enterrado — escenario determinístico",
+WindowSize -> {1200, 900},
+Magnification -> 1.0,
+StyleDefinitions -> "Default.nb"
+]
