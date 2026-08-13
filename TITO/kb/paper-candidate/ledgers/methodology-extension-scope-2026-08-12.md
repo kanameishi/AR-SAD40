@@ -66,4 +66,7 @@ resistente.
 
 ## Validation
 
-Pendiente de ensamblaje, auditoría y render del candidato.
+PASS para el ensamblado candidato. El HTML independiente resuelve los cinco
+bloques, sus citas y referencias cruzadas y conserva la línea base congelada de
+Fase 1. Dictamen final en
+`/private/tmp/ar-sad40-methodology-extension-closure-final.md`.

@@ -83,4 +83,8 @@ de curvatura; condición longitudinal; pandeo; costuras y pernos.
 
 ## Validation
 
-Pendiente de auditoría técnica, editorial y render.
+PASS para la formulación metodológica condicionada. La auditoría final confirmó
+el límite inferior nulo de $t_{\rm design}$, la puerta independiente de
+continuidad resistente y la conservación explícita de los datos `UNKNOWN` que
+bloquean la aplicación al revestimiento existente. Dictamen en
+`/private/tmp/ar-sad40-methodology-extension-closure-final.md`.

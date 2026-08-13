@@ -73,3 +73,13 @@ limitaciones por datos `UNKNOWN` permanecen expresas. La verificación de chapa
 se considera cerrada para el caso sólo cuando se resuelvan sus entradas y la
 base normativa; hasta entonces el producto es una metodología y una evaluación
 condicional, no un dictamen resistente.
+
+## Validación
+
+El producto metodológico candidato obtuvo `PASS` para su alcance condicionado.
+El HTML auditado tiene SHA-256
+`589ce206fa1ca3d679d62f36df28d94da72a3dd7103918105b5e074ffacd0876`;
+el dictamen final está en
+`/private/tmp/ar-sad40-methodology-extension-closure-final.md`. Este cierre no
+resuelve las entradas ni la base normativa requeridas para verificar el caso
+existente.

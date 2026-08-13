@@ -2679,13 +2679,15 @@ Q_\theta&amp;=-R\Delta\sigma\frac{2+\alpha}{6}\sin2\theta.
 <p>La reducción del campo observado se expresa, como definición de esta metodología, mediante</p>
 <p><span id="eq-methodology-thickness-reduction"><span class="math display">\[
 t_{\rm design}(\theta,s)
-=\mathcal R\!\left[
+=\max\!\left\{
+\mathcal R\!\left[
 t_{\rm measured}(\theta,x_L,s),
 q(\theta,x_L,s),
 f_p(\theta,x_L,s)
-\right]-c_{\rm future},
+\right]-c_{\rm future},\ 0
+\right\},
 \tag{1}\]</span></span></p>
-<p>donde <span class="math inline">\(q\)</span> identifica el estado de la lectura, <span class="math inline">\(f_p\)</span> es la fracción perforada y <span class="math inline">\(c_{\rm future}\)</span> es una pérdida posterior a la fecha de inspección. La operación <span class="math inline">\(\mathcal R\)</span> debe declarar si selecciona una estación, una envolvente o una agregación sustentada por un mecanismo de reparto. El modelo plano no justifica por sí mismo un promedio longitudinal. La corrosión histórica ya contenida en <span class="math inline">\(t_{\rm measured}\)</span> no se descuenta por segunda vez.</p>
+<p>donde <span class="math inline">\(q\)</span> identifica el estado de la lectura, <span class="math inline">\(f_p\)</span> es la fracción perforada y <span class="math inline">\(c_{\rm future}\)</span> es una pérdida posterior a la fecha de inspección. La operación <span class="math inline">\(\mathcal R\)</span> debe declarar si selecciona una estación, una envolvente o una agregación sustentada por un mecanismo de reparto. El modelo plano no justifica por sí mismo un promedio longitudinal. La corrosión histórica ya contenida en <span class="math inline">\(t_{\rm measured}\)</span> no se descuenta por segunda vez. El límite inferior nulo representa ausencia local de metal efectivo; no restablece la continuidad de la sección ni resuelve el comportamiento de una perforación. Antes de calcular propiedades seccionales deben comprobarse <span class="math inline">\(\bar A_n&gt;0\)</span>, <span class="math inline">\(\bar I_n&gt;0\)</span> y la existencia de un camino resistente continuo. Si cualquiera de esas condiciones no se satisface, se interrumpe la recuperación de tensiones y se requiere una evaluación local de continuidad y estabilidad.</p>
 <p>Los errores de hasta aproximadamente 3 % para el transductor de dos elementos y de hasta 6 % para un transductor simple en zonas de picado severo son resultados de los ensayos de Mai, no límites universales ni distribuciones de probabilidad transferibles <span class="citation" data-cites="Mai2013">(<a href="#ref-Mai2013" role="doc-biblioref">Mai 2013, 46-48</a>)</span>.</p>
 </section>
 <section id="propiedades-netas-de-la-corrugación" class="level3" data-number="4.2.2">
@@ -2806,9 +2808,295 @@ r_y
 </section>
 <section id="a.2-estado-biaxial-uniforme" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="a.2-estado-biaxial-uniforme">A.2 Estado biaxial uniforme</h2>
-<p>La solución cerrada del estado biaxial uniforme se contrastó con la integración directa de las ecuaciones de equilibrio y con una descomposición analítica en los modos <span class="math inline">\(n=0\)</span> y <span class="math inline">\(n=2\)</span>. La malla común contiene 728 posiciones angulares e incluye los puntos críticos de los armónicos.</p>
-<p>La máxima diferencia absoluta entre la solución cerrada y la integración directa fue <span class="math inline">\(1.48\times10^{-6}\)</span> en las unidades de cada resultante, frente a un límite propio de <span class="math inline">\(10^{-4}\)</span>. El residuo adimensional máximo de equilibrio de la integración fue <span class="math inline">\(1.32\times10^{-13}\)</span>, frente a <span class="math inline">\(10^{-9}\)</span>, y la diferencia modal máxima fue <span class="math inline">\(1.78\times10^{-15}\)</span>, frente a <span class="math inline">\(10^{-7}\)</span>.</p>
-<p>Una implementación independiente reprodujo las acciones con una diferencia máxima de <span class="math inline">\(9.95\times10^{-14}\)</span> kPa y las curvas completas de resultantes con <span class="math inline">\(2.41\times10^{-12}\)</span> en sus unidades respectivas, frente al límite <span class="math inline">\(10^{-7}\)</span>. Para los 18 extremos de <span class="math inline">\(N_\theta\)</span>, <span class="math inline">\(M_\theta\)</span> y <span class="math inline">\(Q_\theta\)</span>, las diferencias máximas del valor y del valor con signo fueron <span class="math inline">\(1.34\times10^{-12}\)</span>.</p>
+<p>La solución cerrada del estado biaxial uniforme se contrastó con la integración directa de las ecuaciones de equilibrio y con una descomposición analítica en los modos <span class="math inline">\(n=0\)</span> y <span class="math inline">\(n=2\)</span>. La tabla siguiente identifica el caso empleado. Las propiedades seccionales corresponden exclusivamente a este control numérico y no representan la sección corroída del revestimiento existente.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 42%">
+<col style="width: 57%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Magnitud</th>
+<th style="text-align: right;">Valor adoptado</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>escenario</td>
+<td style="text-align: right;"><code>verification-biaxial-uniform</code></td>
+</tr>
+<tr class="even">
+<td>diámetro interior</td>
+<td style="text-align: right;">2.63 m</td>
+</tr>
+<tr class="odd">
+<td>radio de análisis</td>
+<td style="text-align: right;">1.315 m</td>
+</tr>
+<tr class="even">
+<td>corrugación nominal</td>
+<td style="text-align: right;"><span class="math inline">\(76\times25\)</span> mm</td>
+</tr>
+<tr class="odd">
+<td>espesor base de interpolación</td>
+<td style="text-align: right;">3.00 mm</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\bar A\)</span></td>
+<td style="text-align: right;">3.7304718 mm²/mm</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\bar I\)</span></td>
+<td style="text-align: right;">287.902154 mm⁴/mm</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(E_\theta\)</span></td>
+<td style="text-align: right;">200 GPa</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(EA_\theta\)</span></td>
+<td style="text-align: right;">746094.359 kN/m</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(EI_\theta\)</span></td>
+<td style="text-align: right;">57.580431 kN·m²/m</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\eta_s=\bar I/(\bar A R^2)\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(4.46303\times10^{-5}\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\sigma&#39;_v\)</span></td>
+<td style="text-align: right;">100 kPa</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(K_0\)</span> adoptado</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\sigma&#39;_h\)</span></td>
+<td style="text-align: right;">50 kPa</td>
+</tr>
+<tr class="odd">
+<td>incremento horizontal residual de compactación</td>
+<td style="text-align: right;">no determinado; no incluido en este escenario</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\Delta u\)</span></td>
+<td style="text-align: right;">0 kPa</td>
+</tr>
+<tr class="odd">
+<td>casos tangenciales</td>
+<td style="text-align: right;"><span class="math inline">\(\alpha=1\)</span> y <span class="math inline">\(\alpha=0\)</span></td>
+</tr>
+<tr class="even">
+<td>posiciones angulares</td>
+<td style="text-align: right;">728</td>
+</tr>
+<tr class="odd">
+<td>pasos de integración</td>
+<td style="text-align: right;">8192</td>
+</tr>
+<tr class="even">
+<td>tolerancia de equilibrio</td>
+<td style="text-align: right;"><span class="math inline">\(10^{-9}\)</span></td>
+</tr>
+<tr class="odd">
+<td>tolerancia de solución cerrada</td>
+<td style="text-align: right;"><span class="math inline">\(10^{-7}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>La integración de producción se comparó por resultante; cada diferencia y su tolerancia conservan la unidad de la magnitud examinada.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 15%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Caso</th>
+<th>Resultante</th>
+<th style="text-align: right;">Diferencia absoluta máxima</th>
+<th style="text-align: right;">Tolerancia</th>
+<th>Unidad</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\alpha=1\)</span></td>
+<td><span class="math inline">\(N_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(7.96\times10^{-13}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-7}\)</span></td>
+<td>kN/m</td>
+<td>satisface</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\alpha=1\)</span></td>
+<td><span class="math inline">\(M_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(1.28\times10^{-12}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-7}\)</span></td>
+<td>kN·m/m</td>
+<td>satisface</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\alpha=1\)</span></td>
+<td><span class="math inline">\(Q_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(1.08\times10^{-12}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-7}\)</span></td>
+<td>kN/m</td>
+<td>satisface</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\alpha=0\)</span></td>
+<td><span class="math inline">\(N_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(1.26\times10^{-12}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-7}\)</span></td>
+<td>kN/m</td>
+<td>satisface</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\alpha=0\)</span></td>
+<td><span class="math inline">\(M_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(2.39\times10^{-12}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-7}\)</span></td>
+<td>kN·m/m</td>
+<td>satisface</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\alpha=0\)</span></td>
+<td><span class="math inline">\(Q_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(1.54\times10^{-12}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-7}\)</span></td>
+<td>kN/m</td>
+<td>satisface</td>
+</tr>
+</tbody>
+</table>
+<p>Una implementación independiente evaluada con Wolfram 15.0.1 efectuó controles adicionales. Cuando el registro de ejecución conservó una cota común para varias filas, la tabla la informa por separado para cada familia dimensional; no se calcula un máximo entre fuerza y momento.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 15%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Comparación</th>
+<th>Observable</th>
+<th style="text-align: right;">Diferencia o cota verificada</th>
+<th style="text-align: right;">Tolerancia</th>
+<th>Unidad</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>integración independiente – solución cerrada</td>
+<td><span class="math inline">\(N_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(\leq1.48\times10^{-6}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-4}\)</span></td>
+<td>kN/m</td>
+<td>satisface</td>
+</tr>
+<tr class="even">
+<td>integración independiente – solución cerrada</td>
+<td><span class="math inline">\(M_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(\leq1.48\times10^{-6}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-4}\)</span></td>
+<td>kN·m/m</td>
+<td>satisface</td>
+</tr>
+<tr class="odd">
+<td>integración independiente – solución cerrada</td>
+<td><span class="math inline">\(Q_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(\leq1.48\times10^{-6}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-4}\)</span></td>
+<td>kN/m</td>
+<td>satisface</td>
+</tr>
+<tr class="even">
+<td>equilibrio de la integración</td>
+<td>residuo normalizado</td>
+<td style="text-align: right;"><span class="math inline">\(1.32\times10^{-13}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-9}\)</span></td>
+<td>adimensional</td>
+<td>satisface</td>
+</tr>
+<tr class="odd">
+<td>Fourier – solución cerrada</td>
+<td><span class="math inline">\(N_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(\leq1.78\times10^{-15}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-7}\)</span></td>
+<td>kN/m</td>
+<td>satisface</td>
+</tr>
+<tr class="even">
+<td>Fourier – solución cerrada</td>
+<td><span class="math inline">\(M_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(\leq1.78\times10^{-15}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-7}\)</span></td>
+<td>kN·m/m</td>
+<td>satisface</td>
+</tr>
+<tr class="odd">
+<td>Fourier – solución cerrada</td>
+<td><span class="math inline">\(Q_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(\leq1.78\times10^{-15}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-7}\)</span></td>
+<td>kN/m</td>
+<td>satisface</td>
+</tr>
+<tr class="even">
+<td>acciones independientes – producción</td>
+<td><span class="math inline">\(P_r\)</span>, <span class="math inline">\(P_t\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(9.95\times10^{-14}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-10}\)</span></td>
+<td>kPa</td>
+<td>satisface</td>
+</tr>
+<tr class="odd">
+<td>solución cerrada independiente – producción</td>
+<td><span class="math inline">\(N_\theta\)</span>, <span class="math inline">\(Q_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(\leq2.41\times10^{-12}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-7}\)</span></td>
+<td>kN/m</td>
+<td>satisface</td>
+</tr>
+<tr class="even">
+<td>solución cerrada independiente – producción</td>
+<td><span class="math inline">\(M_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(\leq2.41\times10^{-12}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-7}\)</span></td>
+<td>kN·m/m</td>
+<td>satisface</td>
+</tr>
+<tr class="odd">
+<td>extremos independientes – producción</td>
+<td><span class="math inline">\(N_\theta\)</span>, <span class="math inline">\(Q_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(\leq1.34\times10^{-12}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-7}\)</span></td>
+<td>kN/m</td>
+<td>satisface</td>
+</tr>
+<tr class="even">
+<td>extremos independientes – producción</td>
+<td><span class="math inline">\(M_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(\leq1.34\times10^{-12}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-7}\)</span></td>
+<td>kN·m/m</td>
+<td>satisface</td>
+</tr>
+</tbody>
+</table>
 <p>Los extremos repetidos por simetría forman un conjunto de posiciones equivalentes. Cada cálculo conserva una regla determinística para seleccionar un representante, pero la comparación acepta cualquier posición del mismo conjunto siempre que el valor con signo coincida.</p>
 </section>
 <section id="a.3-límite-de-presión-uniforme" class="level2 unnumbered">
@@ -2821,7 +3109,49 @@ M_\theta=0,
 \qquad
 Q_\theta=0.
 \]</span></p>
-<p>La integración directa con <span class="math inline">\(p=12.3\)</span> kPa produjo un residuo máximo de <span class="math inline">\(5.39\times10^{-8}\)</span> frente al límite <span class="math inline">\(10^{-4}\)</span>. Este control no impone <span class="math inline">\(M_\theta=0\)</span> cuando la compatibilidad incorpora <span class="math inline">\(\eta_s&gt;0\)</span>; en ese caso permanece el acoplamiento del modo uniforme.</p>
+<p>La integración directa con <span class="math inline">\(p=12.3\)</span> kPa produjo los residuos siguientes:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 23%">
+<col style="width: 23%">
+<col style="width: 17%">
+<col style="width: 17%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resultante</th>
+<th style="text-align: right;">Residuo absoluto máximo</th>
+<th style="text-align: right;">Tolerancia</th>
+<th>Unidad</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(N_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(4.10\times10^{-8}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-4}\)</span></td>
+<td>kN/m</td>
+<td>satisface</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(M_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(5.39\times10^{-8}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-4}\)</span></td>
+<td>kN·m/m</td>
+<td>satisface</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(Q_\theta\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(4.09\times10^{-8}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10^{-4}\)</span></td>
+<td>kN/m</td>
+<td>satisface</td>
+</tr>
+</tbody>
+</table>
+<p>Este control no impone <span class="math inline">\(M_\theta=0\)</span> cuando la compatibilidad incorpora <span class="math inline">\(\eta_s&gt;0\)</span>; en ese caso permanece el acoplamiento del modo uniforme.</p>
 </section>
 <section id="a.4-recuperación-elástica-de-la-tensión-normal" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="a.4-recuperación-elástica-de-la-tensión-normal">A.4 Recuperación elástica de la tensión normal</h2>
@@ -2838,12 +3168,127 @@ Q_\theta=0.
 </section>
 <section id="a.5-contrastes-seccionales-de-mai" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="a.5-contrastes-seccionales-de-mai">A.5 Contrastes seccionales de Mai</h2>
-<p>Mai publicó dos grupos de datos aptos para contrastar propiedades de sección:</p>
-<ol type="1">
-<li>la corrugación <span class="math inline">\(152\times51\)</span> mm de la tabla 2.1, que permite comprobar la conservación independiente de <span class="math inline">\(EA\)</span> y <span class="math inline">\(EI\)</span> para cuatro niveles de espesor; y</li>
-<li>la corrugación <span class="math inline">\(68\times13\)</span> mm de la tabla E.1, con seis pares de <span class="math inline">\(A\)</span>, <span class="math inline">\(I\)</span> y módulo elástico de sección para espesores entre 1.12 y 4.08 mm <span class="citation" data-cites="Mai2013">(<a href="#ref-Mai2013" role="doc-biblioref">Mai 2013</a>, tabla 2.1 y tabla E.1)</span>.</li>
-</ol>
-<p>Las rectas publicadas en el apéndice E son ajustes sobre varios puntos y no reproducen exactamente cada fila. La propiedad extrapolada a 4.50 mm se conserva como un resultado derivado por la tesis, no como una fila tabulada del manual de origen.</p>
+<p>Mai publicó, para una corrugación <span class="math inline">\(152\times51\)</span> mm y <span class="math inline">\(E=200\)</span> GPa, los cuatro estados de sección corrugada de la tabla 2.1. El espesor nominal era 3 mm y el espesor real intacto informado era 2.841 mm [<span class="citation" data-cites="Mai2013">Mai (<a href="#ref-Mai2013" role="doc-biblioref">2013</a>)</span>, tabla 2.1, p. 32; PDF p. 41].</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 21%">
+<col style="width: 21%">
+<col style="width: 21%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Espesor remanente</th>
+<th style="text-align: right;">Espesor real (mm)</th>
+<th style="text-align: right;"><span class="math inline">\(EI\)</span> (N·m²/m)</th>
+<th style="text-align: right;"><span class="math inline">\(EA\)</span> (N/m)</th>
+<th>Clase de evidencia</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">100 %</td>
+<td style="text-align: right;">2.841</td>
+<td style="text-align: right;"><span class="math inline">\(211.4\times10^3\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(704.4\times10^6\)</span></td>
+<td>dato publicado</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">42 %</td>
+<td style="text-align: right;">1.19</td>
+<td style="text-align: right;"><span class="math inline">\(88.80\times10^3\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(296\times10^6\)</span></td>
+<td>dato publicado</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">12.5 %</td>
+<td style="text-align: right;">0.355</td>
+<td style="text-align: right;"><span class="math inline">\(26.43\times10^3\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(88.05\times10^6\)</span></td>
+<td>dato publicado</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1.5 %</td>
+<td style="text-align: right;">0.0426</td>
+<td style="text-align: right;"><span class="math inline">\(3.180\times10^3\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(10.56\times10^6\)</span></td>
+<td>dato publicado</td>
+</tr>
+</tbody>
+</table>
+<p>La tabla E.1 de la misma tesis transcribe propiedades de una corrugación <span class="math inline">\(68\times13\)</span> mm para seis espesores <span class="citation" data-cites="Mai2013">(<a href="#ref-Mai2013" role="doc-biblioref">Mai 2013</a>, tabla E.1, PDF p. 225)</span>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 21%">
+<col style="width: 21%">
+<col style="width: 21%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;"><span class="math inline">\(t\)</span> (mm)</th>
+<th style="text-align: right;"><span class="math inline">\(A\)</span> (mm²/mm)</th>
+<th style="text-align: right;"><span class="math inline">\(I\)</span> (mm⁴/mm)</th>
+<th style="text-align: right;"><span class="math inline">\(S\)</span> (mm³/mm)</th>
+<th>Clase de evidencia</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1.12</td>
+<td style="text-align: right;">1.209</td>
+<td style="text-align: right;">22.61</td>
+<td style="text-align: right;">3.27</td>
+<td>dato publicado</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1.40</td>
+<td style="text-align: right;">1.512</td>
+<td style="text-align: right;">28.37</td>
+<td style="text-align: right;">4.02</td>
+<td>dato publicado</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1.82</td>
+<td style="text-align: right;">1.966</td>
+<td style="text-align: right;">37.11</td>
+<td style="text-align: right;">5.11</td>
+<td>dato publicado</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2.64</td>
+<td style="text-align: right;">2.852</td>
+<td style="text-align: right;">54.57</td>
+<td style="text-align: right;">7.11</td>
+<td>dato publicado</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3.35</td>
+<td style="text-align: right;">3.621</td>
+<td style="text-align: right;">70.16</td>
+<td style="text-align: right;">8.74</td>
+<td>dato publicado</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4.08</td>
+<td style="text-align: right;">4.411</td>
+<td style="text-align: right;">86.71</td>
+<td style="text-align: right;">10.33</td>
+<td>dato publicado</td>
+</tr>
+</tbody>
+</table>
+<p>Mai presenta como interpolaciones lineales los ajustes</p>
+<p><span class="math display">\[
+A=1.0817t-0.0026,
+\qquad
+I=21.619t-2.0007,
+\qquad
+S=2.3871t+0.6971.
+\]</span></p>
+<p>Esas rectas son resultados derivados por la tesis sobre varios puntos y no reproducen exactamente cada fila tabulada. La extrapolación informada para <span class="math inline">\(t=4.50\)</span> mm produce <span class="math inline">\(A=4.870\)</span> mm²/mm, <span class="math inline">\(I=95.28\)</span> mm⁴/mm y <span class="math inline">\(S=11.44\)</span> mm³/mm. Se conserva como resultado derivado fuera del intervalo de la tabla E.1, no como una fila publicada por el manual de origen.</p>
 <p>Los casos de carga viva, los análisis CANDE y el ensayo último CSP1 se reservan como antecedentes sobre las limitaciones del modelo lineal. No forman parte de la comprobación del cálculo geostático ni de la memoria profesional.</p>
 </section>
 <section id="a.6-alcance-de-la-evidencia-numérica" class="level2 unnumbered">

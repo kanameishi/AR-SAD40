@@ -62,5 +62,8 @@ existente.
 
 ## Validation
 
-Las fórmulas cerradas y sus extremos fueron contrastados en G10.7; la revisión
-editorial y el render del nuevo ensamblador permanecen pendientes.
+PASS dentro del ensamblado candidato. Las fórmulas cerradas y sus extremos
+fueron contrastados en G10.7; la auditoría final confirmó que $\alpha$ se
+presenta como multiplicador de la acción tangencial prescrita y no como
+coeficiente de fricción. Dictamen en
+`/private/tmp/ar-sad40-methodology-extension-closure-final.md`.

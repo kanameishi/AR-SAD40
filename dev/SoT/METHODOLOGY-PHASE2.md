@@ -1,6 +1,6 @@
 # Fuente de verdad — memoria de cálculo ejecutiva, Fase 2
 
-**Estado:** G0--G10.2 cerradas y publicadas; G10.7 tiene notebook candidato ejecutado y auditado; revisión del usuario pendiente
+**Estado:** G0--G10.2 y G10.7 cerradas; ampliación metodológica posterior a Fase 1 auditada; incorporación condicionada de chapa a la memoria en curso
 **Fecha de corte:** 2026-08-12
 **Aceptación:** usuario
 **Producto aprobado de referencia:** documento metodológico de Fase 1, futuro paper
@@ -18,7 +18,7 @@ Después de una compactación o al retomar el trabajo:
 2. leer `.codex-task.md`;
 3. leer esta nota completa;
 4. comprobar el estado real de Git y los archivos nombrados aquí;
-5. continuar desde la última sección declarada vigente —actualmente 28.6—,
+5. continuar desde la última sección declarada vigente —actualmente 30.3—,
    sin repetir trabajo aprobado.
 
 `dev/SoT/ACTIVE.md` apunta a `dev/plan/lfs-bootstrap/active.md` y pertenece a
@@ -3310,13 +3310,22 @@ seguridad del caso hasta resolver esas entradas.
 
 ### 30.3 Puerta documental y próxima rama
 
-El diseño independiente del candidato concluyó `PASS` en
-`/private/tmp/ar-sad40-methodology-candidate-design.md`. Las formulaciones de
-$K_0$, participación tangencial, G10.2, Mai y G10.7 conservan sus auditorías
-independientes previas; el render del ensamblado resolvió citas, referencias
-cruzadas y la numeración propia del apéndice sin modificar los hashes de la
-Fase 1. El HTML queda sujeto a revisión y aceptación editorial directa del
-usuario.
+El diseño independiente del candidato concluyó inicialmente `PASS` en
+`/private/tmp/ar-sad40-methodology-candidate-design.md`. La auditoría de cierre
+posterior detectó tres defectos documentales: dominio no negativo del espesor,
+comparaciones dimensionales agregadas y omisión de los datos seccionales
+publicados por Mai. Después de corregirlos, una primera reauditoría exigió
+además declarar que el incremento horizontal residual de compactación no está
+determinado ni incluido en el escenario; no corresponde reemplazarlo por cero.
+
+El cierre definitivo obtuvo `PASS` en
+`/private/tmp/ar-sad40-methodology-extension-closure-final.md`. El HTML vigente
+es `html/methodology.extension.review.es/index.html`, SHA-256
+`589ce206fa1ca3d679d62f36df28d94da72a3dd7103918105b5e074ffacd0876`.
+Las formulaciones de $K_0$, participación tangencial, G10.2, Mai y G10.7
+conservan sus auditorías independientes; las citas y referencias cruzadas
+resuelven y los trece hashes protegidos de Fase 1 permanecen exactos. La
+aceptación editorial final del candidato corresponde al usuario.
 
 La memoria puede incorporar la fórmula final, sus signos, unidades, dominio y
 el estado no evaluado del escenario; no copiará derivaciones ni controles

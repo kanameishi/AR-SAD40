@@ -12,21 +12,65 @@ estado del relleno ni de la resistencia del revestimiento.
 
 La solución cerrada del estado biaxial uniforme se contrastó con la integración
 directa de las ecuaciones de equilibrio y con una descomposición analítica en
-los modos $n=0$ y $n=2$. La malla común contiene 728 posiciones angulares e
-incluye los puntos críticos de los armónicos.
+los modos $n=0$ y $n=2$. La tabla siguiente identifica el caso empleado. Las
+propiedades seccionales corresponden exclusivamente a este control numérico y
+no representan la sección corroída del revestimiento existente.
 
-La máxima diferencia absoluta entre la solución cerrada y la integración
-directa fue $1.48\times10^{-6}$ en las unidades de cada resultante, frente a
-un límite propio de $10^{-4}$. El residuo adimensional máximo de equilibrio de
-la integración fue $1.32\times10^{-13}$, frente a $10^{-9}$, y la diferencia
-modal máxima fue $1.78\times10^{-15}$, frente a $10^{-7}$.
+| Magnitud | Valor adoptado |
+|---|---:|
+| escenario | `verification-biaxial-uniform` |
+| diámetro interior | 2.63 m |
+| radio de análisis | 1.315 m |
+| corrugación nominal | $76\times25$ mm |
+| espesor base de interpolación | 3.00 mm |
+| $\bar A$ | 3.7304718 mm²/mm |
+| $\bar I$ | 287.902154 mm⁴/mm |
+| $E_\theta$ | 200 GPa |
+| $EA_\theta$ | 746094.359 kN/m |
+| $EI_\theta$ | 57.580431 kN·m²/m |
+| $\eta_s=\bar I/(\bar A R^2)$ | $4.46303\times10^{-5}$ |
+| $\sigma'_v$ | 100 kPa |
+| $K_0$ adoptado | 0.50 |
+| $\sigma'_h$ | 50 kPa |
+| incremento horizontal residual de compactación | no determinado; no incluido en este escenario |
+| $\Delta u$ | 0 kPa |
+| casos tangenciales | $\alpha=1$ y $\alpha=0$ |
+| posiciones angulares | 728 |
+| pasos de integración | 8192 |
+| tolerancia de equilibrio | $10^{-9}$ |
+| tolerancia de solución cerrada | $10^{-7}$ |
 
-Una implementación independiente reprodujo las acciones con una diferencia
-máxima de $9.95\times10^{-14}$ kPa y las curvas completas de resultantes con
-$2.41\times10^{-12}$ en sus unidades respectivas, frente al límite
-$10^{-7}$. Para los 18 extremos de $N_\theta$, $M_\theta$ y $Q_\theta$, las
-diferencias máximas del valor y del valor con signo fueron
-$1.34\times10^{-12}$.
+La integración de producción se comparó por resultante; cada diferencia y su
+tolerancia conservan la unidad de la magnitud examinada.
+
+| Caso | Resultante | Diferencia absoluta máxima | Tolerancia | Unidad | Resultado |
+|---|---|---:|---:|---|---|
+| $\alpha=1$ | $N_\theta$ | $7.96\times10^{-13}$ | $10^{-7}$ | kN/m | satisface |
+| $\alpha=1$ | $M_\theta$ | $1.28\times10^{-12}$ | $10^{-7}$ | kN·m/m | satisface |
+| $\alpha=1$ | $Q_\theta$ | $1.08\times10^{-12}$ | $10^{-7}$ | kN/m | satisface |
+| $\alpha=0$ | $N_\theta$ | $1.26\times10^{-12}$ | $10^{-7}$ | kN/m | satisface |
+| $\alpha=0$ | $M_\theta$ | $2.39\times10^{-12}$ | $10^{-7}$ | kN·m/m | satisface |
+| $\alpha=0$ | $Q_\theta$ | $1.54\times10^{-12}$ | $10^{-7}$ | kN/m | satisface |
+
+Una implementación independiente evaluada con Wolfram 15.0.1 efectuó controles
+adicionales. Cuando el registro de ejecución conservó una cota común para
+varias filas, la tabla la informa por separado para cada familia dimensional;
+no se calcula un máximo entre fuerza y momento.
+
+| Comparación | Observable | Diferencia o cota verificada | Tolerancia | Unidad | Resultado |
+|---|---|---:|---:|---|---|
+| integración independiente -- solución cerrada | $N_\theta$ | $\leq1.48\times10^{-6}$ | $10^{-4}$ | kN/m | satisface |
+| integración independiente -- solución cerrada | $M_\theta$ | $\leq1.48\times10^{-6}$ | $10^{-4}$ | kN·m/m | satisface |
+| integración independiente -- solución cerrada | $Q_\theta$ | $\leq1.48\times10^{-6}$ | $10^{-4}$ | kN/m | satisface |
+| equilibrio de la integración | residuo normalizado | $1.32\times10^{-13}$ | $10^{-9}$ | adimensional | satisface |
+| Fourier -- solución cerrada | $N_\theta$ | $\leq1.78\times10^{-15}$ | $10^{-7}$ | kN/m | satisface |
+| Fourier -- solución cerrada | $M_\theta$ | $\leq1.78\times10^{-15}$ | $10^{-7}$ | kN·m/m | satisface |
+| Fourier -- solución cerrada | $Q_\theta$ | $\leq1.78\times10^{-15}$ | $10^{-7}$ | kN/m | satisface |
+| acciones independientes -- producción | $P_r$, $P_t$ | $9.95\times10^{-14}$ | $10^{-10}$ | kPa | satisface |
+| solución cerrada independiente -- producción | $N_\theta$, $Q_\theta$ | $\leq2.41\times10^{-12}$ | $10^{-7}$ | kN/m | satisface |
+| solución cerrada independiente -- producción | $M_\theta$ | $\leq2.41\times10^{-12}$ | $10^{-7}$ | kN·m/m | satisface |
+| extremos independientes -- producción | $N_\theta$, $Q_\theta$ | $\leq1.34\times10^{-12}$ | $10^{-7}$ | kN/m | satisface |
+| extremos independientes -- producción | $M_\theta$ | $\leq1.34\times10^{-12}$ | $10^{-7}$ | kN·m/m | satisface |
 
 Los extremos repetidos por simetría forman un conjunto de posiciones
 equivalentes. Cada cálculo conserva una regla determinística para seleccionar
@@ -46,10 +90,16 @@ M_\theta=0,
 Q_\theta=0.
 $$
 
-La integración directa con $p=12.3$ kPa produjo un residuo máximo de
-$5.39\times10^{-8}$ frente al límite $10^{-4}$. Este control no impone
-$M_\theta=0$ cuando la compatibilidad incorpora $\eta_s>0$; en ese caso
-permanece el acoplamiento del modo uniforme.
+La integración directa con $p=12.3$ kPa produjo los residuos siguientes:
+
+| Resultante | Residuo absoluto máximo | Tolerancia | Unidad | Resultado |
+|---|---:|---:|---|---|
+| $N_\theta$ | $4.10\times10^{-8}$ | $10^{-4}$ | kN/m | satisface |
+| $M_\theta$ | $5.39\times10^{-8}$ | $10^{-4}$ | kN·m/m | satisface |
+| $Q_\theta$ | $4.09\times10^{-8}$ | $10^{-4}$ | kN/m | satisface |
+
+Este control no impone $M_\theta=0$ cuando la compatibilidad incorpora
+$\eta_s>0$; en ese caso permanece el acoplamiento del modo uniforme.
 
 ## A.4 Recuperación elástica de la tensión normal {.unnumbered}
 
@@ -77,19 +127,45 @@ revestimiento existente.
 
 ## A.5 Contrastes seccionales de Mai {.unnumbered}
 
-Mai publicó dos grupos de datos aptos para contrastar propiedades de sección:
+Mai publicó, para una corrugación $152\times51$ mm y $E=200$ GPa, los cuatro
+estados de sección corrugada de la tabla 2.1. El espesor nominal era 3 mm y el
+espesor real intacto informado era 2.841 mm [@Mai2013, tabla 2.1, p. 32; PDF
+p. 41].
 
-1. la corrugación $152\times51$ mm de la tabla 2.1, que permite comprobar la
-   conservación independiente de $EA$ y $EI$ para cuatro niveles de espesor;
-   y
-2. la corrugación $68\times13$ mm de la tabla E.1, con seis pares de
-   $A$, $I$ y módulo elástico de sección para espesores entre 1.12 y 4.08 mm
-   [@Mai2013, tabla 2.1 y tabla E.1].
+| Espesor remanente | Espesor real (mm) | $EI$ (N·m²/m) | $EA$ (N/m) | Clase de evidencia |
+|---:|---:|---:|---:|---|
+| 100 % | 2.841 | $211.4\times10^3$ | $704.4\times10^6$ | dato publicado |
+| 42 % | 1.19 | $88.80\times10^3$ | $296\times10^6$ | dato publicado |
+| 12.5 % | 0.355 | $26.43\times10^3$ | $88.05\times10^6$ | dato publicado |
+| 1.5 % | 0.0426 | $3.180\times10^3$ | $10.56\times10^6$ | dato publicado |
 
-Las rectas publicadas en el apéndice E son ajustes sobre varios puntos y no
-reproducen exactamente cada fila. La propiedad extrapolada a 4.50 mm se
-conserva como un resultado derivado por la tesis, no como una fila tabulada del
-manual de origen.
+La tabla E.1 de la misma tesis transcribe propiedades de una corrugación
+$68\times13$ mm para seis espesores [@Mai2013, tabla E.1, PDF p. 225].
+
+| $t$ (mm) | $A$ (mm²/mm) | $I$ (mm⁴/mm) | $S$ (mm³/mm) | Clase de evidencia |
+|---:|---:|---:|---:|---|
+| 1.12 | 1.209 | 22.61 | 3.27 | dato publicado |
+| 1.40 | 1.512 | 28.37 | 4.02 | dato publicado |
+| 1.82 | 1.966 | 37.11 | 5.11 | dato publicado |
+| 2.64 | 2.852 | 54.57 | 7.11 | dato publicado |
+| 3.35 | 3.621 | 70.16 | 8.74 | dato publicado |
+| 4.08 | 4.411 | 86.71 | 10.33 | dato publicado |
+
+Mai presenta como interpolaciones lineales los ajustes
+
+$$
+A=1.0817t-0.0026,
+\qquad
+I=21.619t-2.0007,
+\qquad
+S=2.3871t+0.6971.
+$$
+
+Esas rectas son resultados derivados por la tesis sobre varios puntos y no
+reproducen exactamente cada fila tabulada. La extrapolación informada para
+$t=4.50$ mm produce $A=4.870$ mm²/mm, $I=95.28$ mm⁴/mm y
+$S=11.44$ mm³/mm. Se conserva como resultado derivado fuera del intervalo de
+la tabla E.1, no como una fila publicada por el manual de origen.
 
 Los casos de carga viva, los análisis CANDE y el ensayo último CSP1 se reservan
 como antecedentes sobre las limitaciones del modelo lineal. No forman parte de

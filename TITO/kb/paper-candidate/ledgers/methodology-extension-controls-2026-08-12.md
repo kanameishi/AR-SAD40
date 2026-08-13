@@ -64,4 +64,11 @@ casos resistentes después de identificar la rama normativa.
 
 ## Validation
 
-Pendiente de auditoría y render.
+PASS. La auditoría de cierre inicial detectó la mezcla de unidades y la
+ausencia de los datos publicados de Mai. La reauditoría comprobó la separación
+por familia dimensional, la identidad completa del escenario —incluido el
+incremento horizontal residual no determinado y no incluido— y la transcripción
+de las tablas 2.1 y E.1. Dictamen final en
+`/private/tmp/ar-sad40-methodology-extension-closure-final.md`; HTML auditado
+SHA-256
+`589ce206fa1ca3d679d62f36df28d94da72a3dd7103918105b5e074ffacd0876`.

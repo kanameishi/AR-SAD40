@@ -46,11 +46,13 @@ metodología, mediante
 
 $$
 t_{\rm design}(\theta,s)
-=\mathcal R\!\left[
+=\max\!\left\{
+\mathcal R\!\left[
 t_{\rm measured}(\theta,x_L,s),
 q(\theta,x_L,s),
 f_p(\theta,x_L,s)
-\right]-c_{\rm future},
+\right]-c_{\rm future},\ 0
+\right\},
 $$ {#eq-methodology-thickness-reduction}
 
 donde $q$ identifica el estado de la lectura, $f_p$ es la fracción perforada
@@ -59,6 +61,13 @@ operación $\mathcal R$ debe declarar si selecciona una estación, una
 envolvente o una agregación sustentada por un mecanismo de reparto. El modelo
 plano no justifica por sí mismo un promedio longitudinal. La corrosión
 histórica ya contenida en $t_{\rm measured}$ no se descuenta por segunda vez.
+El límite inferior nulo representa ausencia local de metal efectivo; no
+restablece la continuidad de la sección ni resuelve el comportamiento de una
+perforación. Antes de calcular propiedades seccionales deben comprobarse
+$\bar A_n>0$, $\bar I_n>0$ y la existencia de un camino resistente continuo.
+Si cualquiera de esas condiciones no se satisface, se interrumpe la
+recuperación de tensiones y se requiere una evaluación local de continuidad y
+estabilidad.
 
 Los errores de hasta aproximadamente 3 % para el transductor de dos elementos
 y de hasta 6 % para un transductor simple en zonas de picado severo son
