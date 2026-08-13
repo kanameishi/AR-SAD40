@@ -5,18 +5,19 @@
 Incorporar en un documento candidato independiente los desarrollos posteriores
 a la Fase 1 sobre estimación de $K_0$, participación de la acción tangencial,
 deterioro de la chapa, propiedades netas, recuperación de tensiones normales y
-controles numéricos.
+comprobación seccional de una alternativa autónoma de hormigón proyectado.
 
 ## Decisión sustentada
 
 Establecer qué operaciones pueden ejecutarse desde variables primitivas hasta
-la demanda elástica de la chapa, y qué datos y bases normativas deben cerrarse
-antes de emitir una verificación resistente del revestimiento existente.
+la demanda elástica de la chapa y hasta la comprobación seccional del hormigón
+proyectado, y qué datos y bases normativas deben cerrarse antes de emitir una
+verificación resistente del revestimiento existente o de una alternativa.
 
 ## Audiencia
 
 Ingenieros geotécnicos y estructurales responsables de revisar el procedimiento
-de cálculo y la evaluación de un revestimiento circular de acero corrugado.
+de cálculo y las alternativas de revestimiento circular.
 
 ## Producto metodológico detallado
 
@@ -39,6 +40,10 @@ al escenario declarado.
 - propiedades netas de la corrugación;
 - recuperación elástica condicionada de la tensión normal circunferencial;
 - distinción entre primera fluencia, pandeo, continuidad, costuras y pernos;
+- base reglamentaria condicionada y clasificación seccional del hormigón
+  proyectado;
+- flexocompresión y corte de una franja de hormigón simple o armado;
+- evaluación de materiales y geometría de una estructura existente;
 - controles matemáticos y numéricos de las formulaciones incluidas; y
 - variables candidatas para una futura simulación de Monte Carlo, sin asignar
   distribuciones.
@@ -52,7 +57,13 @@ al escenario declarado.
 - tensión equivalente sin condición longitudinal cerrada;
 - capacidad de costuras o pernos;
 - simulación probabilística sin marginales y dependencias aprobadas; y
-- verificación de shotcrete antes del cierre de la etapa de chapa.
+- acción compuesta entre la chapa y el hormigón proyectado sin un modelo de
+  interfaz, secuencia constructiva y transferencia de acciones;
+- resultados resistentes del hormigón proyectado sin jurisdicción, base
+  reglamentaria, clasificación, geometría, armaduras, resistencia equivalente
+  y combinaciones aprobadas; y
+- contribución postfisuración de fibras sin propiedades residuales y
+  formulación normativa aplicable.
 
 ## Línea base aprobada
 
@@ -72,14 +83,17 @@ concluyen sin hallazgos materiales, la Fase 1 conserva sus hashes y las
 limitaciones por datos `UNKNOWN` permanecen expresas. La verificación de chapa
 se considera cerrada para el caso sólo cuando se resuelvan sus entradas y la
 base normativa; hasta entonces el producto es una metodología y una evaluación
-condicional, no un dictamen resistente.
+condicional, no un dictamen resistente. La alternativa de hormigón proyectado
+se traslada a la memoria únicamente después de cerrar sus decisiones de
+aplicabilidad y sus datos del caso.
 
 ## Validación
 
-El producto metodológico candidato obtuvo `PASS` para su alcance condicionado.
-El HTML auditado tiene SHA-256
-`589ce206fa1ca3d679d62f36df28d94da72a3dd7103918105b5e074ffacd0876`;
-el dictamen final está en
-`/private/tmp/ar-sad40-methodology-extension-closure-final.md`. Este cierre no
-resuelve las entradas ni la base normativa requeridas para verificar el caso
-existente.
+La versión anterior del producto metodológico obtuvo `PASS` para la chapa y el
+estado lateral. La ampliación con la alternativa de hormigón proyectado obtuvo
+`PASS` en las reauditorías técnica y editorial registradas en
+`/private/tmp/ar-sad40-shotcrete-candidate-technical-reaudit.md` y
+`/private/tmp/ar-sad40-shotcrete-candidate-editorial-reaudit.md`. El render
+integrado produjo `html/methodology.extension.review.es/index.html`, SHA-256
+`3858ea25a3ff863f9be9d95f9c93382c9f141bd3b8cdcc63207f30b6063dfe43`,
+sin modificar la Fase 1.

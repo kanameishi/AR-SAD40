@@ -1,7 +1,7 @@
 # Fuente de verdad — memoria de cálculo ejecutiva, Fase 2
 
-**Estado:** G0--G10.2 y G10.7 cerradas; ampliación metodológica y recuperación condicionada de chapa auditadas; verificación resistente del caso bloqueada por entradas; shotcrete es la próxima rama
-**Fecha de corte:** 2026-08-12
+**Estado:** G0--G10.2 y G10.7 cerradas; recuperación condicionada de chapa publicada; metodología candidata de shotcrete redactada y auditada; verificaciones resistentes del caso bloqueadas por entradas
+**Fecha de corte:** 2026-08-13
 **Aceptación:** usuario
 **Producto aprobado de referencia:** documento metodológico de Fase 1, futuro paper
 
@@ -18,7 +18,7 @@ Después de una compactación o al retomar el trabajo:
 2. leer `.codex-task.md`;
 3. leer esta nota completa;
 4. comprobar el estado real de Git y los archivos nombrados aquí;
-5. continuar desde la última sección declarada vigente —actualmente 30.3—,
+5. continuar desde la última sección declarada vigente —actualmente 30.5—,
    sin repetir trabajo aprobado.
 
 `dev/SoT/ACTIVE.md` apunta a `dev/plan/lfs-bootstrap/active.md` y pertenece a
@@ -3380,3 +3380,69 @@ reglamentaria, la clasificación de la sección, la condición autónoma o
 compuesta, el espesor resistente, la armadura, la resistencia efectiva y las
 acciones de cálculo y servicio. No se inferirá una sección compuesta con la
 chapa ni se tratará automáticamente una cuantía nula como hormigón simple.
+
+### 30.5 Metodología candidata para la alternativa de shotcrete
+
+La investigación G10.1 se convirtió en una ampliación candidata del mismo
+producto metodológico independiente, sin crear otro master. El ensamblado
+`methodology.extension.review.*` incorpora ahora tres capítulos nuevos:
+
+1. alcance, base reglamentaria condicionada y decisiones del sistema;
+2. transformación de las resultantes circunferenciales y comprobación de una
+   franja de hormigón simple o armado; y
+3. controles analíticos y numéricos autónomos en el Apéndice B.
+
+La rama modelada es un revestimiento de shotcrete autónomo. Sus resultantes
+$N_\theta$, $M_\theta$ y $Q_\theta$ deben recalcularse con las rigideces de esa
+alternativa; no se transfieren las resultantes obtenidas para la chapa. La
+acción compuesta queda excluida mientras no existan un modelo de interfaz,
+adherencia, secuencia constructiva y transferencia de acciones aceptados.
+
+La base reglamentaria argentina se presenta como una ruta condicionada, no
+como una adopción automática: Resolución SOP 11/2026, CIRSOC 200-24 para
+tecnología y aceptación, y CIRSOC 201-25 para evaluación estructural, sujeto a
+la jurisdicción, al contrato y a la exclusión reglamentaria de cáscaras
+delgadas. La función que pudiera corresponder a CIRSOC 804-4 permanece
+`UNKNOWN`.
+
+Para una franja longitudinal de ancho $b$, el cambio de convención entre el
+modelo global y la comprobación de hormigón queda fijado por
+
+$$
+P_u=-N_\theta b,\qquad M_u=M_\theta b,\qquad V_u=Q_\theta b,
+$$
+
+donde $P_u>0$ representa compresión y $M_u>0$ comprime la cara exterior. El
+capítulo distingue hormigón simple, armado y reforzado con fibras mediante la
+clasificación normativa y el detallado, no por la sola condición $A_s=0$.
+Incluye las expresiones de hormigón simple, la compatibilidad y el equilibrio
+de la sección armada, el bloque rectangular equivalente, $\beta_1$, los
+factores $\phi$ punto a punto y las ramas de corte unidireccional. En una
+estructura existente se usa una resistencia especificada equivalente
+$f'_{c,\mathrm{eq}}$ aprobada; no se reemplaza por la resistencia efectiva de
+producción.
+
+La primera auditoría técnica detectó cuatro defectos materiales: signo de la
+deformación de tracción, omisión del límite global de corte, omisión del límite
+de $\sqrt{f'_c}$ y definición demasiado amplia de la armadura longitudinal en
+$\rho_w$. Los cuatro fueron corregidos. La reauditoría técnica concluyó `PASS`
+en `/private/tmp/ar-sad40-shotcrete-candidate-technical-reaudit.md`; la
+reauditoría editorial concluyó `PASS` en
+`/private/tmp/ar-sad40-shotcrete-candidate-editorial-reaudit.md`. Los controles
+B.1--B.4 reproducen casos de hormigón simple, factores $\phi$ y el límite
+global de corte mediante cálculos independientes.
+
+El render integrado concluyó correctamente y produjo
+`html/methodology.extension.review.es/index.html`, SHA-256
+`3858ea25a3ff863f9be9d95f9c93382c9f141bd3b8cdcc63207f30b6063dfe43`.
+Las citas y referencias cruzadas resuelven, los cuatro masters vigentes se
+conservan y los trece hashes protegidos de Fase 1 permanecen exactos.
+
+Esta ampliación no se traslada todavía a la memoria profesional. Antes deben
+resolverse, como mínimo, la jurisdicción y la base contractual; la condición
+autónoma o compuesta; el proceso húmedo o seco; las combinaciones últimas y de
+servicio; el espesor resistente y sus defectos; $f'_{c,\mathrm{eq}}$ y la
+estadística de testigos; la clasificación seccional; las armaduras o
+propiedades residuales de fibras; y los requisitos de exposición, fisuración y
+estanqueidad. Sin esas decisiones no se informan capacidad, utilización ni
+factor de seguridad del caso.

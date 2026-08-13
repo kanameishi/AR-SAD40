@@ -6,4 +6,10 @@
 
 {{< include /TITO/kb/paper-candidate/chapters/methodology.sheet.assessment.es.md >}}
 
+{{< include /TITO/kb/paper-candidate/chapters/methodology.shotcrete.scope.es.md >}}
+
+{{< include /TITO/kb/paper-candidate/chapters/methodology.shotcrete.section.es.md >}}
+
 {{< include /TITO/kb/paper-candidate/chapters/methodology.extension.controls.es.md >}}
+
+{{< include /TITO/kb/paper-candidate/chapters/methodology.shotcrete.controls.es.md >}}
