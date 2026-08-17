@@ -44,7 +44,3 @@ unidades, dominios y controles. No reemplaza los informes ni sus fuentes.
 `PASS` final de la correspondencia entre G10.2, su implementación R y el plan
 Wolfram. La función está implementada pero no produce tensiones del escenario
 vigente mientras sus entradas netas permanezcan `UNKNOWN`.
-
-`g10.wolfram.methodology.followup.plan.es.md` define la puerta diferida G10.7:
-auditoría de correspondencia metodológica y recuperación de un único notebook
-Wolfram para un escenario fijo después de implementar las ramas aceptadas.

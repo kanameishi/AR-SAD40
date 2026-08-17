@@ -28,7 +28,7 @@ source(file.path(projectRoot, "scripts", "setup", "calculationFunctions.R"))
 
 stopifnot(
   exists("calculateScenario", mode = "function", inherits = FALSE),
-  exists("calculateSheetNormalStress", mode = "function", inherits = FALSE),
+  exists("evaluateAisiS100Demand", mode = "function", inherits = FALSE),
   exists("buildCalculationData", mode = "function", inherits = FALSE),
   !exists("CalculationRun", inherits = FALSE),
   !exists("Calculation", inherits = FALSE),

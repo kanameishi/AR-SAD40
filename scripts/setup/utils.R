@@ -12,6 +12,18 @@ readCalculationJson <- function(path) {
   Config
 }
 
+readCaption <- function(caption, root = projectRoot) {
+  if (!is.character(caption) || length(caption) != 1L ||
+      is.na(caption) || !nzchar(caption)) {
+    stop("caption must identify one caption file.", call. = FALSE)
+  }
+  Path <- file.path(root, "_captions", paste0(caption, ".md"))
+  if (!file.exists(Path)) {
+    stop("The caption is not available: ", Path, call. = FALSE)
+  }
+  paste(readLines(Path, warn = FALSE), collapse = "\n")
+}
+
 formatCalculationFixed <- function(value, digits) {
   formatC(value, format = "f", digits = digits)
 }

@@ -1,49 +1,84 @@
-# Objeto y alcance {#sec-calculation-scope}
+# Modelo de cálculo {#sec-calculation-model}
+
+## Objeto y alcance {#sec-calculation-scope}
 
 Esta memoria documenta el cálculo de las resultantes seccionales de un
-revestimiento circular, expresadas por unidad de ancho axial proyectado, bajo
-las acciones perimetrales obtenidas al proyectar sobre el contorno un estado
-tensional biaxial uniforme prescrito. El estado tensional prescrito es
-uniforme; las componentes radial $P_r(\theta)$ y tangencial $P_t(\theta)$ de
-la acción sobre el contorno varían con la coordenada angular.
+revestimiento circular, expresadas por unidad de ancho axial proyectado, para
+un escenario determinístico definido por la altura de relleno sobre la clave
+y el estado de tensiones efectivas. Las componentes radial y tangencial se
+obtienen proyectando sobre el contorno un estado biaxial uniforme prescrito;
+la respuesta transversal se resuelve por integración directa del equilibrio,
+la periodicidad y la compatibilidad del anillo. La solución cerrada y la serie
+de Fourier se emplean como controles numéricos. Schwartz--Einstein se conserva
+como contraste independiente y no gobierna las demandas resistentes.
 
 El cálculo determina la fuerza normal circunferencial $N_\theta(\theta)$, el
-momento flector circunferencial $M_\theta(\theta)$ y la fuerza cortante
-circunferencial $Q_\theta(\theta)$, junto con sus extremos, para los valores
-adoptados de $\alpha$, que multiplica la componente tangencial prescrita. El
-caso constituye la evaluación determinística de referencia para comprobar la
-resolución numérica. Sus resultados corresponden al estado de acciones adoptado y
-no representan por sí solos la demanda del revestimiento existente.
+momento flector circunferencial $M_\theta(\theta)$ y la fuerza de corte
+circunferencial $Q_\theta(\theta)$, junto con sus extremos y posiciones
+angulares. Las entradas del escenario son hipótesis de la aplicación numérica;
+no se presentan como resultados de una caracterización del relleno existente.
 
-# Datos adoptados y convenciones {#sec-calculation-basis}
+El procedimiento se aplica por separado al revestimiento existente de chapas
+de acero corrugadas y a dos alternativas autónomas de hormigón proyectado:
+simple y
+armado. Cada alternativa emplea su propio radio hasta el baricentro de la
+pared, su sección y sus
+rigideces; la interacción y las resultantes se recalculan y no se transfieren
+entre revestimientos. Para el hormigón simple se calculan las comprobaciones
+locales del Capítulo 14 de ACI 318-25, condicionadas a que la clasificación
+estructural y las disposiciones de aplicabilidad del artículo 14.1.2 queden
+acreditadas [@ACI31825]. La alternativa armada
+se evalúa mediante un dominio local $P$--$M$ de ACI 318-25 y la cuantía
+mínima de armadura para cáscaras adoptada de ACI 318.2-14
+[@ACI31825; @ACI318214].
 
-## Datos del caso
+En forma separada, la comprobación del conducto corrugado determina el empuje
+circunferencial mayorado y lo compara con los límites de resistencia de la
+pared y de la costura, flexibilidad y tapada mínima. La comprobación emplea
+una base documental compuesta: las expresiones reproducidas por USACE, los
+parámetros de AASHTO LRFD 9.ª edición recopilados por Anderson et al. y las
+propiedades publicadas por CSPI; CIRSOC 804-4 se utiliza sólo como contraste
+de una edición anterior [@USACE2020; @AndersonEtAl2023; @CSPIHandbookChapter6;
+@CIRSOC8044]. Esta base no demuestra conformidad con la edición vigente de
+AASHTO. El empuje escalar y las resultantes angulares responden a
+formulaciones de carga distintas y no se combinan entre sí.
 
-La @tbl-calculation-inputs reúne las magnitudes empleadas en la evaluación
-determinística. El diámetro define la línea circular de referencia. Las
-propiedades seccionales corresponden a la fila exacta de 2,8 mm del perfil
-CSPI 76×25: el espesor especificado es $t_s=2{,}80$ mm y el espesor base de
-diseño es $t_d=2{,}64$ mm. El área y el momento de inercia se toman
-directamente de esa fila.
-El módulo $E_\theta$, el estado tensional efectivo y los valores adoptados de
-$\alpha$ completan las entradas del caso.
+## Datos comunes y convenciones {#sec-calculation-basis}
+
+### Datos del caso
+
+La @tbl-calculation-inputs reúne las magnitudes comunes del escenario. La
+altura de relleno sobre la clave, el peso unitario asignado al cálculo de
+tensiones efectivas, la sobrecarga, $\phi'$, OCR y la presión hidráulica neta
+determinan el estado tensional prescrito. $K_0$ se calcula con la formulación
+seleccionada y no se introduce como una constante independiente. $E_g$ y
+$\nu_g$ se conservan para el contraste de Schwartz--Einstein. Las entradas
+propias de cada alternativa se presentan en sus respectivas secciones; las
+propiedades del perfil corrugado se informan en la
+@tbl-calculation-section-reference.
 
 {{< include /_tbl/Calculation.inputs.ES.qmd >}}
 
-La tabla identifica la formulación empleada para obtener $K_0$, sus variables
-primitivas y el valor aplicado. Una rama de valor adoptado constituye una
-hipótesis del caso; las demás ramas calculan $K_0$ mediante las relaciones y
-los dominios establecidos en la @sec-calculation-k0-estimation. El parámetro
-$\alpha$ es un multiplicador de la componente tangencial prescrita y no un
-coeficiente de fricción ni una ley constitutiva de la interfaz.
+En esta aplicación provisional se adopta la rama de descarga de
+Mayne--Kulhawy con $\phi'=30^\circ$ y $\mathrm{OCR}=1$, que se reduce a la
+relación de Jáky y produce $K_0=0{,}5$ [@MayneKulhawy1982]. La ausencia de agua
+se representa mediante presión hidráulica neta nula. Estos valores permanecen
+editables y deben reemplazarse cuando se disponga de la caracterización
+geotécnica. Las formulaciones y sus dominios se reúnen en el
+[Apéndice B.3](#sec-calculation-appendix-k0-alternatives).
 
-## Coordenada angular y convenciones de signo
+El parámetro $\alpha$ multiplica la componente tangencial prescrita. Se
+calculan $\alpha=1$, que incorpora la proyección completa, y $\alpha=0$, que
+conserva sólo la componente normal. No es un coeficiente de fricción ni una
+ley constitutiva de contacto.
+
+### Coordenada angular y convenciones de signo
 
 La coordenada angular se define con $\theta=0$ en la clave y sentido positivo
-horario. El versor radial $\mathbf e_r$ es positivo hacia el exterior del
-revestimiento y el versor tangencial $\mathbf e_t$ sigue el sentido creciente
-de $\theta$. En consecuencia, $P_r>0$ actúa hacia el exterior y $P_t>0$ actúa
-en la dirección de $\mathbf e_t$.
+horario. El vector unitario radial $\mathbf e_r$ es positivo hacia el exterior
+del revestimiento y el vector unitario tangencial $\mathbf e_t$ sigue el
+sentido creciente de $\theta$. En consecuencia, $P_r>0$ actúa hacia el
+exterior y $P_t>0$ actúa en la dirección de $\mathbf e_t$.
 
 La fuerza normal circunferencial es positiva a tracción. La coordenada
 seccional $\xi$ es positiva hacia la fibra interior; por lo tanto,
@@ -53,14 +88,14 @@ centro de la sección circular. Las componentes de acción perimetral $P_r$ y
 $P_t$ se expresan en kPa; $N_\theta$ y $Q_\theta$, en kN/m; y $M_\theta$, en
 kN·m/m.
 
-## Definición de las resultantes seccionales
+### Definición de las resultantes seccionales
 
 Para una posición angular $\theta$ fija, sea $A_b$ el dominio material de la
 sección resistente idealizada comprendido en una franja de ancho axial
 proyectado $b$, en un corte normal a la dirección circunferencial. Sean $x_L$
 la coordenada axial y $\xi$ la coordenada radial local medida desde el eje
-centroidal de esa sección; $dA$ denota un elemento diferencial de $A_b$.
-La tensión tangencial $\tau_{\theta\xi}$ es positiva en la dirección de
+baricéntrico de esa sección; $dA$ denota un elemento diferencial de $A_b$.
+La tensión de corte $\tau_{\theta\xi}$ es positiva en la dirección de
 $\xi>0$. Las resultantes por unidad de ancho se definen mediante
 
 $$

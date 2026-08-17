@@ -1,0 +1,23 @@
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) {
+  CAP <- paste(
+    readLines("_captions/tbl.liner.aashto.inputs.ES.md", warn = FALSE),
+    collapse = "\n"
+  )
+}
+source("scripts/tbl/Calculation.aashto.inputs.R")
+TBL <- buildCalculationAashtoInputsTable(Calculation$paths$aashtoInputs)
+```
+
+```{r}
+#| label: tbl-liner-aashto-inputs
+#| tbl-cap: !expr CAP
+#| echo: false
+TBL
+```
+
+```{r}
+#| include: false
+rm(CAP, TBL, buildCalculationAashtoInputsTable)
+```

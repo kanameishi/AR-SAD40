@@ -1,0 +1,187 @@
+## Sección y rigideces
+
+La @tbl-liner-section-reference reproduce la fila publicada adoptada
+para el perfil corrugado. El espesor especificado es
+$t_s=`r formatCalculationFixed(Calculation$section$specifiedThicknessMm, 0L)`$
+mm y el espesor base de diseño, que coincide con el espesor analizado, es
+$t_d=t=`r formatCalculationFixed(Calculation$section$remainingBaseThicknessMm, 0L)`$
+mm. La geometría tabulada tiene paso
+`r formatCalculationFixed(Calculation$section$actualPitchMm, 0L)` mm,
+profundidad
+`r formatCalculationFixed(Calculation$section$actualDepthMm, 0L)` mm y radio de
+corrugación
+`r formatCalculationFixed(Calculation$section$corrugationRadiusMm, 0L)` mm
+[@CSPIHandbookChapter2, tabla 2.4]. La @fig-liner-profile identifica
+estas dimensiones y las restantes variables geométricas tabuladas.
+
+{{< include /_fig/liner.profile.ES.qmd >}}
+
+{{< include /_tbl/liner.section.reference.ES.qmd >}}
+
+Las propiedades por unidad de ancho axial proyectado son
+
+$$
+A_\theta=
+`r formatCalculationFixed(Calculation$section$areaMm2PerMm, 3L)`
+\ \mathrm{mm^2/mm},
+\qquad
+I_\theta=
+`r formatCalculationFixed(Calculation$section$inertiaMm4PerMm, 2L)`
+\ \mathrm{mm^4/mm},
+$$
+
+$$
+S_\theta=
+`r formatCalculationFixed(Calculation$section$sectionModulusMm3PerMm, 2L)`
+\ \mathrm{mm^3/mm}.
+$$ {#eq-calculation-application-properties}
+
+Con
+$E_\theta=`r formatCalculationGeneral(Calculation$section$circumferentialYoungModulusGPa)`$
+GPa y $R=`r formatCalculationGeneral(Calculation$geometry$radiusM)`$ m,
+
+$$
+EA_\theta=
+`r formatCalculationFixed(Calculation$section$extensionalRigidityKnPerM, 0L)`
+\ \mathrm{kN/m},
+\qquad
+EI_\theta=
+`r formatCalculationFixed(Calculation$section$flexuralRigidityKnM2PerM, 0L)`
+\ \mathrm{kN\,m^2/m},
+$$
+
+$$
+\eta_s=
+`r formatCalculationScientificLatex(Calculation$section$sectionRatio, 8L)`.
+$$ {#eq-calculation-application-rigidities}
+
+## Integración directa y resultantes de la chapa
+
+Para el estado común del escenario,
+$\sigma'_v=`r formatCalculationGeneral(Calculation$stress$effectiveVerticalStressKPa)`$
+kPa y
+$K_0=`r formatCalculationGeneral(Calculation$interaction$stressRatio[1L])`$.
+La @tbl-liner-existing-interaction presenta la razón seccional y las amplitudes
+calculadas por integración directa con la sección corrugada.
+
+{{< include /_tbl/liner.existing.interaction.ES.qmd >}}
+
+La @tbl-liner-existing-extrema reúne los extremos de las resultantes de la chapa
+para $\alpha=1$ y $\alpha=0$.
+
+{{< include /_tbl/liner.existing.extrema.ES.qmd >}}
+
+```{r}
+#| echo: false
+#| results: asis
+cat(Calculation$caseSummaryMarkdown)
+```
+
+La @fig-liner-existing-resultants presenta conjuntamente $N_\theta$,
+$M_\theta$ y $Q_\theta$. La circunferencia gris continua es la línea circular
+de referencia. Las curvas y sus ordenadas radiales son diagramas de
+resultantes y no representan una posición deformada.
+
+{{< include /_fig/liner.existing.resultants.ES.qmd >}}
+
+## Comprobación del conducto corrugado
+
+El empuje de diseño se calcula a partir de la altura de relleno sobre la clave,
+el peso unitario adoptado para la acción permanente y la luz, con los factores
+del procedimiento identificado en la base normativa adoptada. Las razones de
+utilización son
+
+$$
+U_y=\frac{T_u}{R_y},
+\qquad
+U_b=\frac{T_u}{R_b},
+\qquad
+U_s=\frac{T_u}{R_s},
+\qquad
+U_F=\frac{FF}{FF_{lim}},
+\qquad
+U_H=\frac{H_{min}}{H_0}.
+$$ {#eq-calculation-aashto-utilizations}
+
+La condición numérica es $U\leq1$. Para la costura de referencia, la pérdida
+relativa del diámetro de los pernos se representa mediante
+$\delta_d=\Delta d/d_0$ y
+
+$$
+U_s(\delta_d)
+=\frac{T_u}{\phi_sR_{n,0}(1-\delta_d)^2},
+\qquad 0\leq\delta_d<1.
+$$ {#eq-calculation-aashto-seam-utilization-corroded}
+
+La @tbl-liner-aashto-inputs presenta los datos adoptados del caso y la
+@tbl-liner-aashto-checks reúne las comprobaciones de pared, costura,
+flexibilidad y tapada mínima. Las expresiones de pared y
+flexibilidad se reproducen
+de USACE; los parámetros de pandeo y costura se contrastan con Anderson et
+al., p. 164, y la condición de tapada mínima con la tabla 7.1,
+p. 133
+[@USACE2020, secs. 4.12.3--4.12.5; @AndersonEtAl2023, pp. 133, 164].
+
+Las propiedades $A$ e $I$ proceden de la fila CSPI adoptada. Para el acero se
+adoptan
+$F_y=`r formatCalculationFixed(Calculation$section$yieldStrengthMPa, 0L)`$ MPa,
+$F_u=`r formatCalculationFixed(Calculation$config$aashto$tensileStrengthMPa, 0L)`$
+MPa y
+$E=`r formatCalculationFixed(Calculation$section$circumferentialYoungModulusGPa * 1000, 0L)`$
+MPa. Estos valores son hipótesis del escenario y requieren confirmación
+mediante documentación o ensayos del material existente.
+
+Para la costura se adopta
+$R_{n,0}=`r formatCalculationFixed(Calculation$config$aashto$seam$nominalResistanceKnPerM, 0L)`$
+kN/m, publicado para el perfil y el diámetro de fijación declarados en la
+@tbl-liner-aashto-inputs. La tabla A12-7 de CIRSOC 804-4 reproduce una
+disposición de unión próxima
+[@CSPIHandbookChapter6, table 6.4a; @CIRSOC8044, table A12-7]. La resistencia
+adoptada permite comparar con una costura publicada, pero no establece la
+equivalencia resistente de los pernos de 1/2 in ASTM A325 observados.
+
+En el escenario determinístico se adopta
+$\delta_d=`r formatCalculationGeneral(Calculation$config$aashto$seam$fastenerDiameterLossRatio)`$.
+La base reproduce disposiciones de ediciones anteriores; las comprobaciones se
+informan como comparaciones aritméticas del escenario y no como cumplimiento
+de la décima edición [@AASHTO2024TOC].
+
+{{< include /_tbl/liner.aashto.inputs.ES.qmd >}}
+
+{{< include /_tbl/liner.aashto.checks.ES.qmd >}}
+
+```{r}
+#| echo: false
+#| results: asis
+cat(Calculation$aashto$resultMarkdown)
+```
+
+## Resultado de la alternativa de chapa
+
+```{r}
+#| include: false
+ResultM <- Calculation$governing[
+  Calculation$governing$resultantID == "M",
+  ,
+  drop = FALSE
+]
+ResultQ <- Calculation$governing[
+  Calculation$governing$resultantID == "Q",
+  ,
+  drop = FALSE
+]
+```
+
+El máximo absoluto del momento flector es
+`r formatCalculationFixed(ResultM$value, 0L)` kN·m/m y corresponde a
+`r tolower(ResultM$interfaceLabel)` en
+$\theta=`r formatCalculationGeneral(ResultM$thetaDeg)`^\circ$. El máximo
+absoluto de la fuerza de corte es
+`r formatCalculationFixed(ResultQ$value, 0L)` kN/m y ocurre para
+`r tolower(ResultQ$interfaceLabel)` en
+$\theta=`r formatCalculationGeneral(ResultQ$thetaDeg)`^\circ$.
+
+```{r}
+#| include: false
+rm(ResultM, ResultQ)
+```

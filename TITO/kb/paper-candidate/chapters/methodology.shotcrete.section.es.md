@@ -1,59 +1,150 @@
-# Comprobación seccional de fuerza normal y momento
+# Comprobación resistente de la sección de hormigón proyectado
 
-## Interfaz de demanda
+## Acciones sobre una franja longitudinal
 
-La comprobación resistente recibe, para cada sección y combinación, la fuerza
-normal circunferencial y el momento flector por unidad de longitud del eje. Se
-adopta $N_\theta>0$ a tracción y $M_\theta>0$ cuando produce tracción en la
-cara interior. Para una franja longitudinal de ancho $b$, la convención de la
-sección de hormigón es $P_u>0$ en compresión y $M_u>0$ cuando comprime la cara
-exterior:
+Para cada prescripción de proyección, combinación y posición angular se reciben las
+resultantes concurrentes $N_\theta$, $M_\theta$ y $Q_\theta$, expresadas por
+unidad de longitud del eje. Se adopta $N_\theta>0$ a tracción y
+$M_\theta>0$ cuando tracciona la cara interior. Para una franja de ancho $b$,
+las acciones resistentes son
 
 $$
 P_u=-N_\theta b,
 \qquad
-M_u=M_\theta b.
+M_u=\lvert M_\theta\rvert b,
+\qquad
+V_u=\lvert Q_\theta\rvert b,
 $$ {#eq-shotcrete-strip-resultants}
 
-Si $N_\theta$ se expresa en kN/m, $M_\theta$ en kN·m/m y $b$ en m:
+donde $P_u>0$ corresponde a compresión. Si $N_\theta$ se expresa en kN/m,
+$M_\theta$ en kN·m/m y $b$ en m:
 
 $$
 P_u[\mathrm N]=-10^3N_\theta b,
 \qquad
-M_u[\mathrm{N\,mm}]=10^6M_\theta b.
+M_u[\mathrm{N\,mm}]=10^6\lvert M_\theta\rvert b,
+\qquad
+V_u[\mathrm N]=10^3\lvert Q_\theta\rvert b.
 $$ {#eq-shotcrete-unit-conversion}
 
-La entrada debe identificar sección, combinación, etapa, unidades, base
-longitudinal y condición factorizada. La función resistente no aplica de nuevo
-los factores de carga. El ancho $b=1.000$ m sólo se adopta cuando la
-idealización mediante una franja sea compatible con la clasificación
-estructural y con los artículos ACI aplicables.
+El cálculo resistente no aplica factores adicionales. La combinación, la
+etapa, la condición factorizada, la proyección y el ángulo forman parte de cada
+registro de demanda.
 
-## Datos de la sección
+## Hormigón simple: propiedades de la franja
 
-La geometría se define en milímetros mediante el contorno resistente efectivo,
-su eje de referencia y las caras interior y exterior. Cada capa de armadura
-$j$ se caracteriza mediante área neta $A_{s,j}$, coordenada $y_j$, módulo
-$E_s$, tensión de fluencia y estado de conservación. Las propiedades del
-hormigón y del acero son valores de diseño aprobados para la evaluación; no se
-infieren dentro del cálculo seccional.
+Sea $h$ el espesor especificado. Cuando el hormigón se coloca directamente
+contra el suelo, ACI CODE-318-25 exige reducir en 50 mm el espesor empleado en
+la comprobación; en caso contrario se utiliza el espesor especificado
+[@ACI31825]:
 
-La comprobación rechaza una cuantía total sin posiciones de las capas. También
-rechaza una sección sin armadura cuando no se haya documentado la disposición
-ACI que habilita esa condición para la tipología seleccionada.
+$$
+h_d=
+\begin{cases}
+h-50\ \mathrm{mm}, & \text{hormigón colocado contra el suelo},\\
+h, & \text{en los demás casos}.
+\end{cases}
+$$ {#eq-shotcrete-design-thickness}
 
-## Compatibilidad y equilibrio
+Para una franja rectangular:
 
-El núcleo mecánico admite una distribución plana de deformaciones:
+$$
+A_g=b h_d,
+\qquad
+S_m=\frac{b h_d^2}{6}.
+$$ {#eq-shotcrete-plain-properties}
+
+Las expresiones siguientes usan $f'_c$ en MPa, $b$ y $h_d$ en mm, $P_u$ y
+$V_u$ en N y $M_u$ en N·mm. Para el Capítulo 14, el factor de reducción es
+$\phi=0.60$.
+
+## Tracción en la cara extrema
+
+La tensión de tracción producida por flexocompresión se evalúa como
+
+$$
+f_t=\max\left(0,\frac{M_u}{S_m}-\frac{P_u}{A_g}\right).
+$$ {#eq-shotcrete-plain-tension-demand}
+
+La resistencia de cálculo y la utilización son
+
+$$
+f_{t,d}=\phi\,0.42\lambda\sqrt{f'_c},
+\qquad
+U_t=\frac{f_t}{f_{t,d}}\le1,
+$$ {#eq-shotcrete-plain-tension-check}
+
+conforme a ACI CODE-318-25, Tabla 14.5.4.1(a) [@ACI31825]. Esta comprobación
+se aplica a estados con compresión axial; los estados con tracción axial
+requieren una disposición resistente diferente.
+
+## Compresión combinada con flexión
+
+La resistencia nominal a flexión para la cara comprimida es
+
+$$
+M_{n,c}=0.85 f'_c S_m.
+$$ {#eq-shotcrete-plain-compression-moment}
+
+Cuando se conoce la longitud de compresión $\ell_c$, la resistencia axial
+nominal se calcula mediante
+
+$$
+P_n=0.60 f'_c A_g
+\left[1-\left(\frac{\ell_c}{32h_d}\right)^2\right],
+$$ {#eq-shotcrete-plain-axial-capacity}
+
+y se exige
+
+$$
+U_c=
+\frac{M_u}{\phi M_{n,c}}+
+\frac{P_u}{\phi P_n}
+\le1.
+$$ {#eq-shotcrete-plain-compression-check}
+
+Estas expresiones corresponden a ACI CODE-318-25, Ecuación 14.5.3.1 y Tabla
+14.5.4.1(b) [@ACI31825]. Si $\ell_c$ no está documentada, la comprobación de
+la cara comprimida queda indeterminada; no se adopta $\ell_c=0$.
+
+## Corte unidireccional
+
+La resistencia nominal y la utilización a corte son
+
+$$
+V_n=0.11\lambda\sqrt{f'_c}\,b h_d,
+\qquad
+U_v=\frac{V_u}{\phi V_n}\le1,
+$$ {#eq-shotcrete-plain-shear-check}
+
+conforme a ACI CODE-318-25, Tabla 14.5.5.1(a) [@ACI31825]. El signo de
+$Q_\theta$ se conserva en los resultados para identificar el sentido de la
+acción, aunque la comprobación utiliza su valor absoluto.
+
+## Resultado local y condiciones complementarias
+
+Para cada proyección y combinación, el resultado local está gobernado por el
+mayor valor calculado entre $U_t$, $U_c$ y $U_v$. La conclusión se obtiene de
+filas concurrentes; no se combinan el máximo de $N_\theta$, el máximo de
+$M_\theta$ y el máximo de $Q_\theta$ ubicados en posiciones diferentes.
+
+El cumplimiento integral requiere además confirmar que la tipología admite la
+rama de hormigón simple, que la categoría sísmica es compatible y que las
+juntas y aberturas satisfacen las disposiciones aplicables. La estabilidad
+global, la durabilidad y el servicio se informan como comprobaciones distintas.
+Un incumplimiento local calculado no se neutraliza por una condición pendiente;
+una comprobación local satisfactoria tampoco demuestra por sí sola el
+cumplimiento integral.
+
+## Hormigón armado
+
+Para una sección armada se adopta una distribución plana de deformaciones
 
 $$
 \varepsilon(y)=\varepsilon_0+\kappa(y-y_0),
 $$ {#eq-shotcrete-strain-field}
 
-donde $\varepsilon_0$ y $\kappa$ describen el estado de deformación y $y_0$ es
-el origen seccional. Para las leyes constitutivas $\sigma_c(\varepsilon)$ y
-$\sigma_s(\varepsilon)$ correspondientes a la norma adoptada, las resultantes
-nominales son
+y las resultantes nominales se obtienen por compatibilidad y equilibrio:
 
 $$
 P_n=
@@ -67,73 +158,60 @@ M_n=
 +\sum_jA_{s,j}\sigma_s[\varepsilon(y_j)](y_j-y_0).
 $$ {#eq-shotcrete-reinforced-equilibrium}
 
-Estas relaciones expresan compatibilidad y equilibrio; no son una
-transcripción de ACI. Las leyes constitutivas, las deformaciones límite, el
-tratamiento del área desplazada por armaduras, los límites axiales y los
-factores de reducción se toman del articulado vigente de ACI CODE-318.2-25 y
-ACI CODE-318-25. Mientras ese articulado no esté disponible, esos parámetros
-permanecen sin definir y el dominio no se calcula.
+Estas ecuaciones definen el núcleo mecánico; los límites de deformación, los
+factores de reducción y el equilibrio local se toman de ACI CODE-318-25,
+Tabla 21.2.2 y artículos 21.2.2.3, 22.2.1 y 22.2.2 [@ACI31825]. La
+comprobación de hormigón armado no reutiliza las ecuaciones del Capítulo 14
+para hormigón simple.
 
-El contorno nominal se obtiene recorriendo los estados de deformación
-admisibles para ambas caras comprimidas e incorporando los extremos axiales.
-El contorno de resistencia de cálculo se construye aplicando a cada estado los
-factores y límites que le correspondan:
+Para acero Grade 60, la cuantía mínima total de una cáscara en cada dirección
+se expresa, conforme a ACI 318.2-14, 6.1.3, como
 
 $$
-(P_d,M_d)=\mathcal R_{\mathrm{ACI}}(P_n,M_n,\boldsymbol\varepsilon),
-$$ {#eq-shotcrete-design-domain}
+A_{s,\min}=0.0018\,b\,h.
+$$ {#eq-shotcrete-reinforced-minimum}
 
-donde $\mathcal R_{\mathrm{ACI}}$ representa las disposiciones verificadas de
-la edición adoptada. No se asigna un factor único a todo el dominio salvo que
-el artículo aplicable lo establezca expresamente.
+ACI 318.2-14, 6.1.9, exige considerar ambas superficies cuando el análisis
+demanda armadura sólo en una cara [@ACI318214]. Una distribución igual entre
+caras puede adoptarse para construir un primer dominio simétrico, pero no
+reemplaza la definición del detalle, del recubrimiento ni de la separación.
 
-## Decisión resistente
-
-Sea $\mathcal D_d$ el dominio de resistencia de cálculo. La comprobación
-normativa primaria consiste en determinar si
-
-$$
-(P_u,M_u)\in\mathcal D_d.
-$$ {#eq-shotcrete-pm-check}
-
-Como diagnóstico adicional puede calcularse el multiplicador proporcional
+Cuando se especifica una misma malla en ambas caras y direcciones, el área de
+acero por cara y por dirección se obtiene directamente de su diámetro
+$\phi_b$ y separación $s_b$:
 
 $$
-\Lambda_{NM}=\sup\left\{\lambda\ge0:
-(\lambda P_u,\lambda M_u)\in\mathcal D_d\right\},
+A_{s,f}=\frac{\pi\phi_b^2}{4}\frac{1000}{s_b}.
+$$ {#eq-shotcrete-reinforced-mesh-area}
+
+Si $r_c$ es la relación entre el recubrimiento libre y el espesor de la
+sección, la distancia desde el plano medio hasta el centroide de cada capa es
+
+$$
+z_s=\frac{h}{2}-r_c h-\frac{\phi_b}{2}.
+$$ {#eq-shotcrete-reinforced-layer-coordinate}
+
+Las capas circunferenciales, ubicadas en $z=\pm z_s$, intervienen en el
+equilibrio local $P$--$M$. La malla ortogonal se materializa con la misma área
+para comprobar la cuantía mínima por dirección, pero no se incorpora como una
+resistencia longitudinal ficticia en el problema plano. Esta parametrización
+no constituye una comprobación de fisuración, desarrollo, empalmes ni
+separación reglamentaria.
+
+El dominio de diseño se obtiene multiplicando cada estado nominal por su
+factor $\phi$. Para una demanda concurrente $(P_u,M_u)$, sea $\lambda_*>0$ el
+multiplicador para el cual la semirrecta que parte del origen y pasa por la
+demanda intersecta el dominio resistente:
+
+$$
+\left(\phi P_n,\phi M_n\right)
+=\lambda_*\left(P_u,M_u\right),
 \qquad
-\eta_{NM}=\frac{1}{\Lambda_{NM}}.
-$$ {#eq-shotcrete-pm-reserve}
+U_{NM}=\frac{1}{\lambda_*}\le1.
+$$ {#eq-shotcrete-reinforced-radial-utilization}
 
-$\Lambda_{NM}$ describe la reserva sobre una trayectoria proporcional y
-$\eta_{NM}$ una utilización geométrica. No son factores adicionales de ACI ni
-reemplazan los factores de carga y de resistencia.
-
-## Verificaciones separadas
-
-La fuerza cortante $Q_\theta$ se conserva como resultante y se transforma a la
-demanda de la franja sólo cuando se habilite una comprobación de corte
-compatible con la clasificación ACI. No se incorpora al dominio $P$--$M$ ni se
-convierte mediante una tensión promedio genérica.
-
-La estabilidad de la cáscara, los efectos de segundo orden, la armadura mínima,
-el detallado, el servicio, la durabilidad y la ejecución del shotcrete son
-puertas independientes. Un punto que satisface el dominio seccional no permite
-declarar cumplimiento integral cuando alguna de esas verificaciones permanece
-sin evaluar.
-
-## Salidas mínimas
-
-Para cada sección y combinación se conservan:
-
-- demanda $P_u$--$M_u$ y convención de signos;
-- geometría, materiales y capas utilizadas;
-- dominio nominal y dominio de resistencia de cálculo;
-- estado `cumple`, `no cumple`, `no aplicable` o `sin evaluar`;
-- estado de deformación y artículo que gobiernan;
-- $\Lambda_{NM}$ y $\eta_{NM}$, identificados como resultados derivados;
-- residuo de equilibrio y tolerancia numérica; y
-- lista de verificaciones separadas y datos pendientes.
-
-La presente versión no produce esas salidas numéricas: faltan la clasificación
-estructural, el articulado ACI vigente y los datos resistentes del caso.
+La sección satisface la comprobación local cuando $U_{NM}\le1$ para todas las
+filas concurrentes de posición, combinación y proyección. Los signos positivo y
+negativo de $M_u$ se conservan para comprobar, respectivamente, las dos caras.
+El corte, la acción longitudinal, la estabilidad y el detallado permanecen
+comprobaciones independientes de este dominio local.

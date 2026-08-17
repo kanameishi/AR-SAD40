@@ -232,13 +232,86 @@ aplicable, la tensión efectiva residual atribuida a la construcción.
 
 Esta descomposición y una relación de $K_0$ que ya representa la misma
 trayectoria de carga son alternativas: no se suman sin demostrar que describen
-fenómenos distintos. La presión equivalente de compactación de
-FHWA-RD-98-191 es una acción por etapa y no define una fracción permanente
-retenida ni un coeficiente $K_0$ universal [@McGrathEtAl1999, ec. 5.1]. Para
-un revestimiento circular flexible, la magnitud y la distribución de
-$\Delta\sigma'_{h,c}$ permanecen sin determinar hasta caracterizar la
-secuencia, el equipo, el contenido de agua, la densidad alcanzada y la
-movilidad del revestimiento.
+fenómenos distintos. Para un revestimiento circular flexible, la magnitud y la
+distribución de $\Delta\sigma'_{h,c}$ permanecen sin determinar hasta
+caracterizar la secuencia, el equipo, el contenido de agua, la densidad
+alcanzada y la movilidad del revestimiento.
+
+### Presión nodal equivalente durante la compactación
+
+FHWA-RD-98-191 propone, para representar la acción de un equipo de
+compactación durante la colocación del relleno, la presión nodal horizontal
+equivalente [@McGrathEtAl1999, sec. 5.2.1, ec. 5.1]:
+
+$$
+n_p=1.3P(1-\sin\phi_\ell)^3
+\left(\frac{970}{d_c-250}\right)^2.
+$$
+
+En esta relación, $n_p$ se expresa en kPa, la fuerza total $P$ del equipo en
+kN, el diámetro $d_c$ medido hasta el baricentro de la pared en mm y
+$\phi_\ell$ es el ángulo de fricción del relleno en estado suelto. La fuente
+adopta $P\geq4$ kN para representar
+también el efecto gravitatorio del relleno. La correlación se ajustó a un
+conjunto limitado de análisis de conductos de diámetros nominales de 900 y
+1500 mm, con $d_c$ aproximadamente igual a 970 y 1575 mm, materiales con
+$\phi_\ell=28^\circ$ y $36^\circ$, y fuerzas de 4.0, 5.2 y 20.5 kN. Su empleo
+fuera de ese dominio requiere justificación específica.
+
+La Tabla 5.5 de esa referencia reúne los casos utilizados para comprobar la
+ecuación; no contiene coeficientes de $K_0$ ni valores directamente
+transferibles a otro proyecto. Tampoco es una tabla AASHTO: AASHTO T 99 se
+menciona en la fuente únicamente como procedimiento de control de densidad.
+El modelo de FHWA aplica $n_p$ directamente a los nodos comprendidos hasta
+300 mm por debajo de la superficie de la tongada activa. La ecuación no
+establece una fracción de presión retenida después de retirar el equipo ni una
+distribución angular general para un revestimiento circular.
+
+{{< include /_tbl/Methodology.fhwa.compaction.ES.qmd >}}
+
+La fila 9 se conserva como aparece en la fuente: con el valor impreso
+$\phi_\ell=28^\circ$ no reproduce $n_p=0.2$ kPa, mientras que
+$\phi_\ell=36^\circ$ sí lo hace al redondear. Esta discrepancia documental no
+autoriza a sustituir el parámetro impreso ni constituye una alternativa de
+diseño.
+
+### Incorporación al procedimiento de cálculo
+
+La aplicación de la relación de FHWA sigue una secuencia distinta de la
+estimación de $K_0$:
+
+1. El estado permanente del relleno se define mediante la rama de historia
+   tensional aplicable y
+   $\sigma'_{h,b}=K_{0,b}\sigma'_v$.
+2. Si se comprueba una etapa activa de compactación y el equipo, el material y
+   la geometría se encuentran dentro de un dominio justificable, se calcula
+   $n_p$ con los parámetros de esa etapa.
+3. $n_p$ se introduce como una acción horizontal independiente sobre la banda
+   activa de 300 mm. El modelo de la etapa debe declarar su extensión, su
+   dirección y la regla con la que se combina con las acciones preexistentes.
+   La ecuación 5.1 no autoriza la sustitución
+   $\sigma'_h=K_{0,b}\sigma'_v+n_p$ ni la transformación
+   $K_0=K_{0,b}+n_p/\sigma'_v$.
+4. Al finalizar la compactación, $n_p$ no se conserva en el estado permanente.
+   Una tensión residual sólo puede incorporarse mediante un modelo o una
+   medición independiente de $\Delta\sigma'_{h,c}$.
+
+Cuando esa tensión residual ha sido determinada de manera independiente y
+$\sigma'_v>0$, puede informarse para una profundidad y una etapa dadas el
+coeficiente equivalente
+
+$$
+K_{0,eq}(z)
+=\frac{\sigma'_h(z)}{\sigma'_v(z)}
+=K_{0,b}(z)
++\frac{\Delta\sigma'_{h,c}(z)}{\sigma'_v(z)}.
+$$
+
+$K_{0,eq}$ es el cociente resultante de un estado ya definido; no constituye
+una nueva correlación de $K_0$. En particular, $n_p$ no puede utilizarse como
+$\Delta\sigma'_{h,c}$ porque la fuente no establece retención permanente y el
+valor mínimo de $P$ ya incorpora el efecto gravitatorio. Su adición directa al
+estado geostático puede contabilizar dos veces una misma contribución.
 
 ## Función dentro del análisis de conductos enterrados
 

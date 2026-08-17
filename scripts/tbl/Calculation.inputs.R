@@ -7,14 +7,33 @@ buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
   Section <- utils::read.csv(pathSection, check.names = FALSE, na.strings = "")
   Stress <- utils::read.csv(pathStress, check.names = FALSE, na.strings = "")
   RequiredInputs <- c("parameterID", "numericValue", "textValue", "unit")
-  RequiredSection <- c(
-    "propertyModelID", "circumferentialYoungModulusGPa", "analysisRadiusM"
-  )
-  RequiredStress <- c(
-    "modelID", "effectiveVerticalKPa", "frictionAngleDeg",
-    "poissonRatio", "ocr", "ocrMaximum", "k0Applied",
-    "effectiveHorizontalKPa", "waterPressureDifferenceKPa", "domainStatus"
-  )
+  CoverModel <- "coverCrownM" %in% names(Stress)
+  RequiredSection <- if (CoverModel) {
+    c(
+      "propertyModelID", "circumferentialYoungModulusGPa",
+      "centroidalRadiusM"
+    )
+  } else {
+    c(
+      "propertyModelID", "circumferentialYoungModulusGPa",
+      "analysisRadiusM"
+    )
+  }
+  RequiredStress <- if (CoverModel) {
+    c(
+      "k0ModelID", "depthM", "coverCrownM", "crownToAxisM",
+      "effectiveUnitWeightKnPerM3", "effectiveSurchargeKPa",
+      "effectiveVerticalStressKPa", "frictionAngleDeg", "poissonRatio",
+      "ocr", "ocrMaximum", "k0Applied", "effectiveHorizontalStressKPa",
+      "domainStatus"
+    )
+  } else {
+    c(
+      "modelID", "effectiveVerticalKPa", "frictionAngleDeg",
+      "poissonRatio", "ocr", "ocrMaximum", "k0Applied",
+      "effectiveHorizontalKPa", "waterPressureDifferenceKPa", "domainStatus"
+    )
+  }
   if (length(setdiff(RequiredInputs, names(Inputs))) > 0L ||
       length(setdiff(RequiredSection, names(Section))) > 0L ||
       length(setdiff(RequiredStress, names(Stress))) > 0L ||
@@ -35,6 +54,18 @@ buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
     }
     Value
   }
+  inputNumberInGroup <- function(groupID, parameterID) {
+    Value <- Inputs$numericValue[
+      Inputs$groupID == groupID & Inputs$parameterID == parameterID
+    ]
+    if (length(Value) != 1L || !is.finite(Value)) {
+      stop(
+        "Missing numeric input: ", groupID, ".", parameterID, ".",
+        call. = FALSE
+      )
+    }
+    Value
+  }
   formatGeneral <- function(value, digits = 6L) {
     format(signif(value, digits), trim = TRUE, scientific = FALSE)
   }
@@ -46,6 +77,44 @@ buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
       check.names = FALSE,
       stringsAsFactors = FALSE
     )
+  }
+  if (CoverModel) {
+    Output <- do.call(rbind, list(
+      row("$H_0$", formatGeneral(Stress$coverCrownM), "$\\mathrm{m}$"),
+      row("$R$", formatGeneral(Stress$crownToAxisM), "$\\mathrm{m}$"),
+      row(
+        "$\\gamma'$",
+        formatGeneral(Stress$effectiveUnitWeightKnPerM3),
+        "$\\mathrm{kN/m^3}$"
+      ),
+      row("$q'$", formatGeneral(Stress$effectiveSurchargeKPa), "$\\mathrm{kPa}$"),
+      if (is.finite(Stress$frictionAngleDeg)) {
+        row(
+          "$\\phi'$",
+          formatGeneral(Stress$frictionAngleDeg),
+          "$^{\\circ}$"
+        )
+      } else {
+        NULL
+      },
+      row("$K_0$", formatGeneral(Stress$k0Applied), "—"),
+      row(
+        "$E_g$",
+        formatGeneral(inputNumberInGroup("ground", "modulus") / 1000),
+        "$\\mathrm{MPa}$"
+      ),
+      row(
+        "$\\nu_g$",
+        formatGeneral(inputNumberInGroup("ground", "poisson-ratio")),
+        "—"
+      )
+    ))
+    return(knitr::kable(
+      Output,
+      col.names = c("$x_i$", "$v_i$", "$u_i$"),
+      align = c("c", "r", "c"),
+      escape = FALSE
+    ))
   }
   AlphaValues <- Inputs$numericValue[Inputs$parameterID == "tangential-multiplier"]
   if (length(AlphaValues) == 0L || any(!is.finite(AlphaValues))) {
@@ -160,11 +229,23 @@ buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
       row("$t_b$", formatGeneral(Section$analysisBaseThicknessMm), "$\\mathrm{mm}$")
     )
   }
+  SheetRows <- if ("yield-strength" %in% Inputs$parameterID) {
+    list(
+      row(
+        "$F_y$",
+        formatGeneral(inputNumber("yield-strength")),
+        "$\\mathrm{MPa}$"
+      )
+    )
+  } else {
+    list()
+  }
   Output <- do.call(rbind, c(list(
     row("$D_i$", formatGeneral(inputNumber("inside-diameter")), "$\\mathrm{m}$"),
     row("$R=D_i/2$", formatGeneral(Section$analysisRadiusM), "$\\mathrm{m}$")
   ), SectionRows, list(
-    row("$E_\\theta$", formatGeneral(Section$circumferentialYoungModulusGPa), "$\\mathrm{GPa}$"),
+    row("$E_\\theta$", formatGeneral(Section$circumferentialYoungModulusGPa), "$\\mathrm{GPa}$")
+  ), SheetRows, list(
     row("$\\sigma'_v$", formatGeneral(Stress$effectiveVerticalKPa), "$\\mathrm{kPa}$")
   ), K0Rows, list(
     row("$\\Delta u$", formatGeneral(Stress$waterPressureDifferenceKPa), "$\\mathrm{kPa}$"),

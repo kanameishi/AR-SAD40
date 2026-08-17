@@ -1,0 +1,9 @@
+```{r}
+#| include: false
+CAP <- paste(
+  readLines("_captions/tbl.liner.existing.extrema.ES.md", warn = FALSE),
+  collapse = "\n"
+)
+```
+
+{{< include /_tbl/liner.existing.extrema.qmd >}}

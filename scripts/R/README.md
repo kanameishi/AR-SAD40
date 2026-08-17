@@ -1,31 +1,25 @@
 # Implementación R del anillo circular
 
-R es la implementación canónica. El notebook Wolfram se conserva sólo como
-oráculo interno y Fourier como comparador modal independiente.
+R es la única implementación de producción. La planilla Wolfram consume la
+frontera pública R y presenta el cálculo sin duplicar sus ecuaciones; Fourier
+se conserva como comparador modal independiente.
 
 El producto del cálculo vigente son los resultantes $N(\theta)$, $M(\theta)$ y
-$Q(\theta)$ y sus extremos/envolventes. Existe además una recuperación
-condicional de tensión normal circunferencial homogeneizada para una sección
-neta suministrada explícitamente. El cálculo no infiere esa sección, no obtiene
-tensión local a partir de $Q$, y no calcula capacidades ni demandas de pernos.
+$Q(\theta)$ y sus extremos/envolventes. La evaluación resistente de la chapa
+se realiza mediante la rama AASHTO aplicable a conductos corrugados; AISI se
+conserva sólo como antecedente. Las alternativas de hormigón simple y armado
+se resuelven por separado con sus propias rigideces y comprobaciones locales
+ACI. El cálculo no obtiene tensión local a partir de $Q$ ni calcula demandas
+de pernos.
 
-La documentación matemática y de fuentes está en
-[`TITO/kb/metodologia-anillo-enterrado.md`](../../TITO/kb/metodologia-anillo-enterrado.md).
+La metodología vigente está en
+[`_master/methodology.review.es.qmd`](../../_master/methodology.review.es.qmd).
 
 ## Carga de la API
 
 ```r
-source("scripts/R/ringDirect.R")
-source("scripts/R/ringLoads.R")
-source("scripts/R/k0Models.R")
-source("scripts/R/stressState.R")
-source("scripts/R/corrugatedSection.R")
-source("scripts/R/perimeterActions.R")
-source("scripts/R/sectionResultants.R")
-source("scripts/R/sheetStress.R")
-source("scripts/R/calculateScenario.R")
-source("scripts/R/ringInteraction.R")
-source("scripts/R/ringMonteCarlo.R")
+projectRoot <- normalizePath(".")
+source("scripts/setup/calculationFunctions.R")
 ```
 
 No cargue `ringFourier.R` en el mismo entorno global: conserva nombres
@@ -145,57 +139,123 @@ Section$sectionRatio
 $\bar E$ en el sistema coherente de unidades ingresado. El comparador Fourier
 acepta el mismo cociente con `uniformMoment = "section"`.
 
-## Recuperación condicional de tensión normal
+## Evaluación resistente AISI
 
-`calculateSheetNormalStress()` evalúa exclusivamente la aproximación lineal
-de sección homogeneizada. Las propiedades netas, las coordenadas firmadas de
-las fibras y el criterio de aplicabilidad frente a la curvatura son entradas;
-la función no los deduce de la rigidez equivalente ni de la profundidad
-nominal de la corrugación.
+`screenAisiFlexuralDemand()` se conserva como control unilateral aislado de
+las rutas prescriptivas F2--F4. No forma parte de
+`evaluateCoverScenario()`, no produce una capacidad disponible y no alimenta
+las interacciones H1/H2.
+
+`evaluateAisiS100Demand()` recibe cuatro objetos explícitos: filas concurrentes
+de demanda, una tabla larga de capacidades, estados de aplicabilidad y la base
+ASD o LRFD. La función evalúa H1 y H2 por separado, conserva el signo de
+$N_\theta$ y de $M_\theta$, y no convierte $Q_\theta$ en una reacción
+localizada. El proveedor de capacidades es una responsabilidad separada.
+
+Las pruebas `scripts/R/testAisiFlexuralBound.R` y
+`scripts/R/testAisiS100Demand.R` comprueban, respectivamente, la cota nominal
+y las interacciones H1/H2/H3. Una demanda de servicio no mayorada o una
+capacidad cuya aplicabilidad no esté demostrada no produce un dictamen
+resistente.
+
+## Escenarios por tapada y alternativa de revestimiento
+
+`evaluateCoverScenario()` calcula una sola alternativa; la función plural
+`evaluateCoverScenarios()` repite exactamente esa secuencia. La distancia de
+la clave al eje geométrico y el radio centroidal de la alternativa son entradas
+distintas. No se aplican factores de acción implícitos.
 
 ```r
-Stress <- calculateSheetNormalStress(
-  resultants = data.frame(
-    sectionID = "net-section-01",
-    combinationID = "strength-01",
-    stageID = "existing",
-    theta = 0,
-    thetaDeg = 0,
-    normalForceKnPerM = -60,       # tracción positiva
-    bendingMomentKnMPerM = 0.02,   # tracción en la fibra interior
-    shearForceKnPerM = 0,
-    forceEffectStatus = "factored-strength",
-    longitudinalBasis = "per-projected-metre"
+Reference <- read.csv(
+  "data/reference/cspi.corrugation.section.properties.csv",
+  stringsAsFactors = FALSE
+)
+SteelReference <- selectCorrugatedSection(
+  reference = Reference,
+  profileID = "cspi-76x25-csp-sheet",
+  referenceRowID = "cspi-76x25-2.8"
+)
+Theta <- seq(0, 2 * pi, length.out = 361)[-361]
+
+Scenario <- list(
+  scenarioID = "steel-h2-t2.64",
+  cover = list(
+    coverCrownM = 2,
+    crownToAxisM = 1.315,
+    effectiveUnitWeightKnPerM3 = 20,
+    effectiveSurchargeKPa = 0,
+    referencePositionID = "axis"
   ),
-  netSection = list(
-    sectionID = "net-section-01",
-    areaMm2PerMm = 4,
-    inertiaMm4PerMm = 300,
-    outerFiberCoordinateMm = -12.5,
-    innerFiberCoordinateMm = 12.5,
-    coordinatePositiveDirection = "inward",
-    momentSignConvention = "positive-tension-inner"
+  ground = list(
+    modulusKPa = 30000,
+    poisson = 0.30,
+    k0 = list(modelID = "adopted-constant", k0 = 0.50)
   ),
-  recoveryBasis = list(
-    modelID = "linear-homogenized",
-    criterionID = "synthetic-straight-section-control",
-    applicabilityStatus = "satisfied"
+  interfaceID = "fullSlip",
+  action = list(
+    combinationID = "declared-service-state",
+    stageID = "completed-fill",
+    forceEffectStatus = "unfactored-reference-state",
+    loadCombinationBasisID = "declared-service-basis"
+  ),
+  lining = list(
+    liningTypeID = "corrugated-steel",
+    sectionID = "steel-t2.64",
+    centroidalRadiusM = 1.315,
+    poisson = 0.30,
+    referenceProfileID = "cspi-76x25-csp-sheet",
+    referenceRowID = "cspi-76x25-2.8",
+    remainingBaseThicknessMm = 2.64,
+    youngModulusKPa = 200e6,
+    yieldStrengthMPa = 250,
+    aisi = NULL
   )
 )
+
+Result <- evaluateCoverScenario(Scenario, Theta, SteelReference)
+Result$summary
 ```
 
-La coordenada de fibra es positiva radialmente hacia el interior y un momento
-positivo tracciona esa fibra. Los identificadores de sección, combinación y
-etapa se conservan en la salida; $Q_\theta$ se transporta, pero su tensión
-local queda expresamente sin evaluar. El identificador del ejemplo corresponde a un
-control sintético y no constituye un criterio de aplicabilidad aprobado. El
-usuario de la función suministra el criterio y su estado; la función no
-evalúa la curvatura.
+Para comparar tapadas o espesores, copie el escenario, cambie sus entradas y
+asigne otro `scenarioID`; si cambia la sección resistente, cambie también
+`sectionID`. La salida conserva todas las filas concurrentes de
+$N_\theta$, $M_\theta$ y $Q_\theta$. Sin capacidades AISI, informa
+`aisiWallMemberUtilization = NA`. Con `lining$aisi` completo, la utilización
+de la pared se toma sin transformaciones de `evaluateAisiS100Demand()`; el
+estado del sistema se conserva por separado en `aisiSystemStatus`.
+El objeto `lining$aisi` declara además `capacityBaseThicknessMm`,
+`capacityYieldStrengthMPa`, `capacityProfileID` y
+`capacityReferenceRowID`; todos deben coincidir con la sección del escenario.
+El ejecutor no escala ni interpola capacidades cuando cambia el espesor, la
+resistencia de fluencia o el perfil.
 
-El estado `adopted` permite declarar expresamente la hipótesis lineal de un
-caso de referencia sin presentarla como un criterio evaluado. Si la
-aplicabilidad es `unknown` o `not-satisfied`, las tensiones se devuelven como
-`NA`; no se activa de manera implícita una formulación alternativa.
+`sectionReference` sólo es obligatorio cuando el conjunto contiene una
+alternativa de acero corrugado; los escenarios exclusivamente de shotcrete no
+dependen de esa tabla.
+
+La alternativa de shotcrete usa su propia rigidez. La rama
+`plain-concrete` evalúa las comprobaciones locales del Capítulo 14 de ACI
+318-25 y expone `shotcreteLocalStrengthUtilization` por condición de interfaz.
+En esta rama, `shotcreteMechanicalStatus` y
+`minimumReinforcementStatus` son `not-applicable`; no se construye un dominio
+de hormigón armado ni se evalúa una cuantía mínima. La rama
+`reinforced-concrete` construye el dominio local $P$--$M$ con
+`evaluateAci31825ReinforcedShellStrip()` a partir de las capas
+circunferenciales declaradas y contrasta por separado la cuantía mínima en las
+dos direcciones. No emite conformidad integral de cáscara sin el texto
+operativo aplicable de ACI 318.2-25. El fixture ejecutable de ambas
+alternativas está en `scripts/R/testCoverScenarios.R`.
+
+La configuración raíz puede declarar alternativas autónomas bajo
+`additionalLinings`. Para `additionalLinings.shotcrete`, las primitivas son
+`outerRadiusM`, `thicknessM`, `poisson`, `compressiveStrengthMPa`,
+`modulusModelID`, `stiffnessBasisID`, `stripWidthM`, `reinforcement`,
+`convergenceTolerance` y el bloque `aci`, además de sus identificadores. Para
+`plain-concrete`, `reinforcement` es una lista vacía y no se declaran campos de
+armadura mínima. La fachada pública
+`evaluateCoverConfiguration()` devuelve la alternativa bajo
+`additionalLinings$shotcrete`, con `stress`, `section`, `interaction`,
+`resultants`, `extrema`, `controls`, `assessment` y `summary`.
 
 ## Cargas arbitrarias
 
@@ -371,20 +431,58 @@ limitaciones cuando corresponde.
 
 ## Productos determinísticos de la memoria
 
-`calculation.json` contiene las entradas adoptadas del escenario. Su esquema
-vigente es `2.1.0`; las siglas de los identificadores se escriben con el
-sufijo `ID` en configuración, tablas y código R. El comando
+`calculation.json` contiene el contrato humano `cover-case-2`: 31 entradas
+independientes, agrupadas en `cover`, `ground`, `steel`, `seam`,
+`plainConcrete` y `reinforcedConcrete`. La última rama recibe las primitivas
+de una malla simétrica —grado, diámetro, separación, recubrimiento libre
+relativo y módulo del acero— y R deriva las áreas y coordenadas de sus capas.
+El manifiesto no contiene factores normativos, estados, fuentes, presentación
+ni magnitudes derivadas. El perfil
+metodológico versionado reside en `scripts/config/` y el alias `current`
+resuelve una identidad inmutable declarada dentro de ese perfil.
+
+Las dos funciones públicas son:
+
+```r
+Resolved <- resolveCoverCaseConfig(
+  inputs = Manifest[["inputs", exact = TRUE]],
+  projectRoot = projectRoot,
+  methodID = Manifest[["methodID", exact = TRUE]]
+)
+
+Evaluation <- evaluateCoverCase(
+  inputs = Manifest[["inputs", exact = TRUE]],
+  projectRoot = projectRoot,
+  methodID = Manifest[["methodID", exact = TRUE]]
+)
+```
+
+`resolveCoverCaseConfig()` valida las entradas, obtiene referencias de sección
+y costura, deriva identificadores, luces, radios baricéntricos, áreas de acero
+y coordenadas de las capas, e incorpora las constantes y fuentes del método.
+`evaluateCoverCase()`
+ejecuta una sola vez el motor determinístico y devuelve entradas, base del
+método, derivados, estado tensional, secciones, interacción, resultantes,
+extremos, controles y comprobaciones resistentes.
+
+`calculateSymmetricReinforcementMesh()` es una función pura y recibe todas las
+primitivas de la malla mediante argumentos nombrados. La frontera
+`evaluateCoverCase()` recibe el conjunto completo de primitivas del escenario
+como un objeto independiente; por lo tanto, un futuro muestreador puede crear
+una copia por realización sin modificar constantes normativas ni el código del
+núcleo.
+
+El comando
 
 ```sh
 Rscript scripts/R/runCalculationMemo.R
 ```
 
-valida la configuración, interpola las propiedades publicadas conservadas en
-`data/reference/`, selecciona una única rama de $K_0$ y materializa ocho
-CSV más una instantánea exacta del JSON en `data/calculation/`. El estado
-lateral distingue `k0Input`,
-`k0Derived` y `k0Applied`; las acciones consumen
-`effectiveHorizontalKPa` y no vuelven a calcular $K_0$.
+valida el caso, resuelve el perfil metodológico, lee las propiedades publicadas
+conservadas en `data/reference/` y materializa los productos CSV junto con la
+configuración de máquina reproducible en `data/calculation/`. El JSON raíz
+permanece como entrada humana; `calculation.config.json` es un producto
+derivado y no debe editarse.
 
 La presión horizontal residual de compactación no se ha cuantificado. Por
 ello `horizontalIncrementKPa` permanece nulo y
@@ -432,6 +530,25 @@ Para Monte Carlo sobre estas ramas fuente-nativas use
 explícitos; no mezcle sus signos con el solver directo sin una transformación
 documentada.
 
+`calculatePrismThrust()` conserva la relación USACE como un resultado escalar:
+devuelve la presión de carga permanente en clave y los empujes de servicio y
+mayorados, pero no construye una presión angular. Para carga viva, el adaptador
+comprueba que el ancho cargado no supere la luz y obtiene el factor de
+distribución de la relación publicada, con la constante de 15 pulgadas
+convertida a 0.381 m.
+
+`calculateExternalInteraction()` evalúa exclusivamente la secuencia de carga
+externa de Schwartz--Einstein. Recibe
+`effectiveVerticalStressKPa`, `effectiveHorizontalStressKPa` y
+`stressReferenceID`; ambas tensiones corresponden a la misma cota de campo
+libre. La salida conserva `stressBasis = "effective"` y
+`hydraulicActionTreatment = "separate-not-included"`. Sus signos y coordenadas
+se adaptan a `thetaRad`, `normalForceKnPerM`,
+`bendingMomentKnMPerM` y `shearForceKnPerM`, y sus extremos se obtienen en
+forma analítica. `fullSlip` y `noSlip` son escenarios discretos; una eventual
+envolvente exterior es una envolvente de escenarios de modelo, no una cota
+física demostrada para la interfaz real.
+
 ## Monte Carlo
 
 El motor recibe realizaciones, no distribuciones:
@@ -478,7 +595,7 @@ Resultados principales:
 
 ```sh
 Rscript scripts/R/testRingMethod.R
-Rscript scripts/R/testSheetStress.R
+Rscript scripts/R/testAisiS100Demand.R
 Rscript scripts/R/testCalculationData.R
 Rscript scripts/R/testCalculationFigures.R
 Rscript scripts/R/runRingBenchmarks.R

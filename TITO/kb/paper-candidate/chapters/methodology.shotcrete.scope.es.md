@@ -2,29 +2,32 @@
 
 ## Objeto
 
-Esta metodología establece la secuencia para comprobar una sección de
-hormigón proyectado sometida a fuerza normal y momento flector. La comprobación
-seccional recibe las resultantes ya calculadas y es independiente del método
-empleado para obtenerlas. Las combinaciones y los factores de las acciones se
-definen antes de ingresar a la comprobación resistente.
+Esta metodología establece el procedimiento para analizar un revestimiento
+circular autónomo de hormigón proyectado y comprobar una franja longitudinal
+sometida a las resultantes circunferenciales $N_\theta$, $M_\theta$ y
+$Q_\theta$. La sección se clasifica previamente como hormigón simple u
+hormigón armado; cada rama conserva sus propias condiciones de aplicabilidad y
+sus ecuaciones resistentes.
 
-El revestimiento de hormigón proyectado se considera inicialmente un sistema
-resistente autónomo. Sus resultantes deben calcularse con la geometría, las
-rigideces y la secuencia de carga de esa alternativa. No se transfieren las
-resultantes de la chapa existente. Una eventual acción conjunta requiere una
-formulación específica de adherencia, deslizamiento, transferencia de corte y
-secuencia constructiva.
+Las solicitaciones no se transfieren desde la chapa existente. Para cada
+combinación se calculan nuevamente la rigidez de la sección de hormigón, los
+parámetros de interacción suelo--revestimiento y las distribuciones angulares
+de las tres resultantes. El procedimiento se ejecuta por separado para las
+interfaces con deslizamiento libre y sin deslizamiento. Una eventual
+acción conjunta con la chapa requeriría definir adherencia, transferencia de
+corte y secuencia constructiva, y no forma parte del modelo autónomo.
 
 ## Referencias normativas
 
 La familia internacional adoptada es ACI:
 
-- ACI CODE-318.2-25 gobierna el análisis, el diseño y la construcción cuando
-  el revestimiento se clasifica como cáscara delgada de hormigón; sus
-  disposiciones se complementan con ACI CODE-318-25 [@ACI318225; @ACI31825].
-- ACI CODE-318-25 proporciona las disposiciones generales de materiales,
-  análisis, resistencia, servicio, durabilidad y detallado del hormigón
-  estructural, incluido el hormigón proyectado [@ACI31825].
+- ACI CODE-318-25 proporciona las combinaciones de acciones y las
+  disposiciones generales de resistencia, servicio, durabilidad y detallado.
+  El Capítulo 14 contiene la comprobación local adoptada para la rama de
+  hormigón simple [@ACI31825].
+- ACI CODE-318.2-25 gobierna cuando el revestimiento de hormigón armado se
+  clasifica como cáscara delgada; ACI CODE-318-25 actúa entonces como documento
+  complementario [@ACI318225; @ACI31825].
 - ACI CODE-562-25 establece el marco para evaluar una estructura existente,
   incluidas la investigación de campo, las propiedades medidas, el deterioro
   y los factores de evaluación que correspondan [@ACI56225].
@@ -32,34 +35,46 @@ La familia internacional adoptada es ACI:
   aceptación del hormigón proyectado; no sustituye la comprobación resistente
   de la sección [@ACISPEC506213].
 
-La vista oficial disponible de ACI CODE-318.2-25 confirma disposiciones
-específicas para estabilidad, fuerzas de membrana, momento, corte y armadura
-mínima. El texto completo de esos artículos y el de las disposiciones
-correspondientes de ACI CODE-318-25 y ACI CODE-562-25 no forman parte del
-corpus consultado. Por ello, esta emisión define el procedimiento y el núcleo
-de equilibrio seccional, pero no reproduce coeficientes, deformaciones límite,
-factores de reducción ni cuantías mínimas de la edición vigente.
+La evaluación de fisuración se distingue de la resistencia. Los requisitos
+contractuales de ejecución y aceptación del shotcrete se verifican asimismo
+por separado de la resistencia seccional.
 
 ## Clasificación estructural
 
-La clasificación precede al cálculo de capacidad:
+La clasificación declarada de la sección selecciona expresamente una de dos
+ramas:
 
-1. determinar si la geometría y el comportamiento corresponden al alcance de
-   ACI CODE-318.2-25;
-2. si corresponde una cáscara delgada, aplicar ACI CODE-318.2-25 como documento
-   principal y ACI CODE-318-25 como complemento;
-3. si se pretende emplear otra tipología de elemento, documentar el artículo
-   que la habilita y comprobar que no contradiga la clasificación como
-   cáscara; y
-4. clasificar la sección como hormigón armado, hormigón simple candidato o
-   sección con fibras mediante los requisitos del código, no sólo mediante el
-   valor del área de armadura.
+1. hormigón simple: comprobación local conforme al
+   Capítulo 14 de ACI CODE-318-25, condicionada por el tipo de miembro, el
+   apoyo, la categoría sísmica, las juntas y las aberturas;
+2. hormigón armado: compatibilidad y equilibrio de una sección con capas
+   de armadura, complementados por las disposiciones de ACI CODE-318.2-25 que
+   correspondan a una cáscara delgada.
 
-Una cuantía de armadura igual a cero no habilita automáticamente una rama de
-hormigón simple. En una cáscara no pretensada deben comprobarse primero las
-disposiciones de armadura mínima de ACI CODE-318.2-25. La contribución
-postfisuración de fibras sólo puede considerarse con propiedades residuales
-medidas y una disposición normativa aplicable.
+La rama no se infiere a partir del área de acero. En particular, $A_s=0$ es
+una característica válida de una sección declarada como hormigón simple y no
+activa un control de cuantía mínima de hormigón armado. Inversamente, una
+sección declarada como armada debe satisfacer las cuantías, la disposición y
+el detallado exigibles aunque el equilibrio seccional resulte satisfactorio.
+
+## Definición de acciones
+
+Las combinaciones resistentes se forman sobre las componentes vertical y
+horizontal del estado tensional del relleno. Para cada par de factores
+$(\gamma_v,\gamma_h)$ se resuelve nuevamente la respuesta de la sección
+transversal:
+
+$$
+\sigma'_{v,d}=\gamma_v\sigma'_v,
+\qquad
+\sigma'_{h,d}=\gamma_h\sigma'_h,
+$$
+
+y de esa resolución se obtienen $N_\theta(\theta)$,
+$M_\theta(\theta)$ y $Q_\theta(\theta)$. No se aplican factores a máximos
+espaciales independientes ni se combinan valores correspondientes a ángulos
+distintos. Cada fila de comprobación conserva una única combinación, una
+prescripción de proyección y una posición $\theta$.
 
 ## Estructura existente
 
@@ -77,29 +92,38 @@ resultados de testigos en una resistencia de diseño.
 
 ## Secuencia de comprobación
 
-1. registrar norma, edición, sistema de unidades, errata y base de adopción;
-2. clasificar el revestimiento y la sección resistente;
-3. definir geometría efectiva, materiales y capas de armadura;
-4. recibir fuerza normal y momento factorizados para una sección y combinación
-   identificadas;
-5. construir el dominio nominal mediante compatibilidad de deformaciones y
-   equilibrio;
-6. aplicar, punto por punto, los límites y factores de resistencia de los
-   artículos ACI correspondientes;
-7. comparar la demanda con el dominio de resistencia de cálculo; y
-8. verificar separadamente estabilidad, corte, servicio, durabilidad,
-   detallado, juntas y anclajes.
+1. definir la geometría, las propiedades y la rama resistente de la sección;
+2. calcular su rigidez circunferencial;
+3. formar cada combinación de acciones sobre el estado tensional del relleno;
+4. resolver la interacción para las interfaces con deslizamiento libre y sin
+   deslizamiento con la rigidez de la alternativa;
+5. transformar las resultantes concurrentes en acciones sobre una franja de
+   ancho declarado;
+6. aplicar las comprobaciones de resistencia correspondientes a la rama
+   seleccionada; y
+7. informar separadamente resistencia local, estabilidad, servicio,
+   durabilidad, juntas, aberturas y requisitos constructivos.
 
-La rama numérica no se habilita hasta disponer del articulado vigente y de una
-tabla trazable que relacione cada coeficiente con su cláusula y su sistema de
-unidades. Hasta entonces no se informa capacidad, utilización ni cumplimiento
-ACI del revestimiento.
+## Alcance de la implementación vigente
 
-## Límites
+La rama de hormigón simple implementa las comprobaciones locales de tracción,
+compresión y corte del Capítulo 14 de ACI CODE-318-25 para acciones mayoradas.
+La resistencia axial requiere una longitud de compresión documentada. La
+estabilidad global, la categoría sísmica, las juntas, las aberturas, la
+durabilidad y el servicio conservan controles independientes.
 
-La comprobación seccional de fuerza normal y momento no demuestra por sí sola
-la estabilidad del revestimiento como cáscara, los efectos de segundo orden,
-la resistencia al corte, la acción conjunta con la chapa, la fisuración y
-estanqueidad en servicio, la durabilidad, las juntas, los anclajes ni la
-ejecución del hormigón proyectado. Cada una de esas verificaciones conserva sus
-acciones, datos y artículos propios.
+La selección de esta rama requiere acreditar la clasificación estructural del
+revestimiento y una de las condiciones de ACI CODE-318-25, 14.1.2. Una
+etiqueta del modelo transversal no demuestra por sí sola que la estructura sea
+una sucesión de arcos bidimensionales ni que disponga de apoyo vertical
+continuo. Mientras esa frontera permanezca sin caracterizar, las razones de
+utilización del Capítulo 14 se informan como resultados locales condicionales
+y el estado normativo global permanece sin evaluar.
+
+La rama de hormigón armado implementa el dominio local $P$--$M$ mediante
+compatibilidad, equilibrio y factores $\phi$ de ACI CODE-318-25. La cuantía
+mínima total por dirección se comprueba mediante ACI 318.2-14, 6.1.3; la
+distribución simétrica entre caras se declara como hipótesis analítica de la
+sección. El dictamen integral de una cáscara delgada requiere el texto
+operativo aplicable de ACI CODE-318.2-25. No se extrapolan sus requisitos ni
+se presenta el resultado local $P$--$M$ como conformidad integral.

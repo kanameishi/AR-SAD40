@@ -1,0 +1,1 @@
+Parámetros de la proyección biaxial y coeficientes armónicos de las resultantes del revestimiento de hormigón proyectado armado. La integración directa se ejecuta con la sección propia; $\alpha=1$ incorpora la proyección tangencial completa y $\alpha=0$ conserva únicamente la acción normal.

@@ -1,58 +1,62 @@
-# Aplicación determinística de referencia {#sec-calculation-application}
+# Aplicación determinística por tapada {#sec-calculation-application}
 
-## Acciones adoptadas
+## Estado efectivo adoptado
 
-El estado tensional y las magnitudes de la proyección biaxial adoptada son
+La aplicación adopta una tapada sobre la clave
+$H_0=`r formatCalculationGeneral(Calculation$stress$coverCrownM)`$ m y evalúa
+el estado de campo libre en el eje de la sección transversal, a una profundidad
+$z_{ref}=`r formatCalculationGeneral(Calculation$stress$depthM)`$ m. El peso
+unitario efectivo es
+$\gamma'=`r formatCalculationGeneral(Calculation$stress$effectiveUnitWeightKnPerM3)`$
+kN/m³ y la sobrecarga efectiva es
+$q'=`r formatCalculationGeneral(Calculation$stress$effectiveSurchargeKPa)`$ kPa.
+Estas magnitudes son hipótesis del escenario determinístico.
 
-$$
-\begin{aligned}
-\sigma'_h&=
-`r formatCalculationGeneral(Calculation$stress$effectiveHorizontalKPa)`
-\ \mathrm{kPa},\\
-p_m&=`r formatCalculationGeneral(Calculation$actions$meanPressureKPa)`
-\ \mathrm{kPa},\\
-\Delta\sigma&=
-`r formatCalculationGeneral(Calculation$actions$stressDifferenceKPa)`
-\ \mathrm{kPa}.
-\end{aligned}
-$$ {#eq-calculation-adopted-stress}
-
-Las acciones perimetrales evaluadas son
+La tensión vertical efectiva y la tensión horizontal efectiva adoptadas son
 
 $$
-P_r(\theta)=
-`r formatCalculationGeneral(Calculation$actions$radialConstantKPa)``r formatCalculationSigned(Calculation$actions$radialHarmonicKPa)`
-\cos2\theta\ \mathrm{kPa},
+\sigma'_v(z_{ref})
+=`r formatCalculationGeneral(Calculation$stress$effectiveVerticalStressKPa)`
+\ \mathrm{kPa},
 \qquad
-P_t(\theta)=
-`r formatCalculationGeneral(Calculation$actions$tangentialHarmonicKPa)`
-\alpha\sin2\theta\ \mathrm{kPa}.
-$$ {#eq-calculation-adopted-actions}
+\sigma'_h(z_{ref})
+=`r formatCalculationGeneral(Calculation$stress$effectiveHorizontalStressKPa)`
+\ \mathrm{kPa}.
+$$ {#eq-calculation-application-stress}
 
-```{r}
-#| echo: false
-#| results: asis
-cat(Calculation$actions$rangeMarkdown)
-```
+La rama de Mayne--Kulhawy aplicada utiliza las entradas provisionales
+$\phi'=30^\circ$ y $\mathrm{OCR}=1$ y produce
+$K_0=`r formatCalculationGeneral(Calculation$stress$k0Applied)`$; por lo tanto,
+
+$$
+K_0=\frac{\sigma'_h(z_{ref})}{\sigma'_v(z_{ref})}
+=`r formatCalculationGeneral(Calculation$interaction$stressRatio[1L])`.
+$$ {#eq-calculation-application-stress-ratio}
+
+La @tbl-calculation-inputs reúne las entradas comunes del escenario y las de
+la alternativa de hormigón proyectado.
 
 ## Propiedades seccionales adoptadas
 
-La @tbl-calculation-section-reference reproduce la fila publicada adoptada,
-con espesor especificado
+La @tbl-calculation-section-reference reproduce la fila publicada adoptada
+para el perfil corrugado. El espesor especificado es
 $t_s=`r formatCalculationGeneral(Calculation$section$specifiedThicknessMm)`$
-mm y espesor base de diseño
-$t_d=`r formatCalculationGeneral(Calculation$section$designBaseThicknessMm)`$
-mm del perfil CSPI 76×25. La geometría tabulada tiene paso
+mm y el espesor base de diseño, que coincide con el espesor analizado, es
+$t_d=t=`r formatCalculationGeneral(Calculation$section$remainingBaseThicknessMm)`$
+mm. La geometría tabulada tiene paso
 `r formatCalculationGeneral(Calculation$section$actualPitchMm)` mm,
 profundidad
 `r formatCalculationGeneral(Calculation$section$actualDepthMm)` mm y radio de
 corrugación
 `r formatCalculationGeneral(Calculation$section$corrugationRadiusMm)` mm
-[@CSPIHandbookChapter2, figura 2.1 y tabla 2.4].
+[@CSPIHandbookChapter2, tabla 2.4]. La @fig-calculation-sheet-profile identifica
+estas dimensiones y las restantes variables geométricas tabuladas.
+
+![Geometría del perfil corrugado 76 × 25. $T$ es el espesor de la chapa, $TL$ la longitud del tramo tangente y $\theta$ su ángulo. Fuente: CSPI, tabla 2.4 [@CSPIHandbookChapter2].](/_images/Calculation.sheet.profile.CSPI.png){#fig-calculation-sheet-profile fig-alt="Esquema de una onda de chapa corrugada con paso 76,2 mm, profundidad 25,4 mm, radio 14,29 mm, espesor T, longitud tangente TL y ángulo theta." width="92%"}
 
 {{< include /_tbl/Calculation.section.reference.ES.qmd >}}
 
-Las propiedades por unidad de ancho proyectado son
+Las propiedades por unidad de ancho axial proyectado son
 
 $$
 A_\theta=
@@ -63,56 +67,178 @@ I_\theta=
 `r formatCalculationFixed(Calculation$section$inertiaMm4PerMm, 2L)`
 \ \mathrm{mm^4/mm},
 \qquad
-S_p=
+S_\theta=
 `r formatCalculationFixed(Calculation$section$sectionModulusMm3PerMm, 2L)`
 \ \mathrm{mm^3/mm}.
-$$ {#eq-calculation-adopted-properties}
+$$ {#eq-calculation-application-properties}
 
-Con $E_\theta=
-`r formatCalculationGeneral(Calculation$section$circumferentialYoungModulusGPa)`$
-GPa y $R=`r formatCalculationGeneral(Calculation$geometry$radiusM)`$ m, las
-rigideces y la razón seccional son
+Con
+$E_\theta=`r formatCalculationGeneral(Calculation$section$circumferentialYoungModulusGPa)`$
+GPa y
+$R=`r formatCalculationGeneral(Calculation$geometry$radiusM)`$ m, se obtiene
 
 $$
 EA_\theta=
-`r formatCalculationFixed(Calculation$section$extensionalRigidityKnPerM, 6L)`
+`r formatCalculationFixed(Calculation$section$extensionalRigidityKnPerM, 3L)`
 \ \mathrm{kN/m},
 \qquad
 EI_\theta=
-`r formatCalculationFixed(Calculation$section$flexuralRigidityKnM2PerM, 9L)`
+`r formatCalculationFixed(Calculation$section$flexuralRigidityKnM2PerM, 3L)`
 \ \mathrm{kN\,m^2/m},
 $$
 
 $$
 \eta_s=
-`r formatCalculationScientificLatex(Calculation$section$sectionRatio, 12L)`.
-$$ {#eq-calculation-adopted-rigidities}
+`r formatCalculationScientificLatex(Calculation$section$sectionRatio, 8L)`.
+$$ {#eq-calculation-application-rigidities}
 
-El modo uniforme de momento asociado al cierre por compatibilidad vale
+## Parámetros de la integración directa
 
-$$
-M_m=-R^2p_m\frac{\eta_s}{1+\eta_s}
-=`r formatCalculationFixed(Calculation$extrema$meanMoment[1L], 10L)`
-\ \mathrm{kN\,m/m}.
-$$ {#eq-calculation-adopted-mean-moment}
+La @tbl-calculation-interaction presenta, para $\alpha=1$ y $\alpha=0$, la
+razón seccional y las amplitudes de Fourier obtenidas por integración directa.
+La presión hidráulica neta del caso provisional es nula.
+
+{{< include /_tbl/Calculation.interaction.ES.qmd >}}
+
+La solución numérica de las acciones de la @eq-calculation-biaxial-load
+produce las resultantes concurrentes de cada representación. La solución
+cerrada del mismo problema constituye el control numérico.
 
 ## Resultantes seccionales
 
-La @tbl-calculation-extrema presenta las resultantes en los dos pares de
-posiciones principales y el máximo absoluto de la fuerza cortante. Los valores
+La @tbl-calculation-extrema presenta los extremos analíticos de
+$N_\theta$, $M_\theta$ y $Q_\theta$ y sus posiciones angulares. Los valores
 negativos de $N_\theta$ indican compresión conforme a la convención adoptada.
 
 {{< include /_tbl/Calculation.extrema.ES.qmd >}}
 
+```{r}
+#| echo: false
+#| results: asis
+cat(Calculation$caseSummaryMarkdown)
+```
+
 La @fig-calculation-normal presenta $N_\theta$; la
 @fig-calculation-moment, $M_\theta$; y la @fig-calculation-shear,
 $Q_\theta$. La circunferencia gris continua es la línea circular de
-referencia. Las curvas discontinuas de distinto color y sus ordenadas radiales
-son diagramas de resultantes y
-no representan la posición deformada del revestimiento. La amplificación
-gráfica
+referencia. Las curvas discontinuas y sus ordenadas radiales son diagramas de
+resultantes; no representan una posición deformada. La amplificación gráfica
 $A_g=`r formatCalculationGeneral(Calculation$display$graphicAmplification)`$
-modifica exclusivamente la longitud de las ordenadas; la lectura interactiva
-conserva las magnitudes físicas y sus unidades.
+modifica exclusivamente la longitud de las ordenadas.
 
 {{< include /_fig/Calculation.resultants.ES.qmd >}}
+
+## Alternativa de hormigón proyectado simple
+
+La alternativa adopta un espesor
+$t_c=`r formatCalculationGeneral(1000 * Calculation$shotcrete$section$thicknessM)`$
+mm y una resistencia especificada
+$f'_c=`r formatCalculationGeneral(Calculation$config$additionalLinings$shotcrete$compressiveStrengthMPa)`$
+MPa. La sección se evalúa como hormigón simple. El
+radio exterior coincide con el radio del revestimiento existente y el radio
+centroidal resulta
+$R_c=`r formatCalculationGeneral(Calculation$shotcrete$section$centroidalRadiusM)`$
+m. Para el análisis elástico se adopta hormigón de peso normal, con
+
+$$
+E_c=4700\sqrt{f'_c}
+=`r formatCalculationGeneral(Calculation$shotcrete$section$youngModulusKPa / 1000)`
+\ \mathrm{MPa},
+\qquad
+\nu_c=`r formatCalculationGeneral(Calculation$shotcrete$section$poisson)`.
+$$ {#eq-calculation-shotcrete-modulus}
+
+La relación anterior se emplea para estimar la rigidez bruta de corto plazo
+[@ACI31825, sec. 19.2.2.1(b)]. La sección rectangular por metro de
+ancho axial proyectado proporciona
+
+$$
+EA_c=
+`r formatCalculationFixed(Calculation$shotcrete$section$extensionalRigidityKnPerM, 3L)`
+\ \mathrm{kN/m},
+\qquad
+EI_c=
+`r formatCalculationFixed(Calculation$shotcrete$section$flexuralRigidityKnM2PerM, 3L)`
+\ \mathrm{kN\,m^2/m}.
+$$ {#eq-calculation-shotcrete-rigidities}
+
+La integración se vuelve a resolver con la sección propia para cada valor de
+$\alpha$. Las resultantes de la chapa no se transfieren a la alternativa.
+
+{{< include /_tbl/Calculation.shotcrete.extrema.ES.qmd >}}
+
+Para una franja de ancho $b$, las acciones concurrentes de cálculo son
+
+$$
+P_u=-N_\theta b,
+\qquad
+M_u=\lvert M_\theta\rvert b,
+\qquad
+V_u=\lvert Q_\theta\rvert b.
+$$ {#eq-calculation-shotcrete-actions}
+
+La resistencia local del hormigón simple se comprueba con $\phi=0.60$. Para
+la cara traccionada y el corte unidireccional se emplean
+
+$$
+\frac{M_u}{S_m}-\frac{P_u}{A_g}
+\le
+\phi\,0.42\lambda\sqrt{f'_c},
+\qquad
+\phi V_n=\phi\,0.11\lambda\sqrt{f'_c}\,b t_c,
+$$ {#eq-calculation-shotcrete-local-strength}
+
+donde $A_g=bt_c$ y $S_m=bt_c^2/6$ [@ACI31825, tabla 14.5.4.1 y
+art. 14.5.5.1(a)]. La integración se resuelve nuevamente para cada combinación
+mayorada y cada valor de $\alpha$; la tabla siguiente presenta únicamente
+las comprobaciones calculadas.
+
+{{< include /_tbl/Calculation.shotcrete.checks.ES.qmd >}}
+
+```{r}
+#| echo: false
+#| results: asis
+cat(Calculation$shotcrete$resultMarkdown)
+```
+
+## Comprobación del conducto corrugado
+
+El empuje de diseño se calcula a partir de la tapada, el peso unitario total,
+la luz y los factores consignados en la configuración. La
+@tbl-calculation-aashto-inputs presenta las entradas utilizadas y la
+@tbl-calculation-aashto-checks reúne las comprobaciones numéricas de pared,
+costura, flexibilidad y tapada para la base reglamentaria declarada. Las
+expresiones de pared y flexibilidad se reproducen de USACE; los parámetros de
+pandeo y costura se contrastan con Anderson et al., p. 164, y la condición de
+tapada con la tabla 7.1, p. 133
+[@USACE2020, secs. 4.12.3--4.12.5; @AndersonEtAl2023, pp. 133, 164].
+Las propiedades $A$ e $I$ proceden de la fila CSPI adoptada. Para el acero se
+adoptan $F_y=250$ MPa, $F_u=400$ MPa y $E=200000$ MPa; estos tres valores son
+hipótesis del escenario y no sustituyen certificados ni ensayos del material
+existente. Los factores de carga, demanda y resistencia son los valores
+reproducidos de las fuentes indicadas en la configuración; su aplicación queda
+condicionada a la revisión de la edición y las erratas vigentes.
+Para la costura se adopta $R_{n,0}=769$ kN/m, publicado para el perfil
+76 x 25 mm, espesor nominal 2,8 mm, remaches de 12 mm y costura doble; la
+tabla A12-7 de CIRSOC 804-4 reproduce 773,48 kN/m para una configuración
+próxima [@CSPIHandbookChapter6, table 6.4a; @CIRSOC8044, table A12-7]. La
+resistencia adoptada permite una comparación con una costura publicada, pero
+no establece la equivalencia resistente de los pernos de 1/2 in ASTM A325
+observados.
+La pérdida relativa de diámetro $\delta_d$ modifica esta resistencia
+mediante la @eq-calculation-aashto-seam-utilization-corroded. En el escenario
+determinístico se adopta $\delta_d=0$; no se asigna todavía una distribución
+probabilística ni se ejecuta una exploración de valores.
+La base reproduce disposiciones de ediciones anteriores. Las comprobaciones
+se informan como comparaciones aritméticas del escenario adoptado y no como
+cumplimiento de la décima edición [@AASHTO2024TOC].
+
+{{< include /_tbl/Calculation.aashto.inputs.ES.qmd >}}
+
+{{< include /_tbl/Calculation.aashto.checks.ES.qmd >}}
+
+```{r}
+#| echo: false
+#| results: asis
+cat(Calculation$aashto$resultMarkdown)
+```

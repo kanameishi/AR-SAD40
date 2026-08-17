@@ -1,0 +1,20 @@
+```{r}
+#| include: false
+source("scripts/tbl/Calculation.shotcrete.checks.R")
+TBL <- buildCalculationShotcreteChecksTable(
+  path = Calculation$paths$shotcreteChecks,
+  liningID = "reinforcedConcrete"
+)
+```
+
+```{r}
+#| label: tbl-calculation-concrete-reinforced-checks
+#| tbl-cap: !expr CAP
+#| echo: false
+TBL
+```
+
+```{r}
+#| include: false
+rm(CAP, TBL, buildCalculationShotcreteChecksTable)
+```

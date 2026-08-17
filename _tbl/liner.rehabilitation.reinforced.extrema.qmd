@@ -1,0 +1,21 @@
+```{r}
+#| include: false
+source("scripts/tbl/Calculation.extrema.R")
+TBL <- buildCalculationExtremaTable(
+  pathResultants = Calculation$paths$shotcreteResultants,
+  pathExtrema = Calculation$paths$shotcreteExtrema,
+  liningID = "reinforcedConcrete"
+)
+```
+
+```{r}
+#| label: tbl-liner-rehabilitation-reinforced-extrema
+#| tbl-cap: !expr CAP
+#| echo: false
+TBL
+```
+
+```{r}
+#| include: false
+rm(CAP, TBL, buildCalculationExtremaTable)
+```

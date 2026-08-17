@@ -1,0 +1,27 @@
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) {
+  CAP <- paste(
+    readLines("_captions/tbl.Calculation.shotcrete.extrema.ES.md", warn = FALSE),
+    collapse = "\n"
+  )
+}
+source("scripts/tbl/Calculation.extrema.R")
+TBL <- buildCalculationExtremaTable(
+  pathResultants = Calculation$paths$shotcreteResultants,
+  pathExtrema = Calculation$paths$shotcreteExtrema,
+  liningID = "shotcrete"
+)
+```
+
+```{r}
+#| label: tbl-calculation-shotcrete-extrema
+#| tbl-cap: !expr CAP
+#| echo: false
+TBL
+```
+
+```{r}
+#| include: false
+rm(CAP, TBL, buildCalculationExtremaTable)
+```

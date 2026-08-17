@@ -1,0 +1,1 @@
+Familia discreta de dominios de interacción $P$--$M$ para distintas cuantías circunferenciales y demandas gobernantes de la malla configurada. Cada curva reúne estados resistentes de una sección; los puntos son demandas físicas y no iteraciones.

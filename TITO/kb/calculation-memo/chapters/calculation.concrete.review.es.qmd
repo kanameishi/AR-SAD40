@@ -1,0 +1,284 @@
+# Revestimiento de hormigón {#sec-calculation-concrete}
+
+## Sección de hormigón proyectado simple
+
+La alternativa se analiza como un revestimiento autónomo, sin acción compuesta
+con la chapa. Se adopta un espesor
+$t_c=`r formatCalculationFixed(1000 * Calculation$shotcrete$section$thicknessM, 0L)`$
+mm y una resistencia especificada
+$f'_c=`r formatCalculationGeneral(Calculation$config$additionalLinings$shotcrete$compressiveStrengthMPa)`$
+MPa. El radio exterior coincide con el radio del revestimiento existente y el
+radio hasta el baricentro de la pared es
+$R_c=`r formatCalculationGeneral(Calculation$shotcrete$section$centroidalRadiusM)`$
+m.
+
+Para el análisis elástico se adopta hormigón de peso normal, con
+
+$$
+E_c=4700\sqrt{f'_c}
+=`r formatCalculationGeneral(Calculation$shotcrete$section$youngModulusKPa / 1000)`
+\ \mathrm{MPa},
+\qquad
+\nu_c=`r formatCalculationGeneral(Calculation$shotcrete$section$poisson)`.
+$$ {#eq-calculation-shotcrete-modulus}
+
+La relación anterior estima la rigidez bruta de corto plazo
+[@ACI31825, sec. 19.2.2.1(b)]. Para una franja de un metro de ancho axial
+proyectado,
+
+$$
+EA_c=
+`r formatCalculationFixed(Calculation$shotcrete$section$extensionalRigidityKnPerM, 0L)`
+\ \mathrm{kN/m},
+\qquad
+EI_c=
+`r formatCalculationFixed(Calculation$shotcrete$section$flexuralRigidityKnM2PerM, 0L)`
+\ \mathrm{kN\,m^2/m}.
+$$ {#eq-calculation-shotcrete-rigidities}
+
+Estas rigideces corresponden a la sección bruta, no fisurada y de corto plazo.
+Se emplean en la integración estructural y no constituyen una resistencia.
+
+## Integración directa y resultantes del hormigón
+
+La respuesta se resuelve nuevamente con el radio y la sección del hormigón. La
+@tbl-calculation-concrete-interaction presenta las amplitudes obtenidas para
+$\alpha=1$ y $\alpha=0$.
+
+{{< include /_tbl/Calculation.concrete.interaction.ES.qmd >}}
+
+La @tbl-calculation-shotcrete-extrema reúne los extremos de las resultantes
+del revestimiento de hormigón.
+
+{{< include /_tbl/Calculation.shotcrete.extrema.ES.qmd >}}
+
+`r if (all(Calculation$shotcrete$resultants$forceEffectStatus == "unfactored-reference-state")) "La tabla de extremos y los diagramas corresponden al estado de referencia no mayorado. Las comprobaciones resistentes posteriores emplean resultantes recalculadas para cada combinación LRFD; por lo tanto, sus utilizaciones no se comparan directamente con estos extremos." else stop("El estado de las resultantes de hormigón simple no está identificado.")`
+
+La @fig-calculation-concrete-normal presenta $N_\theta$; la
+@fig-calculation-concrete-moment, $M_\theta$; y la
+@fig-calculation-concrete-shear, $Q_\theta$. Cada figura emplea el radio y la
+escala gráfica de esta alternativa.
+
+{{< include /_fig/Calculation.concrete.resultants.ES.qmd >}}
+
+## Comprobación de hormigón simple
+
+```{r}
+#| include: false
+PlainApplicabilityChecks <- Calculation$shotcrete$checks[
+  Calculation$shotcrete$checks$checkID %in% c(
+    "structural-classification", "plain-concrete-permission"
+  ),
+  ,
+  drop = FALSE
+]
+PlainApplicabilityIDs <- unique(PlainApplicabilityChecks$checkID)
+if (!setequal(
+  PlainApplicabilityIDs,
+  c("structural-classification", "plain-concrete-permission")
+) || any(!(PlainApplicabilityChecks$checkStatus %in% c(
+  "satisfied", "not-satisfied", "blocked"
+)))) {
+  stop("Los controles de aplicabilidad del hormigón simple están incompletos.")
+}
+PlainApplicabilityClosed <- all(
+  PlainApplicabilityChecks$checkStatus == "satisfied"
+)
+```
+
+`r if (!PlainApplicabilityClosed) "La clasificación estructural del revestimiento y la condición que habilita el empleo del Capítulo 14 no están acreditadas para esta alternativa. Las comprobaciones siguientes se informan como resultados locales condicionales; no constituyen una verificación normativa integral del revestimiento." else "La clasificación estructural y la condición de aplicabilidad declaradas permiten ejecutar las comprobaciones locales del Capítulo 14 para el alcance indicado."`
+
+Para una franja de ancho $b$, las acciones concurrentes son
+
+$$
+P_u=-N_\theta b,
+\qquad
+M_u=\lvert M_\theta\rvert b,
+\qquad
+V_u=\lvert Q_\theta\rvert b.
+$$ {#eq-calculation-shotcrete-actions}
+
+Cada combinación mayorada modifica las componentes vertical y horizontal del
+estado tensional. La integración se resuelve nuevamente para obtener
+$N_\theta$, $M_\theta$ y $Q_\theta$
+concurrentes en cada posición angular.
+
+La resistencia local del hormigón simple se comprueba con $\phi=0.60$. Para
+la cara traccionada y el corte unidireccional se emplean
+
+$$
+\frac{M_u}{S_m}-\frac{P_u}{A_g}
+\le
+\phi\,0.42\lambda\sqrt{f'_c},
+\qquad
+\phi V_n=\phi\,0.11\lambda\sqrt{f'_c}\,b t_c,
+$$ {#eq-calculation-shotcrete-local-strength}
+
+donde $A_g=bt_c$ y $S_m=bt_c^2/6$ [@ACI31825, tabla 14.5.4.1 y
+art. 14.5.5.1(a)]. La tabla presenta las comprobaciones locales calculadas. La
+resistencia de la cara comprimida depende además de la longitud de compresión
+definida por ACI 318-25, magnitud que no se ha caracterizado para este caso.
+
+{{< include /_tbl/Calculation.shotcrete.checks.ES.qmd >}}
+
+## Resultado de la alternativa de hormigón simple
+
+`r Calculation$shotcrete$resultMarkdown`
+
+```{r}
+#| include: false
+rm(PlainApplicabilityChecks, PlainApplicabilityIDs, PlainApplicabilityClosed)
+```
+
+## Sección de hormigón proyectado armado
+
+La segunda alternativa de hormigón incorpora una misma malla en ambas caras y
+en las direcciones circunferencial y ortogonal. La
+@tbl-calculation-concrete-reinforced-section presenta el diámetro, la
+separación y el recubrimiento libre adoptados, junto con las magnitudes
+seccionales derivadas.
+
+{{< include /_tbl/Calculation.concrete.reinforced.section.ES.qmd >}}
+
+Para una franja de ancho $b$, ACI 318.2-14 establece para acero Grade 60 una
+armadura mínima total en cada dirección igual a
+
+$$
+A_{s,\min}=0.0018\,b\,t_c
+=`r formatCalculationFixed(Calculation$reinforcedConcrete$checks$demandValue[Calculation$reinforcedConcrete$checks$checkID == "minimum-circumferential-reinforcement"][1L] / 100, 2L)`
+\ \mathrm{cm^2/m}.
+$$ {#eq-calculation-concrete-reinforced-minimum}
+
+El área por cara y por dirección se obtiene de
+
+$$
+A_s=\frac{\pi\phi^2}{4}\frac{1000}{s}.
+$$ {#eq-calculation-concrete-reinforced-mesh-area}
+
+El procedimiento compara por separado el área total circunferencial y el área
+total ortogonal con el valor requerido por la
+@eq-calculation-concrete-reinforced-minimum, y comprueba además la igualdad
+entre caras. La dirección ortogonal participa únicamente en estos controles;
+no modifica el dominio local $P$--$M$, que emplea la armadura
+circunferencial. La cuantía requerida procede de ACI 318.2-14, 6.1.3, y la
+consideración de ambas superficies responde a 6.1.9 [@ACI318214].
+ACI 318-25 remite el proyecto de cáscaras delgadas a ACI 318.2
+[@ACI31825, art. 1.4.4]. El dominio $P$--$M$ se construye con ACI 318-25; la
+armadura mínima anterior se conserva como comparación con la edición completa
+de ACI 318.2 disponible. En consecuencia, esta memoria no atribuye a esa
+comparación conformidad con ACI 318.2-25.
+
+{{< include /_tbl/Calculation.concrete.reinforced.reinforcement.checks.ES.qmd >}}
+
+La rigidez para el análisis elástico se calcula sobre la sección bruta
+de hormigón, no fisurada y de corto plazo. Para los datos seccionales
+configurados se obtienen:
+
+$$
+EA_r=
+`r formatCalculationFixed(Calculation$reinforcedConcrete$section$extensionalRigidityKnPerM, 0L)`
+\ \mathrm{kN/m},
+\qquad
+EI_r=
+`r formatCalculationFixed(Calculation$reinforcedConcrete$section$flexuralRigidityKnM2PerM, 0L)`
+\ \mathrm{kN\,m^2/m}.
+$$ {#eq-calculation-concrete-reinforced-rigidities}
+
+El estado de interacción, las resultantes y la comprobación resistente se
+calculan y registran por separado para cada alternativa.
+
+## Integración directa y resultantes del hormigón armado
+
+La @tbl-calculation-concrete-reinforced-interaction presenta las amplitudes
+obtenidas con la sección de esta alternativa para $\alpha=1$ y $\alpha=0$.
+
+{{< include /_tbl/Calculation.concrete.reinforced.interaction.ES.qmd >}}
+
+La @tbl-calculation-concrete-reinforced-extrema reúne los extremos de
+$N_\theta$, $M_\theta$ y $Q_\theta$. Los tres diagramas siguientes emplean el
+radio, las escalas y las resultantes propias de la alternativa armada.
+
+{{< include /_tbl/Calculation.concrete.reinforced.extrema.ES.qmd >}}
+
+`r if (all(Calculation$reinforcedConcrete$resultants$forceEffectStatus == "unfactored-reference-state")) "La tabla de extremos y los diagramas corresponden al estado de referencia no mayorado. Las comprobaciones resistentes posteriores emplean resultantes recalculadas para cada combinación LRFD; por lo tanto, sus utilizaciones no se comparan directamente con estos extremos." else stop("El estado de las resultantes de hormigón armado no está identificado.")`
+
+{{< include /_fig/Calculation.concrete.reinforced.resultants.ES.qmd >}}
+
+## Comprobación local del hormigón armado
+
+Las acciones de una franja de ancho $b$ se obtienen, para cada posición y
+combinación concurrente, mediante
+
+$$
+P_u=-N_\theta b,
+\qquad
+M_u=M_\theta b.
+$$ {#eq-calculation-concrete-reinforced-actions}
+
+El dominio resistente $(\phi P_n,\phi M_n)$ se construye mediante
+compatibilidad de deformaciones y equilibrio de la sección, con la ley del
+acero limitada por $f_y$ y los factores $\phi$ de ACI 318-25. La utilización
+local se obtiene con el multiplicador $\lambda_*>0$ para el cual la semirrecta
+que parte del origen y pasa por la demanda intersecta el dominio de resistencia:
+
+$$
+\left(\phi P_n,\phi M_n\right)
+=\lambda_*\left(P_u,M_u\right),
+\qquad
+U_{NM}=\frac{1}{\lambda_*}\le 1.
+$$ {#eq-calculation-concrete-reinforced-utilization}
+
+La construcción del dominio aplica ACI 318-25, Tabla 21.2.2 y artículos
+21.2.2.3, 22.2.1 y 22.2.2 [@ACI31825]. La comprobación se ejecuta para cada
+signo de $M_\theta$; por lo tanto, las caras interior y exterior quedan
+representadas en las envolventes analizadas.
+
+Para examinar la sensibilidad frente a la armadura circunferencial se define
+
+$$
+A_{s,\theta}=A_{s,i}+A_{s,e},
+\qquad
+\rho_\theta=\frac{A_{s,\theta}}{b t_c},
+\qquad
+\mu=\frac{A_{s,\theta}}{A_{s,\min}}.
+$$ {#eq-calculation-concrete-reinforced-reinforcement-family}
+
+La familia discreta conserva el espesor, los materiales, el recubrimiento al
+centroide y la posición simétrica de las capas; varía únicamente
+$A_{s,\theta}$. La armadura ortogonal permanece fuera de estos dominios y sólo
+interviene en los controles de cuantía. Las demandas son comunes a toda la
+familia porque el análisis emplea la rigidez bruta de hormigón, no fisurada y
+de corto plazo. Las cuantías de referencia son casos analíticos continuos y no
+definen por sí mismas un diámetro, una separación ni un detalle constructivo.
+
+La
+@tbl-calculation-concrete-reinforced-axial-flexure-sweep presenta la malla
+configurada y cuatro referencias discretas. Su estado permite identificar el
+intervalo de cuantías en el que cambia el resultado local, sin introducir una
+búsqueda de optimización.
+
+{{< include /_tbl/Calculation.concrete.reinforced.axial.flexure.sweep.ES.qmd >}}
+
+`r local({PM.SWEEP <- Calculation$reinforcedConcrete$reinforcementSweep$summary; PM.OK <- which(PM.SWEEP$localPMStatus == "satisfied")[1L]; if (length(PM.OK) == 1L && !is.na(PM.OK) && PM.OK > 1L) paste0("En los casos discretos evaluados, $\\rho_\\theta=", formatCalculationGeneral(100 * PM.SWEEP$reinforcementRatio[PM.OK - 1L]), "\\%$ no satisface y $\\rho_\\theta=", formatCalculationGeneral(100 * PM.SWEEP$reinforcementRatio[PM.OK]), "\\%$ satisface la comprobación local; este intervalo no se interpreta como una cuantía óptima.") else "La familia discreta no encierra un cambio de estado local dentro del intervalo evaluado."})`
+
+La @fig-calculation-concrete-reinforced-axial-flexure superpone los cinco
+dominios —desde la armadura mínima histórica hasta las cuantías mayores— y los
+cuatro puntos gobernantes de la malla configurada, uno por par
+$\alpha$--combinación. El procedimiento evalúa 720 posiciones angulares para
+cada par y conserva la de mayor utilización radial en la figura; esos puntos
+representan posiciones reales del revestimiento, no iteraciones numéricas.
+Las curvas unen estados de deformación de la sección y tampoco representan
+iteraciones.
+
+{{< include /_fig/Calculation.concrete.reinforced.axial.flexure.ES.qmd >}}
+
+{{< include /_tbl/Calculation.concrete.reinforced.checks.ES.qmd >}}
+
+## Resultado de la alternativa de hormigón armado
+
+`r Calculation$reinforcedConcrete$resultMarkdown`
+
+El resultado anterior comprende el dominio local $P$--$M$ y los controles de
+armadura mínima presentados en esta sección. No incluye una comprobación
+integral de corte, estabilidad, durabilidad, servicio, fisuración,
+recubrimientos, separación y anclaje conforme a ACI 318.2-25.

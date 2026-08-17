@@ -1,0 +1,30 @@
+```{r}
+#| include: false
+source("scripts/tbl/Calculation.reference.cases.R")
+CAP <- paste(
+  readLines("_captions/tbl.Methodology.fhwa.compaction.ES.md", warn = FALSE),
+  collapse = "\n"
+)
+```
+
+```{r}
+#| label: tbl-methodology-fhwa-compaction
+#| tbl-cap: !expr CAP
+#| echo: false
+buildMethodologyFHWACompactionTable(
+  file.path("data", "benchmarks", "fhwa.compaction.eq.5.1.csv")
+)
+```
+
+```{r}
+#| include: false
+rm(
+  CAP,
+  buildMethodologyFHWACompactionTable,
+  buildCalculationFHWAReferenceTable,
+  buildCalculationNunezReferenceTable,
+  buildCalculationSchwartzEinsteinReferenceTable,
+  buildCalculationUSACEReferenceTable,
+  .readReferenceCaseProduct
+)
+```

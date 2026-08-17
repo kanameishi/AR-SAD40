@@ -1,7 +1,0 @@
-"case","prescription","tangentialMultiplier","resultant","metric","value","unit","tolerance","pass","gridPoints","integrationSteps","evidenceLevel"
-"tangential-alpha-1","Componente tangencial: α = 1.00",1,"N","Máxima diferencia absoluta",7.95807864051312e-13,"kN/m",1e-07,TRUE,728,8192,"CI"
-"tangential-alpha-1","Componente tangencial: α = 1.00",1,"M","Máxima diferencia absoluta",1.28252963804698e-12,"kN m/m",1e-07,TRUE,728,8192,"CI"
-"tangential-alpha-1","Componente tangencial: α = 1.00",1,"Q","Máxima diferencia absoluta",1.07680531158394e-12,"kN/m",1e-07,TRUE,728,8192,"CI"
-"tangential-alpha-0","Componente tangencial: α = 0.00",0,"N","Máxima diferencia absoluta",1.26476606965298e-12,"kN/m",1e-07,TRUE,728,8192,"CI"
-"tangential-alpha-0","Componente tangencial: α = 0.00",0,"M","Máxima diferencia absoluta",2.38742359215394e-12,"kN m/m",1e-07,TRUE,728,8192,"CI"
-"tangential-alpha-0","Componente tangencial: α = 0.00",0,"Q","Máxima diferencia absoluta",1.54365409343882e-12,"kN/m",1e-07,TRUE,728,8192,"CI"

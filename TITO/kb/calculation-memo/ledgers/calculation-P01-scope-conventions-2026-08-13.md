@@ -20,7 +20,7 @@ resultantes. La audiencia son ingenieros geotécnicos y estructurales.
 - Fuente técnica interna: dictamen de la integral de área en
   `/private/tmp/ar-sad40-eq1-integrals-audit.md`.
 - Metodología aprobada, sólo para correspondencia:
-  `TITO/kb/review/chapters/methodology.scope.review.es.md`.
+  `TITO/kb/paper-candidate/chapters/methodology.scope.es.md`.
 
 ## Exact Claims Allowed
 
@@ -88,7 +88,7 @@ None: la emisión solicitada está redactada en español.
 ## Validation
 
 - La fuente pública vigente y el HTML no se modificaron.
-- La Fase 1 congelada no se modificó ni se renderizó.
+- Registro histórico: este paquete no modificó ni renderizó la metodología.
 - La candidata no contiene citas porque sólo fija convenciones y resultados
   propios del cálculo; no atribuye una relación publicada a terceros.
 - La reauditoría técnica concluyó `PASS` en

@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+CAP <- readCaption("fig.liner.profile.ES")
+```
+
+{{< include /_fig/liner.profile.qmd >}}

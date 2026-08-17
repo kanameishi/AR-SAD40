@@ -1,0 +1,123 @@
+{
+  "schemaVersion": "3.0.0",
+  "analysisModelID": "prescribed-biaxial-direct-integration",
+  "scenarioID": "synthetic-cover-aisi",
+  "cover": {
+    "coverCrownM": 2.0,
+    "crownToAxisM": 1.315,
+    "effectiveUnitWeightKnPerM3": 20.0,
+    "effectiveSurchargeKPa": 0.0,
+    "referencePositionID": "axis"
+  },
+  "ground": {
+    "modulusKPa": 30000.0,
+    "poisson": 0.30,
+    "k0": {
+      "modelID": "adopted-constant",
+      "k0": 0.50
+    }
+  },
+  "action": {
+    "combinationID": "synthetic-asd-scenario",
+    "stageID": "completed-fill",
+    "forceEffectStatus": "asd-required",
+    "loadCombinationBasisID": "synthetic-ASD-basis",
+    "waterPressureDifferenceKPa": 0.0
+  },
+  "interfaceCases": [
+    {
+      "caseID": "alpha-1",
+      "interfaceID": "full-traction",
+      "tangentialMultiplier": 1.0,
+      "comparisonInterfaceID": "full-slip"
+    },
+    {
+      "caseID": "alpha-0",
+      "interfaceID": "normal-only",
+      "tangentialMultiplier": 0.0,
+      "comparisonInterfaceID": "no-slip"
+    }
+  ],
+  "sectionReference": {
+    "propertyTable": "data/reference/cspi.corrugation.section.properties.csv",
+    "profileID": "cspi-76x25-csp-sheet",
+    "referenceRowID": "cspi-76x25-2.8"
+  },
+  "lining": {
+    "liningTypeID": "corrugated-steel",
+    "sectionID": "cspi-76x25-2.8-t2.64",
+    "centroidalRadiusM": 1.315,
+    "poisson": 0.30,
+    "remainingBaseThicknessMm": 2.64,
+    "youngModulusKPa": 200000000.0,
+    "yieldStrengthMPa": 250.0,
+    "aisi": {
+      "capacityTable": "scripts/R/fixtures/aisi.capacity.synthetic.csv",
+      "capacityBaseThicknessMm": 2.64,
+      "capacityYieldStrengthMPa": 250.0,
+      "capacityProfileID": "cspi-76x25-csp-sheet",
+      "capacityReferenceRowID": "cspi-76x25-2.8",
+      "applicability": {
+        "sectionClassID": "general-uniaxial",
+        "secondOrderStatus": "satisfied",
+        "concentricDemandStatus": "satisfied",
+        "concentricDemandEvidenceLocator": "synthetic regression fixture",
+        "b4Status": "satisfied",
+        "b4EvidenceLocator": "synthetic regression fixture",
+        "crossSectionSymmetryStatus": "satisfied",
+        "shearInWebPlaneStatus": "satisfied",
+        "shearMappingStatus": "satisfied",
+        "shearRouteID": "accepted-alternative",
+        "shearRouteStatus": "satisfied",
+        "shearRouteEvidenceLocator": "synthetic regression fixture",
+        "shearStiffenerStatus": "absent",
+        "g4GateStatus": {
+          "strengthStiffness": "satisfied",
+          "spacingLe2h": "satisfied",
+          "flangeDistortionRestraint": "satisfied",
+          "spanEndAttachment": "satisfied"
+        },
+        "g4GateEvidenceLocator": {
+          "strengthStiffness": "synthetic regression fixture",
+          "spacingLe2h": "synthetic regression fixture",
+          "flangeDistortionRestraint": "synthetic regression fixture",
+          "spanEndAttachment": "synthetic regression fixture"
+        },
+        "localizedReactionRouteID": "unknown",
+        "localizedReactionRouteStatus": "unknown",
+        "localizedReactionRouteEvidenceLocator": "not required",
+        "h3InteractionCaseID": "unknown",
+        "h3CaseEvidenceLocator": "not required",
+        "localizedReactionStatus": "absent-demonstrated",
+        "localizedReactionEvidenceLocator": "distributed load fixture"
+      },
+      "settings": {
+        "standardID": "ANSI-SDI-AISI-S100-24",
+        "jurisdictionID": "US",
+        "designMethodID": "ASD",
+        "loadCombinationBasisID": "synthetic-ASD-basis",
+        "demandBasisID": "asd-required",
+        "editionAdoptionStatus": "satisfied",
+        "evaluationPurposeID": "strength-check",
+        "widthBasisID": "per-projected-metre",
+        "axialZeroToleranceKnPerM": 1e-10,
+        "momentZeroToleranceKnMPerM": 1e-12,
+        "shearZeroToleranceKnPerM": 1e-10,
+        "angleToleranceDeg": 1e-10
+      }
+    }
+  },
+  "numerics": {
+    "thetaPointCount": 72,
+    "criticalAnglesDeg": [0, 45, 90, 135, 180, 225, 270, 315],
+    "integrationSteps": 4096,
+    "balanceTolerance": 1e-9,
+    "closedFormTolerance": 1e-7,
+    "controlTolerance": 1e-10
+  },
+  "graphics": {
+    "graphicAmplification": 2.0,
+    "radialFraction": 0.25,
+    "ordinateCount": 36
+  }
+}

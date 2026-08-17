@@ -1,0 +1,29 @@
+```{r}
+#| include: false
+source("scripts/fig/Calculation.concrete.axial.flexure.R")
+PLOT.PM <- buildCalculationConcreteAxialFlexurePlot(
+  domainsPath = Calculation$paths$shotcreteReinforcementDomains,
+  sweepPath = Calculation$paths$shotcreteReinforcementSweep,
+  configuredDemandsPath =
+    Calculation$paths$shotcreteReinforcementConfiguredDemands,
+  liningID = "reinforcedConcrete"
+)
+```
+
+::: {.column-page}
+
+```{r}
+#| label: fig-calculation-concrete-reinforced-axial-flexure
+#| fig-cap: !expr CAP.PM
+#| echo: false
+#| out-width: 100%
+#| fig-align: center
+PLOT.PM
+```
+
+:::
+
+```{r}
+#| include: false
+rm(PLOT.PM, buildCalculationConcreteAxialFlexurePlot)
+```

@@ -1,0 +1,22 @@
+```{r}
+#| include: false
+source("scripts/tbl/Calculation.reference.cases.R")
+CAP <- paste(
+  readLines("_captions/tbl.reference.nunez.ES.md", warn = FALSE),
+  collapse = "\n"
+)
+```
+
+```{r}
+#| label: tbl-reference-nunez
+#| tbl-cap: !expr CAP
+#| echo: false
+buildCalculationNunezReferenceTable(
+  file.path(projectRoot, "data", "benchmarks", "nunez.2000.circular.csv")
+)
+```
+
+```{r}
+#| include: false
+rm(CAP, buildCalculationNunezReferenceTable, .readReferenceCaseProduct)
+```

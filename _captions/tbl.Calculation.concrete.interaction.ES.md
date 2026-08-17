@@ -1,0 +1,1 @@
+Parámetros de la proyección biaxial y coeficientes armónicos de las resultantes del revestimiento de hormigón proyectado. La integración directa se ejecuta con las propiedades de cada alternativa; $\alpha=1$ incorpora la tracción tangencial completa y $\alpha=0$ conserva únicamente la acción normal.

@@ -2,6 +2,8 @@ source("scripts/fig/Calculation.resultants.R")
 source("scripts/fig/Calculation.envelopes.R")
 source("scripts/fig/Calculation.extrema.quantiles.R")
 source("scripts/fig/Calculation.compaction.stages.R")
+source("scripts/fig/Calculation.concrete.axial.flexure.R")
+source("scripts/tbl/Calculation.concrete.reinforcement.sweep.R")
 
 PathCurves <- "data/calculation/section.resultants.csv"
 PathScales <- "data/calculation/display.scales.csv"
@@ -77,8 +79,8 @@ DashByName <- stats::setNames(
 )
 stopifnot(identical(
   unname(DashByName[c(
-    "Componente tangencial: α = 1.00",
-    "Componente tangencial: α = 0.00"
+    "Interfaz con deslizamiento libre",
+    "Interfaz sin deslizamiento"
   )]),
   c("ShortDash", "Dash")
 ))
@@ -113,14 +115,174 @@ Geometry <- .readResultantGeometry(
 )
 stopifnot(identical(
   unique(as.character(Geometry$case)),
-  c("alpha-1", "alpha-0")
+  c("full-slip", "no-slip")
 ))
+PathConcreteCurves <- "data/calculation/shotcrete.section.resultants.csv"
+PathConcreteScales <- "data/calculation/shotcrete.display.scales.csv"
+PathConcreteSections <- "data/calculation/shotcrete.section.properties.csv"
+ConcreteScales <- utils::read.csv(
+  PathConcreteScales,
+  check.names = FALSE
+)
+ConcreteSections <- utils::read.csv(
+  PathConcreteSections,
+  check.names = FALSE
+)
+ReinforcedScales <- ConcreteScales[
+  ConcreteScales[["liningID", exact = TRUE]] == "reinforcedConcrete",
+  ,
+  drop = FALSE
+]
+ConcreteScales <- ConcreteScales[
+  ConcreteScales[["liningID", exact = TRUE]] == "shotcrete",
+  ,
+  drop = FALSE
+]
+ConcreteRadius <- unique(ConcreteScales$referenceRadiusM)
+ConcreteAmplification <- unique(ConcreteScales$graphicAmplification)
+ConcreteOrdinateCount <- unique(ConcreteScales$ordinateCount)
+ReinforcedRadius <- unique(ReinforcedScales$referenceRadiusM)
+ReinforcedAmplification <- unique(
+  ReinforcedScales$graphicAmplification
+)
+ReinforcedOrdinateCount <- unique(ReinforcedScales$ordinateCount)
+ConcreteSectionRadius <- unique(ConcreteSections[[
+  "centroidalRadiusM",
+  exact = TRUE
+]][ConcreteSections[["liningID", exact = TRUE]] == "shotcrete"])
+ReinforcedSectionRadius <- unique(ConcreteSections[[
+  "centroidalRadiusM",
+  exact = TRUE
+]][ConcreteSections[["liningID", exact = TRUE]] == "reinforcedConcrete"])
+stopifnot(
+  length(ConcreteRadius) == 1L,
+  length(ConcreteAmplification) == 1L,
+  length(ConcreteOrdinateCount) == 1L,
+  length(ReinforcedRadius) == 1L,
+  length(ReinforcedAmplification) == 1L,
+  length(ReinforcedOrdinateCount) == 1L,
+  length(ConcreteSectionRadius) == 1L,
+  length(ReinforcedSectionRadius) == 1L,
+  isTRUE(all.equal(ConcreteRadius, ConcreteSectionRadius)),
+  isTRUE(all.equal(ReinforcedRadius, ReinforcedSectionRadius)),
+  ReinforcedRadius != ConcreteRadius,
+  ConcreteRadius != Radius
+)
+ConcreteGeometry <- .readResultantGeometry(
+  PathConcreteCurves,
+  PathConcreteScales,
+  ConcreteRadius,
+  graphicAmplification = ConcreteAmplification,
+  liningID = "shotcrete"
+)
+ReinforcedGeometry <- .readResultantGeometry(
+  PathConcreteCurves,
+  PathConcreteScales,
+  ReinforcedRadius,
+  graphicAmplification = ReinforcedAmplification,
+  liningID = "reinforcedConcrete"
+)
+stopifnot(
+  identical(
+    unique(as.character(ConcreteGeometry$case)),
+    c("full-slip", "no-slip")
+  ),
+  identical(
+    unique(as.character(ReinforcedGeometry$case)),
+    c("full-slip", "no-slip")
+  ),
+  !isTRUE(all.equal(
+    ReinforcedGeometry$value,
+    ConcreteGeometry$value,
+    tolerance = 1e-12
+  )),
+  max(abs(ConcreteGeometry$value[ConcreteGeometry$resultant == "M"])) >
+    max(abs(Geometry$value[Geometry$resultant == "M"]))
+)
+ConcreteInteractive <- buildCalculationResultantsInteractive(
+  PathConcreteCurves,
+  PathConcreteScales,
+  ConcreteRadius,
+  graphicAmplification = ConcreteAmplification,
+  raysPerCircle = ConcreteOrdinateCount,
+  liningID = "shotcrete"
+)
+ReinforcedInteractive <- buildCalculationResultantsInteractive(
+  PathConcreteCurves,
+  PathConcreteScales,
+  ReinforcedRadius,
+  graphicAmplification = ReinforcedAmplification,
+  raysPerCircle = ReinforcedOrdinateCount,
+  liningID = "reinforcedConcrete"
+)
+stopifnot(
+  inherits(ConcreteInteractive, "highchart"),
+  inherits(ReinforcedInteractive, "highchart")
+)
+AxialFlexureInteractive <- buildCalculationConcreteAxialFlexurePlot(
+  "data/calculation/shotcrete.axial.flexure.reinforcement.domains.csv",
+  "data/calculation/shotcrete.axial.flexure.reinforcement.sweep.csv",
+  paste0(
+    "data/calculation/",
+    "shotcrete.axial.flexure.reinforcement.configured.demands.csv"
+  )
+)
+AxialFlexureSeries <- AxialFlexureInteractive[["x"]][["hc_opts"]][[
+  "series"
+]]
+stopifnot(
+  inherits(AxialFlexureInteractive, "highchart"),
+  isFALSE(AxialFlexureInteractive[["x"]][["hc_opts"]][[
+    "plotOptions"
+  ]][["series"]][["requireSorting"]]),
+  identical(
+    vapply(AxialFlexureSeries, `[[`, character(1), "name"),
+    c(
+      "Mínimo histórico · rho=0.180% · As=216 mm2/m",
+      "Configurada · rho=0.314% · As=377 mm2/m",
+      "Referencia · rho=1.000% · As=1200 mm2/m",
+      "Referencia · rho=2.000% · As=2400 mm2/m",
+      "Referencia · rho=3.000% · As=3600 mm2/m",
+      "D · 1.4V + 1.6H",
+      "D · 1.4V + 0.9H",
+      "S · 1.4V + 1.6H",
+      "S · 1.4V + 0.9H"
+    )
+  ),
+  identical(
+    vapply(
+      AxialFlexureSeries[seq_len(5L)],
+      function(x) length(x[["data"]]),
+      integer(1)
+    ),
+    rep(807L, 5L)
+  ),
+  identical(
+    vapply(
+      AxialFlexureSeries[-seq_len(5L)],
+      function(x) length(x[["data"]]),
+      integer(1)
+    ),
+    rep(1L, 4L)
+  )
+)
+ReinforcementSweepTable <- buildCalculationConcreteReinforcementSweepTable(
+  "data/calculation/shotcrete.axial.flexure.reinforcement.sweep.csv",
+  "reinforcedConcrete"
+)
+ReinforcementSweepText <- as.character(ReinforcementSweepTable)
+stopifnot(
+  inherits(ReinforcementSweepTable, "knitr_kable"),
+  any(grepl("2.000", ReinforcementSweepText, fixed = TRUE)),
+  any(grepl("No satisface", ReinforcementSweepText, fixed = TRUE)),
+  any(grepl("Satisface", ReinforcementSweepText, fixed = TRUE))
+)
 Baseline <- buildRingComparisonPlot(
   geometry = Geometry,
   baselineRadius = Radius,
   raysPerCircle = OrdinateCount,
   subtitle = paste0(
-    "Multiplicador tangencial α; amplificación gráfica Ag = ",
+    "Idealizaciones cinemáticas de interfaz; amplificación gráfica Ag = ",
     GraphicAmplification,
     ". La lectura interactiva conserva las magnitudes físicas."
   )
@@ -221,11 +383,16 @@ stopifnot(inherits(extremaChart, "shiny.tag"))
 CanonicalCurves <- utils::read.csv(PathCurves, check.names = FALSE)
 stages <- data.frame(
   case = CanonicalCurves$caseID,
-  stage = ifelse(CanonicalCurves$alpha == 1, "Etapa 1", "Etapa 2"),
+  stage = ifelse(
+    CanonicalCurves$interfaceID == "full-slip",
+    "Etapa 1",
+    "Etapa 2"
+  ),
   model = "mathematical-control",
-  prescription = paste0(
-    "Componente tangencial: α = ",
-    formatC(CanonicalCurves$alpha, format = "f", digits = 2)
+  prescription = ifelse(
+    CanonicalCurves$interfaceID == "full-slip",
+    "Interfaz con deslizamiento libre",
+    "Interfaz sin deslizamiento"
   ),
   resultant = CanonicalCurves$resultantID,
   thetaIndex = CanonicalCurves$thetaIndex,

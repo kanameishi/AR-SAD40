@@ -7,8 +7,47 @@ representatividad de las acciones respecto del relleno existente.
 
 ## B.1 Solución cerrada del estado biaxial prescrito {.unnumbered}
 
-Se parte de los invariantes de la @eq-calculation-biaxial-invariants y de las
-acciones de la @eq-calculation-biaxial-load.
+Sean $\sigma'_{v,A}$ y $\sigma'_{h,A}$ las dos tensiones principales
+efectivas uniformes del control, y sea $\Delta u_A$ una diferencia uniforme de
+presión de agua. Su proyección sobre el contorno es
+
+$$
+\begin{aligned}
+p'_n(\theta)
+&=\sigma'_{v,A}\cos^2\theta
+  +\sigma'_{h,A}\sin^2\theta,\\
+p_t^*(\theta)
+&=\left(\sigma'_{v,A}-\sigma'_{h,A}\right)
+  \sin\theta\cos\theta,\\
+p_n(\theta)&=p'_n(\theta)+\Delta u_A.
+\end{aligned}
+$$ {#eq-calculation-stress-projection}
+
+Con las convenciones de la @sec-calculation-basis,
+
+$$
+P_r(\theta)=-p_n(\theta),
+\qquad
+P_t(\theta)=\alpha p_t^*(\theta),
+\qquad 0\leq\alpha\leq1.
+$$ {#eq-calculation-tangential-multiplier}
+
+El parámetro $\alpha$ multiplica la componente tangencial prescrita; no es un
+coeficiente de fricción ni una ley de contacto. Al definir
+
+$$
+p_m=\Delta u_A+\frac{\sigma'_{v,A}+\sigma'_{h,A}}{2},
+\qquad
+\Delta\sigma=\sigma'_{v,A}-\sigma'_{h,A},
+$$ {#eq-calculation-biaxial-invariants}
+
+las acciones se reducen a
+
+$$
+P_r(\theta)=-p_m-\frac{\Delta\sigma}{2}\cos2\theta,
+\qquad
+P_t(\theta)=\alpha\frac{\Delta\sigma}{2}\sin2\theta.
+$$ {#eq-calculation-biaxial-load}
 
 La respuesta contiene un término uniforme y un armónico de orden dos:
 
@@ -48,36 +87,53 @@ M_2=R^2\Delta\sigma\frac{2+\alpha}{12},
 M_m=-R^2p_m\frac{\eta_s}{1+\eta_s}.
 $$
 
-La sustitución de estos coeficientes en la forma armónica produce la
-@eq-calculation-biaxial-alpha-response. Esta solución corresponde a las
-acciones prescritas y a una geometría y rigideces uniformes; $\alpha$ conserva
-su definición como multiplicador de la componente tangencial.
+Por lo tanto,
+
+$$
+\begin{aligned}
+N_\theta&=-Rp_m
++R\Delta\sigma\frac{1+2\alpha}{6}\cos2\theta,\\
+M_\theta&=-R^2p_m\frac{\eta_s}{1+\eta_s}
++R^2\Delta\sigma\frac{2+\alpha}{12}\cos2\theta,\\
+Q_\theta&=-R\Delta\sigma\frac{2+\alpha}{6}\sin2\theta.
+\end{aligned}
+$$ {#eq-calculation-biaxial-alpha-response}
+
+Esta solución corresponde a las acciones prescritas y a una geometría y
+rigideces uniformes.
 
 ## B.2 Sustitución numérica {.unnumbered}
 
-Para
-$R=`r formatCalculationGeneral(Calculation$geometry$radiusM)`$ m,
-$p_m=`r formatCalculationGeneral(Calculation$actions$meanPressureKPa)`$ kPa,
-$\Delta\sigma=`r formatCalculationGeneral(Calculation$actions$stressDifferenceKPa)`$
+El control adopta
+$\sigma'_{v,A}=`r formatCalculationGeneral(BiaxialControl$stress$effectiveVerticalKPa)`$
+kPa,
+$K_0=`r formatCalculationGeneral(BiaxialControl$stress$k0Applied)`$,
+$\sigma'_{h,A}=`r formatCalculationGeneral(BiaxialControl$stress$effectiveHorizontalKPa)`$
 kPa y
-$\eta_s=`r formatCalculationScientificLatex(Calculation$section$sectionRatio, 12L)`$,
+$\Delta u_A=`r formatCalculationGeneral(BiaxialControl$stress$waterPressureDifferenceKPa)`$
+kPa. Para
+$R=`r formatCalculationGeneral(BiaxialControl$geometry$radiusM)`$ m,
+$p_m=`r formatCalculationGeneral(BiaxialControl$actions$meanPressureKPa)`$ kPa,
+$\Delta\sigma=`r formatCalculationGeneral(BiaxialControl$actions$stressDifferenceKPa)`$
+kPa y
+$\eta_s=`r formatCalculationScientificLatex(BiaxialControl$section$sectionRatio, 12L)`$,
 los términos uniformes son
 
 $$
 N_0=-Rp_m=
-`r formatCalculationFixed(Calculation$extrema$meanNormal[1L], 7L)`
+`r formatCalculationFixed(BiaxialControl$extrema$meanNormal[1L], 7L)`
 \ \mathrm{kN/m},
 $$
 
 $$
 M_m=-R^2p_m\frac{\eta_s}{1+\eta_s}
-=`r formatCalculationFixed(Calculation$extrema$meanMoment[1L], 10L)`
+=`r formatCalculationFixed(BiaxialControl$extrema$meanMoment[1L], 10L)`
 \ \mathrm{kN\,m/m}.
 $$
 
 La evaluación de la @eq-calculation-biaxial-alpha-response para
-`r Calculation$actions$tangentialMultiplierMarkdown` reproduce los valores de la @tbl-calculation-extrema y las tres
-curvas presentadas en la aplicación numérica.
+`r BiaxialControl$actions$tangentialMultiplierMarkdown` se compara con la
+integración directa en la @tbl-calculation-controls.
 
 ## B.3 Equilibrio global y diferencias numéricas {.unnumbered}
 
@@ -98,13 +154,22 @@ $$
 $$ {#eq-calculation-global-residuals}
 
 donde $\mathcal M_{1/2}$ es el conjunto de puntos medios de la malla de
-integración. Para las resultantes, la diferencia respecto de la solución
-cerrada se calcula con la @eq-calculation-control-metric.
+integración. Para cada resultante $X\in\{N_\theta,M_\theta,Q_\theta\}$, la
+diferencia respecto de la solución cerrada se calcula como
+
+$$
+\varepsilon_X=
+\max_{\theta_i\in\mathcal M}
+\left|X_{\mathrm{directo}}(\theta_i)-X_{\mathrm{cerrado}}(\theta_i)\right|,
+$$ {#eq-calculation-control-metric}
+
+donde $\mathcal M$ es el conjunto de ordenadas angulares en las que se
+comparan ambas soluciones.
 
 La evaluación utiliza
-`r formatCalculationGeneral(Calculation$numerics$gridPoints)` ordenadas
+`r formatCalculationGeneral(BiaxialControl$numerics$gridPoints)` ordenadas
 angulares y
-`r formatCalculationGeneral(Calculation$numerics$integrationSteps)` divisiones
+`r formatCalculationGeneral(BiaxialControl$numerics$integrationSteps)` divisiones
 de la malla base. La malla de integración es la unión ordenada de esa malla
 base, las ordenadas solicitadas y los puntos de discontinuidad declarados. La
 @tbl-calculation-controls presenta los seis residuos de equilibrio y las seis
@@ -113,7 +178,7 @@ diferencias de resultantes.
 {{< include /_tbl/Calculation.controls.ES.qmd >}}
 
 Todos los residuos de equilibrio son inferiores a
-$`r formatCalculationScientificLatex(Calculation$numerics$balanceTolerance, 2L)`$,
+$`r formatCalculationScientificLatex(BiaxialControl$numerics$balanceTolerance, 2L)`$,
 y todas las diferencias de resultantes son inferiores a
-$`r formatCalculationScientificLatex(Calculation$numerics$controlTolerance, 2L)`$
+$`r formatCalculationScientificLatex(BiaxialControl$numerics$controlTolerance, 2L)`$
 en la unidad correspondiente.

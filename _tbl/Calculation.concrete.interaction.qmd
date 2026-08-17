@@ -1,0 +1,20 @@
+```{r}
+#| include: false
+source("scripts/tbl/Calculation.interaction.R")
+TBL <- buildCalculationInteractionTable(
+  path = Calculation$paths$shotcreteInteraction,
+  liningID = "shotcrete"
+)
+```
+
+```{r}
+#| label: tbl-calculation-concrete-interaction
+#| tbl-cap: !expr CAP
+#| echo: false
+TBL
+```
+
+```{r}
+#| include: false
+rm(CAP, TBL, buildCalculationInteractionTable)
+```

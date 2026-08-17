@@ -1,0 +1,20 @@
+```{r}
+#| include: false
+source("scripts/tbl/Calculation.concrete.reinforcement.R")
+TBL <- buildCalculationConcreteReinforcementTable(
+  path = Calculation$paths$inputs,
+  liningID = "reinforcedConcrete"
+)
+```
+
+```{r}
+#| label: tbl-liner-rehabilitation-reinforced-section
+#| tbl-cap: !expr CAP
+#| echo: false
+TBL
+```
+
+```{r}
+#| include: false
+rm(CAP, TBL, buildCalculationConcreteReinforcementTable)
+```

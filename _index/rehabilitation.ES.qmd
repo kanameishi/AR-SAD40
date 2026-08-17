@@ -1,0 +1,9 @@
+```{r}
+#| include: false
+root <- normalizePath(".", mustWork = TRUE)
+source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
+```
+
+# Rehabilitación del liner con hormigón proyectado {#sec-calculation-concrete}
+
+{{< include /_chapters/rehabilitation.shotcrete.es.qmd >}}

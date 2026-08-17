@@ -1,0 +1,17 @@
+```{r}
+#| include: false
+source("scripts/tbl/Calculation.aisi.flexural.bound.R")
+TBL <- buildAisiFlexuralTable(Calculation$paths$sheetFlexuralBound)
+```
+
+```{r}
+#| label: tbl-calculation-aisi-flexural-bound
+#| tbl-cap: !expr CAP
+#| echo: false
+TBL
+```
+
+```{r}
+#| include: false
+rm(CAP, TBL, buildAisiFlexuralTable)
+```

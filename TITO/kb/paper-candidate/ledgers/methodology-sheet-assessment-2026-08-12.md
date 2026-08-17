@@ -62,8 +62,8 @@ primera fluencia; estado límite; utilización normativa.
 ## Vocabulary Rejected
 
 «Espesor promedio» sin regla espacial; «factor de seguridad» genérico;
-«tensión real de la corrugación» para una magnitud homogeneizada; «verificación
-completa» desde $N/A\pm M/W$.
+«tensión real de la corrugación» para una magnitud homogeneizada; y cualquier
+verificación resistente basada sólo en una recuperación elástica de tensión.
 
 ## Candidate Public Paragraph Or Section
 

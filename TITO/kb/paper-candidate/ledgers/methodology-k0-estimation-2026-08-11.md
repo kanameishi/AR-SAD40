@@ -27,10 +27,13 @@ para descarga primaria y descarga seguida de recarga. El coeficiente pasivo de
 Rankine establece el límite adoptado por esos autores para la rama de descarga.
 La forma de Jáky de 1944 y la crítica de Michalowski se presentan como revisión
 histórica, no como una rama probabilística adicional. La acción de compactación
-de FHWA-RD-98-191 representa una etapa constructiva y no determina una tensión
-residual permanente. $K_0$ caracteriza el estado efectivo inicial; no se
-identifica con la presión lateral de contacto de un conducto flexible. La
-referencia reglamentaria obtiene el empuje desde $P_F$ en clave y $S$.
+de FHWA-RD-98-191 representa una presión nodal horizontal equivalente de una
+etapa constructiva y no determina una tensión residual permanente. Su ecuación
+5.1 y su Tabla 5.5 pertenecen a FHWA, no a AASHTO. La presión $n_p$ no modifica
+$K_0$ ni se suma automáticamente a $K_{0,b}\sigma'_v$. $K_0$ caracteriza el
+estado efectivo inicial; no se identifica con la presión lateral de contacto
+de un conducto flexible. La referencia reglamentaria obtiene el empuje desde
+$P_F$ en clave y $S$.
 
 ## Claims Not Allowed
 
@@ -40,7 +43,8 @@ Mesri--Hayat ni una ley cuantitativa de tensión residual sin leer y registrar
 evidencia primaria aplicable. No interpretar OCR como indicador automático de
 compactación ni combinar dos formulaciones que representen la misma historia.
 No añadir a $K_0$ términos de cohesión correspondientes a estados activo o
-pasivo. No usar $K_0$ como sustituto de un modelo de interacción.
+pasivo. No usar $K_0$ como sustituto de un modelo de interacción. No adoptar
+$n_p$ como tensión permanente retenida ni como incremento de $K_0$.
 
 ## Equations Allowed
 
@@ -53,6 +57,12 @@ pasivo. No usar $K_0$ como sustituto de un modelo de interacción.
   $K_0^{(m)}=f_m(\mathbf{x}_m)$, declarada como tal.
 - Separación
   $\sigma'_h=K_{0,b}\sigma'_v+\Delta\sigma'_{h,c}$.
+- McGrath et al. (1999), ecuación 5.1,
+  $n_p=1.3P(1-\sin\phi_\ell)^3[970/(d_c-250)]^2$, exclusivamente como acción
+  nodal horizontal de la etapa constructiva.
+- Cociente derivado
+  $K_{0,eq}=K_{0,b}+\Delta\sigma'_{h,c}/\sigma'_v$ sólo cuando la tensión
+  residual ha sido determinada de manera independiente.
 
 ## Equations Excluded
 
@@ -70,8 +80,10 @@ tensión horizontal residual de compactación; rama de formulación.
 ## Vocabulary Rejected
 
 OCR de compactación como equivalencia automática; $K_0$ aumentado como
-sinónimo de tensión residual; rama probabilística para la forma de Jáky de
-1944; correlación FHWA para atribuir la ecuación 18 de Mayne--Kulhawy.
+sinónimo de tensión residual; $K_0=K_{0,b}+n_p/\sigma'_v$; presión $n_p$ como
+tensión permanente retenida; Tabla 5.5 atribuida a AASHTO; rama probabilística
+para la forma de Jáky de 1944; correlación FHWA para atribuir la ecuación 18 de
+Mayne--Kulhawy.
 
 ## Candidate Public Paragraph Or Section
 
@@ -91,6 +103,6 @@ formulación de interacción; fuentes primarias para las correlaciones excluidas
 
 ## Validation
 
-CANDIDATO CORREGIDO EL 13 DE AGOSTO DE 2026; ECUACIONES DE $K_0$ Y FORMA DE
-JÁKY DE 1944 CONTRASTADAS CON LAS FUENTES REGISTRADAS; PENDIENTE NUEVA
-AUDITORÍA DEL ENSAMBLADO.
+CANDIDATO CORREGIDO EL 15 DE AGOSTO DE 2026; ECUACIONES DE $K_0$, FORMA DE
+JÁKY DE 1944 Y ACCIÓN DE COMPACTACIÓN FHWA CONTRASTADAS CON LAS FUENTES
+REGISTRADAS; ENSAMBLADO RENDERIZADO Y AUDITORÍA EDITORIAL CONCLUIDA `PASS`.

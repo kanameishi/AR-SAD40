@@ -1,367 +1,537 @@
-Notebook[{
-  Cell["Revestimiento circular enterrado", "Title"],
-  Cell["Hoja de cálculo para un escenario determinístico", "Subtitle"],
-
-  Cell["Objeto y alcance", "Section"],
-  Cell["Este cuaderno calcula las acciones perimetrales, las resultantes seccionales y la demanda elástica de tensión normal circunferencial de una sección corrugada CSPI de referencia. La coordenada angular θ vale cero en la clave y aumenta en sentido horario. Todas las resultantes se expresan por metro de longitud del conducto.", "Text"],
-  Cell["El cálculo corresponde a un único estado biaxial uniforme prescrito. No calcula resistencia, utilización, factor de seguridad, capacidad de juntas o pernos, corrosión ni una alternativa de hormigón proyectado. Qθ se conserva como resultante seccional y no se transforma en una tensión cortante local.", "Text"],
-  Cell["Uso: abrir el archivo en Wolfram y seleccionar Evaluation > Evaluate Notebook. El cuaderno es autocontenido y no requiere R, archivos de datos ni conexión a internet.", "Text"],
-
-  Cell["1. Convenciones y ecuaciones de equilibrio", "Section"],
-  Cell["Pr es positiva hacia el exterior y Pt es positiva en el sentido creciente de θ. Nθ es positiva a tracción. Los signos de Mθ y Qθ quedan definidos por las ecuaciones de equilibrio siguientes.", "Text"],
-  Cell["dNθ/dθ - Qθ + R Pt = 0", "Equation"],
-  Cell["dQθ/dθ + Nθ - R Pr = 0", "Equation"],
-  Cell["dMθ/dθ - R Qθ = 0", "Equation"],
-  Cell["El multiplicador 0 ≤ α ≤ 1 escala exclusivamente la componente tangencial prescrita. Los casos α = 0 y α = 1 representan, respectivamente, su omisión y su incorporación completa; α no es un coeficiente de fricción.", "Text"],
-
-  Cell["2. Entradas del escenario", "Section"],
-  Cell[BoxData["ClearAll[\"Global`*\"];
-Inputs = <|
-  \"insideDiameterM\" -> 2.63,
-  \"effectiveVerticalStressKPa\" -> 100.,
-  \"k0\" -> 0.50,
-  \"waterPressureDifferenceKPa\" -> 0.,
-  \"alphaValues\" -> {1., 0.},
-  \"youngModulusGPa\" -> 200.,
-  \"nominalProfileMm\" -> \"76 x 25\",
-  \"specifiedThicknessMm\" -> 2.80,
-  \"designBaseThicknessMm\" -> 2.64,
-  \"areaMm2PerMm\" -> 3.281,
-  \"inertiaMm4PerMm\" -> 249.73,
-  \"sectionModulusMm3PerMm\" -> 17.81
-|>;
-InputRows = {
-  {\"D_i\", Inputs[\"insideDiameterM\"], \"m\"},
-  {\"sigma'_v\", Inputs[\"effectiveVerticalStressKPa\"], \"kPa\"},
-  {\"K_0\", Inputs[\"k0\"], \"-\"},
-  {\"Delta u\", Inputs[\"waterPressureDifferenceKPa\"], \"kPa\"},
-  {\"alpha\", Row[Inputs[\"alphaValues\"], \", \"], \"-\"},
-  {\"E_theta\", Inputs[\"youngModulusGPa\"], \"GPa\"},
-  {\"perfil\", Inputs[\"nominalProfileMm\"], \"mm\"},
-  {\"t_s\", Inputs[\"specifiedThicknessMm\"], \"mm\"},
-  {\"t_d\", Inputs[\"designBaseThicknessMm\"], \"mm\"},
-  {\"A_p\", Inputs[\"areaMm2PerMm\"], \"mm^2/mm\"},
-  {\"I_p\", Inputs[\"inertiaMm4PerMm\"], \"mm^4/mm\"},
-  {\"S_p\", Inputs[\"sectionModulusMm3PerMm\"], \"mm^3/mm\"}
-};
-Grid[
-  Prepend[InputRows, {Style[\"Símbolo\", Bold], Style[\"Valor\", Bold], Style[\"Unidad\", Bold]}],
-  Frame -> All,
-  Alignment -> {{Left, Right, Left}, Center},
-  Background -> {None, {LightGray, None}}
-]"], "Input"],
-  Cell["Las propiedades A_p, I_p y S_p corresponden a la fila exacta CSPI 76 x 25 de 2,80 mm de espesor especificado y 2,64 mm de espesor base de diseño. No se interpola una fila para 3,0 mm.", "Text"],
-
-  Cell["3. Geometría y propiedades circunferenciales", "Section"],
-  Cell["R = D_i/2,    EAθ = Eθ A_p,    EIθ = Eθ I_p,    η = I_p/(A_p R²),    c_p = I_p/S_p", "Equation"],
-  Cell[BoxData["RadiusM = Inputs[\"insideDiameterM\"]/2;
-AreaM2PerM = Inputs[\"areaMm2PerMm\"] 10^-3;
-InertiaM4PerM = Inputs[\"inertiaMm4PerMm\"] 10^-9;
-YoungModulusKPa = Inputs[\"youngModulusGPa\"] 10^6;
-ExtensionalRigidityKNPerM = YoungModulusKPa AreaM2PerM;
-FlexuralRigidityKNM2PerM = YoungModulusKPa InertiaM4PerM;
-SectionRatio = InertiaM4PerM/(AreaM2PerM RadiusM^2);
-FiberDistanceMm = Inputs[\"inertiaMm4PerMm\"]/Inputs[\"sectionModulusMm3PerMm\"];
-GeometryRows = {
-  {\"R\", RadiusM, \"m\"},
-  {\"EA_theta\", ExtensionalRigidityKNPerM, \"kN/m\"},
-  {\"EI_theta\", FlexuralRigidityKNM2PerM, \"kN m^2/m\"},
-  {\"eta\", SectionRatio, \"-\"},
-  {\"c_p\", FiberDistanceMm, \"mm\"}
-};
-Grid[
-  Prepend[
-    ({#[[1]], NumberForm[N[#[[2]]], {14, 10}], #[[3]]} & /@ GeometryRows),
-    {Style[\"Símbolo\", Bold], Style[\"Valor\", Bold], Style[\"Unidad\", Bold]}
-  ],
-  Frame -> All,
-  Alignment -> {{Left, Right, Left}, Center},
-  Background -> {None, {LightGray, None}}
-]"], "Input"],
-
-  Cell["4. Estado de tensiones efectivas", "Section"],
-  Cell["El escenario adopta K_0 = 0,50. No se comparan aquí formulaciones alternativas de K_0.", "Text"],
-  Cell["sigma'_h = K_0 sigma'_v,    p_m = Delta u + (sigma'_v + sigma'_h)/2,    Delta sigma = sigma'_v - sigma'_h", "Equation"],
-  Cell[BoxData["EffectiveVerticalStressKPa = Inputs[\"effectiveVerticalStressKPa\"];
-K0 = Inputs[\"k0\"];
-WaterPressureDifferenceKPa = Inputs[\"waterPressureDifferenceKPa\"];
-EffectiveHorizontalStressKPa = K0 EffectiveVerticalStressKPa;
-MeanPressureKPa = WaterPressureDifferenceKPa +
-  (EffectiveVerticalStressKPa + EffectiveHorizontalStressKPa)/2;
-StressDifferenceKPa = EffectiveVerticalStressKPa - EffectiveHorizontalStressKPa;
-StressRows = {
-  {\"sigma'_v\", EffectiveVerticalStressKPa, \"kPa\"},
-  {\"sigma'_h\", EffectiveHorizontalStressKPa, \"kPa\"},
-  {\"p_m\", MeanPressureKPa, \"kPa\"},
-  {\"Delta sigma\", StressDifferenceKPa, \"kPa\"}
-};
-Grid[
-  Prepend[StressRows, {Style[\"Símbolo\", Bold], Style[\"Valor\", Bold], Style[\"Unidad\", Bold]}],
-  Frame -> All,
-  Alignment -> {{Left, Right, Left}, Center},
-  Background -> {None, {LightGray, None}}
-]"], "Input"],
-
-  Cell["5. Acciones perimetrales", "Section"],
-  Cell["Pr(θ) = -p_m - (Delta sigma/2) cos(2θ)", "Equation"],
-  Cell["Pt(α,θ) = α (Delta sigma/2) sin(2θ)", "Equation"],
-  Cell[BoxData["ClearAll[radialPressure, tangentialPressure];
-radialPressure[theta_] := -MeanPressureKPa -
-  StressDifferenceKPa/2 Cos[2 theta];
-tangentialPressure[alpha_, theta_] := alpha StressDifferenceKPa/2 Sin[2 theta];
-AlphaValues = Inputs[\"alphaValues\"];
-ActionAnglesDeg = {0, 45, 90, 135};
-ActionRows = Flatten[
-  Table[
-    {
-      angle,
-      alpha,
-      radialPressure[angle Degree],
-      tangentialPressure[alpha, angle Degree]
-    },
-    {alpha, AlphaValues},
-    {angle, ActionAnglesDeg}
-  ],
-  1
-];
-Grid[
-  Prepend[
-    ({#[[1]], #[[2]], NumberForm[#[[3]], {9, 3}], NumberForm[#[[4]], {9, 3}]} & /@ ActionRows),
-    {Style[\"theta [deg]\", Bold], Style[\"alpha\", Bold], Style[\"P_r [kPa]\", Bold], Style[\"P_t [kPa]\", Bold]}
-  ],
-  Frame -> All,
-  Alignment -> Center,
-  Background -> {None, {LightGray, None}}
-]"], "Input"],
-
-  Cell["6. Resultantes seccionales", "Section"],
-  Cell["Para los modos uniforme y n = 2 del estado prescrito, la solución cerrada es:", "Text"],
-  Cell["Nθ(α,θ) = -R p_m + R Delta sigma (1 + 2α) cos(2θ)/6", "Equation"],
-  Cell["Mθ(α,θ) = -R² p_m η/(1 + η) + R² Delta sigma (2 + α) cos(2θ)/12", "Equation"],
-  Cell["Qθ(α,θ) = -R Delta sigma (2 + α) sin(2θ)/6", "Equation"],
-  Cell[BoxData["ClearAll[normalForce, bendingMoment, shearForce];
-normalForce[alpha_, theta_] := -RadiusM MeanPressureKPa +
-  RadiusM StressDifferenceKPa (1 + 2 alpha)/6 Cos[2 theta];
-bendingMoment[alpha_, theta_] :=
-  -RadiusM^2 MeanPressureKPa SectionRatio/(1 + SectionRatio) +
-  RadiusM^2 StressDifferenceKPa (2 + alpha)/12 Cos[2 theta];
-shearForce[alpha_, theta_] :=
-  -RadiusM StressDifferenceKPa (2 + alpha)/6 Sin[2 theta];
-AngleDegrees = Range[0, 359];
-AngleRadians = AngleDegrees Degree;
-ClearAll[resultantRecord];
-resultantRecord[alpha_] := Module[
-  {NormalValues, MomentValues, ShearValues},
-  NormalValues = normalForce[alpha, #] & /@ AngleRadians;
-  MomentValues = bendingMoment[alpha, #] & /@ AngleRadians;
-  ShearValues = shearForce[alpha, #] & /@ AngleRadians;
-  <|
-    \"alpha\" -> alpha,
-    \"normalMin\" -> Min[NormalValues],
-    \"normalMax\" -> Max[NormalValues],
-    \"momentMin\" -> Min[MomentValues],
-    \"momentMax\" -> Max[MomentValues],
-    \"shearAbsoluteMax\" -> Max[Abs[ShearValues]]
-  |>
-];
-ResultantRecords = resultantRecord /@ AlphaValues;
-ResultantRows = ({
-  #[\"alpha\"],
-  NumberForm[#[\"normalMin\"], {12, 7}],
-  NumberForm[#[\"normalMax\"], {12, 7}],
-  NumberForm[#[\"momentMin\"], {12, 7}],
-  NumberForm[#[\"momentMax\"], {12, 7}],
-  NumberForm[#[\"shearAbsoluteMax\"], {12, 7}]
-} &) /@ ResultantRecords;
-Column[{
-  Grid[
-    Prepend[
-      ResultantRows,
-      {Style[\"alpha\", Bold], Style[\"N_min\", Bold], Style[\"N_max\", Bold],
-       Style[\"M_min\", Bold], Style[\"M_max\", Bold], Style[\"|Q|_max\", Bold]}
-    ],
-    Frame -> All,
-    Alignment -> Center,
-    Background -> {None, {LightGray, None}}
-  ],
-  Style[\"N y Q en kN/m; M en kN m/m.\", Smaller]
-}]"], "Input"],
-
-  Cell["Los diagramas siguientes presentan cada resultante en una figura independiente. Las dos curvas corresponden a α = 1 y α = 0.", "Text"],
-  Cell[BoxData["ResultantStyles = {
-  Directive[RGBColor[0.10, 0.35, 0.70], AbsoluteThickness[2.2]],
-  Directive[RGBColor[0.80, 0.25, 0.15], AbsoluteThickness[2.2], Dashed]
-};
-Plot[
-  Evaluate[normalForce[#, angle Degree] & /@ AlphaValues],
-  {angle, 0, 360},
-  Frame -> True,
-  Axes -> False,
-  FrameLabel -> {\"theta [deg]\", \"N_theta [kN/m]\"},
-  PlotLegends -> Placed[{\"alpha = 1\", \"alpha = 0\"}, Above],
-  PlotStyle -> ResultantStyles,
-  PlotRange -> All,
-  GridLines -> {Range[0, 360, 45], {0}},
-  ImageSize -> Large
-]"], "Input"],
-  Cell[BoxData["Plot[
-  Evaluate[bendingMoment[#, angle Degree] & /@ AlphaValues],
-  {angle, 0, 360},
-  Frame -> True,
-  Axes -> False,
-  FrameLabel -> {\"theta [deg]\", \"M_theta [kN m/m]\"},
-  PlotLegends -> Placed[{\"alpha = 1\", \"alpha = 0\"}, Above],
-  PlotStyle -> ResultantStyles,
-  PlotRange -> All,
-  GridLines -> {Range[0, 360, 45], {0}},
-  ImageSize -> Large
-]"], "Input"],
-  Cell[BoxData["Plot[
-  Evaluate[shearForce[#, angle Degree] & /@ AlphaValues],
-  {angle, 0, 360},
-  Frame -> True,
-  Axes -> False,
-  FrameLabel -> {\"theta [deg]\", \"Q_theta [kN/m]\"},
-  PlotLegends -> Placed[{\"alpha = 1\", \"alpha = 0\"}, Above],
-  PlotStyle -> ResultantStyles,
-  PlotRange -> All,
-  GridLines -> {Range[0, 360, 45], {0}},
-  ImageSize -> Large
-]"], "Input"],
-
-  Cell["7. Demanda elástica de tensión normal circunferencial", "Section"],
-  Cell["La coordenada de fibra ξ es positiva hacia el interior. Para la sección CSPI publicada se adoptan ξ_e = -c_p y ξ_i = +c_p.", "Text"],
-  Cell["sigma_theta(α,θ,ξ) = Nθ(α,θ)/A_p + 1000 Mθ(α,θ) ξ/I_p    [MPa]", "Equation"],
-  Cell["sigma_theta,e = Nθ/A_p - 1000 Mθ/S_p,    sigma_theta,i = Nθ/A_p + 1000 Mθ/S_p", "Equation"],
-  Cell[BoxData["ClearAll[normalStress, formatAngles, stressRecord];
-normalStress[alpha_, theta_, fiberCoordinateMm_] :=
-  normalForce[alpha, theta]/Inputs[\"areaMm2PerMm\"] +
-  1000 bendingMoment[alpha, theta] fiberCoordinateMm/Inputs[\"inertiaMm4PerMm\"];
-formatAngles[angles_] := StringRiffle[(ToString[#] <> \" deg\") & /@ angles, \", \" ];
-FiberCoordinates = <|
-  \"exterior\" -> -FiberDistanceMm,
-  \"interior\" -> FiberDistanceMm
-|>;
-stressRecord[alpha_, fiberName_, fiberCoordinateMm_] := Module[
-  {StressValues, StressMin, StressMax, AnglesMin, AnglesMax},
-  StressValues = normalStress[alpha, #, fiberCoordinateMm] & /@ AngleRadians;
-  StressMin = Min[StressValues];
-  StressMax = Max[StressValues];
-  AnglesMin = Pick[AngleDegrees, Abs[StressValues - StressMin], x_ /; x <= 10^-8];
-  AnglesMax = Pick[AngleDegrees, Abs[StressValues - StressMax], x_ /; x <= 10^-8];
-  <|
-    \"alpha\" -> alpha,
-    \"fiber\" -> fiberName,
-    \"stressMinMPa\" -> StressMin,
-    \"anglesMinDeg\" -> AnglesMin,
-    \"stressMaxMPa\" -> StressMax,
-    \"anglesMaxDeg\" -> AnglesMax,
-    \"stressAbsoluteMaxMPa\" -> Max[Abs[{StressMin, StressMax}]]
-  |>
-];
-StressRecords = Flatten[
-  Table[
-    stressRecord[alpha, fiberName, FiberCoordinates[fiberName]],
-    {alpha, AlphaValues},
-    {fiberName, Keys[FiberCoordinates]}
-  ],
-  1
-];
-StressRows = ({
-  #[\"alpha\"],
-  #[\"fiber\"],
-  NumberForm[#[\"stressMinMPa\"], {14, 7}],
-  formatAngles[#[\"anglesMinDeg\"]],
-  NumberForm[#[\"stressMaxMPa\"], {14, 7}],
-  formatAngles[#[\"anglesMaxDeg\"]],
-  NumberForm[#[\"stressAbsoluteMaxMPa\"], {14, 7}]
-} &) /@ StressRecords;
-Grid[
-  Prepend[
-    StressRows,
-    {Style[\"alpha\", Bold], Style[\"fibra\", Bold], Style[\"sigma_min [MPa]\", Bold],
-     Style[\"theta_min\", Bold], Style[\"sigma_max [MPa]\", Bold],
-     Style[\"theta_max\", Bold], Style[\"|sigma|_max [MPa]\", Bold]}
-  ],
-  Frame -> All,
-  Alignment -> Center,
-  Background -> {None, {LightGray, None}}
-]"], "Input"],
-  Cell["Las tensiones anteriores son demandas elásticas de la sección publicada de referencia. No representan la sección neta actual afectada por corrosión ni una comprobación resistente conforme a AASHTO.", "Text"],
-
-  Cell["8. Resumen del escenario", "Section"],
-  Cell[BoxData["GoverningStress = First[MaximalBy[StressRecords, #[\"stressAbsoluteMaxMPa\"] &]];
-SummaryRows = {
-  {\"sigma'_h\", EffectiveHorizontalStressKPa, \"kPa\", \"estado adoptado\"},
-  {\"p_m\", MeanPressureKPa, \"kPa\", \"estado adoptado\"},
-  {\"N_min\", Min[Lookup[ResultantRecords, \"normalMin\"]], \"kN/m\", \"alpha = 1; theta = 90, 270 deg\"},
-  {\"N_max\", Max[Lookup[ResultantRecords, \"normalMax\"]], \"kN/m\", \"alpha = 1; theta = 0, 180 deg\"},
-  {\"M_min\", Min[Lookup[ResultantRecords, \"momentMin\"]], \"kN m/m\", \"alpha = 1; theta = 90, 270 deg\"},
-  {\"M_max\", Max[Lookup[ResultantRecords, \"momentMax\"]], \"kN m/m\", \"alpha = 1; theta = 0, 180 deg\"},
-  {\"|Q|_max\", Max[Lookup[ResultantRecords, \"shearAbsoluteMax\"]], \"kN/m\", \"alpha = 1; theta = 45, 135, 225, 315 deg\"},
-  {\"|sigma|_max\", GoverningStress[\"stressAbsoluteMaxMPa\"], \"MPa\",
-   \"alpha = \" <> ToString[GoverningStress[\"alpha\"]] <> \"; fibra \" <>
-    GoverningStress[\"fiber\"] <> \"; theta = \" <>
-    formatAngles[GoverningStress[\"anglesMinDeg\"]]}
-};
-Grid[
-  Prepend[
-    ({#[[1]], If[NumericQ[#[[2]]], NumberForm[#[[2]], {14, 7}], #[[2]]], #[[3]], #[[4]]} & /@ SummaryRows),
-    {Style[\"Magnitud\", Bold], Style[\"Valor\", Bold], Style[\"Unidad\", Bold], Style[\"Posición\", Bold]}
-  ],
-  Frame -> All,
-  Alignment -> {{Left, Right, Left, Left}, Center},
-  Background -> {None, {LightGray, None}}
-]"], "Input"],
-
-  Cell["9. Comprobaciones matemáticas secundarias", "Section"],
-  Cell["Estas comprobaciones no alimentan las tablas anteriores. Verifican el equilibrio de la solución cerrada, el límite de presión uniforme y su reconstrucción con los modos n = 0 y n = 2.", "Text"],
-  Cell[BoxData["ClearAll[r, p, d, a, x, h, radialSymbolic, tangentialSymbolic,
-  normalSymbolic, momentSymbolic, shearSymbolic];
-radialSymbolic[x_] := -p - d/2 Cos[2 x];
-tangentialSymbolic[a_, x_] := a d/2 Sin[2 x];
-normalSymbolic[a_, x_] := -r p + r d (1 + 2 a)/6 Cos[2 x];
-momentSymbolic[a_, x_] := -r^2 p h/(1 + h) +
-  r^2 d (2 + a)/12 Cos[2 x];
-shearSymbolic[a_, x_] := -r d (2 + a)/6 Sin[2 x];
-EquilibriumResiduals = FullSimplify[{
-  D[normalSymbolic[a, x], x] - shearSymbolic[a, x] + r tangentialSymbolic[a, x],
-  D[shearSymbolic[a, x], x] + normalSymbolic[a, x] - r radialSymbolic[x],
-  D[momentSymbolic[a, x], x] - r shearSymbolic[a, x]
-}];
-EquilibriumResiduals"], "Input"],
-  Cell[BoxData["UniformPressureLimit = FullSimplify[{
-  normalSymbolic[a, x],
-  momentSymbolic[a, x],
-  shearSymbolic[a, x]
-} /. {d -> 0, h -> 0}];
-UniformPressureLimit"], "Input"],
-  Cell[BoxData["ClearAll[normalModal, momentModal, shearModal];
-normalModal[alpha_, theta_] := -RadiusM MeanPressureKPa +
-  RadiusM StressDifferenceKPa (1 + 2 alpha)/6 Cos[2 theta];
-momentModal[alpha_, theta_] :=
-  -RadiusM^2 MeanPressureKPa SectionRatio/(1 + SectionRatio) +
-  RadiusM^2 StressDifferenceKPa (2 + alpha)/12 Cos[2 theta];
-shearModal[alpha_, theta_] :=
-  -RadiusM StressDifferenceKPa (2 + alpha)/6 Sin[2 theta];
-ModalDifferences = Table[
-  {
-    alpha,
-    Max[Abs[(normalForce[alpha, #] - normalModal[alpha, #]) & /@ AngleRadians]],
-    Max[Abs[(bendingMoment[alpha, #] - momentModal[alpha, #]) & /@ AngleRadians]],
-    Max[Abs[(shearForce[alpha, #] - shearModal[alpha, #]) & /@ AngleRadians]]
-  },
-  {alpha, AlphaValues}
-];
-Grid[
-  Prepend[ModalDifferences, {\"alpha\", \"max |Delta N|\", \"max |Delta M|\", \"max |Delta Q|\"}],
-  Frame -> All,
-  Alignment -> Center,
-  Background -> {None, {LightGray, None}}
-]"], "Input"]
-},
-WindowTitle -> "Revestimiento circular enterrado — escenario determinístico",
-WindowSize -> {1200, 900},
-Magnification -> 1.0,
-StyleDefinitions -> "Default.nb"
-]
+Notebook[{Cell[CellGroupData[{Cell["Circular Lining Calculation Workbook", 
+      "Title", ExpressionUUID -> "1df1fb83-272e-4b52-85d6-40e4376b6a35"], 
+     Cell["Corrugated steel, plain concrete, and reinforced concrete", 
+      "Subtitle", ExpressionUUID -> "17758d7a-8a64-4033-a4a9-003b13496cc1"], 
+     Cell["R is the calculation engine. This workbook defines one engineering \
+input set, evaluates it once, and presents the returned results for three \
+independent lining solutions.", "Text", ExpressionUUID -> 
+       "4d228384-5caf-4110-ad4c-7167d67cdb5a"], 
+     Cell[CellGroupData[{Cell["1. Read first", "Chapter", 
+         ExpressionUUID -> "c359f8db-96ec-d4f3-d173-9b5d63bcf522"], 
+        Cell[CellGroupData[{Cell["1.1 How to use this workbook", "Section", 
+            ExpressionUUID -> "0d5684a1-9d57-627b-6d9e-05297f8779c4"], 
+           Cell["1. Start with a fresh Wolfram kernel.\n2. Edit only the six \
+pale-yellow engineering-input cells. They use the same field names as \
+calculation.json. Editing the notebook recalculates the workbook but does not \
+rewrite calculation.json; to regenerate the HTML report, copy the accepted \
+values to calculation.json and run the report workflow.\n3. Section 2.1 \
+controls cover. Section 2.2 / GroundInputs controls unit weight, surcharge, \
+ground stiffness, the K0 model, friction angle, OCR, and net water pressure; \
+K0 is derived and is not typed as a constant. Section 2.3 / SteelInputs \
+controls the corrugated profile, remaining base thickness \
+(remainingBaseThicknessMm), radius, and steel strengths. Section 2.5 / \
+PlainConcreteInputs controls plain-shotcrete thickness (thicknessM) and \
+concrete strength (compressiveStrengthMPa). Section 2.6 / \
+ReinforcedConcreteInputs controls reinforced-shotcrete thickness and concrete \
+strength, reinforcement grade, bar diameter, spacing, clear-cover ratio, and \
+steel modulus. R derives bar area, reinforcement per face and direction, \
+layer coordinates, reinforcement ratio, and every P-M domain; do not type a \
+derived steel area directly.\n4. The 34 input leaves comprise 31 editable \
+primitive values or conditions and three catalog-reference selections. \
+Calculation-method constants are read-only and are returned with the results.\
+\n5. For a first run, evaluate the complete notebook from a fresh kernel. The \
+workbook loads the setup once and calls R once.\n6. After changing inputs, \
+reevaluate the edited input cell, Section 3.2 (EngineeringInputs), Section 3.3 \
+(Evaluate once), and the affected result section. The configured P-M curve \
+and checks will update; the discrete curves, beginning with the historical \
+minimum, remain visible for comparison.\n7. Review the normalized inputs, \
+derived mesh, three solution sections, nine circular diagrams, and the P-M \
+interaction family before adopting a design.", "Text", ExpressionUUID -> 
+             "113fef14-4500-d119-28ac-c1c0411dae88"]}, Open]], 
+        Cell[CellGroupData[{Cell["1.2 Input-to-result map", "Section", 
+            ExpressionUUID -> "80a04672-ce4c-d972-287a-8aec48d8222a"], 
+           Cell["Cover geometry \[LongDash] fill height and the independent \
+crown-to-axis distance.\nFill and ground state \[LongDash] effective fill \
+action, ground stiffness, friction angle, OCR, net water pressure, and the \
+derived K0.\nCorrugated-steel lining \[LongDash] \
+catalog section, independent steel radius, remaining thickness, and material \
+properties.\nSeam and corrosion \[LongDash] published reference selection, \
+initial diameter, and relative diameter loss.\nPlain-concrete lining \
+\[LongDash] independent outer radius, thickness, material, and construction \
+condition.\nReinforced-concrete lining and reinforcement \[LongDash] \
+independent outer radius, thickness, concrete material, reinforcement grade, \
+bar diameter, spacing, clear-cover ratio, and reinforcement modulus; R \
+derives bar area, layer coordinates, steel area, and yield strength.\nThe crown-to-axis distance, steel centroidal \
+radius, plain-concrete outer radius, and reinforced-concrete outer radius are \
+four separate inputs even when their defaults are equal.", "Text", 
+            ExpressionUUID -> "47e1ac61-872d-1664-76ea-4e3cd26838f3"]}, 
+          Open]]}, Open]], Cell[CellGroupData[
+       {Cell["2. Engineering inputs", "Chapter", ExpressionUUID -> 
+          "b4b8dfd2-6f36-b56a-6444-5fb45b0bd091"], Cell["Edit the project \
+values in these six groups. Calculation-method constants are read-only and \
+are presented with the resolved results.", "Text", ExpressionUUID -> 
+          "d3fd45cf-2f41-b35b-8e4e-a1ff4823dbfb"], 
+        Cell[CellGroupData[{Cell["2.1 Cover geometry", "Section", 
+            ExpressionUUID -> "5f96bf15-fc82-44bb-b4cc-5c36af3be913"], 
+           Cell["Two independent cover dimensions define fill height and the \
+depth of the free-field reference point. Crown-to-axis distance is not a \
+lining radius.", "Text", ExpressionUUID -> 
+             "e2b70aba-cda6-aaf1-e7f5-81be85f9c598"], 
+           Cell[BoxData[TagBox[GridBox[{{ItemBox[StyleBox["\"Input\"", 
+                   GrayLevel[1], Bold, StripOnInput -> False], Background -> 
+                   RGBColor[0.14, 0.2, 0.28], StripOnInput -> False], 
+                 ItemBox[StyleBox["\"Symbol\"", GrayLevel[1], Bold, 
+                   StripOnInput -> False], Background -> RGBColor[0.14, 0.2, 
+                    0.28], StripOnInput -> False], ItemBox[StyleBox[
+                   "\"Unit\"", GrayLevel[1], Bold, StripOnInput -> False], 
+                  Background -> RGBColor[0.14, 0.2, 0.28], StripOnInput -> 
+                   False], ItemBox[StyleBox["\"Default\"", GrayLevel[1], 
+                   Bold, StripOnInput -> False], Background -> RGBColor[0.14, 
+                    0.2, 0.28], StripOnInput -> False], ItemBox[StyleBox[
+                   "\"Engineering meaning\"", GrayLevel[1], Bold, 
+                   StripOnInput -> False], Background -> RGBColor[0.14, 0.2, 
+                    0.28], StripOnInput -> False]}, 
+                {"\"Fill height above crown\"", "\"H\"", "\"m\"", 
+                 "\"8.000\"", "\"Fill depth and vertical fill action\""}, 
+                {"\"Crown-to-axis distance\"", "\"z_c\"", "\"m\"", 
+                 "\"1.315\"", 
+                 "\"Depth of the free-field reference point\""}}, 
+               GridBoxAlignment -> {"Columns" -> {Left, Center, Center, 
+                   Right, Left}, "Rows" -> {{Center}}}, AutoDelete -> False, 
+               GridBoxBackground -> {"Columns" -> {{None}}, "Rows" -> 
+                  {None, None, {3, -1, 2} -> RGBColor[0.965, 0.972, 0.98]}}, 
+               GridBoxDividers -> {"Columns" -> {{None}}, "Rows" -> 
+                  {{All -> RGBColor[0.82, 0.85, 0.88]}}}, GridBoxItemSize -> 
+                {"Columns" -> {15, 8, 10, 14, 44}, "Rows" -> {{Automatic}}}, 
+               GridBoxSpacings -> {"Columns" -> {1., 1.}, "Rows" -> 
+                  {0.55, 0.55}}], "Grid"]], "Text", ExpressionUUID -> 
+             "70851047-bfa5-dc14-be3a-b10468c9729e"], 
+           Cell[BoxData[RowBox[{"CoverInputs", " ", "=", " ", RowBox[
+                {"<|", "\n", "  ", RowBox[{RowBox[{"\"coverCrownM\"", " ", 
+                     "->", " ", "8.`"}], RowBox[{",", "\n", "  "}], 
+                   RowBox[{"\"crownToAxisM\"", " ", "->", " ", "1.315`"}]}], 
+                 "\n", "|>"}], ";"}]], "Input", CellLabelAutoDelete -> True, 
+            Background -> RGBColor[1, 0.96, 0.78], ExpressionUUID -> 
+             "5a724574-3ddf-4cb5-9499-a69341911889"]}, Open]], 
+        Cell[CellGroupData[{Cell["2.2 Fill and ground state", "Section", 
+            ExpressionUUID -> "93c3f2db-d6a5-440c-985d-7583e24cc8f6"], 
+           Cell["Eight project inputs define the effective fill action, the \
+K0 branch and its primitive variables, net water pressure, and the ground \
+properties retained for the Schwartz-Einstein comparison. K0 is derived.", "Text", ExpressionUUID -> 
+             "4c1d478d-8ca8-0ef4-a0b7-30359112abd3"], 
+           Cell[BoxData[TagBox[GridBox[{{ItemBox[StyleBox["\"Input\"", 
+                   GrayLevel[1], Bold, StripOnInput -> False], Background -> 
+                   RGBColor[0.14, 0.2, 0.28], StripOnInput -> False], 
+                 ItemBox[StyleBox["\"Symbol\"", GrayLevel[1], Bold, 
+                   StripOnInput -> False], Background -> RGBColor[0.14, 0.2, 
+                    0.28], StripOnInput -> False], ItemBox[StyleBox[
+                   "\"Unit\"", GrayLevel[1], Bold, StripOnInput -> False], 
+                  Background -> RGBColor[0.14, 0.2, 0.28], StripOnInput -> 
+                   False], ItemBox[StyleBox["\"Default\"", GrayLevel[1], 
+                   Bold, StripOnInput -> False], Background -> RGBColor[0.14, 
+                    0.2, 0.28], StripOnInput -> False], ItemBox[StyleBox[
+                   "\"Engineering meaning\"", GrayLevel[1], Bold, 
+                   StripOnInput -> False], Background -> RGBColor[0.14, 0.2, 
+                    0.28], StripOnInput -> False]}, 
+                {"\"Effective unit weight\"", "\"gamma_eff\"", "\"kN/m^3\"", 
+                 "\"19\"", "\"Effective vertical stress; also feeds total \
+weight in the current no-water method\""}, {"\"Effective surcharge\"", 
+                 "\"q_eff\"", "\"kPa\"", "\"0.000\"", 
+                 "\"Surface contribution to effective vertical stress\""}, 
+                {"\"Ground Young's modulus\"", "\"E_g\"", "\"kPa\"", 
+                 "\"30000\"", "\"Schwartz-Einstein comparison only\""}, 
+                {"\"Ground Poisson's ratio\"", "\"nu_g\"", "\"-\"", 
+                 "\"0.30\"", "\"Schwartz-Einstein comparison only\""}, 
+                {"\"K0 model\"", "\"-\"", "\"selection\"", 
+                 "\"mayne-kulhawy-unloading\"", "\"Selects the derived K0 branch\""}, 
+                {"\"Effective friction angle\"", "\"phi'\"", "\"deg\"", 
+                 "\"30.0\"", "\"Primitive input for K0\""}, 
+                {"\"Overconsolidation ratio\"", "\"OCR\"", "\"-\"", 
+                 "\"1.00\"", "\"Primitive input for K0\""}, 
+                {"\"Net water pressure\"", "\"Delta u\"", "\"kPa\"", 
+                 "\"0.000\"", "\"Exterior minus interior water pressure\""}}, 
+               GridBoxAlignment -> {"Columns" -> {Left, Center, Center, 
+                   Right, Left}, "Rows" -> {{Center}}}, AutoDelete -> False, 
+               GridBoxBackground -> {"Columns" -> {{None}}, "Rows" -> 
+                  {None, None, {3, -1, 2} -> RGBColor[0.965, 0.972, 0.98]}}, 
+               GridBoxDividers -> {"Columns" -> {{None}}, "Rows" -> 
+                  {{All -> RGBColor[0.82, 0.85, 0.88]}}}, GridBoxItemSize -> 
+                {"Columns" -> {15, 8, 10, 14, 44}, "Rows" -> {{Automatic}}}, 
+               GridBoxSpacings -> {"Columns" -> {1., 1.}, "Rows" -> 
+                  {0.55, 0.55}}], "Grid"]], "Text", ExpressionUUID -> 
+             "86cfee2f-7d74-b8d1-d2e4-644f621f7ea4"], 
+           Cell[BoxData[RowBox[{"GroundInputs", " ", "=", " ", RowBox[
+                {"<|", "\n", "  ", RowBox[{RowBox[
+                    {"\"effectiveUnitWeightKnPerM3\"", " ", "->", " ", 
+                     "19.`"}], RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"effectiveSurchargeKPa\"", " ", "->", " ", "0.`"}], 
+                   RowBox[{",", "\n", "  "}], RowBox[{"\"modulusKPa\"", " ", 
+                     "->", " ", "30000.`"}], RowBox[{",", "\n", "  "}], 
+                   RowBox[{"\"poisson\"", " ", "->", " ", "0.3`"}], 
+                   RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"k0ModelID\"", " ", "->", " ", 
+                     "\"mayne-kulhawy-unloading\""}], 
+                   RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"frictionAngleDeg\"", " ", "->", " ", "30.`"}], 
+                   RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"ocr\"", " ", "->", " ", "1.`"}], 
+                   RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"waterPressureDifferenceKPa\"", " ", "->", " ", 
+                     "0.`"}]}], "\n", "|>"}], ";"}]], "Input", 
+            CellLabelAutoDelete -> True, Background -> RGBColor[1, 0.96, 
+              0.78], ExpressionUUID -> 
+             "3af54149-fbf4-41b3-bae1-f501e3526e59"]}, Open]], 
+        Cell[CellGroupData[{Cell["2.3 Corrugated-steel lining", "Section", 
+            ExpressionUUID -> "bcd8d088-ef23-4580-a80a-95b4dc126808"], 
+           Cell["The public catalog selection resolves the published \
+corrugated profile and provenance. The steel centroidal radius remains \
+independent of crown-to-axis distance and both concrete radii.", "Text", 
+            ExpressionUUID -> "f08f9e49-89e3-ff90-1c3b-f33f20944a5b"], 
+           Cell[BoxData[TagBox[GridBox[{{ItemBox[StyleBox["\"Input\"", 
+                   GrayLevel[1], Bold, StripOnInput -> False], Background -> 
+                   RGBColor[0.14, 0.2, 0.28], StripOnInput -> False], 
+                 ItemBox[StyleBox["\"Symbol\"", GrayLevel[1], Bold, 
+                   StripOnInput -> False], Background -> RGBColor[0.14, 0.2, 
+                    0.28], StripOnInput -> False], ItemBox[StyleBox[
+                   "\"Unit\"", GrayLevel[1], Bold, StripOnInput -> False], 
+                  Background -> RGBColor[0.14, 0.2, 0.28], StripOnInput -> 
+                   False], ItemBox[StyleBox["\"Default\"", GrayLevel[1], 
+                   Bold, StripOnInput -> False], Background -> RGBColor[0.14, 
+                    0.2, 0.28], StripOnInput -> False], ItemBox[StyleBox[
+                   "\"Engineering meaning\"", GrayLevel[1], Bold, 
+                   StripOnInput -> False], Background -> RGBColor[0.14, 0.2, 
+                    0.28], StripOnInput -> False]}, 
+                {"\"Corrugated section reference\"", "\"-\"", 
+                 "\"catalog selection\"", 
+                 "\"CSPI 76 x 25; specified thickness 3 mm\"", "\"Resolves \
+profile, published row, properties, and provenance\""}, 
+                {"\"Steel lining centroidal radius\"", "\"R_s\"", "\"m\"", 
+                 "\"1.315\"", "\"Steel interaction radius; circular span is \
+derived as 2 R_s\""}, {"\"Remaining base thickness\"", "\"t_s\"", "\"mm\"", 
+                 "\"3\"", 
+                 "\"Scales the published corrugated-section properties\""}, 
+                {"\"Steel Young's modulus\"", "\"E_s\"", "\"kPa\"", 
+                 "\"200000000\"", 
+                 "\"Circumferential stiffness and stability\""}, 
+                {"\"Steel Poisson's ratio\"", "\"nu_s\"", "\"-\"", 
+                 "\"0.30\"", "\"Schwartz-Einstein comparison only\""}, 
+                {"\"Yield strength\"", "\"F_y\"", "\"MPa\"", "\"250\"", 
+                 "\"Wall resistance\""}, {"\"Tensile strength\"", "\"F_u\"", 
+                 "\"MPa\"", "\"400\"", "\"AASHTO buckling branch\""}}, 
+               GridBoxAlignment -> {"Columns" -> {Left, Center, Center, 
+                   Right, Left}, "Rows" -> {{Center}}}, AutoDelete -> False, 
+               GridBoxBackground -> {"Columns" -> {{None}}, "Rows" -> 
+                  {None, None, {3, -1, 2} -> RGBColor[0.965, 0.972, 0.98]}}, 
+               GridBoxDividers -> {"Columns" -> {{None}}, "Rows" -> 
+                  {{All -> RGBColor[0.82, 0.85, 0.88]}}}, GridBoxItemSize -> 
+                {"Columns" -> {15, 8, 10, 14, 44}, "Rows" -> {{Automatic}}}, 
+               GridBoxSpacings -> {"Columns" -> {1., 1.}, "Rows" -> 
+                  {0.55, 0.55}}], "Grid"]], "Text", ExpressionUUID -> 
+             "2b4def9c-7604-a270-7c04-8e9bacb03299"], 
+           Cell[BoxData[RowBox[{"SteelInputs", " ", "=", " ", RowBox[
+                {"<|", "\n", "  ", RowBox[{RowBox[{"\"sectionReferenceID\"", 
+                     " ", "->", " ", "\"cspi-76x25-2.8\""}], RowBox[
+                    {",", "\n", "  "}], RowBox[{"\"centroidalRadiusM\"", " ", 
+                     "->", " ", "1.315`"}], RowBox[{",", "\n", "  "}], 
+                   RowBox[{"\"remainingBaseThicknessMm\"", " ", "->", " ", 
+                     "2.64`"}], RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"youngModulusKPa\"", " ", "->", " ", "2.`*^8"}], 
+                   RowBox[{",", "\n", "  "}], RowBox[{"\"poisson\"", " ", 
+                     "->", " ", "0.3`"}], RowBox[{",", "\n", "  "}], 
+                   RowBox[{"\"yieldStrengthMPa\"", " ", "->", " ", "250.`"}], 
+                   RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"tensileStrengthMPa\"", " ", "->", " ", "400.`"}]}], 
+                 "\n", "|>"}], ";"}]], "Input", CellLabelAutoDelete -> True, 
+            Background -> RGBColor[1, 0.96, 0.78], ExpressionUUID -> 
+             "a59fbaf0-5573-49dc-96f7-d314acdf7cc8"]}, Open]], 
+        Cell[CellGroupData[{Cell["2.4 Seam and corrosion", "Section", 
+            ExpressionUUID -> "8f505f27-03e0-417f-b47d-69f3fa7c48d3"], 
+           Cell["The published seam selection resolves nominal resistance and \
+provenance. Initial diameter is retained as a physical carrier: under the \
+current area-ratio method it changes only the reported remaining diameter, \
+not seam utilization.", "Text", ExpressionUUID -> 
+             "bc7102da-464a-b511-390e-e98ce5575e2b"], 
+           Cell[BoxData[TagBox[GridBox[{{ItemBox[StyleBox["\"Input\"", 
+                   GrayLevel[1], Bold, StripOnInput -> False], Background -> 
+                   RGBColor[0.14, 0.2, 0.28], StripOnInput -> False], 
+                 ItemBox[StyleBox["\"Symbol\"", GrayLevel[1], Bold, 
+                   StripOnInput -> False], Background -> RGBColor[0.14, 0.2, 
+                    0.28], StripOnInput -> False], ItemBox[StyleBox[
+                   "\"Unit\"", GrayLevel[1], Bold, StripOnInput -> False], 
+                  Background -> RGBColor[0.14, 0.2, 0.28], StripOnInput -> 
+                   False], ItemBox[StyleBox["\"Default\"", GrayLevel[1], 
+                   Bold, StripOnInput -> False], Background -> RGBColor[0.14, 
+                    0.2, 0.28], StripOnInput -> False], ItemBox[StyleBox[
+                   "\"Engineering meaning\"", GrayLevel[1], Bold, 
+                   StripOnInput -> False], Background -> RGBColor[0.14, 0.2, 
+                    0.28], StripOnInput -> False]}, 
+                {"\"Published seam resistance reference\"", "\"-\"", 
+                 "\"catalog selection\"", 
+                 "\"CSPI 76 x 25; reference double-riveted seam\"", 
+                 "\"Resolves nominal resistance and provenance\""}, 
+                {"\"Initial fastener diameter\"", "\"d_0\"", "\"mm\"", 
+                 "\"13\"", "\"Geometric output only under the current \
+method; does not change seam utilization\""}, {"\"Relative diameter loss\"", 
+                 "\"delta_d\"", "\"ratio\"", "\"0.00\"", 
+                 "\"Reduces seam resistance through the current area ratio\""}\
+}, GridBoxAlignment -> {"Columns" -> {Left, Center, Center, Right, Left}, 
+                 "Rows" -> {{Center}}}, AutoDelete -> False, 
+               GridBoxBackground -> {"Columns" -> {{None}}, "Rows" -> 
+                  {None, None, {3, -1, 2} -> RGBColor[0.965, 0.972, 0.98]}}, 
+               GridBoxDividers -> {"Columns" -> {{None}}, "Rows" -> 
+                  {{All -> RGBColor[0.82, 0.85, 0.88]}}}, GridBoxItemSize -> 
+                {"Columns" -> {15, 8, 10, 14, 44}, "Rows" -> {{Automatic}}}, 
+               GridBoxSpacings -> {"Columns" -> {1., 1.}, "Rows" -> 
+                  {0.55, 0.55}}], "Grid"]], "Text", ExpressionUUID -> 
+             "de1b283b-adba-a5b0-4476-08e96c6cf30e"], 
+           Cell[BoxData[RowBox[{"SeamInputs", " ", "=", " ", RowBox[
+                {"<|", "\n", "  ", RowBox[{RowBox[
+                    {"\"resistanceReferenceID\"", " ", "->", " ", 
+                     "\"cspi-76x25-t2.8-double-riveted-reference\""}], 
+                   RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"fastenerDiameterMm\"", " ", "->", " ", "12.7`"}], 
+                   RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"fastenerDiameterLossRatio\"", " ", "->", " ", 
+                     "0.`"}]}], "\n", "|>"}], ";"}]], "Input", 
+            CellLabelAutoDelete -> True, Background -> RGBColor[1, 0.96, 
+              0.78], ExpressionUUID -> 
+             "59f8079d-2773-4583-b3f8-680ac79ed7fb"]}, Open]], 
+        Cell[CellGroupData[{Cell["2.5 Plain-concrete lining", "Section", 
+            ExpressionUUID -> "d32885d3-2a06-4cfe-9dba-dd8f89d646a5"], 
+           Cell["This is an independent structural alternative. Its outer \
+radius derives its own centroidal radius; the construction condition affects \
+the applicable ACI design thickness.", "Text", ExpressionUUID -> 
+             "1547f9e8-39be-a4a5-2f7d-d25c40002771"], 
+           Cell[BoxData[TagBox[GridBox[{{ItemBox[StyleBox["\"Input\"", 
+                   GrayLevel[1], Bold, StripOnInput -> False], Background -> 
+                   RGBColor[0.14, 0.2, 0.28], StripOnInput -> False], 
+                 ItemBox[StyleBox["\"Symbol\"", GrayLevel[1], Bold, 
+                   StripOnInput -> False], Background -> RGBColor[0.14, 0.2, 
+                    0.28], StripOnInput -> False], ItemBox[StyleBox[
+                   "\"Unit\"", GrayLevel[1], Bold, StripOnInput -> False], 
+                  Background -> RGBColor[0.14, 0.2, 0.28], StripOnInput -> 
+                   False], ItemBox[StyleBox["\"Default\"", GrayLevel[1], 
+                   Bold, StripOnInput -> False], Background -> RGBColor[0.14, 
+                    0.2, 0.28], StripOnInput -> False], ItemBox[StyleBox[
+                   "\"Engineering meaning\"", GrayLevel[1], Bold, 
+                   StripOnInput -> False], Background -> RGBColor[0.14, 0.2, 
+                    0.28], StripOnInput -> False]}, {"\"Outer radius\"", 
+                 "\"R_o,p\"", "\"m\"", "\"1.315\"", 
+                 "\"Derives this lining's centroidal radius\""}, 
+                {"\"Specified thickness\"", "\"t_p\"", "\"m\"", "\"0.100\"", 
+                 "\"Stiffness and ACI checks\""}, 
+                {"\"Concrete Poisson's ratio\"", "\"nu_cp\"", "\"-\"", 
+                 "\"0.20\"", "\"Schwartz-Einstein comparison only\""}, 
+                {"\"Specified compressive strength\"", "\"f'_c\"", "\"MPa\"", 
+                 "\"25.0\"", "\"Concrete modulus and capacities\""}, 
+                {"\"Cast directly against soil\"", "\"-\"", "\"True/False\"", 
+                 "\"False\"", 
+                 "\"Changes ACI design thickness when applicable\""}}, 
+               GridBoxAlignment -> {"Columns" -> {Left, Center, Center, 
+                   Right, Left}, "Rows" -> {{Center}}}, AutoDelete -> False, 
+               GridBoxBackground -> {"Columns" -> {{None}}, "Rows" -> 
+                  {None, None, {3, -1, 2} -> RGBColor[0.965, 0.972, 0.98]}}, 
+               GridBoxDividers -> {"Columns" -> {{None}}, "Rows" -> 
+                  {{All -> RGBColor[0.82, 0.85, 0.88]}}}, GridBoxItemSize -> 
+                {"Columns" -> {15, 8, 10, 14, 44}, "Rows" -> {{Automatic}}}, 
+               GridBoxSpacings -> {"Columns" -> {1., 1.}, "Rows" -> 
+                  {0.55, 0.55}}], "Grid"]], "Text", ExpressionUUID -> 
+             "a3a1e3c6-289d-fe84-829d-916292c4ea28"], 
+           Cell[BoxData[RowBox[{"PlainConcreteInputs", " ", "=", " ", RowBox[
+                {"<|", "\n", "  ", RowBox[{RowBox[{"\"outerRadiusM\"", " ", 
+                     "->", " ", "1.315`"}], RowBox[{",", "\n", "  "}], 
+                   RowBox[{"\"thicknessM\"", " ", "->", " ", "0.1`"}], 
+                   RowBox[{",", "\n", "  "}], RowBox[{"\"poisson\"", " ", 
+                     "->", " ", "0.2`"}], RowBox[{",", "\n", "  "}], 
+                   RowBox[{"\"compressiveStrengthMPa\"", " ", "->", " ", 
+                     "25.`"}], RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"castAgainstSoil\"", " ", "->", " ", "False"}]}], 
+                 "\n", "|>"}], ";"}]], "Input", CellLabelAutoDelete -> True, 
+            Background -> RGBColor[1, 0.96, 0.78], ExpressionUUID -> 
+             "1aae8cde-4a46-46a0-8a21-96b7de235e39"]}, Open]], 
+        Cell[CellGroupData[
+          {Cell["2.6 Reinforced-concrete lining and reinforcement", 
+            "Section", ExpressionUUID -> 
+             "68969ff3-6ec3-420e-b118-0db6e1286d6a"], Cell["This alternative \
+uses nine editable geometry, material, and mesh primitives. R derives bar \
+area, clear cover, layer coordinates, reinforcement area, yield strength, \
+and the complete P-M interaction family.", "Text", ExpressionUUID -> 
+             "01110577-e335-d45a-7d96-2a80c6e93f46"], 
+           Cell[BoxData[TagBox[GridBox[{{ItemBox[StyleBox["\"Input\"", 
+                   GrayLevel[1], Bold, StripOnInput -> False], Background -> 
+                   RGBColor[0.14, 0.2, 0.28], StripOnInput -> False], 
+                 ItemBox[StyleBox["\"Symbol\"", GrayLevel[1], Bold, 
+                   StripOnInput -> False], Background -> RGBColor[0.14, 0.2, 
+                    0.28], StripOnInput -> False], ItemBox[StyleBox[
+                   "\"Unit\"", GrayLevel[1], Bold, StripOnInput -> False], 
+                  Background -> RGBColor[0.14, 0.2, 0.28], StripOnInput -> 
+                   False], ItemBox[StyleBox["\"Default\"", GrayLevel[1], 
+                   Bold, StripOnInput -> False], Background -> RGBColor[0.14, 
+                    0.2, 0.28], StripOnInput -> False], ItemBox[StyleBox[
+                   "\"Engineering meaning\"", GrayLevel[1], Bold, 
+                   StripOnInput -> False], Background -> RGBColor[0.14, 0.2, 
+                    0.28], StripOnInput -> False]}, {"\"Outer radius\"", 
+                 "\"R_o,r\"", "\"m\"", "\"1.315\"", 
+                 "\"Independent reinforced-lining geometry\""}, 
+                {"\"Specified thickness\"", "\"t_r\"", "\"m\"", "\"0.100\"", 
+                 "\"Stiffness, P-M domain, and minimum reinforcement\""}, 
+                {"\"Concrete Poisson's ratio\"", "\"nu_cr\"", "\"-\"", 
+                 "\"0.20\"", "\"Schwartz-Einstein comparison only\""}, 
+                {"\"Specified compressive strength\"", "\"f'_c\"", "\"MPa\"", 
+                 "\"25.0\"", "\"Concrete modulus and P-M domain\""}, 
+                {"\"Reinforcement grade\"", "\"-\"", "\"catalog selection\"", 
+                 "\"Grade-60\"", "\"Yield strength resolved by R\""}, 
+                {"\"Bar diameter\"", "\"d_b\"", "\"mm\"", "\"10\"", 
+                 "\"Bar area and layer centroid cover\""}, 
+                {"\"Bar spacing\"", "\"s\"", "\"mm\"", "\"150\"", 
+                 "\"Steel area per face and direction\""}, 
+                {"\"Clear-cover ratio\"", "\"c/t\"", "\"-\"", "\"0.15\"", 
+                 "\"R derives clear cover and layer coordinates\""}, 
+                {"\"Reinforcing-steel modulus\"", "\"E_s,r\"", "\"MPa\"", 
+                 "\"200000\"", "\"Common material for all four layers\""}}, 
+               GridBoxAlignment -> {"Columns" -> {Left, Center, Center, 
+                   Right, Left}, "Rows" -> {{Center}}}, AutoDelete -> False, 
+               GridBoxBackground -> {"Columns" -> {{None}}, "Rows" -> 
+                  {None, None, {3, -1, 2} -> RGBColor[0.965, 0.972, 0.98]}}, 
+               GridBoxDividers -> {"Columns" -> {{None}}, "Rows" -> 
+                  {{All -> RGBColor[0.82, 0.85, 0.88]}}}, GridBoxItemSize -> 
+                {"Columns" -> {15, 8, 10, 14, 44}, "Rows" -> {{Automatic}}}, 
+               GridBoxSpacings -> {"Columns" -> {1., 1.}, "Rows" -> 
+                  {0.55, 0.55}}], "Grid"]], "Text", ExpressionUUID -> 
+             "be324cc9-9241-0043-30c7-29e13a64f9da"], 
+           Cell[BoxData[RowBox[{"ReinforcedConcreteInputs", " ", "=", " ", 
+               RowBox[{"<|", "\n", "  ", RowBox[{RowBox[{"\"outerRadiusM\"", 
+                     " ", "->", " ", "1.315`"}], RowBox[{",", "\n", "  "}], 
+                   RowBox[{"\"thicknessM\"", " ", "->", " ", "0.1`"}], 
+                   RowBox[{",", "\n", "  "}], RowBox[{"\"poisson\"", " ", 
+                     "->", " ", "0.2`"}], RowBox[{",", "\n", "  "}], 
+                   RowBox[{"\"compressiveStrengthMPa\"", " ", "->", " ", 
+                     "25.`"}], RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"reinforcementGradeID\"", " ", "->", " ", 
+                     "\"Grade-60\""}], RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"barDiameterMm\"", " ", "->", " ", "10.`"}], 
+                   RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"barSpacingMm\"", " ", "->", " ", "150.`"}], 
+                   RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"clearCoverRatio\"", " ", "->", " ", "0.15`"}], 
+                   RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"reinforcementModulusMPa\"", " ", "->", " ", 
+                     "200000.`"}]}], "\n", "|>"}], ";"}]], "Input", 
+            CellLabelAutoDelete -> True, Background -> RGBColor[1, 0.96, 
+              0.78], ExpressionUUID -> 
+             "c898e83b-bd8f-407a-86c9-3b56d87608a7"]}, Open]]}, Open]], 
+     Cell[CellGroupData[{Cell["3. Run calculation", "Chapter", 
+         ExpressionUUID -> "de720582-c5e5-7e9d-0731-57806ab9e2e8"], 
+        Cell[CellGroupData[{Cell["3.1 Load calculation functions", "Section", 
+            ExpressionUUID -> "d8048792-d928-4084-040f-3876e3ea0622"], 
+           Cell["This neutral setup cell loads the calculation and \
+presentation functions located beside the notebook.", "Text", 
+            ExpressionUUID -> "b244a375-4b55-9134-5b2b-f16e2bf68f34"], 
+           Cell[BoxData["Get[FileNameJoin[{NotebookDirectory[], \
+\"calculationWorkbookSupport.wl\"}]]"], "Input", CellLabelAutoDelete -> True, 
+            Background -> RGBColor[0.94, 0.97, 1.], ExpressionUUID -> 
+             "a7fc3562-3708-4226-b7eb-046d49479c30"]}, Open]], 
+        Cell[CellGroupData[{Cell["3.2 Calculation input set", "Section", 
+            ExpressionUUID -> "8ac635e6-bd96-b038-60c6-9ca6a645c9ce"], 
+           Cell["This neutral cell combines the six engineering input groups \
+into one calculation input object.", "Text", ExpressionUUID -> 
+             "2d1a26de-edcb-a9c1-5bcc-d4ad55eeea07"], 
+           Cell[BoxData[RowBox[{"EngineeringInputs", " ", "=", " ", RowBox[
+                {"<|", "\n", "  ", RowBox[{RowBox[{"\"cover\"", " ", "->", 
+                     " ", "CoverInputs"}], RowBox[{",", "\n", "  "}], 
+                   RowBox[{"\"ground\"", " ", "->", " ", "GroundInputs"}], 
+                   RowBox[{",", "\n", "  "}], RowBox[{"\"steel\"", " ", "->", 
+                     " ", "SteelInputs"}], RowBox[{",", "\n", "  "}], 
+                   RowBox[{"\"seam\"", " ", "->", " ", "SeamInputs"}], 
+                   RowBox[{",", "\n", "  "}], RowBox[{"\"plainConcrete\"", 
+                     " ", "->", " ", "PlainConcreteInputs"}], RowBox[
+                    {",", "\n", "  "}], RowBox[{"\"reinforcedConcrete\"", 
+                     " ", "->", " ", "ReinforcedConcreteInputs"}]}], "\n", 
+                 "|>"}], ";"}]], "Input", CellLabelAutoDelete -> True, 
+            Background -> RGBColor[0.94, 0.97, 1.], ExpressionUUID -> 
+             "983d4435-6685-4e5b-81d5-cd06967199d8"]}, Open]], 
+        Cell[CellGroupData[{Cell["3.3 Evaluate once", "Section", 
+            ExpressionUUID -> "0de25b90-da22-13a3-ede2-ed451d52de47"], 
+           Cell["This is the workbook's only calculation invocation.", 
+            "Text", ExpressionUUID -> 
+             "eef1d0bc-dfe8-20ca-d0d1-42e3c67766e5"], 
+           Cell[BoxData[RowBox[{"Evaluation", " ", "=", " ", RowBox[
+                {"runCoverCalculation", "[", "EngineeringInputs", "]"}], 
+               ";"}]], "Input", CellLabelAutoDelete -> True, 
+            Background -> RGBColor[0.94, 0.97, 1.], ExpressionUUID -> 
+             "1c6f36e1-4d21-41ef-90d8-1b7b95366d77"]}, Open]], 
+        Cell[CellGroupData[
+          {Cell["3.4 Resolved definition and calculation basis", "Section", 
+            ExpressionUUID -> "e92d3dad-84ad-03af-ced4-07470475494a"], 
+           Cell["Expand this read-only view to review the engineering inputs \
+used, the calculation basis, and the derived values.", "Text", 
+            ExpressionUUID -> "723685ee-d61f-8a38-65af-b4729ecf3a3e"], 
+           Cell[BoxData["coverCaseDefinitionView[Evaluation]"], "Input", 
+            CellLabelAutoDelete -> True, ExpressionUUID -> 
+             "fa7371d1-6345-3320-bdbe-bc10720f5ea2"]}, Open]], 
+        Cell[CellGroupData[{Cell["3.5 Returned R object explorer", "Section", 
+            ExpressionUUID -> "5afd43ff-0f94-f0d6-c979-1658e58ea5cf"], 
+           Cell["Change only rObjectPath and reevaluate this cell to inspect \
+another returned table. This does not rerun the calculation.", "Text", 
+            ExpressionUUID -> "cf2e2829-6927-c7e4-c03d-8b84ae299bbc"], 
+           Cell[BoxData["rObjectPath = {\"aashto\", \
+\"thrust\"};\nrObjectExplorerView[rObjectPath, \
+Keys[Evaluation[\"additionalLinings\"]]]"], "Input", CellLabelAutoDelete -> 
+             True, ExpressionUUID -> 
+             "7c50fbc2-b621-437b-aaeb-140f8af94fd7"]}, Open]]}, Open]], 
+     Cell[CellGroupData[{Cell["4. Engineering results by lining solution", 
+         "Chapter", ExpressionUUID -> 
+          "07ef1272-ac46-a32c-991c-914f98172cda"], 
+        Cell[CellGroupData[
+          {Cell["4.1 Common geostatic stress and corrugated-steel stiffness", 
+            "Section", ExpressionUUID -> 
+             "c0628933-77cb-9122-2670-5587c836fe08"], 
+           Cell[BoxData[
+             "groundStressAndSteelSectionView[Evaluation[\"cover\"]]"], 
+            "Input", CellLabelAutoDelete -> True, ExpressionUUID -> 
+             "64f3006c-ec10-4085-9609-f8014896f2c6"]}, Open]], 
+        Cell[CellGroupData[{Cell["4.2 Corrugated-steel external interaction \
+and section-resultant extrema", "Section", ExpressionUUID -> 
+             "ac18abdd-3f12-112d-33cf-ba8c4276e851"], 
+           Cell[BoxData["interactionExtremaView[Evaluation[\"cover\"]]"], 
+            "Input", CellLabelAutoDelete -> True, ExpressionUUID -> 
+             "c9ca4e51-8f92-4db9-ae85-fdd69167a3bb"]}, Open]], 
+        Cell[CellGroupData[
+          {Cell["4.3 Corrugated-steel circular section-resultant diagrams", 
+            "Section", ExpressionUUID -> 
+             "b03d7fa0-a6cb-f55a-2b8c-de2aeb12513b"], 
+           Cell[BoxData["resultantsView[\n  Evaluation[\"cover\"],\n  \
+Evaluation[\"resolvedConfig\"][\"graphics\"],\n  \"Corrugated steel\"\n]"], 
+            "Input", CellLabelAutoDelete -> True, ExpressionUUID -> 
+             "e64d93c6-59af-4267-bea1-5116843803ae"]}, Open]], 
+        Cell[CellGroupData[
+          {Cell["4.4 Corrugated-steel scalar prism-thrust demand", "Section", 
+            ExpressionUUID -> "42819d92-ffb8-52c5-da4a-e0f516f3a2e5"], 
+           Cell[BoxData["prismThrustView[Evaluation[\"cover\"]]"], "Input", 
+            CellLabelAutoDelete -> True, ExpressionUUID -> 
+             "0ecb357c-7a0f-41a8-8bd4-d18a50bde803"]}, Open]], 
+        Cell[CellGroupData[{Cell["4.5 Corrugated-steel conduit checks", 
+            "Section", ExpressionUUID -> 
+             "3e67359b-380c-336b-286f-e31825a5c4fd"], 
+           Cell[BoxData["aashtoView[\n  Evaluation[\"cover\"],\n  \
+Evaluation[\"resolvedConfig\"][\"aashto\"]\n]"], "Input", 
+            CellLabelAutoDelete -> True, ExpressionUUID -> 
+             "1f3a47ee-def9-4da3-8d45-4ab049122200"]}, Open]], 
+        Cell[CellGroupData[
+          {Cell[
+            "4.6 Plain-concrete stiffness, resultants, and local ACI checks", 
+            "Section", ExpressionUUID -> 
+             "d5aeaa5d-aef5-fd3b-de9c-22be73b3910e"], 
+           Cell[BoxData["concreteAlternativeView[\n  \"shotcrete\",\n  \
+Evaluation[\"additionalLinings\"][\"shotcrete\"],\n  \
+Evaluation[\"resolvedConfig\"][\"graphics\"]\n]"], "Input", 
+            CellLabelAutoDelete -> True, ExpressionUUID -> 
+             "1b66d785-b291-42dc-944b-7b94fa659a0e"]}, Open]], 
+        Cell[CellGroupData[{Cell["4.7 Reinforced-concrete stiffness, \
+resultants, and local ACI P-M checks", "Section", ExpressionUUID -> 
+             "0c24797b-d6ab-1005-1390-6a2f228122a0"], 
+           Cell[BoxData["concreteAlternativeView[\n  \
+\"reinforcedConcrete\",\n  \
+Evaluation[\"additionalLinings\"][\"reinforcedConcrete\"],\n  \
+Evaluation[\"resolvedConfig\"][\"graphics\"]\n]"], "Input", 
+            CellLabelAutoDelete -> True, ExpressionUUID -> 
+             "38a079ae-5210-4815-85f0-e4ab71455b70"]}, Open]]}, Open]], 
+     Cell["Review the engineering inputs, calculation basis, returned tables, \
+circular diagrams, and the P-M interaction family before saving the evaluated \
+workbook.", "Text", 
+      ExpressionUUID -> "22ce1773-a386-05b4-9bae-df5705ac6ae4"]}, Open]]}, 
+ WindowSize -> {1320, 920}, WindowMargins -> 
+  {{Automatic, 40}, {Automatic, 20}}, Magnification -> 1., 
+ FrontEndVersion -> "15.0 for Mac OS X ARM (64-bit) (July 2, 2026)", 
+ StyleDefinitions -> "Default.nb", ExpressionUUID -> 
+  "c72f6e12-ed1b-4e79-984e-729f1d7f1c11"]

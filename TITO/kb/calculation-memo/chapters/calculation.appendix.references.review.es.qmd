@@ -8,18 +8,8 @@ revestimiento analizado.
 
 ## C.1 USACE EM 1110-2-2902: ejemplo D4 {.unnumbered}
 
-USACE expresa el empuje factorizado por unidad de longitud de pared de un
-conducto metálico corrugado mediante [@USACE2020, ec. 4-20]
-
-$$
-T_L=\gamma_{DL}\frac{P_{FD}S}{2}
-+\gamma_{LL}\frac{P_{FL}C_LF_1}{2},
-$$ {#eq-calculation-usace-thrust}
-
-donde $P_{FD}$ y $P_{FL}$ son las presiones verticales en la clave debidas a
-las cargas permanente y móvil; $S$ es la luz; $C_L$ es el ancho cargado; y
-$F_1$ es el factor de distribución de la carga móvil. El ejemplo D4 considera
-un conducto corrugado de aluminio de 36 in de diámetro exterior, una tapada de
+El ejemplo D4 evalúa la relación de la @eq-calculation-prism-thrust para un
+conducto corrugado de aluminio de 36 in de diámetro exterior, una tapada de
 30 ft y un peso unitario de 120 lb/ft³; la carga móvil se omite
 [@USACE2020, ap. D4, pp. 332--333].
 
@@ -69,8 +59,10 @@ $T_{SE}>0$ indica compresión conforme a la convención de la fuente.
 
 La fuente no tabula la fuerza cortante; por tanto, el contraste se limita a
 las razones de fuerza normal y momento publicadas. Los cuatro casos pertenecen
-al continuo elástico y a las secuencias definidas por Schwartz y Einstein; no
-representan la construcción por colocación y relleno del conducto analizado.
+al continuo elástico y a las secuencias definidas por Schwartz y Einstein.
+Para este estudio se adopta la secuencia de carga externa como aproximación
+elástica preliminar del conducto rellenado; aun así, no reproduce la colocación
+por tongadas, una superficie libre somera ni la no linealidad del relleno.
 
 ## C.4 Núñez (2000): ejemplos circulares {.unnumbered}
 
@@ -123,5 +115,7 @@ colocado y posteriormente rellenado.
 
 USACE y FHWA comprueban relaciones de acciones dentro de sus respectivos
 dominios; Schwartz--Einstein y Núñez comprueban formulaciones de interacción
-para sus condiciones de referencia. Ninguna de estas relaciones reemplaza la
-solución angular empleada para obtener $N_\theta$, $M_\theta$ y $Q_\theta$.
+para sus condiciones de referencia. La rama externa de Schwartz--Einstein
+determina $N_\theta$ y $M_\theta$ y permite derivar $Q_\theta$ por equilibrio
+cuando se suministran sus entradas; los demás casos no se convierten en una
+distribución angular del revestimiento analizado.

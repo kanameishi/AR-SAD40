@@ -8,15 +8,14 @@ proyectado.
 
 ## Finalidad
 
-Establecer una comprobación de fuerza normal y momento flector para una
-sección arbitraria, independiente del modelo que produjo las solicitaciones,
-y separar el núcleo mecánico de las disposiciones resistentes que dependen de
-la clasificación y del articulado ACI aplicable.
+Establecer el análisis autónomo de un revestimiento circular de hormigón
+proyectado y comprobar sus resultantes concurrentes $N_\theta$, $M_\theta$ y
+$Q_\theta$ mediante ramas separadas de hormigón simple y hormigón armado.
 
 ## Fuentes leídas
 
 - índice y alcance oficiales de ACI CODE-318.2-25;
-- portal oficial de ACI CODE-318-25;
+- texto completo en unidades SI de ACI CODE-318-25;
 - alcance oficial de ACI CODE-562-25;
 - alcance oficial de ACI SPEC-506.2-13(18); y
 - `TITO/kb/research/g10.aci.concrete.section.verification.es.md`.
@@ -35,14 +34,18 @@ antecedente histórico no gobernante en
   shotcrete; no sustituye la comprobación resistente.
 - Una alternativa autónoma de hormigón proyectado requiere recalcular
   $N_\theta$, $M_\theta$ y $Q_\theta$ con sus propias rigideces.
-- La clasificación y la armadura mínima preceden a la selección de una rama
-  resistente; $A_s=0$ no demuestra que el hormigón simple sea admisible.
+- La clasificación resistente se declara explícitamente; $A_s=0$ no es un
+  incumplimiento de la rama de hormigón simple ni selecciona por sí solo esa
+  rama.
+- ACI 318-25, Capítulo 14, permite ejecutar las comprobaciones locales de
+  tracción, compresión y corte de la rama simple, sujetas a sus condiciones de
+  aplicabilidad.
 
 ## Afirmaciones excluidas
 
 - aplicación de coeficientes CIRSOC bajo una etiqueta ACI;
 - ecuaciones de capacidad, deformaciones límite, factores de reducción o
-  cuantías mínimas no comprobados en el articulado vigente;
+  cuantías mínimas no comprobados en el articulado aplicable;
 - acción compuesta entre chapa y hormigón sin demostrar interfaz, adherencia,
   secuencia y transferencia;
 - contribución postfisuración de fibras sin propiedades residuales y una
@@ -51,11 +54,11 @@ antecedente histórico no gobernante en
 
 ## Ecuaciones admitidas
 
-- transformación explícita de $N_\theta$, $M_\theta$ y $Q_\theta$ a las
-  acciones de una franja longitudinal declarada;
-- compatibilidad de deformaciones planas; y
-- equilibrio integral de fuerza normal y momento para leyes constitutivas que
-  se definan posteriormente desde el articulado ACI aplicable.
+- transformación explícita de $N_\theta$, $M_\theta$ y $Q_\theta$ concurrentes
+  a las acciones de una franja longitudinal declarada;
+- resistencia local de hormigón simple conforme a ACI 318-25, Capítulo 14;
+- compatibilidad de deformaciones planas para hormigón armado; y
+- equilibrio integral de fuerza normal y momento para la sección armada.
 
 Estas relaciones son de mecánica seccional. No constituyen por sí mismas una
 comprobación ACI.
@@ -68,14 +71,16 @@ comprobación ACI.
 
 ## Datos pendientes
 
-Clasificación frente a ACI CODE-318.2-25; articulado vigente en SI de ACI
-318.2, ACI 318 y ACI 562; alternativa autónoma o compuesta; combinaciones
-últimas y de servicio; espesor resistente; defectos; juntas; resistencia de
-diseño del hormigón existente; capas de armadura; propiedades residuales de
-fibras; estabilidad, exposición, fisuración y estanqueidad.
+Texto completo aplicable de ACI CODE-318.2-25 para la rama armada; longitud de
+compresión $\ell_c$; categoría sísmica; juntas; aberturas; estabilidad global;
+exposición, durabilidad y servicio; resistencia de diseño del hormigón
+existente; y, para futuras secciones armadas o con fibras, capas y propiedades
+residuales comprobadas.
 
 ## Estado
 
-La arquitectura conceptual es admisible. La verificación ACI ejecutable
-permanece bloqueada hasta cerrar la clasificación, el articulado y los datos
-anteriores; no se informa capacidad ni cumplimiento del caso.
+La comprobación local de hormigón simple es ejecutable con ACI 318-25 y se
+aplica a cada condición de interfaz y combinación mayorada. La comprobación de
+la cara comprimida requiere $\ell_c$ documentada. El dictamen integral de una
+cáscara armada permanece condicionado por ACI CODE-318.2-25 y por los datos
+indicados.

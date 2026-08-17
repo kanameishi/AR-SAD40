@@ -1,0 +1,23 @@
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) {
+  CAP <- paste(readLines("_captions/tbl.liner.existing.extrema.md"), collapse = "\n")
+}
+source("scripts/tbl/Calculation.extrema.R")
+TBL <- buildCalculationExtremaTable(
+  Calculation$paths$resultants,
+  Calculation$paths$extrema
+)
+```
+
+```{r}
+#| label: tbl-liner-existing-extrema
+#| tbl-cap: !expr CAP
+#| echo: false
+TBL
+```
+
+```{r}
+#| include: false
+rm(CAP, TBL, buildCalculationExtremaTable)
+```

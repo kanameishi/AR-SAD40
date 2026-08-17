@@ -1,8 +1,8 @@
 ---
 lang: es
-title: "Determinación de las resultantes seccionales en un revestimiento circular de acero corrugado sometido a acciones del relleno"
-subtitle: "Formulación de las acciones, respuesta en la sección transversal y tratamiento de incertidumbres"
-date: "2026-08-10"
+title: "Metodología integrada para el análisis de revestimientos circulares"
+subtitle: "Acciones del relleno, resultantes seccionales y comprobaciones AASHTO/ACI"
+date: "2026-08-16"
 bibliography:
   - bib/references.bib
 format:
@@ -19,6 +19,12 @@ crossref:
   fig-prefix: figura
   tbl-prefix: tabla
   eq-prefix: ec.
+  sec-prefix: sección
 ---
 
 {{< include /_index/methodology.review.ES.qmd >}}
+
+# Referencias {.unnumbered}
+
+::: {#refs .references}
+:::

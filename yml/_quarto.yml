@@ -1,5 +1,5 @@
 engine: knitr
-language: styles/_language-en.yml
+lang: es
 
 # Bibliography is defined per-project in the YAML header of the manifest
 # file (index.qmd / memo.qmd / ppt.qmd / report.qmd). Each project lists
@@ -15,14 +15,15 @@ execute:
   message: false
 
 crossref:
-  fig-title: Fig.
-  tbl-title: Table
-  eq-title: Equation
-  eq-prefix: eq.
-  tbl-prefix: tbl.
-  fig-prefix: fig.
+  fig-title: Figura
+  tbl-title: Tabla
+  eq-title: Ecuación
+  eq-prefix: ec.
+  tbl-prefix: tabla
+  fig-prefix: figura
+  sec-prefix: sección
 
-toc-title: Table of Contents
+toc-title: Contenido
 
 profile:
   group: [book, revealjs, docx, html]

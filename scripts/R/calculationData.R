@@ -6,7 +6,7 @@ if (!exists("calculateRingSection", mode = "function") ||
     !exists("buildThetaMesh", mode = "function") ||
     !exists("calculatePerimeterActions", mode = "function") ||
     !exists("calculateSectionResultants", mode = "function") ||
-    !exists("calculateSheetNormalStress", mode = "function") ||
+    !exists("screenAisiFlexuralDemand", mode = "function") ||
     !exists("calculateScenario", mode = "function") ||
     !exists("readCalculationJson", mode = "function")) {
   stop(
@@ -14,8 +14,8 @@ if (!exists("calculateRingSection", mode = "function") ||
       "Source scripts/setup/utils.R, scripts/R/ringDirect.R and",
       "scripts/R/ringLoads.R, scripts/R/k0Models.R and",
       "scripts/R/stressState.R, scripts/R/corrugatedSection.R and",
-      "scripts/R/perimeterActions.R, scripts/R/sectionResultants.R and",
-      "scripts/R/sheetStress.R and",
+      "scripts/R/perimeterActions.R, scripts/R/sectionResultants.R,",
+      "scripts/R/aisiFlexuralBound.R and",
       "scripts/R/calculateScenario.R before",
       "scripts/R/calculationData.R."
     ),
@@ -230,14 +230,27 @@ validateCalculationConfig <- function(config) {
     stop("calculation.json is missing: schemaVersion.", call. = FALSE)
   }
   SchemaVersion <- .readText(config, "schemaVersion", "calculation.json")
-  if (SchemaVersion != "2.1.0") {
+  if (SchemaVersion %in% c("3.0.0", "3.1.0")) {
+    if (!exists("validateCoverCalculationConfig", mode = "function")) {
+      stop(
+        paste(
+          "Source scripts/R/coverCalculationData.R before validating",
+          "calculation schema 3.0.0 or 3.1.0."
+        ),
+        call. = FALSE
+      )
+    }
+    return(validateCoverCalculationConfig(config))
+  }
+  if (!(SchemaVersion %in% c("2.1.0", "2.2.0"))) {
     stop("Unsupported calculation schemaVersion: ", SchemaVersion, ".", call. = FALSE)
   }
+  Fields.root <- if (SchemaVersion == "2.2.0") "sheetAssessment" else character()
   .requireFields(
     config,
     c(
       "schemaVersion", "scenarioID", "geometry", "section", "material",
-      "stressState", "loadCases", "numerics", "graphics"
+      "stressState", "loadCases", "numerics", "graphics", Fields.root
     ),
     path = "calculation.json"
   )
@@ -273,6 +286,52 @@ validateCalculationConfig <- function(config) {
 
   Material <- .requireObject(config$material, "material")
   .requireFields(Material, "circumferentialYoungModulusGPa", path = "material")
+
+  SheetAssessment <- if (SchemaVersion == "2.2.0") {
+    Assessment <- .requireObject(config$sheetAssessment, "sheetAssessment")
+    .requireFields(
+      Assessment,
+      c(
+        "standardID", "materialSpecificationID", "yieldStrengthMPa",
+        "forceEffectStatus"
+      ),
+      path = "sheetAssessment"
+    )
+    StandardID <- .readText(Assessment, "standardID", "sheetAssessment")
+    if (StandardID != "ANSI-SDI-AISI-S100-24") {
+      stop("Unsupported sheetAssessment.standardID: ", StandardID, ".", call. = FALSE)
+    }
+    ForceEffectStatus <- .readText(
+      Assessment,
+      "forceEffectStatus",
+      "sheetAssessment"
+    )
+    if (!(ForceEffectStatus %in% c(
+      "asd-required", "lrfd-factored", "unfactored-reference-state"
+    ))) {
+      stop(
+        "Unsupported sheetAssessment.forceEffectStatus: ",
+        ForceEffectStatus, ".",
+        call. = FALSE
+      )
+    }
+    list(
+      standardID = StandardID,
+      materialSpecificationID = .readText(
+        Assessment,
+        "materialSpecificationID",
+        "sheetAssessment"
+      ),
+      yieldStrengthMPa = .readNumber(
+        Assessment,
+        "yieldStrengthMPa",
+        "sheetAssessment",
+        minimum = 0,
+        strictMinimum = TRUE
+      ),
+      forceEffectStatus = ForceEffectStatus
+    )
+  }
 
   Stress <- .requireObject(config$stressState, "stressState")
   .requireFields(
@@ -398,6 +457,7 @@ validateCalculationConfig <- function(config) {
         strictMinimum = TRUE
       )
     ),
+    sheetAssessment = SheetAssessment,
     stressState = list(
       statePointID = .readText(Stress, "statePointID", "stressState"),
       actionModelID = ActionModelID,
@@ -769,6 +829,44 @@ readCalculationSection <- function(config, projectRoot) {
     )
   }
   Rows <- append(Rows, SectionRows, after = 4L)
+  if (!is.null(config$sheetAssessment)) {
+    Rows <- c(
+      Rows,
+      list(
+        .inputRow(
+          ScenarioID,
+          NA,
+          "material",
+          "material-specification",
+          "grade",
+          textValue = config$sheetAssessment$materialSpecificationID,
+          evidenceLevel = "HA",
+          conditionCode = "adopted-hypothesis"
+        ),
+        .inputRow(
+          ScenarioID,
+          NA,
+          "material",
+          "yield-strength",
+          "F_y",
+          config$sheetAssessment$yieldStrengthMPa,
+          unit = "MPa",
+          evidenceLevel = "HA",
+          conditionCode = "adopted-hypothesis"
+        ),
+        .inputRow(
+          ScenarioID,
+          NA,
+          "sheet-assessment",
+          "force-effect-status",
+          "forceEffectStatus",
+          textValue = config$sheetAssessment$forceEffectStatus,
+          evidenceLevel = "HA",
+          conditionCode = "analytical-scenario"
+        )
+      )
+    )
+  }
   Model <- config$stressState$k0Model
   ModelValues <- c("k0", "frictionAngleDeg", "poissonRatio", "ocr", "ocrMaximum")
   Symbols <- c(
@@ -894,149 +992,6 @@ readCalculationSection <- function(config, projectRoot) {
   OUT
 }
 
-.buildSheetStressTable <- function(resultants, cases, section) {
-  FibreDistanceMm <-
-    section[["inertiaMm4PerMm", exact = TRUE]] /
-      section[["sectionModulusMm3PerMm", exact = TRUE]]
-  ReferenceSection <- list(
-    sectionID = section[["sectionID", exact = TRUE]],
-    areaMm2PerMm = section[["areaMm2PerMm", exact = TRUE]],
-    inertiaMm4PerMm = section[["inertiaMm4PerMm", exact = TRUE]],
-    outerFiberCoordinateMm = -FibreDistanceMm,
-    innerFiberCoordinateMm = FibreDistanceMm,
-    coordinatePositiveDirection = "inward",
-    momentSignConvention = "positive-tension-inner"
-  )
-  RecoveryBasis <- list(
-    modelID = "linear-homogenized",
-    criterionID = "reference-section-model-adoption",
-    applicabilityStatus = "adopted"
-  )
-  Keys <- c(
-    "scenarioID", "caseID", "sectionID", "stressStateID", "alpha",
-    "thetaIndex", "thetaRad", "thetaDeg"
-  )
-  LIST <- lapply(seq_len(nrow(cases)), function(i) {
-    CaseID <- cases[["caseID", exact = TRUE]][i]
-    Components <- lapply(c("N", "M", "Q"), function(s) {
-      OUT <- resultants[
-        resultants$caseID == CaseID &
-          resultants$resultantID == s,
-        ,
-        drop = FALSE
-      ]
-      OUT <- OUT[order(OUT$thetaIndex), , drop = FALSE]
-      rownames(OUT) <- NULL
-      OUT
-    })
-    names(Components) <- c("N", "M", "Q")
-    RowCount <- vapply(Components, nrow, integer(1))
-    if (any(RowCount == 0L) || length(unique(RowCount)) != 1L) {
-      stop("The sheet-stress resultants are incomplete.", call. = FALSE)
-    }
-    ReferenceKeys <- Components$N[Keys]
-    SameKeys <- vapply(
-      Components[c("M", "Q")],
-      function(x) identical(x[Keys], ReferenceKeys),
-      logical(1)
-    )
-    if (!all(SameKeys)) {
-      stop("The sheet-stress resultant ordinates are inconsistent.", call. = FALSE)
-    }
-    ResultantInput <- data.frame(
-      ReferenceKeys,
-      combinationID = CaseID,
-      stageID = ReferenceKeys$scenarioID,
-      theta = ReferenceKeys$thetaRad,
-      normalForceKnPerM = Components$N$value,
-      bendingMomentKnMPerM = Components$M$value,
-      shearForceKnPerM = Components$Q$value,
-      forceEffectStatus = "unfactored-reference-state",
-      longitudinalBasis = "per-projected-metre",
-      check.names = FALSE,
-      stringsAsFactors = FALSE
-    )
-    Recovered <- calculateSheetNormalStress(
-      resultants = ResultantInput,
-      netSection = ReferenceSection,
-      recoveryBasis = RecoveryBasis
-    )
-    data.frame(
-      scenarioID = Recovered$scenarioID,
-      caseID = Recovered$caseID,
-      sectionID = Recovered$sectionID,
-      stressStateID = Recovered$stressStateID,
-      alpha = Recovered$alpha,
-      thetaIndex = Recovered$thetaIndex,
-      thetaRad = Recovered$theta,
-      thetaDeg = Recovered$thetaDeg,
-      fiberID = Recovered$fiberID,
-      fiberCoordinateMm = Recovered$fiberCoordinateMm,
-      normalForceKnPerM = Recovered$normalForceKnPerM,
-      bendingMomentKnMPerM = Recovered$bendingMomentKnMPerM,
-      shearForceKnPerM = Recovered$shearForceKnPerM,
-      membraneStressMPa = Recovered$membraneStressMPa,
-      bendingStressMPa = Recovered$bendingStressMPa,
-      normalStressMPa = Recovered$normalStressMPa,
-      shearStressStatus = Recovered$shearStressStatus,
-      sectionStateID = "published-reference-section",
-      recoveryModelID = Recovered$recoveryModelID,
-      recoveryBasisID = Recovered$criterionID,
-      recoveryBasisStatus = Recovered$applicabilityStatus,
-      forceEffectStatus = Recovered$forceEffectStatus,
-      longitudinalBasis = Recovered$longitudinalBasis,
-      evidenceLevel = "DE",
-      stringsAsFactors = FALSE
-    )
-  })
-  OUT <- do.call(rbind, LIST)
-  rownames(OUT) <- NULL
-  OUT
-}
-
-.buildSheetStressExtremaTable <- function(sheetStress, cases) {
-  LIST <- lapply(seq_len(nrow(cases)), function(i) {
-    CaseID <- cases[["caseID", exact = TRUE]][i]
-    Values <- sheetStress[
-      sheetStress$caseID == CaseID,
-      ,
-      drop = FALSE
-    ]
-    if (nrow(Values) == 0L || any(!is.finite(Values$normalStressMPa))) {
-      stop("The sheet-stress values are incomplete.", call. = FALSE)
-    }
-    MinimumIndex <- which.min(Values$normalStressMPa)
-    MaximumIndex <- which.max(Values$normalStressMPa)
-    AbsoluteIndex <- which.max(abs(Values$normalStressMPa))
-    data.frame(
-      scenarioID = Values$scenarioID[1L],
-      caseID = CaseID,
-      sectionID = Values$sectionID[1L],
-      alpha = Values$alpha[1L],
-      minimumStressMPa = Values$normalStressMPa[MinimumIndex],
-      minimumThetaRad = Values$thetaRad[MinimumIndex],
-      minimumThetaDeg = Values$thetaDeg[MinimumIndex],
-      minimumFiberID = Values$fiberID[MinimumIndex],
-      maximumStressMPa = Values$normalStressMPa[MaximumIndex],
-      maximumThetaRad = Values$thetaRad[MaximumIndex],
-      maximumThetaDeg = Values$thetaDeg[MaximumIndex],
-      maximumFiberID = Values$fiberID[MaximumIndex],
-      maximumAbsoluteStressMPa =
-        abs(Values$normalStressMPa[AbsoluteIndex]),
-      governingSignedStressMPa = Values$normalStressMPa[AbsoluteIndex],
-      governingThetaRad = Values$thetaRad[AbsoluteIndex],
-      governingThetaDeg = Values$thetaDeg[AbsoluteIndex],
-      governingFiberID = Values$fiberID[AbsoluteIndex],
-      unit = "MPa",
-      evidenceLevel = "DE",
-      stringsAsFactors = FALSE
-    )
-  })
-  OUT <- do.call(rbind, LIST)
-  rownames(OUT) <- NULL
-  OUT
-}
-
 .buildResultantControlTable <- function(
   responses,
   cases,
@@ -1141,7 +1096,101 @@ readCalculationSection <- function(config, projectRoot) {
   }))
 }
 
-.writeCalculationProducts <- function(products, configPath, outputDirectory) {
+.buildAisiFlexuralProduct <- function(
+  resultants,
+  extrema,
+  cases,
+  section,
+  assessment,
+  scenarioID
+) {
+  if (is.null(assessment)) return(NULL)
+
+  Moment <- extrema[
+    extrema$resultantID == "M" &
+      extrema$statisticID == "absolute-maximum",
+    ,
+    drop = FALSE
+  ]
+  IDX <- match(cases$caseID, Moment$caseID)
+  if (nrow(Moment) != nrow(cases) || anyNA(IDX) || anyDuplicated(Moment$caseID)) {
+    stop("The absolute moment extrema are incomplete.", call. = FALSE)
+  }
+  Moment <- Moment[IDX, , drop = FALSE]
+  if (any(Moment$unit != "kN m/m")) {
+    stop("The absolute moment extrema use an incompatible unit.", call. = FALSE)
+  }
+
+  Concurrent <- do.call(rbind, lapply(seq_len(nrow(Moment)), function(i) {
+    DATA <- resultants[
+      resultants$caseID == Moment$caseID[i] &
+        abs(resultants$thetaRad - Moment$thetaRad[i]) < 1e-12,
+      ,
+      drop = FALSE
+    ]
+    if (nrow(DATA) != 3L ||
+        !identical(sort(DATA$resultantID), c("M", "N", "Q"))) {
+      stop("The concurrent resultant row is incomplete.", call. = FALSE)
+    }
+    getResultant <- function(resultantID) {
+      DATA$value[DATA$resultantID == resultantID]
+    }
+    if (abs(getResultant("M") - Moment$signedValue[i]) > 1e-10) {
+      stop("The moment extremum is inconsistent with the resultant row.", call. = FALSE)
+    }
+    data.frame(
+      sectionID = DATA$sectionID[1L],
+      normalForceKnPerM = getResultant("N"),
+      shearForceKnPerM = getResultant("Q"),
+      stringsAsFactors = FALSE
+    )
+  }))
+
+  Screen <- screenAisiFlexuralDemand(
+    bendingMomentKnMPerM = Moment$signedValue,
+    areaMm2PerMm = section$areaMm2PerMm,
+    inertiaMm4PerMm = section$inertiaMm4PerMm,
+    sectionModulusMm3PerMm = section$sectionModulusMm3PerMm,
+    yieldStrengthMPa = assessment$yieldStrengthMPa
+  )
+
+  data.frame(
+    scenarioID = scenarioID,
+    caseID = Moment$caseID,
+    alpha = Moment$alpha,
+    sectionID = Concurrent$sectionID,
+    thetaRad = Moment$thetaRad,
+    thetaDeg = Moment$thetaDeg,
+    normalForceKnPerM = Concurrent$normalForceKnPerM,
+    shearForceKnPerM = Concurrent$shearForceKnPerM,
+    normalBranchID = ifelse(
+      Concurrent$normalForceKnPerM < 0,
+      "compression",
+      ifelse(Concurrent$normalForceKnPerM > 0, "tension", "zero")
+    ),
+    standardID = assessment$standardID,
+    materialSpecificationID = assessment$materialSpecificationID,
+    forceEffectStatus = assessment$forceEffectStatus,
+    boundScopeID = "aisi-s100-f2-f4-prescriptive",
+    yieldStrengthMPa = assessment$yieldStrengthMPa,
+    areaMm2PerMm = section$areaMm2PerMm,
+    inertiaMm4PerMm = section$inertiaMm4PerMm,
+    sectionModulusMm3PerMm = section$sectionModulusMm3PerMm,
+    Screen,
+    evidenceLevel = "DE",
+    sourceKey = "AISIS1002024",
+    sourceLocator = "F1; F2.1.1; F2.2; F2.3; F3.2; F4",
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+}
+
+.writeCalculationProducts <- function(
+  products,
+  configPath,
+  outputDirectory,
+  config = NULL
+) {
   Parent <- dirname(outputDirectory)
   if (!dir.exists(Parent)) dir.create(Parent, recursive = TRUE)
   Stage <- tempfile("calculation-data-", tmpdir = Parent)
@@ -1157,8 +1206,28 @@ readCalculationSection <- function(config, projectRoot) {
       na = ""
     )
   }
-  if (!file.copy(configPath, file.path(Stage, "calculation.config.json"))) {
-    stop("Could not stage the calculation configuration snapshot.", call. = FALSE)
+  ConfigTarget <- file.path(Stage, "calculation.config.json")
+  if (is.null(config)) {
+    if (!file.copy(configPath, ConfigTarget)) {
+      stop(
+        "Could not stage the calculation configuration snapshot.",
+        call. = FALSE
+      )
+    }
+  } else {
+    jsonlite::write_json(
+      config,
+      ConfigTarget,
+      auto_unbox = TRUE,
+      pretty = TRUE,
+      digits = NA
+    )
+    if (!file.exists(ConfigTarget)) {
+      stop(
+        "Could not stage the calculation configuration snapshot.",
+        call. = FALSE
+      )
+    }
   }
   FileNames <- c(names(products), "calculation.config.json")
   Missing <- FileNames[!file.exists(file.path(Stage, FileNames))]
@@ -1193,7 +1262,62 @@ readCalculationSection <- function(config, projectRoot) {
 buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
   ConfigPath <- normalizePath(configPath, mustWork = TRUE)
   ProjectRoot <- normalizePath(projectRoot, mustWork = TRUE)
-  Config <- validateCalculationConfig(readCalculationJson(ConfigPath))
+  Manifest <- readCalculationJson(ConfigPath)
+  ConfigSnapshot <- NULL
+  if (identical(
+    Manifest[["contractVersion", exact = TRUE]],
+    "cover-case-2"
+  )) {
+    if (!exists("resolveCoverCaseConfig", mode = "function")) {
+      stop(
+        paste(
+          "Source scripts/R/coverCase.R before building a cover-case-2",
+          "calculation."
+        ),
+        call. = FALSE
+      )
+    }
+    .coverCaseRequireFields(
+      Manifest,
+      c("contractVersion", "methodID", "inputs"),
+      "calculation.json"
+    )
+    Resolved <- resolveCoverCaseConfig(
+      inputs = Manifest[["inputs", exact = TRUE]],
+      projectRoot = ProjectRoot,
+      methodID = Manifest[["methodID", exact = TRUE]]
+    )
+    Config <- Resolved[["config", exact = TRUE]]
+    ConfigSnapshot <- Resolved[["configSource", exact = TRUE]]
+  } else {
+    Config <- validateCalculationConfig(Manifest)
+  }
+  if (Config[["schemaVersion", exact = TRUE]] %in% c("3.0.0", "3.1.0")) {
+    if (!exists(".buildCoverCalculationProducts", mode = "function")) {
+      stop(
+        paste(
+          "Source scripts/R/coverCalculationData.R before building",
+          "calculation schema 3.0.0 or 3.1.0."
+        ),
+        call. = FALSE
+      )
+    }
+    Products <- .buildCoverCalculationProducts(
+      config = Config,
+      projectRoot = ProjectRoot
+    )
+    .writeCalculationProducts(
+      products = Products,
+      configPath = ConfigPath,
+      outputDirectory = outputDirectory,
+      config = ConfigSnapshot
+    )
+    return(list(
+      config = Config,
+      products = Products,
+      outputDirectory = normalizePath(outputDirectory, mustWork = TRUE)
+    ))
+  }
   Config.section <- Config[["section", exact = TRUE]]
   Config.stress <- Config[["stressState", exact = TRUE]]
   Config.numerics <- Config[["numerics", exact = TRUE]]
@@ -1329,6 +1453,14 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
     graphics = Config[["graphics", exact = TRUE]],
     units = Units.resultant
   )
+  AisiFlexural <- .buildAisiFlexuralProduct(
+    resultants = Resultants,
+    extrema = Extrema,
+    cases = Cases,
+    section = Section,
+    assessment = Config$sheetAssessment,
+    scenarioID = ScenarioID
+  )
 
   Products <- list(
     "calculation.inputs.csv" = .buildCalculationInputs(Config),
@@ -1340,24 +1472,8 @@ buildCalculationData <- function(configPath, outputDirectory, projectRoot) {
     "numerical.controls.csv" = Controls,
     "display.scales.csv" = DisplayScales
   )
-  if (Config.section[["propertyModelID", exact = TRUE]] ==
-      "published-exact-row") {
-    SheetStress <- .buildSheetStressTable(
-      resultants = Resultants,
-      cases = Cases,
-      section = Section
-    )
-    SheetExtrema <- .buildSheetStressExtremaTable(
-      sheetStress = SheetStress,
-      cases = Cases
-    )
-    Products <- c(
-      Products,
-      list(
-        "sheet.normal.stress.csv" = SheetStress,
-        "sheet.normal.stress.extrema.csv" = SheetExtrema
-      )
-    )
+  if (!is.null(AisiFlexural)) {
+    Products[["sheet.flexural.bound.csv"]] <- AisiFlexural
   }
   .writeCalculationProducts(Products, ConfigPath, outputDirectory)
   list(

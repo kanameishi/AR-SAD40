@@ -14,11 +14,12 @@ runCalculationDataTests <- function() {
   source(file.path(Root, "scripts", "R", "corrugatedSection.R"))
   source(file.path(Root, "scripts", "R", "perimeterActions.R"))
   source(file.path(Root, "scripts", "R", "sectionResultants.R"))
-  source(file.path(Root, "scripts", "R", "sheetStress.R"))
+  source(file.path(Root, "scripts", "R", "aisiFlexuralBound.R"))
   source(file.path(Root, "scripts", "R", "calculateScenario.R"))
   source(file.path(Root, "scripts", "R", "calculationData.R"))
   LoaderEnvironment <- new.env(parent = environment())
   LoaderEnvironment$projectRoot <- Root
+  LoaderEnvironment$calculationResultsLoadOnly <- TRUE
   sys.source(
     file.path(Root, "scripts", "setup", "calculationResults.R"),
     envir = LoaderEnvironment
@@ -28,7 +29,7 @@ runCalculationDataTests <- function() {
   source(file.path(Root, "scripts", "tbl", "Calculation.extrema.R"))
   source(file.path(Root, "scripts", "tbl", "Calculation.controls.R"))
   source(file.path(Root, "scripts", "tbl", "Calculation.section.reference.R"))
-  source(file.path(Root, "scripts", "tbl", "Calculation.sheet.stress.R"))
+  source(file.path(Root, "scripts", "tbl", "Calculation.aisi.flexural.bound.R"))
   source(file.path(Root, "scripts", "fig", "Calculation.resultants.R"))
 
   assertNear <- function(actual, expected, tolerance, label) {
@@ -128,7 +129,10 @@ runCalculationDataTests <- function() {
     outputDirectory = BaselineDirectory,
     calculation = loadCalculationResults(Root, BaselineDirectory)
   )
-  ExactConfigPath <- file.path(Root, "calculation.json")
+  ExactConfigPath <- file.path(
+    Root,
+    "scripts", "R", "fixtures", "calculation.schema2.2.exact.json"
+  )
   ExactConfig <- validateCalculationConfig(readCalculationJson(ExactConfigPath))
   ExactReference <- utils::read.csv(
     file.path(Root, ExactConfig$section$propertyTable),
@@ -147,17 +151,12 @@ runCalculationDataTests <- function() {
     check.names = FALSE,
     stringsAsFactors = FALSE
   )
-  ExactStress <- utils::read.csv(
-    file.path(ExactDirectory, "sheet.normal.stress.csv"),
-    check.names = FALSE,
-    stringsAsFactors = FALSE
-  )
-  ExactStressExtrema <- utils::read.csv(
-    file.path(ExactDirectory, "sheet.normal.stress.extrema.csv"),
-    check.names = FALSE,
-    stringsAsFactors = FALSE
-  )
   ExactCalculation <- loadCalculationResults(Root, ExactDirectory)
+  ExactFlexural <- utils::read.csv(
+    file.path(ExactDirectory, "sheet.flexural.bound.csv"),
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
   stopifnot(
     ExactConfig$section$propertyModelID == "published-exact-row",
     ExactSelected$referenceRowID == "cspi-76x25-2.8",
@@ -176,38 +175,68 @@ runCalculationDataTests <- function() {
     0,
     "published exact section row"
   )
-  FibreSign <- ifelse(ExactStress$fiberID == "outer", -1, 1)
-  ExpectedStress <-
-    ExactStress$normalForceKnPerM / ExactSection$areaMm2PerMm +
-      FibreSign * 1000 * ExactStress$bendingMomentKnMPerM /
-        ExactSection$sectionModulusMm3PerMm
-  assertNear(
-    ExactStress$normalStressMPa,
-    ExpectedStress,
-    1e-10,
-    "published-section normal stress"
-  )
   stopifnot(
-    nrow(ExactStressExtrema) == nrow(ExactConfig$loadCases),
-    all(ExactStress$sectionStateID == "published-reference-section"),
-    all(ExactStress$recoveryBasisID ==
-      "reference-section-model-adoption"),
-    all(ExactStress$recoveryBasisStatus == "adopted"),
-    all(ExactStress$shearStressStatus == "not-evaluated"),
-    !is.null(ExactCalculation$sheet),
-    identical(
-      ExactCalculation$sheet$governing$maximumAbsoluteStressMPa,
-      max(ExactStressExtrema$maximumAbsoluteStressMPa)
-    )
+    nrow(ExactFlexural) == 2L,
+    identical(ExactFlexural$caseID, c("alpha-1", "alpha-0")),
+    all(ExactFlexural$normalBranchID == "compression"),
+    all(ExactFlexural$screenStatus == "prescriptive-bound-exceeded"),
+    identical(ExactCalculation$sheetFlexural, ExactFlexural)
   )
-  ExactStressTable <- tableText(buildCalculationSheetStressTable(
-    file.path(ExactDirectory, "sheet.normal.stress.extrema.csv")
+  assertNear(
+    ExactFlexural$nominalBoundKnMPerM,
+    rep(11.5014616788321, 2L),
+    1e-12,
+    "AISI flexural nominal bound"
+  )
+  assertNear(
+    ExactFlexural$demandBoundRatio,
+    c(1.879849831413762, 1.253398657827074),
+    1e-12,
+    "AISI flexural demand ratios"
+  )
+  FlexuralTable <- tableText(buildAisiFlexuralTable(
+    ExactCalculation$paths$sheetFlexuralBound
   ))
   stopifnot(
-    grepl("sigma", ExactStressTable, fixed = TRUE),
-    grepl("$e$", ExactStressTable, fixed = TRUE) ||
-      grepl("$i$", ExactStressTable, fixed = TRUE)
+    grepl("21.62", FlexuralTable, fixed = TRUE),
+    grepl("11.5", FlexuralTable, fixed = TRUE),
+    grepl("1.880", FlexuralTable, fixed = TRUE),
+    !grepl("prescriptive-bound-exceeded", FlexuralTable, fixed = TRUE)
   )
+
+  YieldConfig <- copyObject(readCalculationJson(ExactConfigPath))
+  YieldConfig$sheetAssessment$yieldStrengthMPa <- 500
+  YieldPath <- file.path(TestDirectory, "yield-strength.json")
+  YieldDirectory <- file.path(TestDirectory, "yield-strength")
+  jsonlite::write_json(
+    YieldConfig,
+    YieldPath,
+    auto_unbox = TRUE,
+    pretty = TRUE,
+    digits = NA
+  )
+  buildCalculationData(YieldPath, YieldDirectory, Root)
+  YieldFlexural <- utils::read.csv(
+    file.path(YieldDirectory, "sheet.flexural.bound.csv"),
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+  assertNear(
+    YieldFlexural$nominalBoundKnMPerM,
+    2 * ExactFlexural$nominalBoundKnMPerM,
+    1e-12,
+    "AISI flexural yield-strength propagation"
+  )
+  assertNear(
+    YieldFlexural$demandBoundRatio,
+    ExactFlexural$demandBoundRatio / 2,
+    1e-12,
+    "AISI flexural ratio propagation"
+  )
+  stopifnot(identical(
+    readLines(file.path(YieldDirectory, "section.resultants.csv")),
+    readLines(file.path(ExactDirectory, "section.resultants.csv"))
+  ))
   ExactMismatch <- copyObject(readCalculationJson(ExactConfigPath))
   ExactMismatch$section$designBaseThicknessMm <- 2.65
   ExactMismatchPath <- file.path(TestDirectory, "published-exact-mismatch.json")

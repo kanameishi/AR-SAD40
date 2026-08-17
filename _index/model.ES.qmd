@@ -1,0 +1,15 @@
+```{r}
+#| include: false
+root <- normalizePath(".", mustWork = TRUE)
+source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
+```
+
+# Modelo de cálculo {#sec-calculation-model}
+
+{{< include /_chapters/model.basis.es.qmd >}}
+
+{{< include /_chapters/model.actions.es.qmd >}}
+
+{{< include /_chapters/model.stiffness.es.md >}}
+
+{{< include /_chapters/model.procedure.es.md >}}

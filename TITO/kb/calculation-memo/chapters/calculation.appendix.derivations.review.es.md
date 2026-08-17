@@ -56,10 +56,22 @@ $$
 \frac{dM_\theta}{d\theta}=RQ_\theta.
 $$
 
-Las tres relaciones reunidas reproducen el sistema de la
-@eq-calculation-first-order-system. Para $P_t=0$ se recupera la formulación
-radial de Baker [@Baker1968, ecs. 2.1a--2.1c, p. 16]; el término $RP_t$
-resulta de la proyección tangencial de la acción perimetral.
+Las tres relaciones se reúnen en
+
+$$
+\frac{d}{d\theta}
+\begin{bmatrix}N_\theta\\Q_\theta\\M_\theta\end{bmatrix}
+=
+\begin{bmatrix}
+Q_\theta-RP_t\\
+RP_r-N_\theta\\
+RQ_\theta
+\end{bmatrix}.
+$$ {#eq-calculation-first-order-system}
+
+Para $P_t=0$ se recupera la formulación radial de Baker
+[@Baker1968, ecs. 2.1a--2.1c, p. 16]; el término $RP_t$ resulta de la
+proyección tangencial de la acción perimetral.
 
 Las resultantes globales de las acciones son
 
@@ -92,7 +104,7 @@ para las acciones prescritas consideradas.
 
 A un valor fijo de $\theta$, considérese la sección resistente $A_b$ de una
 franja de ancho axial proyectado $b$. La coordenada $\xi$ se mide desde el eje
-centroidal y es positiva hacia la fibra interior. Bajo la hipótesis de
+baricéntrico y es positiva hacia la fibra interior. Bajo la hipótesis de
 secciones planas,
 
 $$
@@ -121,7 +133,7 @@ $$
 \begin{bmatrix}\varepsilon_0\\\kappa_\theta\end{bmatrix}.
 $$ {#eq-calculation-appendix-section-law}
 
-Como $\xi$ se mide desde el centroide, $S_\theta=0$. Los coeficientes
+Como $\xi$ se mide desde el baricentro, $S_\theta=0$. Los coeficientes
 diagonales son entonces las rigideces $EA_\theta$ y $EI_\theta$ empleadas en
 la @eq-calculation-section-stiffness. La razón
 $\eta_s=I_\theta/(A_\theta R^2)$ es adimensional. Por estar normalizadas por
@@ -130,10 +142,21 @@ cubo, respectivamente.
 
 ## A.3 Cierre por compatibilidad {.unnumbered}
 
-Para acciones globalmente equilibradas, la solución homogénea periódica del
-sistema diferencial permite escribir la respuesta completa como se indica en
-la @eq-calculation-general-resultants. Las constantes se determinan
-mediante compatibilidad.
+Para acciones globalmente equilibradas, sea
+$(\widetilde N,\widetilde Q,\widetilde M)$ la solución particular de la
+@eq-calculation-first-order-system iniciada con valores nulos en $\theta=0$.
+La solución periódica completa puede escribirse como
+
+$$
+\begin{aligned}
+N_\theta&=\widetilde N+\lambda_c\cos\theta+\lambda_s\sin\theta,\\
+Q_\theta&=\widetilde Q-\lambda_c\sin\theta+\lambda_s\cos\theta,\\
+M_\theta&=\widetilde M+R\lambda_c\cos\theta
++R\lambda_s\sin\theta+\lambda_0.
+\end{aligned}
+$$ {#eq-calculation-general-resultants}
+
+Las constantes se determinan mediante compatibilidad.
 
 Sean $w(\theta)$ y $v(\theta)$ los desplazamientos radial y tangencial. Las
 relaciones de viga curva empleadas son
@@ -174,56 +197,109 @@ $$
 $$
 
 La sustitución de la solución periódica general en estas tres condiciones
-produce las constantes reunidas en la
-@eq-calculation-compatibility-constants y completa, sin parámetros libres,
-las tres resultantes seccionales.
-
-## A.4 Recuperación de la tensión normal circunferencial {.unnumbered}
-
-Al medir $\xi$ desde el centroide, la @eq-calculation-appendix-section-law se
-desacopla y proporciona
+produce
 
 $$
-\varepsilon_0=\frac{N_\theta}{E_\theta A_\theta},
+\lambda_c=-\frac{1}{\pi R}
+\int_0^{2\pi}\widetilde M\cos\theta\,d\theta,
 \qquad
-\kappa_\theta=\frac{M_\theta}{E_\theta I_\theta}.
+\lambda_s=-\frac{1}{\pi R}
+\int_0^{2\pi}\widetilde M\sin\theta\,d\theta,
 $$
 
-La sustitución en
-$\sigma_\theta=E_\theta(\varepsilon_0+\xi\kappa_\theta)$ conduce a
-
 $$
-\sigma_\theta(\theta,\xi)
-=\frac{N_\theta(\theta)}{A_\theta}
-+1000\frac{M_\theta(\theta)\,\xi}{I_\theta}.
-$$ {#eq-calculation-appendix-stress-recovery}
-
-Para la sección corrugada de referencia,
-
-$$
-A_\theta=A_p,
+\lambda_0=R\frac{\eta_s}{1+\eta_s}\,
+\overline{\widetilde N}-\overline{\widetilde M},
 \qquad
-I_\theta=I_p,
-\qquad
-\xi_e=-\frac{I_p}{S_p},
-\qquad
-\xi_i=\frac{I_p}{S_p}.
-$$
+\overline f=\frac{1}{2\pi}\int_0^{2\pi}f(\theta)\,d\theta.
+$$ {#eq-calculation-compatibility-constants}
 
-En las unidades adoptadas, $1\ \mathrm{kN/m}=1\ \mathrm{N/mm}$ y
-$1\ \mathrm{kN\,m/m}=1000\ \mathrm{N}$. Por ello,
-$N_\theta/A_p$ y $1000M_\theta\xi/I_p$ se expresan en
-$\mathrm{N/mm^2}=\mathrm{MPa}$. La sustitución de las coordenadas extremas
-proporciona
+Estas constantes completan las tres resultantes seccionales sin parámetros
+libres.
+
+## A.4 Contraste de interacción elástica externa {#sec-calculation-appendix-external-interaction .unnumbered}
+
+Schwartz--Einstein se conserva como contraste independiente y no alimenta las
+verificaciones resistentes. Sus razones de rigidez son
 
 $$
-\sigma_{\theta,e}(\theta)
-=\frac{N_\theta(\theta)}{A_p}
--1000\frac{M_\theta(\theta)}{S_p},
+C^*=\frac{E_gR(1-\nu_\ell^2)}
+{E_\ell A_\ell(1-\nu_g^2)},
 \qquad
-\sigma_{\theta,i}(\theta)
-=\frac{N_\theta(\theta)}{A_p}
-+1000\frac{M_\theta(\theta)}{S_p},
+F^*=\frac{E_gR^3(1-\nu_\ell^2)}
+{E_\ell I_\ell(1-\nu_g^2)}.
+$$ {#eq-calculation-se-stiffness}
+
+Para esta comparación se definen
+
+$$
+P_{SE}=\sigma'_v(z_{ref}),
+\qquad
+K_{SE}=\frac{\sigma'_h(z_{ref})}{P_{SE}}.
+$$ {#eq-calculation-se-reference-state}
+
+Sean $U=1-\nu_g$ y las razones anteriores. El coeficiente axisimétrico de la
+secuencia de carga externa es [@SchwartzEinstein1980, ecs. A.49--A.54]
+
+$$
+a_1=\frac{C^*U-1+2\nu_g}{C^*U+1},
+\qquad
+t_0=\frac12(1+K_{SE})(1-a_1).
+$$ {#eq-calculation-appendix-se-axisymmetric}
+
+Para la interfaz con deslizamiento libre,
+
+$$
+a_2=\frac{F^*U+3-6\nu_g}{F^*U+15-18\nu_g},
+\qquad
+a_3=\frac{F^*U-3}{F^*U+15-18\nu_g},
 $$
 
-que coincide con la @eq-calculation-sheet-reference-stress.
+$$
+t_2=m_2=\frac16(1-K_{SE})(1+3a_2-4a_3).
+$$ {#eq-calculation-appendix-se-full-slip}
+
+Para la interfaz sin deslizamiento se define
+
+$$
+\widehat a=
+\frac{F^*U}{6}\left[(3-2\nu_g)+C^*U\right]
++C^*U\left(\frac52-3\nu_g\right)+6-8\nu_g,
+$$
+
+$$
+a_2=
+\frac{
+\dfrac{F^*U}{6}\left[(1-2\nu_g)-C^*U\right]
+-\dfrac12C^*U(1-2\nu_g)+2}
+{\widehat a},
+$$
+
+$$
+a_3=
+\frac{
+\dfrac{F^*U}{6}(C^*U+1)-\dfrac12C^*U-2}
+{\widehat a},
+$$
+
+$$
+t_2=\frac12(1-K_{SE})(1+a_2),
+\qquad
+m_2=\frac14(1-K_{SE})(1-a_2-2a_3).
+$$ {#eq-calculation-appendix-se-no-slip}
+
+La forma de $\widehat a$ anterior resulta de cancelar exactamente el factor
+$1-2\nu_g$ de la expresión publicada y evita una indeterminación numérica
+aparente. Los denominadores deben ser distintos de cero y
+$-1<\nu_g<0.5$. La sustitución de estos coeficientes produce
+
+$$
+\begin{aligned}
+N_\theta(\theta)&=-P_{SE}Rt_0+P_{SE}Rt_2\cos2\theta,\\
+M_\theta(\theta)&=P_{SE}R^2m_2\cos2\theta,\\
+Q_\theta(\theta)&=-2P_{SE}Rm_2\sin2\theta.
+\end{aligned}
+$$ {#eq-calculation-se-resultants}
+
+Estas curvas se guardan en productos de comparación separados. No sustituyen
+la integración directa de las acciones prescritas ni sus controles cerrados.

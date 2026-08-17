@@ -1,0 +1,1 @@
+Resultantes seccionales del liner corrugado existente para las condiciones de interfaz analizadas. Las curvas representan valores físicos sobre la sección circular; sus puntos son ordenadas angulares, no iteraciones.

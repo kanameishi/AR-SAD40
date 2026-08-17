@@ -1,0 +1,24 @@
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) {
+  CAP <- paste(readLines("_captions/tbl.model.inputs.md"), collapse = "\n")
+}
+source("scripts/tbl/Calculation.inputs.R")
+TBL <- buildCalculationInputsTable(
+  Calculation$paths$inputs,
+  Calculation$paths$section,
+  Calculation$paths$stress
+)
+```
+
+```{r}
+#| label: tbl-model-inputs
+#| tbl-cap: !expr CAP
+#| echo: false
+TBL
+```
+
+```{r}
+#| include: false
+rm(CAP, TBL, buildCalculationInputsTable)
+```

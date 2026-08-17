@@ -5,7 +5,7 @@ Apéndice A — síntesis de desarrollos.
 # Report Purpose
 
 Comprobar las fórmulas finales sin reproducir los desarrollos académicos
-extensos de la Fase 1.
+extensos de la metodología vigente.
 
 # Sources Read
 

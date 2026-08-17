@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.35">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Apéndice B — Acciones y formulaciones complementarias – Memoria de cálculo del revestimiento circular</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../_index/reference.appendix.ES.html" rel="next">
+<link href="../_index/model.appendix.ES.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-b3cabd76d1629897288bfc6b2c6b9d20.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-d141fde1e33c6dfddf2aa40bffae15ad.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No se han encontrado resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la búsqueda",
+    "search-hide-matches-text": "Ocultar resultados adicionales",
+    "search-more-match-text": "resultado adicional en este documento",
+    "search-more-matches-text": "resultados adicionales en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Buscar"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <h1 class="quarto-secondary-nav-title no-breadcrumbs"><span id="sec-calculation-appendix-actions" class="quarto-section-identifier">Apéndice B — Acciones y formulaciones complementarias</span></h1>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Buscar" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title d-none d-lg-block"><span id="sec-calculation-appendix-actions" class="quarto-section-identifier">Apéndice B — Acciones y formulaciones complementarias</span></h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      <img src="../styles/logo.png" alt="SRK Consulting logo" class="sidebar-logo light-content py-0 d-lg-inline d-none">
+      <img src="../styles/logo.png" alt="SRK Consulting logo" class="sidebar-logo dark-content py-0 d-lg-inline d-none">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Memoria de cálculo del revestimiento circular</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Buscar"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Portada</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../_index/executive.ES.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Resumen ejecutivo</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../_index/model.ES.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Modelo de cálculo</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../_index/liner.ES.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Verificación del liner existente</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../_index/rehabilitation.ES.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Rehabilitación del liner con hormigón proyectado</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../_index/specifications.ES.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Especificaciones técnicas para la inspección del revestimiento circular</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../_index/references.ES.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Referencias</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Apéndices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Alternar sección">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../_index/model.appendix.ES.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Desarrollos empleados</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../_index/actions.appendix.ES.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Acciones y formulaciones complementarias</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../_index/reference.appendix.ES.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Casos de referencia de acciones y resultantes</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+    <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="99">
+    <h2 id="toc-title">Contenido</h2>
+   
+  <ul>
+  <li><a href="#distribución-vertical-y-presión-de-agua" id="toc-distribución-vertical-y-presión-de-agua" class="nav-link active" data-scroll-target="#distribución-vertical-y-presión-de-agua"><span class="header-section-number">B.1</span> Distribución vertical y presión de agua</a></li>
+  <li><a href="#sec-calculation-prism-thrust" id="toc-sec-calculation-prism-thrust" class="nav-link" data-scroll-target="#sec-calculation-prism-thrust"><span class="header-section-number">B.2</span> Presión vertical debida al relleno y empuje circunferencial</a></li>
+  <li><a href="#sec-calculation-appendix-k0-alternatives" id="toc-sec-calculation-appendix-k0-alternatives" class="nav-link" data-scroll-target="#sec-calculation-appendix-k0-alternatives"><span class="header-section-number">B.3</span> Formulaciones de <span class="math inline">\(K_0\)</span></a></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block page-columns page-full" id="quarto-document-content">
+
+
+
+
+
+<p>Este apéndice desarrolla la acción circunferencial empleada en la comprobación del conducto y reúne, en secciones separadas, formulaciones que no integran el estado determinístico de la aplicación. Cada rama conserva sus propias entradas y condiciones de aplicabilidad.</p>
+<section id="distribución-vertical-y-presión-de-agua" class="level2" data-number="B.1">
+<h2 data-number="B.1" class="anchored" data-anchor-id="distribución-vertical-y-presión-de-agua"><span class="header-section-number">B.1</span> Distribución vertical y presión de agua</h2>
+<p>La profundidad de un punto del contorno es</p>
+<p><span id="eq-calculation-depth"><span class="math display">\[
+z(\theta)=H_0+R(1-\cos\theta).
+\tag{B.1}\]</span></span></p>
+<p>Con <span class="math inline">\(\theta=0\)</span> en la clave, las profundidades de la clave, del centro y del fondo son, respectivamente,</p>
+<p><span id="eq-calculation-control-depths"><span class="math display">\[
+z_C=H_0,
+\qquad
+z_A=H_0+R,
+\qquad
+z_F=H_0+2R.
+\tag{B.2}\]</span></span></p>
+<p>La presión de agua exterior y la acción hidráulica neta son</p>
+<p><span id="eq-calculation-water-pressure"><span class="math display">\[
+u_{ext}(z)=\gamma_w\max(0,z-z_w),
+\qquad
+\Delta u(z)=u_{ext}(z)-u_{int}(z).
+\tag{B.3}\]</span></span></p>
+<p><span class="math inline">\(z_w\)</span> es la profundidad del nivel freático, <span class="math inline">\(\gamma_w\)</span> es el peso unitario del agua y <span class="math inline">\(u_{int}\)</span> es la presión sobre la cara interior del revestimiento. Por convención, <span class="math inline">\(\Delta u&gt;0\)</span> representa una presión neta dirigida hacia el interior. Las tensiones efectivas y la presión intersticial se calculan por separado para no aplicar <span class="math inline">\(K_0\)</span> a una tensión total ni contabilizar dos veces la acción del agua.</p>
+</section>
+<section id="sec-calculation-prism-thrust" class="level2" data-number="B.2">
+<h2 data-number="B.2" class="anchored" data-anchor-id="sec-calculation-prism-thrust"><span class="header-section-number">B.2</span> Presión vertical debida al relleno y empuje circunferencial</h2>
+<p>Para un relleno homogéneo sin sobrecarga, el ejemplo D4 de USACE obtiene la presión vertical de carga permanente en la clave mediante</p>
+<p><span id="eq-calculation-prism-pressure"><span class="math display">\[
+P_{FD}=\gamma H_0,
+\tag{B.4}\]</span></span></p>
+<p>donde <span class="math inline">\(\gamma\)</span> es el peso unitario adoptado para la carga permanente y <span class="math inline">\(H_0\)</span> la altura de relleno sobre la clave <span class="citation" data-cites="USACE2020">(<a href="references.ES.html#ref-USACE2020" role="doc-biblioref">U.S. Army Corps of Engineers 2020</a>, ap. D4, pp.&nbsp;332–333)</span>. Para conductos metálicos corrugados, USACE reproduce la relación</p>
+<p><span id="eq-calculation-prism-thrust"><span class="math display">\[
+T_L=\gamma_{DL}\frac{P_{FD}S}{2}
++\gamma_{LL}\frac{P_{FL}C_LF_1}{2},
+\tag{B.5}\]</span></span></p>
+<p>en la que <span class="math inline">\(T_L\)</span> es el empuje circunferencial mayorado por unidad de longitud de pared; <span class="math inline">\(S\)</span> es la luz; <span class="math inline">\(P_{FL}\)</span> es la presión vertical de carga móvil en la clave; <span class="math inline">\(C_L\)</span> es el ancho cargado; y <span class="math inline">\(F_1\)</span> es su factor de distribución <span class="citation" data-cites="USACE2020">(<a href="references.ES.html#ref-USACE2020" role="doc-biblioref">U.S. Army Corps of Engineers 2020, sec. 4.12.3.1.1</a>, ec. 4-20)</span>. USACE atribuye la relación a AASHTO; su aplicación reglamentaria requiere comprobar el artículo, los factores y la clasificación del producto en la edición adoptada.</p>
+<p>El modificador de demanda se aplica como</p>
+<p><span id="eq-calculation-aashto-design-thrust"><span class="math display">\[
+T_u=\eta T_L.
+\tag{B.6}\]</span></span></p>
+<p>Para la pared corrugada, las resistencias correspondientes a fluencia y pandeo son</p>
+<p><span id="eq-calculation-aashto-wall-resistance"><span class="math display">\[
+R_y=\phi_w A F_y,
+\qquad
+R_b=\phi_w A f_{cr},
+\qquad
+r=\sqrt{\frac{I}{A}},
+\tag{B.7}\]</span></span></p>
+<p>donde <span class="math inline">\(A\)</span>, <span class="math inline">\(I\)</span> y <span class="math inline">\(r\)</span> son, respectivamente, el área, el momento de inercia y el radio de giro de la pared por unidad de ancho; <span class="math inline">\(F_y\)</span> es la resistencia de fluencia y <span class="math inline">\(\phi_w\)</span> el factor de resistencia. La tensión crítica se evalúa con las dos ramas reproducidas para conductos corrugados:</p>
+<p><span id="eq-calculation-aashto-buckling"><span class="math display">\[
+f_{cr}=
+\begin{cases}
+F_u-\dfrac{F_u^2}{48E}
+\left(\dfrac{kS}{r}\right)^2,
+&amp;
+S\leq\dfrac{r}{k}\sqrt{\dfrac{24E}{F_u}},\\[8pt]
+\dfrac{12E}{(kS/r)^2},
+&amp;
+S&gt;\dfrac{r}{k}\sqrt{\dfrac{24E}{F_u}}.
+\end{cases}
+\tag{B.8}\]</span></span></p>
+<p><span class="math inline">\(F_u\)</span> es la resistencia a tracción, <span class="math inline">\(E\)</span> el módulo del acero y <span class="math inline">\(k\)</span> el factor de rigidez del suelo. En estas expresiones de pandeo, <span class="math inline">\(S\)</span> y <span class="math inline">\(r\)</span> se expresan en una misma unidad.</p>
+<p>Para incorporar de manera paramétrica la pérdida de sección de los pernos, se define</p>
+<p><span id="eq-calculation-aashto-seam-diameter"><span class="math display">\[
+\delta_d=\frac{\Delta d}{d_0},
+\qquad
+d_r=d_0-\Delta d=d_0(1-\delta_d),
+\tag{B.9}\]</span></span></p>
+<p>donde <span class="math inline">\(d_0\)</span> y <span class="math inline">\(d_r\)</span> son los diámetros nominal y remanente. Si la reducción de resistencia se representa mediante la relación entre las áreas del perno remanente y nominal,</p>
+<p><span id="eq-calculation-aashto-seam-area-ratio"><span class="math display">\[
+\rho_d
+=\frac{\pi d_r^2/4}{\pi d_0^2/4}
+=(1-\delta_d)^2.
+\tag{B.10}\]</span></span></p>
+<p>La resistencia nominal reducida y la resistencia factorizada de referencia son entonces</p>
+<p><span id="eq-calculation-aashto-seam"><span class="math display">\[
+R_{n,c}=\rho_d R_{n,0},
+\qquad
+R_s=\phi_sR_{n,c}
+=\phi_sR_{n,0}(1-\delta_d)^2.
+\tag{B.11}\]</span></span></p>
+<p><span class="math inline">\(R_{n,0}\)</span> es la resistencia publicada de la costura sin pérdida de diámetro. Esta reducción es una formulación de sensibilidad derivada en este estudio: supone que la pérdida de resistencia de la costura es proporcional a la sección transversal remanente de los pernos. No sustituye la comprobación de agujeros, aplastamiento, desgarro, sección neta o solape de la chapa. Para <span class="math inline">\(T_u\leq\phi_sR_{n,0}\)</span>, el límite analítico correspondiente a <span class="math inline">\(U_s=1\)</span> es</p>
+<p><span id="eq-calculation-aashto-seam-loss-limit"><span class="math display">\[
+\delta_{d,lim}
+=1-\sqrt{\frac{T_u}{\phi_sR_{n,0}}}.
+\tag{B.12}\]</span></span></p>
+<p>La flexibilidad durante manipulación e instalación y la condición geométrica de tapada mínima se expresan mediante</p>
+<p><span id="eq-calculation-aashto-service-limits"><span class="math display">\[
+FF=\frac{S^2}{EI},
+\qquad
+H_{min}=\max\left(\frac{S}{8},\ 0.3048\ \mathrm{m}\right).
+\tag{B.13}\]</span></span></p>
+<p>Para el valor de <span class="math inline">\(FF\)</span> informado, <span class="math inline">\(S\)</span> se expresa en mm, <span class="math inline">\(E\)</span> en MPa e <span class="math inline">\(I\)</span> en mm<span class="math inline">\(^4\)</span>/mm, por lo que el resultado se obtiene en mm/N. Las expresiones de pared y flexibilidad reproducen las ecuaciones 4-22 y 4-23 de USACE. La rama de pandeo, el factor <span class="math inline">\(k=0.22\)</span> y el factor de resistencia de la costura se contrastan con la reproducción de AASHTO LRFD 9.ª edición de Anderson et al., p.&nbsp;164; la condición de tapada mínima corresponde a su tabla 7.1, p.&nbsp;133 <span class="citation" data-cites="USACE2020 AndersonEtAl2023">(<a href="references.ES.html#ref-USACE2020" role="doc-biblioref">U.S. Army Corps of Engineers 2020</a>, secs. 4.12.3.2–4.12.5; <a href="references.ES.html#ref-AndersonEtAl2023" role="doc-biblioref">Anderson et&nbsp;al. 2023, 133, 164</a>)</span>. La memoria identifica esta base como una referencia compuesta de ediciones previas y no como comprobación de la edición AASHTO vigente.</p>
+<p>La relación determina un empuje escalar. No suministra una distribución angular de presión de contacto, momento flector o fuerza de corte. FHWA adopta un factor vertical de arqueo igual a 1,0 para la teoría de compresión anular de tubos flexibles; los factores publicados para instalaciones SIDD de tubos rígidos no se transfieren al revestimiento metálico <span class="citation" data-cites="McGrathEtAl1999">(<a href="references.ES.html#ref-McGrathEtAl1999" role="doc-biblioref">McGrath et&nbsp;al. 1999</a>, ecs. 2.1–2.3 y p.&nbsp;14)</span>.</p>
+</section>
+<section id="sec-calculation-appendix-k0-alternatives" class="level2 page-columns page-full" data-number="B.3">
+<h2 data-number="B.3" class="anchored" data-anchor-id="sec-calculation-appendix-k0-alternatives"><span class="header-section-number">B.3</span> Formulaciones de <span class="math inline">\(K_0\)</span></h2>
+<p>La formulación de <span class="math inline">\(K_0\)</span> debe representar la trayectoria tensional del estado analizado. Una medición directa es aplicable cuando reproduce el material, la profundidad y el intervalo de tensiones considerados. En ausencia de una medición representativa, pueden evaluarse las ramas siguientes.</p>
+<p>Para una idealización elástica lineal e isótropa con deformación lateral impedida <span class="citation" data-cites="ChristopherEtAl2006">(<a href="references.ES.html#ref-ChristopherEtAl2006" role="doc-biblioref">Christopher et&nbsp;al. 2006, sec. 5.4.9</a>)</span>,</p>
+<p><span id="eq-calculation-k0-elastic"><span class="math display">\[
+K_0=\frac{\nu_g}{1-\nu_g}.
+\tag{B.14}\]</span></span></p>
+<p>Para carga primaria o condición normalmente consolidada se utiliza la relación abreviada de Jáky <span class="citation" data-cites="MayneKulhawy1982">(<a href="references.ES.html#ref-MayneKulhawy1982" role="doc-biblioref">Mayne y Kulhawy 1982, 852-53</a>)</span>:</p>
+<p><span id="eq-calculation-k0-jaky"><span class="math display">\[
+K_{0,NC}=1-\sin\phi'.
+\tag{B.15}\]</span></span></p>
+<p>La relación se aplica en tensiones efectivas a suelos no cohesivos y a suelos cohesivos normalmente consolidados en condiciones drenadas. No se adiciona un término en <span class="math inline">\(c'\)</span>: las relaciones que contienen <span class="math inline">\(\pm2c'\sqrt K\)</span> corresponden a estados límite activo o pasivo y no al estado en reposo.</p>
+<p>Para descarga desde la rama de compresión virgen, Mayne y Kulhawy proponen <span class="citation" data-cites="MayneKulhawy1982">(<a href="references.ES.html#ref-MayneKulhawy1982" role="doc-biblioref">Mayne y Kulhawy 1982</a>, ecs. 6–10)</span></p>
+<p><span id="eq-calculation-k0-unloading"><span class="math display">\[
+K_{0,OC}=(1-\sin\phi')\,\mathrm{OCR}^{\sin\phi'},
+\qquad
+\mathrm{OCR}=\frac{\sigma'_{v,\max}}{\sigma'_v}.
+\tag{B.16}\]</span></span></p>
+<p>La tensión <span class="math inline">\(\sigma'_{v,\max}\)</span> debe corresponder a una máxima histórica identificable y <span class="math inline">\(\mathrm{OCR}\geq1\)</span>. Los ajustes reunidos por los autores para la descarga se obtuvieron generalmente con <span class="math inline">\(\mathrm{OCR}&lt;15\)</span>. Para una trayectoria de descarga y recarga se define</p>
+<p><span class="math display">\[
+\mathrm{OCR}_{\max}
+=\frac{\sigma'_{v,\max}}{\sigma'_{v,\min}},
+\]</span></p>
+<p>y se emplea <span class="citation" data-cites="MayneKulhawy1982">(<a href="references.ES.html#ref-MayneKulhawy1982" role="doc-biblioref">Mayne y Kulhawy 1982</a>, ecs. 14–18)</span></p>
+<p><span id="eq-calculation-k0-reloading"><span class="math display">\[
+K_0=(1-\sin\phi')\left[
+\frac{\mathrm{OCR}}
+{\mathrm{OCR}_{\max}^{\,1-\sin\phi'}}
++\frac{3}{4}\left(
+1-\frac{\mathrm{OCR}}{\mathrm{OCR}_{\max}}
+\right)
+\right].
+\tag{B.17}\]</span></span></p>
+<p>Esta expresión recupera la rama de descarga cuando <span class="math inline">\(\mathrm{OCR}=\mathrm{OCR}_{\max}\)</span> y la condición normalmente consolidada cuando <span class="math inline">\(\mathrm{OCR}=\mathrm{OCR}_{\max}=1\)</span>. Su dominio requiere <span class="math inline">\(1\leq\mathrm{OCR}\leq\mathrm{OCR}_{\max}\)</span> y <span class="math inline">\(\mathrm{OCR}_{\max}\geq1\)</span>. Para <span class="math inline">\(0&lt;\phi'&lt;90^\circ\)</span>, la rama queda fuera de su dominio cuando alcanza el límite pasivo adoptado por los autores:</p>
+<p><span id="eq-calculation-k0-passive-limit"><span class="math display">\[
+K_p=\frac{1+\sin\phi'}{1-\sin\phi'},
+\qquad
+\mathrm{OCR}_{\lim}
+=\left[
+\frac{1+\sin\phi'}{(1-\sin\phi')^2}
+\right]^{1/\sin\phi'}.
+\tag{B.18}\]</span></span></p>
+<p>La descarga requiere <span class="math inline">\(\mathrm{OCR}&lt;\mathrm{OCR}_{\lim}\)</span>; la recarga requiere <span class="math inline">\(\mathrm{OCR}_{\max}&lt;\mathrm{OCR}_{\lim}\)</span>. Al alcanzar esa frontera se descarta la rama. Cada estado adopta una sola formulación y <span class="math inline">\(K_0\)</span> se calcula a partir de sus variables primitivas.</p>
+
+
+
+<div class="page-footer column-body"><div class="page-footer__inner"><div class="page-footer__content"><div class="page-footer__title">Memoria de cálculo del revestimiento circular</div><div class="page-footer__meta">SRK Consulting © 2026</div></div></div></div>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-AndersonEtAl2023" class="csl-entry" role="listitem">
+Anderson, J. Brian, James S. Davidson, Bujing Liu, Chukwuma C. Okafor, Olga L. Rojas, y Kelly N. Turner. 2023. <em>Load Rating for Corrugated Metal Culverts under Shallow Cover Depths</em>. Final Research Report prepared for the Alabama Department of Transportation. Highway Research Center; Department of Civil Engineering, Auburn University. <a href="https://rosap.ntl.bts.gov/view/dot/68707">https://rosap.ntl.bts.gov/view/dot/68707</a>.
+</div>
+<div id="ref-ChristopherEtAl2006" class="csl-entry" role="listitem">
+Christopher, Barry R., Charles Schwartz, y Richard Boudreau. 2006. <em>Geotechnical Aspects of Pavements</em>. Reference Manual and Participant Workbook FHWA NHI-05-037. Federal Highway Administration, National Highway Institute.
+</div>
+<div id="ref-MayneKulhawy1982" class="csl-entry" role="listitem">
+Mayne, Paul W., y Fred H. Kulhawy. 1982. <span>«<span><span class="math inline">\(K_0\)</span>–<span>OCR</span> Relationships in Soil</span>»</span>. <em>Journal of the Geotechnical Engineering Division</em> 108 (6): 851-72. <a href="https://doi.org/10.1061/AJGEB6.0001306">https://doi.org/10.1061/AJGEB6.0001306</a>.
+</div>
+<div id="ref-McGrathEtAl1999" class="csl-entry" role="listitem">
+McGrath, Timothy J., Ernest T. Selig, Mark C. Webb, y Glenn V. Zoladz. 1999. <em>Pipe Interaction with the Backfill Envelope</em>. Final Report FHWA-RD-98-191. Federal Highway Administration, Research, Development; Technology, Turner-Fairbank Highway Research Center.
+</div>
+<div id="ref-USACE2020" class="csl-entry" role="listitem">
+U.S. Army Corps of Engineers. 2020. <em>Conduits, Pipes, and Culverts Associated with Dams and Levee Systems</em>. EM 1110-2-2902. Washington, D.C.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../_index/model.appendix.ES.html" class="pagination-link" aria-label="Desarrollos empleados">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Desarrollos empleados</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../_index/reference.appendix.ES.html" class="pagination-link" aria-label="Casos de referencia de acciones y resultantes">
+        <span class="nav-page-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Casos de referencia de acciones y resultantes</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,26 @@
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) {
+  CAP <- paste(
+    readLines("_captions/tbl.Calculation.shotcrete.checks.ES.md", warn = FALSE),
+    collapse = "\n"
+  )
+}
+source("scripts/tbl/Calculation.shotcrete.checks.R")
+TBL <- buildCalculationShotcreteChecksTable(
+  path = Calculation$paths$shotcreteChecks,
+  liningID = "shotcrete"
+)
+```
+
+```{r}
+#| label: tbl-calculation-shotcrete-checks
+#| tbl-cap: !expr CAP
+#| echo: false
+TBL
+```
+
+```{r}
+#| include: false
+rm(CAP, TBL, buildCalculationShotcreteChecksTable)
+```

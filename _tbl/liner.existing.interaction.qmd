@@ -1,0 +1,23 @@
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) {
+  CAP <- paste(
+    readLines("_captions/tbl.liner.existing.interaction.ES.md", warn = FALSE),
+    collapse = "\n"
+  )
+}
+source("scripts/tbl/Calculation.interaction.R")
+TBL <- buildCalculationInteractionTable(Calculation$paths$interaction)
+```
+
+```{r}
+#| label: tbl-liner-existing-interaction
+#| tbl-cap: !expr CAP
+#| echo: false
+TBL
+```
+
+```{r}
+#| include: false
+rm(CAP, TBL, buildCalculationInteractionTable)
+```

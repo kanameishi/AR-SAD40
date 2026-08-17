@@ -1462,7 +1462,7 @@ assertNear(
 )
 
 # Optional cross-language oracle. Export a CSV with columns theta,N,M,Q from
-# scripts/wolfram/soT.nb, then set RING_WOLFRAM_ORACLE to that file.
+# the accepted independent oracle, then set RING_WOLFRAM_ORACLE to that file.
 OraclePath <- Sys.getenv("RING_WOLFRAM_ORACLE", unset = "")
 if (nzchar(OraclePath)) {
   if (!file.exists(OraclePath)) {

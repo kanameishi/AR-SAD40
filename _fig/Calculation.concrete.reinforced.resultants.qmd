@@ -1,0 +1,78 @@
+```{r}
+#| include: false
+source("scripts/fig/Calculation.resultants.R")
+PATH.curves <- Calculation$paths$shotcreteResultants
+PATH.scales <- Calculation$paths$shotcreteScales
+RADIUS <- Calculation$reinforcedConcrete$section$centroidalRadiusM
+PLOT.N <- buildCalculationResultantsInteractive(
+  pathCurves = PATH.curves,
+  pathScales = PATH.scales,
+  radius = RADIUS,
+  graphicAmplification =
+    Calculation$reinforcedConcrete$display$graphicAmplification,
+  raysPerCircle = Calculation$reinforcedConcrete$display$raysPerCircle,
+  resultant = "N",
+  liningID = "reinforcedConcrete"
+)
+PLOT.M <- buildCalculationResultantsInteractive(
+  pathCurves = PATH.curves,
+  pathScales = PATH.scales,
+  radius = RADIUS,
+  graphicAmplification =
+    Calculation$reinforcedConcrete$display$graphicAmplification,
+  raysPerCircle = Calculation$reinforcedConcrete$display$raysPerCircle,
+  resultant = "M",
+  liningID = "reinforcedConcrete"
+)
+PLOT.Q <- buildCalculationResultantsInteractive(
+  pathCurves = PATH.curves,
+  pathScales = PATH.scales,
+  radius = RADIUS,
+  graphicAmplification =
+    Calculation$reinforcedConcrete$display$graphicAmplification,
+  raysPerCircle = Calculation$reinforcedConcrete$display$raysPerCircle,
+  resultant = "Q",
+  liningID = "reinforcedConcrete"
+)
+```
+
+::: {.column-page}
+
+```{r}
+#| label: fig-calculation-concrete-reinforced-normal
+#| fig-cap: !expr CAP.N
+#| echo: false
+#| out-width: 100%
+#| fig-align: center
+PLOT.N
+```
+
+```{r}
+#| label: fig-calculation-concrete-reinforced-moment
+#| fig-cap: !expr CAP.M
+#| echo: false
+#| out-width: 100%
+#| fig-align: center
+PLOT.M
+```
+
+```{r}
+#| label: fig-calculation-concrete-reinforced-shear
+#| fig-cap: !expr CAP.Q
+#| echo: false
+#| out-width: 100%
+#| fig-align: center
+PLOT.Q
+```
+
+:::
+
+```{r}
+#| include: false
+rm(
+  CAP.N, CAP.M, CAP.Q,
+  PATH.curves, PATH.scales, RADIUS,
+  PLOT.N, PLOT.M, PLOT.Q,
+  buildCalculationResultantsInteractive
+)
+```

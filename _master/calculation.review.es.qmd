@@ -1,7 +1,7 @@
 ---
 lang: es
 title: "Memoria de cálculo del revestimiento circular"
-subtitle: "Caso analítico determinístico de referencia"
+subtitle: "Escenario determinístico definido por la altura de relleno sobre la clave"
 bibliography:
   - bib/references.bib
 format:

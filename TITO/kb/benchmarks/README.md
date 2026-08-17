@@ -24,5 +24,5 @@ El script sólo sobrescribe los trece CSV declarados en esta carpeta.
 | `corrugated-section.csv` | propiedades publicadas, bracket e interpolación preliminar de la sección corrugada | NCSPA y Mai; la fila de 3 mm está rotulada como derivada, no como propiedad publicada |
 | `corrugated-k0-extrema.csv` | extremos $N,M,Q$ para el control membranal y dos secciones corrugadas | evaluación reproducible con un estado $K_0$ declarado; no es demanda del proyecto |
 
-Las unidades, convenciones, páginas y limitaciones se explican en
-[`../metodologia-anillo-enterrado.md`](../metodologia-anillo-enterrado.md).
+Las unidades, convenciones, páginas y limitaciones se explican en la
+[metodología vigente](../../../_master/methodology.review.es.qmd).

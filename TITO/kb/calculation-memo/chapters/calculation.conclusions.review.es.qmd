@@ -1,24 +1,127 @@
-# Resultados del caso determinístico {#sec-calculation-deterministic-results}
-
-La fuerza normal circunferencial es compresiva en toda la sección para los
-casos evaluados.
+# Resultados del escenario determinístico {#sec-calculation-deterministic-results}
 
 ```{r}
-#| echo: false
-#| results: asis
-cat(Calculation$caseSummaryMarkdown)
+#| include: false
+RESULT.N <- Calculation$governing[
+  Calculation$governing$resultantID == "N",
+  ,
+  drop = FALSE
+]
+RESULT.M <- Calculation$governing[
+  Calculation$governing$resultantID == "M",
+  ,
+  drop = FALSE
+]
+RESULT.Q <- Calculation$governing[
+  Calculation$governing$resultantID == "Q",
+  ,
+  drop = FALSE
+]
+AashtoWall <- Calculation$aashto$checks[
+  Calculation$aashto$checks$checkID %in% c("wall-yield", "wall-buckling"),
+  ,
+  drop = FALSE
+]
+AashtoFlexibility <- Calculation$aashto$checks[
+  Calculation$aashto$checks$checkID == "flexibility",
+  ,
+  drop = FALSE
+]
+AashtoCover <- Calculation$aashto$checks[
+  Calculation$aashto$checks$checkID == "minimum-cover",
+  ,
+  drop = FALSE
+]
+AashtoSeam <- Calculation$aashto$checks[
+  Calculation$aashto$checks$checkID == "seam",
+  ,
+  drop = FALSE
+]
+ShotcreteFullSlip <- Calculation$shotcrete$summary[
+  Calculation$shotcrete$summary$interfaceID == "full-slip",
+  ,
+  drop = FALSE
+]
+ShotcreteNoSlip <- Calculation$shotcrete$summary[
+  Calculation$shotcrete$summary$interfaceID == "no-slip",
+  ,
+  drop = FALSE
+]
 ```
 
-La incorporación completa de la componente tangencial prescrita modifica la
-amplitud de las tres resultantes.
+Para la tapada y las propiedades adoptadas, la fuerza normal circunferencial
+es compresiva en toda la sección transversal. La máxima compresión es
+`r formatCalculationFixed(abs(RESULT.N$signedValue), 4L)` kN/m y ocurre para
+`r tolower(RESULT.N$interfaceLabel)` en
+$\theta=`r formatCalculationGeneral(RESULT.N$thetaDeg)`^\circ$.
+
+El máximo absoluto del momento flector es
+`r formatCalculationFixed(RESULT.M$value, 4L)` kN·m/m y corresponde a
+`r tolower(RESULT.M$interfaceLabel)` en
+$\theta=`r formatCalculationGeneral(RESULT.M$thetaDeg)`^\circ$. El máximo
+absoluto de la fuerza cortante es
+`r formatCalculationFixed(RESULT.Q$value, 4L)` kN/m y ocurre para
+`r tolower(RESULT.Q$interfaceLabel)` en
+$\theta=`r formatCalculationGeneral(RESULT.Q$thetaDeg)`^\circ$.
+
+Estos resultados corresponden a
+$P_{SE}=`r formatCalculationGeneral(Calculation$stress$effectiveVerticalStressKPa)`$
+kPa, $K_{SE}=`r formatCalculationGeneral(Calculation$interaction$stressRatio[1L])`$
+y a las dos condiciones límite de interfaz analizadas. La presión hidráulica y
+las acciones transitorias de compactación no integran este estado de carga.
+
+Con la base AASHTO de referencia declarada, la fuerza circunferencial de diseño
+es
+`r formatCalculationFixed(Calculation$aashto$calculation$designThrustKnPerM, 3L)`
+kN/m. La utilización máxima de la pared es
+`r formatCalculationFixed(max(AashtoWall$utilization), 4L)`; la utilización por
+flexibilidad es
+`r formatCalculationFixed(AashtoFlexibility$utilization, 4L)` y la relación
+$H_{min}/H_0$ entre el límite geométrico derivado y la tapada adoptada es
+`r formatCalculationFixed(AashtoCover$utilization, 4L)`. La comparación con
+la costura doble remachada de referencia presenta una utilización de
+`r formatCalculationFixed(AashtoSeam$utilization, 4L)`. Con las propiedades
+del acero, los factores y la geometría adoptados, las comparaciones numéricas
+de pared, costura de referencia, flexibilidad y tapada satisfacen sus límites
+para $\delta_d=`r formatCalculationGeneral(Calculation$aashto$inputs$fastenerDiameterLossRatio)`$.
+Dentro del modelo paramétrico de pérdida de área del perno, el límite
+$U_s=1$ corresponde a
+$\delta_{d,lim}=`r formatCalculationFixed(Calculation$aashto$calculation$criticalFastenerDiameterLossRatio, 4L)`$.
+Las propiedades resistentes del acero permanecen sujetas a confirmación. La
+resistencia tabulada no confirma la capacidad de la unión abulonada existente
+y la base reproducida no corresponde a una comprobación de la edición AASHTO
+vigente.
+
+Para la alternativa autónoma de hormigón proyectado de
+`r formatCalculationGeneral(1000 * Calculation$shotcrete$section$thicknessM)`
+mm, los máximos
+absolutos obtenidos son
+$|N_\theta|_{\max}=`r formatCalculationFixed(max(Calculation$shotcrete$summary$normalAbsoluteMaxKnPerM), 4L)`$
+kN/m,
+$|M_\theta|_{\max}=`r formatCalculationFixed(max(Calculation$shotcrete$summary$momentAbsoluteMaxKnMPerM), 4L)`$
+kN·m/m y
+$|Q_\theta|_{\max}=`r formatCalculationFixed(max(Calculation$shotcrete$summary$shearAbsoluteMaxKnPerM), 4L)`$
+kN/m. Las comprobaciones locales de hormigón simple conforme al Capítulo 14
+de ACI 318-25 no satisfacen el límite resistente en ninguna de las dos
+condiciones de interfaz. La utilización gobernante es
+`r formatCalculationFixed(ShotcreteFullSlip$shotcreteLocalStrengthUtilization, 4L)`
+para deslizamiento completo y
+`r formatCalculationFixed(ShotcreteNoSlip$shotcreteLocalStrengthUtilization, 4L)`
+para ausencia de deslizamiento; en ambos casos gobierna la tracción en la cara
+traccionada. La cuantía de armadura no interviene en esta evaluación de
+hormigón simple.
 
 ```{r}
-#| echo: false
-#| results: asis
-cat(Calculation$endpointComparisonMarkdown)
+#| include: false
+rm(
+  RESULT.N,
+  RESULT.M,
+  RESULT.Q,
+  AashtoWall,
+  AashtoFlexibility,
+  AashtoCover,
+  AashtoSeam,
+  ShotcreteFullSlip,
+  ShotcreteNoSlip
+)
 ```
-
-Los residuos de equilibrio y las diferencias respecto de la solución cerrada
-satisfacen las tolerancias declaradas. Las resultantes anteriores corresponden
-exclusivamente al estado biaxial uniforme prescrito, al radio de análisis y a
-las propiedades seccionales adoptadas.

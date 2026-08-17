@@ -1,21 +1,17 @@
 {{< include /_results/calculation.results.es.qmd >}}
 
-{{< include /TITO/kb/calculation-memo/chapters/calculation.basis.review.es.md >}}
+{{< include /_index/executive.ES.qmd >}}
 
-{{< include /TITO/kb/calculation-memo/chapters/calculation.procedure.review.es.md >}}
+{{< include /TITO/kb/calculation-memo/chapters/calculation.basis.review.es.md >}}
 
 {{< include /TITO/kb/calculation-memo/chapters/calculation.actions.review.es.md >}}
 
 {{< include /TITO/kb/calculation-memo/chapters/calculation.stiffness.review.es.md >}}
 
-{{< include /TITO/kb/calculation-memo/chapters/calculation.response.review.es.md >}}
+{{< include /TITO/kb/calculation-memo/chapters/calculation.procedure.review.es.md >}}
 
-{{< include /TITO/kb/calculation-memo/chapters/calculation.application.review.es.qmd >}}
+{{< include /TITO/kb/calculation-memo/chapters/calculation.steel.review.es.qmd >}}
 
-{{< include /TITO/kb/calculation-memo/chapters/calculation.sheet.assessment.review.es.qmd >}}
-
-{{< include /TITO/kb/calculation-memo/chapters/calculation.controls.review.es.qmd >}}
-
-{{< include /TITO/kb/calculation-memo/chapters/calculation.conclusions.review.es.qmd >}}
+{{< include /TITO/kb/calculation-memo/chapters/calculation.concrete.review.es.qmd >}}
 
 {{< include /_index/calculation.appendix.review.ES.qmd >}}

@@ -7,6 +7,11 @@ if (!exists("CAP", inherits = FALSE)) {
   )
 }
 source("scripts/tbl/Calculation.section.reference.R")
+PROPERTY.table <- if (Calculation$config$schemaVersion == "3.0.0") {
+  Calculation$config$sectionReference$propertyTable
+} else {
+  Calculation$config$section$propertyTable
+}
 ```
 
 ```{r}
@@ -16,7 +21,7 @@ source("scripts/tbl/Calculation.section.reference.R")
 buildCalculationSectionReferenceTable(
   pathReference = file.path(
     projectRoot,
-    Calculation$config$section$propertyTable
+    PROPERTY.table
   ),
   pathSection = Calculation$paths$section
 )
@@ -24,5 +29,5 @@ buildCalculationSectionReferenceTable(
 
 ```{r}
 #| include: false
-rm(CAP, buildCalculationSectionReferenceTable)
+rm(CAP, PROPERTY.table, buildCalculationSectionReferenceTable)
 ```

@@ -47,7 +47,7 @@ buildCalculationSectionReferenceTable <- function(pathReference, pathSection) {
     )
     return(knitr::kable(
       Output,
-      digits = c(2, 2, 3, 2, 2),
+      digits = c(0, 0, 3, 2, 2),
       col.names = c("$t_s$", "$t_d$", "$A_p$", "$I_p$", "$S_p$"),
       align = rep("r", 5),
       escape = FALSE

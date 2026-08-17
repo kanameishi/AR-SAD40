@@ -1,0 +1,12 @@
+```{r}
+#| include: false
+CAP <- paste(
+  readLines(
+    "_captions/tbl.Calculation.concrete.reinforced.reinforcement.checks.ES.md",
+    warn = FALSE
+  ),
+  collapse = "\n"
+)
+```
+
+{{< include /_tbl/Calculation.concrete.reinforced.reinforcement.checks.qmd >}}

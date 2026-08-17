@@ -1,0 +1,17 @@
+```{r}
+#| include: false
+CAP.PM <- paste(
+  readLines(
+    "_captions/fig.Calculation.concrete.reinforced.axial.flexure.ES.md",
+    warn = FALSE
+  ),
+  collapse = "\n"
+)
+```
+
+{{< include /_fig/Calculation.concrete.reinforced.axial.flexure.qmd >}}
+
+```{r}
+#| include: false
+rm(CAP.PM)
+```

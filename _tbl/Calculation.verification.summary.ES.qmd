@@ -1,9 +1,0 @@
-```{r}
-#| include: false
-CAP <- paste(
-  readLines("_captions/tbl.Calculation.verification.summary.ES.md", warn = FALSE),
-  collapse = "\n"
-)
-```
-
-{{< include /_tbl/Calculation.verification.summary.qmd >}}

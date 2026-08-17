@@ -1,0 +1,23 @@
+params:
+  ext: png
+  title: "Memoria de cálculo del revestimiento circular"
+  site: "Túnel del espesador San Francisco"
+  location: ""
+  project_id: "AR-SAD40"
+  year: 2026
+  client:
+    name: ""
+    short: ""
+    city: ""
+    address: []
+    web: ""
+  consultant:
+    name: "SRK Consulting (Argentina) S.A."
+    short: "SRK"
+    address:
+      - "Av. Emilio Civit 404"
+      - "Ciudad de Mendoza, Argentina"
+    web: "https://www.srk.com"
+  roles: []
+  footer:
+    title: "AR-SAD40 — Memoria de cálculo"

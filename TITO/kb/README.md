@@ -1,8 +1,12 @@
 # Investigación del anillo enterrado
 
-Punto de entrada:
+Productos vigentes:
 
-- [Metodología preliminar y guía R](metodologia-anillo-enterrado.md)
+- [Metodología integrada](../../_master/methodology.review.es.qmd)
+- [Memoria de cálculo](../../_master/calculation.review.es.qmd)
+
+Material de respaldo:
+
 - [Manifest de fuentes recuperadas](MANIFEST.md)
 - [Benchmarks reproducibles](benchmarks/README.md)
 - [Auditoría del aporte Python](auditoria-aporte-python.md)

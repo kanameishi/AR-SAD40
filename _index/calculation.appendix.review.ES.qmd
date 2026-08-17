@@ -1,5 +1,3 @@
 {{< include /TITO/kb/calculation-memo/chapters/calculation.appendix.derivations.review.es.md >}}
 
-{{< include /TITO/kb/calculation-memo/chapters/calculation.appendix.controls.review.es.qmd >}}
-
-{{< include /TITO/kb/calculation-memo/chapters/calculation.appendix.references.review.es.qmd >}}
+{{< include /TITO/kb/calculation-memo/chapters/calculation.appendix.actions.review.es.md >}}

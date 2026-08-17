@@ -6,7 +6,7 @@ project:
     - ref/**
 
 book:
-  language: en
+  language: es
   sidebar:
     logo: styles/logo.png
     logo-alt: SRK Consulting logo
@@ -26,11 +26,11 @@ format:
     toc-depth: 4
     toc-expand: true
     toc-location: left
-    number-sections: false
+    number-sections: true
     number-depth: 4
     highlight-style: a11y
     code-fold: true
-    code-summary: "Source"
+    code-summary: "Código"
     code-line-numbers: true
     code-copy: false
     code-overflow: scroll

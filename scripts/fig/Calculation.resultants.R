@@ -6,7 +6,8 @@ source("scripts/fig/ringParametric.R")
   pathCurves,
   pathScales,
   radius,
-  graphicAmplification = 1
+  graphicAmplification = 1,
+  liningID = NULL
 ) {
   if (!file.exists(pathCurves) || !file.exists(pathScales)) {
     stop("The calculation result files are not available.", call. = FALSE)
@@ -14,7 +15,7 @@ source("scripts/fig/ringParametric.R")
   Curves <- utils::read.csv(pathCurves, check.names = FALSE)
   Scales <- utils::read.csv(pathScales, check.names = FALSE)
   RequiredCurves <- c(
-    "caseID", "alpha", "resultantID", "thetaIndex", "thetaRad", "thetaDeg",
+    "caseID", "resultantID", "thetaIndex", "thetaRad", "thetaDeg",
     "value", "unit", "evidenceLevel"
   )
   RequiredScales <- c(
@@ -28,24 +29,97 @@ source("scripts/fig/ringParametric.R")
       call. = FALSE
     )
   }
-  Curves <- data.frame(
-    case = Curves$caseID,
-    stage = "Estado biaxial uniforme",
-    model = "Acciones prescritas",
-    prescription = paste0(
-      "Componente tangencial: α = ",
-      formatC(Curves$alpha, format = "f", digits = 2)
-    ),
-    tangentialMultiplier = Curves$alpha,
-    resultant = Curves$resultantID,
-    thetaIndex = Curves$thetaIndex,
-    theta = Curves$thetaRad,
-    thetaDeg = Curves$thetaDeg,
-    value = Curves$value,
-    unit = Curves$unit,
-    evidenceLevel = Curves$evidenceLevel,
-    stringsAsFactors = FALSE
-  )
+  if (!is.null(liningID)) {
+    if (!is.character(liningID) || length(liningID) != 1L ||
+        !nzchar(liningID) ||
+        !("liningID" %in% names(Curves)) ||
+        !("liningID" %in% names(Scales))) {
+      stop("liningID must identify one concrete alternative.", call. = FALSE)
+    }
+    Curves <- Curves[
+      Curves[["liningID", exact = TRUE]] == liningID,
+      ,
+      drop = FALSE
+    ]
+    Scales <- Scales[
+      Scales[["liningID", exact = TRUE]] == liningID,
+      ,
+      drop = FALSE
+    ]
+    if (nrow(Curves) == 0L || nrow(Scales) == 0L) {
+      stop("The requested concrete diagram is unavailable.", call. = FALSE)
+    }
+  }
+  if ("interfaceID" %in% names(Curves)) {
+    Fields <- c("stageID", "interactionModelID")
+    Missing <- setdiff(Fields, names(Curves))
+    if (length(Missing) > 0L) {
+      stop("The interaction resultants lack their stage or model.", call. = FALSE)
+    }
+    InterfaceLabels <- c(
+      fullTraction = "Proyección tangencial completa (α = 1)",
+      `full-traction` = "Proyección tangencial completa (α = 1)",
+      normalOnly = "Acción exclusivamente normal (α = 0)",
+      `normal-only` = "Acción exclusivamente normal (α = 0)"
+    )
+    Prescriptions <- unname(InterfaceLabels[Curves$interfaceID])
+    StageLabels <- c(`completed-fill` = "Relleno completado")
+    ModelLabels <- c(
+      `prescribed-biaxial-direct-integration` = "Integración directa"
+    )
+    Stages <- unname(StageLabels[Curves$stageID])
+    Models <- unname(ModelLabels[Curves$interactionModelID])
+    if (anyNA(Prescriptions) || anyNA(Stages) || anyNA(Models)) {
+      stop("A public interaction label is not available.", call. = FALSE)
+    }
+    CaseOrder <- unique(Curves$caseID)
+    Curves <- data.frame(
+      case = Curves$caseID,
+      stage = Stages,
+      model = Models,
+      prescription = Prescriptions,
+      interfaceID = Curves$interfaceID,
+      resultant = Curves$resultantID,
+      thetaIndex = Curves$thetaIndex,
+      theta = Curves$thetaRad,
+      thetaDeg = Curves$thetaDeg,
+      value = Curves$value,
+      unit = Curves$unit,
+      evidenceLevel = Curves$evidenceLevel,
+      stringsAsFactors = FALSE
+    )
+  } else {
+    if (!("alpha" %in% names(Curves))) {
+      stop("The calculation cases lack an interface or alpha.", call. = FALSE)
+    }
+    Multipliers <- tapply(Curves$alpha, Curves$caseID, unique)
+    if (any(lengths(Multipliers) != 1L) ||
+        any(!is.finite(unlist(Multipliers)))) {
+      stop(
+        "Each biaxial-control case requires one tangential multiplier.",
+        call. = FALSE
+      )
+    }
+    CaseOrder <- names(sort(unlist(Multipliers), decreasing = TRUE))
+    Curves <- data.frame(
+      case = Curves$caseID,
+      stage = "Estado biaxial uniforme",
+      model = "Acciones prescritas",
+      prescription = paste0(
+        "Componente tangencial: α = ",
+        formatC(Curves$alpha, format = "f", digits = 2)
+      ),
+      tangentialMultiplier = Curves$alpha,
+      resultant = Curves$resultantID,
+      thetaIndex = Curves$thetaIndex,
+      theta = Curves$thetaRad,
+      thetaDeg = Curves$thetaDeg,
+      value = Curves$value,
+      unit = Curves$unit,
+      evidenceLevel = Curves$evidenceLevel,
+      stringsAsFactors = FALSE
+    )
+  }
   Scales <- data.frame(
     resultant = Scales$resultantID,
     displayScale = Scales$displayScale,
@@ -54,19 +128,6 @@ source("scripts/fig/ringParametric.R")
     radialFraction = Scales$radialFraction,
     stringsAsFactors = FALSE
   )
-  Multipliers <- tapply(
-    Curves$tangentialMultiplier,
-    Curves$case,
-    unique
-  )
-  if (any(lengths(Multipliers) != 1L) ||
-      any(!is.finite(unlist(Multipliers)))) {
-    stop(
-      "Each calculation case requires one tangential multiplier.",
-      call. = FALSE
-    )
-  }
-  CaseOrder <- names(sort(unlist(Multipliers), decreasing = TRUE))
   Geometry <- prepareRingDiagram(
     Curves,
     Scales,
@@ -87,13 +148,15 @@ buildCalculationResultants <- function(
   pathScales,
   radius,
   graphicAmplification = 1,
-  raysPerCircle = 36L
+  raysPerCircle = 36L,
+  liningID = NULL
 ) {
   Geometry <- .readResultantGeometry(
-    pathCurves,
-    pathScales,
-    radius,
-    graphicAmplification
+    pathCurves = pathCurves,
+    pathScales = pathScales,
+    radius = radius,
+    graphicAmplification = graphicAmplification,
+    liningID = liningID
   )
   buildRingStaticPlot(
     geometry = Geometry,
@@ -108,13 +171,15 @@ buildCalculationResultantsInteractive <- function(
   radius,
   graphicAmplification = 1,
   raysPerCircle = 36L,
-  resultant = c("N", "M", "Q")
+  resultant = c("N", "M", "Q"),
+  liningID = NULL
 ) {
   Geometry <- .readResultantGeometry(
-    pathCurves,
-    pathScales,
-    radius,
-    graphicAmplification
+    pathCurves = pathCurves,
+    pathScales = pathScales,
+    radius = radius,
+    graphicAmplification = graphicAmplification,
+    liningID = liningID
   )
   Resultants <- c("N", "M", "Q")
   if (!is.character(resultant) || length(resultant) == 0L ||
@@ -149,7 +214,12 @@ buildCalculationResultantsInteractive <- function(
       collapse = ", "
     )
   }
-  NGR::buildSectionResultantsPlot(
+  SubtitlePrefix <- if ("interfaceID" %in% names(Geometry)) {
+    "Proyecciones de la acción prescrita"
+  } else {
+    "Multiplicador tangencial α"
+  }
+  Plot <- NGR::buildSectionResultantsPlot(
     curves = Geometry,
     rays = Rays,
     referenceRadius = radius,
@@ -165,10 +235,22 @@ buildCalculationResultantsInteractive <- function(
       left = "Lateral izq."
     ),
     subtitle = paste0(
-      "Multiplicador tangencial α; amplificación gráfica Ag = ",
+      SubtitlePrefix, "; amplificación gráfica Ag = ",
       AmplificationLabel,
       ". La lectura interactiva conserva las magnitudes físicas."
     ),
     plotHeight = 560
+  )
+  highcharter::hc_tooltip(
+    Plot,
+    useHTML = TRUE,
+    formatter = htmlwidgets::JS(paste0(
+      "function () {",
+      "if (!this.point.custom) return false;",
+      "return '<b>' + this.series.name + '</b><br/>' + ",
+      "'&theta; = ' + Highcharts.numberFormat(this.point.custom.thetaDeg, 1) + '&deg;<br/>' + ",
+      "this.point.custom.resultant + ' = ' + Highcharts.numberFormat(this.point.custom.value, 0) + ' ' + this.point.custom.unit;",
+      "}"
+    ))
   )
 }

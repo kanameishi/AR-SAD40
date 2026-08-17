@@ -12,15 +12,18 @@ Desde la raíz del repositorio, el HTML se regenera mediante:
 qrt render _master/calculation.review.es.qmd --profile html
 ```
 
-El render lee `calculation.json` con el esquema vigente `2.0.0`, regenera
-`data/calculation/` y luego hidrata
-el resumen, la aplicación numérica, las tablas y las figuras desde esos
-productos. Los identificadores propios usan el sufijo `ID` en todas esas
-fronteras. Para regenerar y comprobar sólo la corrida determinística:
+El render lee las 34 entradas del contrato `cover-case-2` en
+`calculation.json`. La función pública `evaluateCoverCase()` las combina con
+el perfil metodológico versionado, ejecuta el cálculo R y regenera
+`data/calculation/`; la memoria hidrata tablas, figuras y texto desde esos
+productos. Los factores normativos, identificadores, fuentes, estados y
+magnitudes derivadas no son entradas editables del caso. Para regenerar y
+comprobar la corrida determinística:
 
 ```bash
 Rscript scripts/R/runCalculationMemo.R
-Rscript scripts/R/testCalculationData.R
+Rscript scripts/R/testCoverCase.R
+Rscript scripts/R/testCalculationLoading.R
 ```
 
 El producto se publica localmente en:
@@ -31,3 +34,9 @@ html/calculation.review.es/index.html
 
 La memoria es actualmente un informe HTML autónomo y no utiliza el perfil
 `book`.
+
+La hoja de trabajo editable es
+`scripts/wolfram/calculation.workbook.nb`; su único archivo de soporte es
+`scripts/wolfram/calculationWorkbookSupport.wl`. La hoja no sobrescribe
+`calculation.json`: después de adoptar una variante, sus valores deben copiarse
+al JSON y ejecutarse nuevamente el cálculo antes del render.

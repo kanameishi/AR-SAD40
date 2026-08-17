@@ -1,1 +1,0 @@
-Extremos de la tensión normal circunferencial de la sección CSPI de referencia. Las tensiones se expresan en MPa y los ángulos, en grados desde la clave y en sentido horario; $f=e$ identifica la fibra exterior y $f=i$, la fibra interior.

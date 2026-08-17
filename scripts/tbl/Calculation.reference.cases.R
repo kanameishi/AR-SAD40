@@ -95,6 +95,29 @@ buildCalculationFHWAReferenceTable <- function(path) {
   )
 }
 
+buildMethodologyFHWACompactionTable <- function(path) {
+  Data <- .readReferenceCaseProduct(path, c(
+    "compactorForceKn", "publishedFrictionAngleDeg",
+    "centroidalDiameterMm", "publishedPressureKPa"
+  ))
+  Output <- data.frame(
+    Index = seq_len(nrow(Data)),
+    Force = Data$compactorForceKn,
+    FrictionAngle = Data$publishedFrictionAngleDeg,
+    Diameter = Data$centroidalDiameterMm,
+    Pressure = Data$publishedPressureKPa,
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+  knitr::kable(
+    Output,
+    digits = c(0, 1, 0, 0, 1),
+    col.names = c("$i$", "$P$", "$\\phi_\\ell$", "$d_c$", "$n_p$"),
+    align = rep("r", 5),
+    escape = FALSE
+  )
+}
+
 buildCalculationNunezReferenceTable <- function(path) {
   Data <- .readReferenceCaseProduct(path, c(
     "liningID", "quantityID", "publishedValue", "calculatedValue", "unit"

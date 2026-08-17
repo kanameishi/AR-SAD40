@@ -20,13 +20,9 @@ loadCalculationResults <- function(
     extrema = file.path(CalculationDirectory, "section.extrema.csv"),
     controls = file.path(CalculationDirectory, "numerical.controls.csv"),
     scales = file.path(CalculationDirectory, "display.scales.csv"),
-    sheetStress = file.path(
+    sheetFlexuralBound = file.path(
       CalculationDirectory,
-      "sheet.normal.stress.csv"
-    ),
-    sheetExtrema = file.path(
-      CalculationDirectory,
-      "sheet.normal.stress.extrema.csv"
+      "sheet.flexural.bound.csv"
     ),
     config = file.path(CalculationDirectory, "calculation.config.json")
   )
@@ -122,31 +118,23 @@ loadCalculationResults <- function(
       "graphicAmplification", "ordinateCount", "evidenceLevel"
     )
   )
-  SheetStressData <- NULL
-  SheetExtremaData <- NULL
-  if (Config$section$propertyModelID == "published-exact-row") {
-    SheetStressData <- readProduct(
-      Paths$sheetStress,
+  SheetFlexural <- if (is.null(Config$sheetAssessment)) {
+    NULL
+  } else {
+    readProduct(
+      Paths$sheetFlexuralBound,
       c(
-        "scenarioID", "caseID", "sectionID", "stressStateID", "alpha",
-        "thetaIndex", "thetaRad", "thetaDeg", "fiberID",
-        "fiberCoordinateMm", "normalForceKnPerM",
-        "bendingMomentKnMPerM", "shearForceKnPerM", "membraneStressMPa",
-        "bendingStressMPa", "normalStressMPa", "shearStressStatus",
-        "sectionStateID", "recoveryModelID", "recoveryBasisID",
-        "recoveryBasisStatus", "forceEffectStatus", "longitudinalBasis",
-        "evidenceLevel"
-      )
-    )
-    SheetExtremaData <- readProduct(
-      Paths$sheetExtrema,
-      c(
-        "scenarioID", "caseID", "sectionID", "alpha",
-        "minimumStressMPa", "minimumThetaRad", "minimumThetaDeg",
-        "minimumFiberID", "maximumStressMPa", "maximumThetaRad",
-        "maximumThetaDeg", "maximumFiberID", "maximumAbsoluteStressMPa",
-        "governingSignedStressMPa", "governingThetaRad",
-        "governingThetaDeg", "governingFiberID", "unit", "evidenceLevel"
+        "scenarioID", "caseID", "alpha", "sectionID", "thetaRad",
+        "thetaDeg", "normalForceKnPerM", "shearForceKnPerM",
+        "normalBranchID", "standardID", "materialSpecificationID",
+        "forceEffectStatus", "boundScopeID", "yieldStrengthMPa",
+        "areaMm2PerMm", "inertiaMm4PerMm",
+        "sectionModulusMm3PerMm", "bendingMomentKnMPerM",
+        "absoluteMomentKnMPerM", "extremeFiberDistanceMm",
+        "plasticModulusBoundMm3PerMm", "reserveBoundKnMPerM",
+        "plasticBoundKnMPerM", "nominalBoundKnMPerM", "boundBasisID",
+        "demandBoundRatio", "screenStatus", "evidenceLevel", "sourceKey",
+        "sourceLocator"
       )
     )
   }
@@ -155,15 +143,10 @@ loadCalculationResults <- function(
       nrow(Controls) == 0L || nrow(Scales) != 3L) {
     stop("The calculation products have incompatible row counts.", call. = FALSE)
   }
-  if (!is.null(SheetStressData)) {
-    ExpectedSheetRows <- 2L * sum(Resultants$resultantID == "N")
-    if (nrow(SheetStressData) != ExpectedSheetRows ||
-        nrow(SheetExtremaData) != nrow(Config$loadCases)) {
-      stop(
-        "The sheet-stress products have incompatible row counts.",
-        call. = FALSE
-      )
-    }
+  if (!is.null(SheetFlexural) &&
+      (nrow(SheetFlexural) != nrow(Config$loadCases) ||
+        anyDuplicated(SheetFlexural$caseID))) {
+    stop("The sheet-flexural product has incompatible rows.", call. = FALSE)
   }
   ScenarioIDs <- unique(c(
     SectionData$scenarioID,
@@ -172,8 +155,7 @@ loadCalculationResults <- function(
     ExtremaData$scenarioID,
     Controls$scenarioID,
     Scales$scenarioID,
-    if (!is.null(SheetStressData)) SheetStressData$scenarioID,
-    if (!is.null(SheetExtremaData)) SheetExtremaData$scenarioID
+    if (!is.null(SheetFlexural)) SheetFlexural$scenarioID
   ))
   if (length(ScenarioIDs) != 1L || ScenarioIDs != Config$scenarioID) {
     stop("The calculation products do not share the configured scenarioID.", call. = FALSE)
@@ -423,22 +405,71 @@ loadCalculationResults <- function(
       "ser representativa del relleno existente."
     )
   }
-  Sheet <- NULL
-  if (!is.null(SheetStressData)) {
-    GoverningIndex <- which.max(SheetExtremaData$maximumAbsoluteStressMPa)
-    Sheet <- list(
-      stress = SheetStressData,
-      extrema = SheetExtremaData,
-      governing = as.list(
-        SheetExtremaData[GoverningIndex, , drop = FALSE]
-      )
+  SheetMaterialLabel <- ""
+  SheetFlexuralSummary <- ""
+  SheetFlexuralConclusion <- ""
+  if (!is.null(SheetFlexural)) {
+    MaterialLabels <- c(
+      "ASTM-A36-assumed" = "acero ASTM A36, adoptado como hipótesis"
     )
-    FibreLabels <- c(outer = "exterior", inner = "interior")
-    Sheet$governing$fibreLabel <- unname(FibreLabels[
-      Sheet$governing$governingFiberID
-    ])
+    MaterialID <- unique(SheetFlexural$materialSpecificationID)
+    if (length(MaterialID) != 1L || !(MaterialID %in% names(MaterialLabels))) {
+      stop("The sheet material label is not available.", call. = FALSE)
+    }
+    SheetMaterialLabel <- unname(MaterialLabels[[MaterialID]])
+    Count <- nrow(SheetFlexural)
+    Count.exceeded <- sum(
+      SheetFlexural$screenStatus == "prescriptive-bound-exceeded"
+    )
+    Compression <- sum(SheetFlexural$normalBranchID == "compression")
+    Ratio.min <- min(SheetFlexural$demandBoundRatio)
+    Ratio.max <- max(SheetFlexural$demandBoundRatio)
+    SheetFlexuralSummary <- if (
+      Count.exceeded == Count && Compression == Count
+    ) {
+      paste0(
+        "En los ", Count,
+        " casos, el máximo absoluto del momento ocurre con compresión ",
+        "concurrente y supera la cota nominal. Los cocientes $\\rho_M$ ",
+        "varían entre ", formatCalculationFixed(Ratio.min, 3L), " y ",
+        formatCalculationFixed(Ratio.max, 3L), "."
+      )
+    } else if (Count.exceeded > 0L) {
+      paste0(
+        "La cota nominal se supera en ", Count.exceeded, " de ", Count,
+        " casos. Los cocientes $\\rho_M$ varían entre ",
+        formatCalculationFixed(Ratio.min, 3L), " y ",
+        formatCalculationFixed(Ratio.max, 3L), "."
+      )
+    } else {
+      paste0(
+        "Ninguno de los ", Count,
+        " casos supera la cota nominal; este resultado no demuestra ",
+        "suficiencia resistente."
+      )
+    }
+    SheetFlexuralConclusion <- if (
+      Count.exceeded == Count && Compression == Count
+    ) {
+      paste(
+        "La demanda de momento excede, por sí sola, la cota superior de las",
+        "rutas prescriptivas F2--F4. La compresión concurrente sólo",
+        "incrementa la relación H1.2; por ello, completar los modos de pandeo",
+        "no puede revertir este descarte."
+      )
+    } else if (Count.exceeded > 0L) {
+      paste(
+        "Los casos con $\\rho_M>1$ exceden la cota superior de las rutas",
+        "prescriptivas F2--F4. Los demás casos requieren calcular las",
+        "resistencias aplicables antes de formular una conclusión."
+      )
+    } else {
+      paste(
+        "La cota superior no fue superada. Esta comparación unilateral no",
+        "demuestra suficiencia y deben calcularse las resistencias aplicables."
+      )
+    }
   }
-
   list(
     scenarioID = Config$scenarioID,
     config = Config,
@@ -448,7 +479,6 @@ loadCalculationResults <- function(
       radiusM = SectionData$analysisRadiusM
     ),
     section = Section,
-    sheet = Sheet,
     stress = StressData[1L, , drop = FALSE],
     k0DescriptionMarkdown = K0Description,
     actions = list(
@@ -481,14 +511,21 @@ loadCalculationResults <- function(
     extrema = Extrema,
     controls = Controls,
     scales = Scales,
+    sheetFlexural = SheetFlexural,
+    sheetMaterialLabel = SheetMaterialLabel,
+    sheetFlexuralSummaryMarkdown = SheetFlexuralSummary,
+    sheetFlexuralConclusionMarkdown = SheetFlexuralConclusion,
     caseSummaryMarkdown = paste(CaseParagraphs, collapse = "\n\n"),
     endpointComparisonMarkdown = EndpointComparison
   )
 }
 
-CalculationDirectory <- if (exists("calculationDirectory", inherits = FALSE)) {
-  calculationDirectory
-} else {
-  file.path(projectRoot, "data", "calculation")
+if (!exists("calculationResultsLoadOnly", inherits = FALSE) ||
+    !isTRUE(calculationResultsLoadOnly)) {
+  CalculationDirectory <- if (exists("calculationDirectory", inherits = FALSE)) {
+    calculationDirectory
+  } else {
+    file.path(projectRoot, "data", "calculation")
+  }
+  Calculation <- loadCalculationResults(projectRoot, CalculationDirectory)
 }
-Calculation <- loadCalculationResults(projectRoot, CalculationDirectory)
