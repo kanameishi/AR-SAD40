@@ -86,17 +86,9 @@ para que también sean visibles las magnitudes menores de la chapa.
 {{< include /_fig/Calculation.resultants.ES.qmd >}}
 
 La comprobación del conducto corrugado presenta la demanda escalar de
-AASHTO/USACE junto con las resultantes angulares anteriores. Con la presión permanente
-en clave $P_{FD}=\gamma_tH_0$, la demanda se forma mediante
-
-$$
-T_f=\gamma_{DL}\frac{P_{FD}S}{2}
-+\gamma_{LL}\frac{P_{FL}C_LF_L}{2},
-\qquad
-T_u=\eta_{cmp}T_f,
-$$ {#eq-calculation-aashto-design-thrust}
-
-donde $F_L$ es el factor de distribución de la carga móvil.
+AASHTO/USACE junto con las resultantes angulares anteriores. El empuje
+circunferencial de servicio y su demanda de diseño se desarrollan en
+@sec-calculation-appendix-thrust.
 `r if (Calculation$aashto$inputs$liveCrownPressureKPa[1L] == 0) paste0("El escenario adopta una presión móvil en clave de ", formatCalculationFixed(Calculation$aashto$inputs$liveCrownPressureKPa[1L], 1L), " kPa.") else "La carga móvil se incorpora con la presión y el ancho cargado definidos en las entradas."`
 La @tbl-liner-aashto-inputs presenta la tapada,
 la luz, los materiales, los factores y los límites utilizados. Estos valores
@@ -104,61 +96,18 @@ reproducen una base compuesta de USACE 2020, AASHTO LRFD 8.ª edición y la
 recopilación de la 9.ª edición de Anderson et al. La evaluación contractual se
 completará con la edición y los parámetros establecidos para el proyecto
 [@USACE2020; @AndersonEtAl2023; @AASHTO2024TOC].
-La reproducción independiente del ejemplo D4 de USACE y de los demás casos
-publicados utilizados para controlar estas expresiones se presenta en
+El mismo empuje se incluye en la comparación de formulaciones de
 @sec-calculation-appendix-references.
 
 {{< include /_tbl/liner.aashto.inputs.ES.qmd >}}
 
-Para el área $A$, el radio de giro $r=\sqrt{I/A}$ y el factor de rigidez del
-suelo $k_s$, la esbeltez y la luz de transición son
-
-$$
-\lambda_b=k_s\frac{1000S}{r},
-\qquad
-S_{tr}=\frac{r}{1000k_s}\sqrt{\frac{24E}{F_u}}.
-$$
-
-La tensión crítica reproducida por el cálculo es
-
-$$
-F_{cr}=
-\begin{cases}
-F_u-\dfrac{F_u^2}{48E}\lambda_b^2, & S\leq S_{tr},\\[6pt]
-\dfrac{12E}{\lambda_b^2}, & S>S_{tr},
-\end{cases}
-$$ {#eq-calculation-aashto-buckling-stress}
-
-y la rama que corresponde al caso es
+La fluencia y el pandeo de la pared se desarrollan en
+@sec-calculation-appendix-buckling. La rama de pandeo que corresponde al caso
+es
 `r if (Calculation$aashto$calculation$bucklingBranchID == "inelastic") "inelástica" else "elástica"`.
-Las resistencias disponibles de pared se calculan como
-
-$$
-R_y=\phi_wAF_y,
-\qquad
-R_b=\phi_wAF_{cr}.
-$$ {#eq-calculation-aashto-wall-resistance}
-
-Para la costura de referencia, una pérdida relativa de diámetro
-$\delta_d$ se representa mediante
-
-$$
-R_s(\delta_d)=\phi_sR_{n,0}(1-\delta_d)^2,
-\qquad
-U_s(\delta_d)=\frac{T_u}{R_s(\delta_d)}.
-$$ {#eq-calculation-aashto-seam-resistance}
-
-La flexibilidad y la tapada mínima se comprueban con
-
-$$
-FF=\frac{S^2}{EI},
-\qquad
-H_{min}=\max\left(\frac{S}{8},0.3048\ \mathrm{m}\right).
-$$ {#eq-calculation-aashto-geometric-checks}
-
-La pared se compara con las resistencias de fluencia y pandeo; la unión, con la
-resistencia publicada de una costura doble de referencia; y la geometría, con
-los límites de flexibilidad y tapada mínima. La
+La costura y la pérdida de diámetro de los pernos se desarrollan en
+@sec-calculation-appendix-seam; la flexibilidad y la tapada mínima, en
+@sec-calculation-appendix-flexibility. La
 @tbl-liner-aashto-checks presenta la demanda, la resistencia o límite y la
 relación entre ambas [@USACE2020, secs. 4.12.3--4.12.5;
 @AndersonEtAl2023, pp. 133, 164].

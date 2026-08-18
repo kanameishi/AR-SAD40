@@ -42,7 +42,7 @@ $\phi'=`r formatCalculationFixed(Calculation$stress$frictionAngleDeg, 0L)`^\circ
 y $\mathrm{OCR}=`r formatCalculationGeneral(Calculation$stress$ocr)`$, se
 obtiene $K_0=`r formatCalculationGeneral(Calculation$stress$k0Applied)`$.
 Las expresiones aplicables a otras trayectorias tensionales y las acciones
-complementarias se presentan en @sec-calculation-appendix-actions.
+de compactación se presentan en @sec-calculation-appendix-k0.
 
 En la cota de referencia se define el estado de campo libre utilizado por
 Schwartz--Einstein:
@@ -57,8 +57,8 @@ La solución de carga externa transforma este estado en resultantes del anillo
 mediante las razones de rigidez $C^*$ y $F^*$ de cada revestimiento y las
 condiciones de interfaz con deslizamiento libre y sin deslizamiento. La presión
 hidráulica neta uniforme se superpone a la componente media de fuerza
-circunferencial. Las expresiones completas se presentan en
-@sec-calculation-appendix-derivations.
+circunferencial. Las expresiones completas se presentan en la metodología
+ampliada.
 
 Para verificar independientemente el equilibrio, el mismo estado biaxial se
 proyecta como una carga prescrita sobre un plano tangente a la pared. Esa

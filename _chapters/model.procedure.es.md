@@ -27,8 +27,8 @@ Q_\theta(\theta)&=-2P_{SE}Rm_2\sin2\theta.
 $$ {#eq-calculation-procedure-se-resultants}
 
 Los coeficientes $t_0$, $t_2$ y $m_2$ se calculan con $C^*$, $F^*$,
-$\nu_g$, $K_{SE}$ y la condición de interfaz; sus expresiones completas se
-presentan en @sec-calculation-appendix-derivations. Para
+$\nu_g$, $K_{SE}$ y la condición de interfaz. Su deducción y sus expresiones
+completas se presentan en la metodología ampliada. Para
 representar la incertidumbre del contacto se evalúan los límites con
 deslizamiento libre y sin deslizamiento. La presión hidráulica neta uniforme se
 superpone a la componente media de $N_\theta$. Las combinaciones resistentes
@@ -73,10 +73,10 @@ $$ {#eq-calculation-ring-system}
 La solución numérica integra este sistema mediante Runge--Kutta de cuarto
 orden y determina las tres constantes de cierre mediante periodicidad de
 desplazamientos y giro. La ley seccional, las condiciones de compatibilidad y
-las constantes resultantes se desarrollan en
-@sec-calculation-appendix-derivations. Esta vía resuelve el equilibrio del
-anillo para una carga perimetral prescrita; Schwartz--Einstein obtiene la
-componente interactiva a partir de $C^*$, $F^*$ y la interfaz.
+las constantes resultantes se desarrollan en la metodología ampliada. Esta vía
+resuelve el equilibrio del anillo para una carga perimetral prescrita;
+Schwartz--Einstein obtiene la componente interactiva a partir de $C^*$, $F^*$
+y la interfaz.
 
 La misma carga prescrita puede resolverse mediante series de Fourier. Para una
 distribución general,
@@ -95,10 +95,8 @@ completan la representación en $n=2$. El gradiente lineal equilibrado agrega
 los coeficientes de los modos $n=1,3$. La serie de Fourier es la suma de estas
 componentes armónicas; $n$ identifica el orden espacial de cada componente.
 La integración Runge--Kutta se compara punto por punto con la reconstrucción
-modal y se verifica mediante las resultantes globales. Para cargas
-discontinuas, como el ejemplo de Baker reproducido en
-@sec-calculation-appendix-references, la discretización incorpora los ángulos
-de discontinuidad y se refina hasta estabilizar las magnitudes de control.
+modal y se verifica mediante las resultantes globales. Los controles de cargas
+discontinuas y de convergencia se documentan en la metodología ampliada.
 
 Fourier descompone una acción perimetral prescrita y Schwartz--Einstein calcula
 la respuesta interactiva uniforme a partir de la rigidez relativa y de la
@@ -113,8 +111,10 @@ diferenciado. FHWA aporta la relación documentada para una acción constructiva
 de compactación y Núñez aporta casos publicados de revestimientos de túneles
 excavados.
 
-Los apéndices completan el desarrollo: @sec-calculation-appendix-derivations
-reúne las deducciones de equilibrio y compatibilidad;
-@sec-calculation-appendix-actions conserva las acciones y relaciones aplicables
-a estados particulares; y @sec-calculation-appendix-references documenta los
-casos publicados empleados para comprobar las formulaciones.
+Los apéndices reúnen las relaciones efectivamente aplicadas al caso:
+@sec-calculation-appendix-thrust desarrolla su demanda circunferencial;
+@sec-calculation-appendix-buckling, @sec-calculation-appendix-seam y
+@sec-calculation-appendix-flexibility desarrollan sus comprobaciones;
+@sec-calculation-appendix-k0 documenta el coeficiente de empuje y la acción de
+compactación; y @sec-calculation-appendix-references compara las resultantes
+del proyecto con las formulaciones de referencia.

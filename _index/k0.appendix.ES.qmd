@@ -1,0 +1,9 @@
+```{r}
+#| include: false
+root <- normalizePath(".", mustWork = TRUE)
+source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
+```
+
+# Coeficiente de empuje en reposo y compactación {#sec-calculation-appendix-k0}
+
+{{< include /_chapters/k0.appendix.es.qmd >}}

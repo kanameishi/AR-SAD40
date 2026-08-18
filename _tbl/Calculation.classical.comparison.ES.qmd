@@ -60,6 +60,7 @@ rm(
   buildCalculationClassicalSectionsTable,
   buildCalculationClassicalSummaryTable,
   buildCalculationClassicalPointsTable, .classicalDash,
-  .classicalLiningLabel, .classicalMethodLabel, .classicalCaseLabel
+  .classicalLiningLabel, .classicalMethodLabel,
+  .classicalMethodCode, .classicalCaseCode
 )
 ```

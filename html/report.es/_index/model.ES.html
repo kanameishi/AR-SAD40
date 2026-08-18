@@ -237,20 +237,38 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../_index/model.appendix.ES.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Equilibrio, compatibilidad y solución del anillo</span></span></a>
+  <a href="../_index/thrust.appendix.ES.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Empuje circunferencial AASHTO/USACE</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../_index/actions.appendix.ES.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Acciones y comprobaciones complementarias</span></span></a>
+  <a href="../_index/buckling.appendix.ES.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Fluencia y pandeo de la pared corrugada</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../_index/seam.appendix.ES.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Resistencia de la costura y pérdida de diámetro de pernos</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../_index/flexibility.appendix.ES.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Flexibilidad y tapada mínima</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../_index/k0.appendix.ES.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Coeficiente de empuje en reposo y compactación</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../_index/reference.appendix.ES.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Comparación con formulaciones clásicas</span></span></a>
+ <span class="menu-text"><span class="chapter-number">F</span>&nbsp; <span class="chapter-title">Comparación con formulaciones clásicas</span></span></a>
   </div>
 </li>
       </ul>
@@ -309,14 +327,14 @@ K_0=\frac{\sigma'_h}{\sigma'_v},
 <p><span id="eq-calculation-k0-application"><span class="math display">\[
 K_0=(1-\sin\phi')\,\mathrm{OCR}^{\sin\phi'}.
 \tag{4.5}\]</span></span></p>
-<p>Para <span class="math inline">\(\mathrm{OCR}=1\)</span>, la expresión se reduce a la relación de Jáky. Con <span class="math inline">\(\phi'=30^\circ\)</span> y <span class="math inline">\(\mathrm{OCR}=1\)</span>, se obtiene <span class="math inline">\(K_0=0.5\)</span>. Las expresiones aplicables a otras trayectorias tensionales y las acciones complementarias se presentan en <a href="actions.appendix.ES.html" class="quarto-xref"><span>Apéndice B</span></a>.</p>
+<p>Para <span class="math inline">\(\mathrm{OCR}=1\)</span>, la expresión se reduce a la relación de Jáky. Con <span class="math inline">\(\phi'=30^\circ\)</span> y <span class="math inline">\(\mathrm{OCR}=1\)</span>, se obtiene <span class="math inline">\(K_0=0.5\)</span>. Las expresiones aplicables a otras trayectorias tensionales y las acciones de compactación se presentan en <a href="k0.appendix.ES.html" class="quarto-xref"><span>Apéndice E</span></a>.</p>
 <p>En la cota de referencia se define el estado de campo libre utilizado por Schwartz–Einstein:</p>
 <p><span id="eq-calculation-se-action-state"><span class="math display">\[
 P_{SE}=\sigma'_{v,A},
 \qquad
 K_{SE}=\frac{\sigma'_{h,A}}{\sigma'_{v,A}}.
 \tag{4.6}\]</span></span></p>
-<p>La solución de carga externa transforma este estado en resultantes del anillo mediante las razones de rigidez <span class="math inline">\(C^*\)</span> y <span class="math inline">\(F^*\)</span> de cada revestimiento y las condiciones de interfaz con deslizamiento libre y sin deslizamiento. La presión hidráulica neta uniforme se superpone a la componente media de fuerza circunferencial. Las expresiones completas se presentan en <a href="model.appendix.ES.html" class="quarto-xref"><span>Apéndice A</span></a>.</p>
+<p>La solución de carga externa transforma este estado en resultantes del anillo mediante las razones de rigidez <span class="math inline">\(C^*\)</span> y <span class="math inline">\(F^*\)</span> de cada revestimiento y las condiciones de interfaz con deslizamiento libre y sin deslizamiento. La presión hidráulica neta uniforme se superpone a la componente media de fuerza circunferencial. Las expresiones completas se presentan en la metodología ampliada.</p>
 <p>Para verificar independientemente el equilibrio, el mismo estado biaxial se proyecta como una carga prescrita sobre un plano tangente a la pared. Esa proyección produce una presión normal <span class="math inline">\(p'_n\)</span> y una componente paralela <span class="math inline">\(p_t^*\)</span>:</p>
 <p><span id="eq-calculation-stress-projection"><span class="math display">\[
 \begin{aligned}
@@ -427,7 +445,7 @@ M_\theta(\theta)&amp;=P_{SE}R^2m_2\cos2\theta,\\
 Q_\theta(\theta)&amp;=-2P_{SE}Rm_2\sin2\theta.
 \end{aligned}
 \tag{4.16}\]</span></span></p>
-<p>Los coeficientes <span class="math inline">\(t_0\)</span>, <span class="math inline">\(t_2\)</span> y <span class="math inline">\(m_2\)</span> se calculan con <span class="math inline">\(C^*\)</span>, <span class="math inline">\(F^*\)</span>, <span class="math inline">\(\nu_g\)</span>, <span class="math inline">\(K_{SE}\)</span> y la condición de interfaz; sus expresiones completas se presentan en <a href="model.appendix.ES.html" class="quarto-xref"><span>Apéndice A</span></a>. Para representar la incertidumbre del contacto se evalúan los límites con deslizamiento libre y sin deslizamiento. La presión hidráulica neta uniforme se superpone a la componente media de <span class="math inline">\(N_\theta\)</span>. Las combinaciones resistentes modifican las tensiones vertical, horizontal e hidráulica según sus factores y vuelven a calcular la interacción, de modo que <span class="math inline">\(N_\theta\)</span>, <span class="math inline">\(M_\theta\)</span> y <span class="math inline">\(Q_\theta\)</span> pertenecen a una misma combinación y posición angular.</p>
+<p>Los coeficientes <span class="math inline">\(t_0\)</span>, <span class="math inline">\(t_2\)</span> y <span class="math inline">\(m_2\)</span> se calculan con <span class="math inline">\(C^*\)</span>, <span class="math inline">\(F^*\)</span>, <span class="math inline">\(\nu_g\)</span>, <span class="math inline">\(K_{SE}\)</span> y la condición de interfaz. Su deducción y sus expresiones completas se presentan en la metodología ampliada. Para representar la incertidumbre del contacto se evalúan los límites con deslizamiento libre y sin deslizamiento. La presión hidráulica neta uniforme se superpone a la componente media de <span class="math inline">\(N_\theta\)</span>. Las combinaciones resistentes modifican las tensiones vertical, horizontal e hidráulica según sus factores y vuelven a calcular la interacción, de modo que <span class="math inline">\(N_\theta\)</span>, <span class="math inline">\(M_\theta\)</span> y <span class="math inline">\(Q_\theta\)</span> pertenecen a una misma combinación y posición angular.</p>
 <p>La componente uniforme incorpora la redistribución elástica debida a la rigidez relativa. La variación lineal de las tensiones entre clave y solera se incorpora mediante la <a href="#eq-calculation-balanced-gradient-resultants" class="quarto-xref">ec.&nbsp;<span>4.12</span></a>. Para cada revestimiento, la demanda utilizada en las comprobaciones es</p>
 <p><span id="eq-calculation-hybrid-resultants"><span class="math display">\[
 \begin{aligned}
@@ -450,7 +468,7 @@ RP_r-N_\theta\\
 RQ_\theta
 \end{bmatrix}.
 \tag{4.18}\]</span></span></p>
-<p>La solución numérica integra este sistema mediante Runge–Kutta de cuarto orden y determina las tres constantes de cierre mediante periodicidad de desplazamientos y giro. La ley seccional, las condiciones de compatibilidad y las constantes resultantes se desarrollan en <a href="model.appendix.ES.html" class="quarto-xref"><span>Apéndice A</span></a>. Esta vía resuelve el equilibrio del anillo para una carga perimetral prescrita; Schwartz–Einstein obtiene la componente interactiva a partir de <span class="math inline">\(C^*\)</span>, <span class="math inline">\(F^*\)</span> y la interfaz.</p>
+<p>La solución numérica integra este sistema mediante Runge–Kutta de cuarto orden y determina las tres constantes de cierre mediante periodicidad de desplazamientos y giro. La ley seccional, las condiciones de compatibilidad y las constantes resultantes se desarrollan en la metodología ampliada. Esta vía resuelve el equilibrio del anillo para una carga perimetral prescrita; Schwartz–Einstein obtiene la componente interactiva a partir de <span class="math inline">\(C^*\)</span>, <span class="math inline">\(F^*\)</span> y la interfaz.</p>
 <p>La misma carga prescrita puede resolverse mediante series de Fourier. Para una distribución general,</p>
 <p><span id="eq-calculation-load-fourier"><span class="math display">\[
 \begin{aligned}
@@ -460,10 +478,10 @@ P_t(\theta)&amp;=c_0+\sum_{n=1}^{\infty}
 \left(c_n\cos n\theta+d_n\sin n\theta\right).
 \end{aligned}
 \tag{4.19}\]</span></span></p>
-<p>Para el tensor biaxial uniforme, los coeficientes <span class="math inline">\(a_0\)</span>, <span class="math inline">\(a_2\)</span> y <span class="math inline">\(d_2\)</span> completan la representación en <span class="math inline">\(n=2\)</span>. El gradiente lineal equilibrado agrega los coeficientes de los modos <span class="math inline">\(n=1,3\)</span>. La serie de Fourier es la suma de estas componentes armónicas; <span class="math inline">\(n\)</span> identifica el orden espacial de cada componente. La integración Runge–Kutta se compara punto por punto con la reconstrucción modal y se verifica mediante las resultantes globales. Para cargas discontinuas, como el ejemplo de Baker reproducido en <a href="reference.appendix.ES.html" class="quarto-xref"><span>Apéndice C</span></a>, la discretización incorpora los ángulos de discontinuidad y se refina hasta estabilizar las magnitudes de control.</p>
+<p>Para el tensor biaxial uniforme, los coeficientes <span class="math inline">\(a_0\)</span>, <span class="math inline">\(a_2\)</span> y <span class="math inline">\(d_2\)</span> completan la representación en <span class="math inline">\(n=2\)</span>. El gradiente lineal equilibrado agrega los coeficientes de los modos <span class="math inline">\(n=1,3\)</span>. La serie de Fourier es la suma de estas componentes armónicas; <span class="math inline">\(n\)</span> identifica el orden espacial de cada componente. La integración Runge–Kutta se compara punto por punto con la reconstrucción modal y se verifica mediante las resultantes globales. Los controles de cargas discontinuas y de convergencia se documentan en la metodología ampliada.</p>
 <p>Fourier descompone una acción perimetral prescrita y Schwartz–Einstein calcula la respuesta interactiva uniforme a partir de la rigidez relativa y de la interfaz. La comparación entre ambas vías controla el equilibrio y la reconstrucción armónica de las componentes superpuestas.</p>
 <p>La comprobación AASHTO/USACE calcula el empuje circunferencial escalar mayorado y lo compara con pared, pandeo, costura, flexibilidad y tapada conforme a la base de referencia identificada. Sus resultados se presentan junto con la distribución angular del modelo híbrido como dos comprobaciones de alcance diferenciado. FHWA aporta la relación documentada para una acción constructiva de compactación y Núñez aporta casos publicados de revestimientos de túneles excavados.</p>
-<p>Los apéndices completan el desarrollo: <a href="model.appendix.ES.html" class="quarto-xref"><span>Apéndice A</span></a> reúne las deducciones de equilibrio y compatibilidad; <a href="actions.appendix.ES.html" class="quarto-xref"><span>Apéndice B</span></a> conserva las acciones y relaciones aplicables a estados particulares; y <a href="reference.appendix.ES.html" class="quarto-xref"><span>Apéndice C</span></a> documenta los casos publicados empleados para comprobar las formulaciones.</p>
+<p>Los apéndices reúnen las relaciones efectivamente aplicadas al caso: <a href="thrust.appendix.ES.html" class="quarto-xref"><span>Apéndice A</span></a> desarrolla su demanda circunferencial; <a href="buckling.appendix.ES.html" class="quarto-xref"><span>Apéndice B</span></a>, <a href="seam.appendix.ES.html" class="quarto-xref"><span>Apéndice C</span></a> y <a href="flexibility.appendix.ES.html" class="quarto-xref"><span>Apéndice D</span></a> desarrollan sus comprobaciones; <a href="k0.appendix.ES.html" class="quarto-xref"><span>Apéndice E</span></a> documenta el coeficiente de empuje y la acción de compactación; y <a href="reference.appendix.ES.html" class="quarto-xref"><span>Apéndice F</span></a> compara las resultantes del proyecto con las formulaciones de referencia.</p>
 
 
 

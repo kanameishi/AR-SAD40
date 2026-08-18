@@ -21,14 +21,23 @@
   `aashto-usace` = "AASHTO/USACE"
 )
 
-.classicalCaseLabel <- c(
-  `alpha-1` = "Deslizamiento libre / proyección tangencial",
-  `alpha-0` = "Sin deslizamiento / acción normal",
-  `schwartz-einstein-full-slip` = "Deslizamiento libre",
-  `schwartz-einstein-no-slip` = "Sin deslizamiento",
-  `nunez-project-sensitivity` = "Parámetros de la base común",
-  `aashto-service-thrust` = "Empuje de servicio",
-  `aashto-modified-factored-demand` = "Demanda mayorada modificada"
+.classicalMethodCode <- c(
+  `official-hybrid` = "H",
+  `schwartz-einstein-uniform` = "SE",
+  `prescribed-k0-ring` = "K0",
+  `nunez-2000` = "N00",
+  `nunez-2014` = "N14",
+  `aashto-usace` = "AU"
+)
+
+.classicalCaseCode <- c(
+  `alpha-1` = "D",
+  `alpha-0` = "S",
+  `schwartz-einstein-full-slip` = "D",
+  `schwartz-einstein-no-slip` = "S",
+  `nunez-project-sensitivity` = "—",
+  `aashto-service-thrust` = "SER",
+  `aashto-modified-factored-demand` = "LRFD"
 )
 
 buildCalculationClassicalInputsTable <- function(data) {
@@ -107,13 +116,13 @@ buildCalculationClassicalSummaryTable <- function(data, liningID) {
   )
   Data <- Data[order(match(Data$methodID, MethodOrder), match(Data$caseID, CaseOrder)), ]
   Output <- data.frame(
-    Metodo = unname(.classicalMethodLabel[Data$methodID]),
-    Caso = unname(.classicalCaseLabel[Data$caseID]),
+    Metodo = unname(.classicalMethodCode[Data$methodID]),
+    Caso = unname(.classicalCaseCode[Data$caseID]),
     N = .classicalDash(Data$normalAbsoluteMaxKnPerM, 1L),
-    M = .classicalDash(Data$momentAbsoluteMaxKnMPerM, 1L),
-    Q = .classicalDash(Data$shearAbsoluteMaxKnPerM, 1L),
     rN = .classicalDash(Data$normalRatioToOfficialEnvelope, 2L),
+    M = .classicalDash(Data$momentAbsoluteMaxKnMPerM, 1L),
     rM = .classicalDash(Data$momentRatioToOfficialEnvelope, 2L),
+    Q = .classicalDash(Data$shearAbsoluteMaxKnPerM, 1L),
     rQ = .classicalDash(Data$shearRatioToOfficialEnvelope, 2L),
     check.names = FALSE,
     stringsAsFactors = FALSE
@@ -124,11 +133,10 @@ buildCalculationClassicalSummaryTable <- function(data, liningID) {
   knitr::kable(
     Output,
     col.names = c(
-      "Formulación", "Caso", "$|N|_{\\max}$ [kN/m]",
-      "$|M|_{\\max}$ [kN·m/m]", "$|Q|_{\\max}$ [kN/m]",
-      "$r_N$", "$r_M$", "$r_Q$"
+      "Mét.", "Caso", "$|N|_{\\max}$", "$r_N$",
+      "$|M|_{\\max}$", "$r_M$", "$|Q|_{\\max}$", "$r_Q$"
     ),
-    align = c("l", "l", rep("r", 6)),
+    align = c("c", "c", rep("r", 6)),
     escape = FALSE
   )
 }

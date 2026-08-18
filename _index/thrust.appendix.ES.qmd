@@ -1,0 +1,9 @@
+```{r}
+#| include: false
+root <- normalizePath(".", mustWork = TRUE)
+source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
+```
+
+# Empuje circunferencial AASHTO/USACE {#sec-calculation-appendix-thrust}
+
+{{< include /_chapters/thrust.appendix.es.md >}}

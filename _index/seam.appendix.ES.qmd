@@ -1,0 +1,9 @@
+```{r}
+#| include: false
+root <- normalizePath(".", mustWork = TRUE)
+source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
+```
+
+# Resistencia de la costura y pérdida de diámetro de pernos {#sec-calculation-appendix-seam}
+
+{{< include /_chapters/seam.appendix.es.md >}}

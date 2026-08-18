@@ -14,7 +14,10 @@ chapters:
   - _index/specifications.ES.qmd
   - _index/references.ES.qmd
 appendices:
-  - _index/model.appendix.ES.qmd
-  - _index/actions.appendix.ES.qmd
+  - _index/thrust.appendix.ES.qmd
+  - _index/buckling.appendix.ES.qmd
+  - _index/seam.appendix.ES.qmd
+  - _index/flexibility.appendix.ES.qmd
+  - _index/k0.appendix.ES.qmd
   - _index/reference.appendix.ES.qmd
 ---
