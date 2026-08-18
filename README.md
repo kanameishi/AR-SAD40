@@ -7,9 +7,8 @@ El proyecto mantiene dos productos de revisión:
 - la metodología integrada, ensamblada desde
   `_master/methodology.review.es.qmd` y renderizada en
   `html/methodology.review.es/index.html`; y
-- la memoria de cálculo del escenario, ensamblada desde
-  `_master/calculation.review.es.qmd` y renderizada en
-  `html/calculation.review.es/index.html`.
+- la memoria de cálculo del escenario, renderizada como libro multipágina
+  desde `_master/report.es.qmd` en `html/report.es/index.html`.
 
 ## Hoja Wolfram
 

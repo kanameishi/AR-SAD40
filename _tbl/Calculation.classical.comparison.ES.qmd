@@ -1,0 +1,65 @@
+```{r}
+#| include: false
+source("scripts/tbl/Calculation.classical.comparison.R")
+readCaption <- function(path) paste(readLines(path, warn = FALSE), collapse = "\n")
+CAP.INPUTS <- readCaption("_captions/tbl.Calculation.classical.inputs.ES.md")
+CAP.SECTIONS <- readCaption("_captions/tbl.Calculation.classical.sections.ES.md")
+CAP.STEEL <- readCaption("_captions/tbl.Calculation.classical.steel.ES.md")
+CAP.SC100 <- readCaption("_captions/tbl.Calculation.classical.shotcrete100.ES.md")
+CAP.SC150 <- readCaption("_captions/tbl.Calculation.classical.shotcrete150.ES.md")
+CAP.NUNEZ <- readCaption("_captions/tbl.Calculation.classical.nunez.ES.md")
+```
+
+```{r}
+#| label: tbl-calculation-classical-inputs
+#| tbl-cap: !expr CAP.INPUTS
+#| echo: false
+buildCalculationClassicalInputsTable(Calculation$classicalComparison$inputs)
+```
+
+```{r}
+#| label: tbl-calculation-classical-sections
+#| tbl-cap: !expr CAP.SECTIONS
+#| echo: false
+buildCalculationClassicalSectionsTable(Calculation$classicalComparison$sections)
+```
+
+```{r}
+#| label: tbl-calculation-classical-steel
+#| tbl-cap: !expr CAP.STEEL
+#| echo: false
+buildCalculationClassicalSummaryTable(Calculation$classicalComparison$summary, "steel")
+```
+
+```{r}
+#| label: tbl-calculation-classical-shotcrete-100
+#| tbl-cap: !expr CAP.SC100
+#| echo: false
+buildCalculationClassicalSummaryTable(Calculation$classicalComparison$summary, "shotcrete")
+```
+
+```{r}
+#| label: tbl-calculation-classical-shotcrete-150
+#| tbl-cap: !expr CAP.SC150
+#| echo: false
+buildCalculationClassicalSummaryTable(Calculation$classicalComparison$summary, "reinforcedConcrete")
+```
+
+```{r}
+#| label: tbl-calculation-classical-nunez
+#| tbl-cap: !expr CAP.NUNEZ
+#| echo: false
+buildCalculationClassicalPointsTable(Calculation$classicalComparison$points)
+```
+
+```{r}
+#| include: false
+rm(
+  CAP.INPUTS, CAP.SECTIONS, CAP.STEEL, CAP.SC100, CAP.SC150, CAP.NUNEZ,
+  readCaption, buildCalculationClassicalInputsTable,
+  buildCalculationClassicalSectionsTable,
+  buildCalculationClassicalSummaryTable,
+  buildCalculationClassicalPointsTable, .classicalDash,
+  .classicalLiningLabel, .classicalMethodLabel, .classicalCaseLabel
+)
+```

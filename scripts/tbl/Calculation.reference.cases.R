@@ -27,8 +27,8 @@ buildCalculationUSACEReferenceTable <- function(path) {
     `modified-demand` = "$\\eta_{cmp}T_L$"
   )
   Class <- c(
-    `published-result-reproduced` = "P",
-    `study-derived-result` = "D"
+    `published-result-reproduced` = "Publicado",
+    `study-derived-result` = "Calculado"
   )
   Unit <- c(
     "lb/ft2" = "$\\mathrm{lb/ft^2}$",
@@ -50,8 +50,8 @@ buildCalculationUSACEReferenceTable <- function(path) {
   if (anyNA(Output)) stop("The USACE public mapping is incomplete.", call. = FALSE)
   knitr::kable(
     Output,
-    col.names = c("$x_i$", "$v_{p,i}$", "$v_{c,i}$", "$u_i$", "$c_i$"),
-    align = c("c", "r", "r", "c", "c"),
+    col.names = c("Magnitud", "Valor publicado", "Valor calculado", "Unidad", "Origen"),
+    align = c("c", "r", "r", "c", "l"),
     escape = FALSE
   )
 }
@@ -85,10 +85,11 @@ buildCalculationFHWAReferenceTable <- function(path) {
   )
   knitr::kable(
     Output,
-    digits = c(0, 1, 0, 0, 1, 3, NA, NA),
+    digits = c(0, 0, 0, 0, 1, 3, NA, NA),
     col.names = c(
-      "$i$", "$P$", "$\\phi_p$", "$d_c$", "$n_{p,p}$",
-      "$n_{p,c}$", "$\\phi_a$", "$n_{p,a}$"
+      "Caso", "Fuerza [kN]", "Ángulo publicado [°]", "Diámetro [mm]",
+      "Presión publicada [kPa]", "Presión calculada [kPa]",
+      "Ángulo alternativo [°]", "Presión alternativa [kPa]"
     ),
     align = rep("r", 8),
     escape = FALSE
@@ -111,7 +112,7 @@ buildMethodologyFHWACompactionTable <- function(path) {
   )
   knitr::kable(
     Output,
-    digits = c(0, 1, 0, 0, 1),
+    digits = c(0, 0, 0, 0, 1),
     col.names = c("$i$", "$P$", "$\\phi_\\ell$", "$d_c$", "$n_p$"),
     align = rep("r", 5),
     escape = FALSE
@@ -130,7 +131,7 @@ buildCalculationNunezReferenceTable <- function(path) {
     `normal-crown` = "$N_C$",
     `normal-side` = "$N_A$"
   )
-  Lining <- c(primary = "P", final = "F")
+  Lining <- c(primary = "Primario", final = "Permanente")
   Unit <- c(
     "-" = "—", "tf m/m" = "$\\mathrm{tf\\,m/m}$",
     "tf/m" = "$\\mathrm{tf/m}$"
@@ -150,8 +151,8 @@ buildCalculationNunezReferenceTable <- function(path) {
   knitr::kable(
     Output,
     digits = c(NA, NA, 4, 4, NA),
-    col.names = c("$r_i$", "$x_i$", "$v_{p,i}$", "$v_{c,i}$", "$u_i$"),
-    align = c("c", "c", "r", "r", "c"),
+    col.names = c("Revestimiento", "Magnitud", "Valor publicado", "Valor calculado", "Unidad"),
+    align = c("l", "c", "r", "r", "c"),
     escape = FALSE
   )
 }
@@ -161,8 +162,8 @@ buildCalculationSchwartzEinsteinReferenceTable <- function(path) {
     "sequenceID", "interfaceID", "publishedThrustRatio",
     "calculatedThrustRatio", "publishedMomentRatio", "calculatedMomentRatio"
   ))
-  Sequence <- c(excavation = "E", external = "X")
-  Interface <- c(fullSlip = "F", noSlip = "N")
+  Sequence <- c(excavation = "Excavación", external = "Carga externa")
+  Interface <- c(fullSlip = "Deslizamiento libre", noSlip = "Sin deslizamiento")
   Output <- data.frame(
     Sequence = unname(Sequence[Data$sequenceID]),
     Interface = unname(Interface[Data$interfaceID]),
@@ -180,10 +181,10 @@ buildCalculationSchwartzEinsteinReferenceTable <- function(path) {
     Output,
     digits = c(NA, NA, 4, 6, 5, 7),
     col.names = c(
-      "$s_i$", "$j_i$", "$\\bar T_p$", "$\\bar T_c$",
-      "$\\bar M_p$", "$\\bar M_c$"
+      "Secuencia", "Interfaz", "Fuerza publicada", "Fuerza calculada",
+      "Momento publicado", "Momento calculado"
     ),
-    align = c("c", "c", "r", "r", "r", "r"),
+    align = c("l", "l", "r", "r", "r", "r"),
     escape = FALSE
   )
 }

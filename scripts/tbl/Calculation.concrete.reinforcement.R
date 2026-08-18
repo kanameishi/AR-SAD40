@@ -45,19 +45,15 @@ buildCalculationConcreteReinforcementTable <- function(path, liningID) {
   LayoutGroupID <- "shotcrete-reinforcement-layout"
   Output <- data.frame(
     Symbol = c(
-      "$t_c$", "$f'_c$", "$b$",
-      "$\\phi$", "$s$", "$c/t_c$", "$c$", "$A_s$",
+      "$t_c$", "$f'_c$", "$b$", "$c/t_c$", "$c$",
       "$z_i$", "$z_e$", "$f_y$", "$E_s$"
     ),
     Value = c(
       inputValue("shotcrete", "thickness"),
       inputValue("shotcrete", "compressive-strength"),
       inputValue("shotcrete", "strip-width"),
-      inputValue(LayoutGroupID, "bar-diameter"),
-      inputValue(LayoutGroupID, "bar-spacing"),
       inputValue(LayoutGroupID, "clear-cover-ratio"),
-      inputValue(LayoutGroupID, "clear-cover"),
-      inputValue(LayoutGroupID, "area-per-face-direction") / 100,
+      inputValue(LayoutGroupID, "clear-cover") / 10,
       inputValue(
         CircumferentialGroupID,
         "coordinate-circumferential-interior"
@@ -77,8 +73,7 @@ buildCalculationConcreteReinforcementTable <- function(path, liningID) {
     ),
     Unit = c(
       "$\\mathrm{mm}$", "$\\mathrm{MPa}$", "$\\mathrm{mm}$",
-      "$\\mathrm{mm}$", "$\\mathrm{mm}$", "$-$",
-      "$\\mathrm{mm}$", "$\\mathrm{cm^2/m}$",
+      "$-$", "$\\mathrm{cm}$",
       rep("$\\mathrm{mm}$", 2L),
       rep("$\\mathrm{MPa}$", 2L)
     ),
@@ -86,9 +81,6 @@ buildCalculationConcreteReinforcementTable <- function(path, liningID) {
     stringsAsFactors = FALSE
   )
   Output$Value <- vapply(seq_len(nrow(Output)), function(i) {
-    if (i == 8L) {
-      return(formatC(Output$Value[i], format = "f", digits = 2L))
-    }
     if (Output$Unit[i] == "$\\mathrm{mm}$") {
       return(formatC(round(Output$Value[i]), format = "f", digits = 0L))
     }
@@ -96,8 +88,8 @@ buildCalculationConcreteReinforcementTable <- function(path, liningID) {
   }, character(1))
   knitr::kable(
     Output,
-    col.names = c("$x_i$", "$v_i$", "$u_i$"),
-    align = c("c", "r", "c"),
+    col.names = c("Magnitud", "Valor", "Unidad"),
+    align = c("l", "r", "c"),
     escape = FALSE
   )
 }

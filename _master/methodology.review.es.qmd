@@ -2,7 +2,7 @@
 lang: es
 title: "Metodología integrada para el análisis de revestimientos circulares"
 subtitle: "Acciones del relleno, resultantes seccionales y comprobaciones AASHTO/ACI"
-date: "2026-08-16"
+date: "2026-08-17"
 bibliography:
   - bib/references.bib
 format:

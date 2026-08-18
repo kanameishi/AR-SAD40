@@ -7,7 +7,9 @@ if (!exists("CAP", inherits = FALSE)) {
   )
 }
 source("scripts/tbl/Calculation.interaction.R")
-TBL <- buildCalculationInteractionTable(Calculation$paths$interaction)
+TBL <- buildCalculationSchwartzEinsteinTable(
+  Calculation$paths$schwartzEinstein
+)
 ```
 
 ```{r}
@@ -19,5 +21,5 @@ TBL
 
 ```{r}
 #| include: false
-rm(CAP, TBL, buildCalculationInteractionTable)
+rm(CAP, TBL, buildCalculationSchwartzEinsteinTable)
 ```

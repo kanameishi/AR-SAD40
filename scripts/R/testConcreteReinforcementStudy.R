@@ -34,107 +34,42 @@ Study <- .evaluateCoverReinforcementStudy(
 
 stopifnot(identical(
   names(Study),
-  c("domains", "summary", "configuredGoverningDemands")
+  c("domains", "summary", "governingDemands")
 ))
 Domains <- Study[["domains", exact = TRUE]]
 Summary <- Study[["summary", exact = TRUE]]
-ConfiguredDemands <- Study[["configuredGoverningDemands", exact = TRUE]]
+GoverningDemands <- Study[["governingDemands", exact = TRUE]]
+ExpectedRatios <- c(0.0018, 0.01, 0.02, 0.03)
 stopifnot(
   is.data.frame(Domains),
   is.data.frame(Summary),
-  is.data.frame(ConfiguredDemands),
-  nrow(Summary) == 5L,
-  identical(Summary$reinforcementCaseOrder, 1:5),
-  sum(Summary$isConfiguredCase) == 1L,
-  sum(Summary$isMinimumHistoricalCase) == 1L,
-  sum(Summary$isParametricReferenceCase) == 4L,
+  is.data.frame(GoverningDemands),
+  nrow(Summary) == 2L * length(ExpectedRatios),
+  setequal(unique(Summary$liningID), c("shotcrete", "reinforcedConcrete")),
+  all(Summary$isParametricCase),
   all(Summary$calculationStatus == "calculated"),
   all(Summary$demandReuseStatus == "satisfied"),
-  all(Summary$minimumComparisonStatus == "satisfied"),
-  all(diff(Summary$maximumRadialUtilization) <= 0.02)
+  nrow(GoverningDemands) == 8L,
+  all(GoverningDemands$selectionBasisID == "lower-reference-domain")
 )
-ExpectedRatios <- sort(c(
-  0.0018,
-  2 * 188.4955592153876 / 120000,
-  0.01,
-  0.02,
-  0.03
-))
-stopifnot(isTRUE(all.equal(
-  Summary$reinforcementRatio,
-  ExpectedRatios,
-  tolerance = 1e-12,
-  check.attributes = FALSE
-)))
-Configured <- Summary[Summary$isConfiguredCase, , drop = FALSE]
-Minimum <- Summary[Summary$isMinimumHistoricalCase, , drop = FALSE]
-stopifnot(
-  abs(Configured$circumferentialAreaTotalMm2PerM -
-    376.9911184307752) < 1e-9,
-  abs(Minimum$circumferentialAreaTotalMm2PerM - 216) < 1e-9,
-  Summary$localPMStatus[Summary$reinforcementRatio == 0.02] ==
-    "not-satisfied",
-  Summary$localPMStatus[Summary$reinforcementRatio == 0.03] == "satisfied"
-)
-
-DomainCounts <- table(Domains$reinforcementCaseID)
-stopifnot(
-  length(DomainCounts) == nrow(Summary),
-  all(DomainCounts == 807L),
-  setequal(names(DomainCounts), Summary$reinforcementCaseID),
-  all(vapply(split(Domains, Domains$reinforcementCaseID), function(x) {
-    identical(x$domainPointIndex, seq_len(nrow(x))) &&
-      length(unique(x$domainPrimitiveID)) == 1L
-  }, logical(1)))
-)
-
-Canonical <- Sample[["additionalLinings", exact = TRUE]][[
-  "reinforcedConcrete",
-  exact = TRUE
-]][["assessment", exact = TRUE]][["aci", exact = TRUE]][[
-  "interactionDiagram",
-  exact = TRUE
-]]
-CanonicalDomain <- Canonical[["domain", exact = TRUE]]
-ConfiguredDomain <- Domains[
-  Domains$reinforcementCaseID == Configured$reinforcementCaseID,
-  ,
-  drop = FALSE
-]
-rownames(ConfiguredDomain) <- NULL
-rownames(CanonicalDomain) <- NULL
-DomainFields <- c(
-  "domainPointIndex", "axialStrengthKnPerM", "bendingStrengthKnMPerM",
-  "domainPrimitiveID", "provisionID", "designBasisID",
-  "strengthReductionRuleID", "sourceLocator"
-)
-stopifnot(identical(
-  ConfiguredDomain[, DomainFields, drop = FALSE],
-  CanonicalDomain[, DomainFields, drop = FALSE]
-))
-
-CanonicalDemands <- Canonical[["demands", exact = TRUE]]
-stopifnot(
-  nrow(ConfiguredDemands) == 4L,
-  identical(ConfiguredDemands$demandOrder, 1:4),
-  unique(ConfiguredDemands$reinforcementCaseID) ==
-    Configured$reinforcementCaseID
-)
-for (i in seq_len(nrow(ConfiguredDemands))) {
-  Observed <- ConfiguredDemands[i, , drop = FALSE]
-  Expected <- CanonicalDemands[
-    CanonicalDemands$caseID == Observed$caseID &
-      CanonicalDemands$strengthCaseID == Observed$strengthCaseID &
-      CanonicalDemands$thetaIndex == Observed$thetaIndex,
-    ,
-    drop = FALSE
-  ]
+for (LiningID in c("shotcrete", "reinforcedConcrete")) {
+  S <- Summary[Summary$liningID == LiningID, , drop = FALSE]
+  D <- Domains[Domains$liningID == LiningID, , drop = FALSE]
+  G <- GoverningDemands[GoverningDemands$liningID == LiningID, , drop = FALSE]
+  Groups <- split(D, D$reinforcementCaseID)
   stopifnot(
-    nrow(Expected) == 1L,
-    Expected$radialUtilization == Observed$radialUtilization,
-    Expected$axialDemandKnPerM == Observed$axialDemandKnPerM,
-    Expected$bendingDemandKnMPerM == Observed$bendingDemandKnMPerM
+    identical(S$reinforcementCaseOrder, seq_along(ExpectedRatios)),
+    isTRUE(all.equal(S$reinforcementRatio, ExpectedRatios, tolerance = 1e-12)),
+    sum(S$isLowerReferenceCase) == 1L,
+    all(diff(S$maximumRadialUtilization) <= 0.02),
+    length(Groups) == nrow(S),
+    all(vapply(Groups, function(x) {
+      identical(x$domainPointIndex, seq_len(nrow(x))) &&
+        length(unique(x$domainPrimitiveID)) == 1L
+    }, logical(1))),
+    nrow(G) == 4L,
+    identical(G$demandOrder, 1:4)
   )
 }
 
-cat("PASS: five discrete reinforcement P-M domains and four demands.\n")
+cat("PASS: four P-M domains and four governing demands for each thickness.\n")

@@ -10,6 +10,7 @@ bibliography:
 ```{r}
 #| include: true
 #| results: asis
+#| echo: false
 root <- normalizePath(".", mustWork = TRUE)
 projectRoot <- root
 source(file.path(root, "scripts", "setup", "calculationFunctions.R"), local = TRUE)

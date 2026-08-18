@@ -58,12 +58,20 @@ source("scripts/R/ringFigureData.R")
       fullTraction = "Proyección tangencial completa (α = 1)",
       `full-traction` = "Proyección tangencial completa (α = 1)",
       normalOnly = "Acción exclusivamente normal (α = 0)",
-      `normal-only` = "Acción exclusivamente normal (α = 0)"
+      `normal-only` = "Acción exclusivamente normal (α = 0)",
+      fullSlip = "Schwartz–Einstein: deslizamiento libre",
+      `full-slip` = "Schwartz–Einstein: deslizamiento libre",
+      noSlip = "Schwartz–Einstein: sin deslizamiento",
+      `no-slip` = "Schwartz–Einstein: sin deslizamiento"
     )
     Prescriptions <- unname(InterfaceLabels[Curves$interfaceID])
     StageLabels <- c(`completed-fill` = "Relleno completado")
     ModelLabels <- c(
-      `prescribed-biaxial-direct-integration` = "Integración directa"
+      `prescribed-biaxial-direct-integration` = "Integración directa",
+      `schwartz-einstein-external-loading` =
+        "Interacción elástica de carga externa",
+      `schwartz-einstein-balanced-gradient-hybrid` =
+        "Interacción E–S con gradiente geostático equilibrado"
     )
     Stages <- unname(StageLabels[Curves$stageID])
     Models <- unname(ModelLabels[Curves$interactionModelID])

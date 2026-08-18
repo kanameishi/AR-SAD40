@@ -76,8 +76,8 @@ for (Interface in c("fullSlip", "noSlip")) {
     all(Values$stageID == "external-loading"),
     all(Values$forceEffectStatus == "unfactored-reference-state"),
     all(Values$stressReferenceID == "axis-reference"),
-    all(Values$stressBasis == "effective"),
-    all(Values$hydraulicActionTreatment == "separate-not-included"),
+    all(Values$stressBasis == "effective-plus-net-water-pressure"),
+    all(Values$hydraulicActionTreatment == "uniform-net-pressure-superposed"),
     all(Values$stressRatio == 0.5),
     nrow(Summary) == 9L,
     identical(sort(unique(Summary$resultantID)), c("M", "N", "Q")),
@@ -155,5 +155,45 @@ stopifnot(identical(
   summarizeExternalInteraction(Result.coarse),
   summarizeExternalInteraction(Result.fine)
 ))
+
+Baseline <- do.call(
+  calculateExternalInteraction,
+  c(Inputs, list(interface = "fullSlip"))
+)
+Hybrid <- addBalancedGeostaticGradient(
+  interaction = Baseline,
+  radiusM = Inputs$radiusM,
+  verticalStressGradientKPaPerM = 20,
+  horizontalStressGradientKPaPerM = 10
+)
+Delta <- 10
+N1 <- -Inputs$radiusM^2 * Delta / 4
+N3 <- -Inputs$radiusM^2 * Delta / 8
+M3 <- -Inputs$radiusM^3 * Delta / 24
+Q3 <- Inputs$radiusM^2 * Delta / 8
+stopifnot(
+  all(Hybrid$values$interactionModelID ==
+    "schwartz-einstein-balanced-gradient-hybrid"),
+  max(abs(
+    Hybrid$values$normalForceKnPerM -
+      Baseline$values$normalForceKnPerM -
+      N1 * cos(Theta) - N3 * cos(3 * Theta)
+  )) < 1e-12,
+  max(abs(
+    Hybrid$values$bendingMomentKnMPerM -
+      Baseline$values$bendingMomentKnMPerM -
+      M3 * cos(3 * Theta)
+  )) < 1e-12,
+  max(abs(
+    Hybrid$values$shearForceKnPerM -
+      Baseline$values$shearForceKnPerM -
+      Q3 * sin(3 * Theta)
+  )) < 1e-12,
+  abs(Hybrid$gradient$supportRadialMode1KPa +
+    Inputs$radiusM * 20) < 1e-12,
+  abs(Hybrid$gradient$balancedVerticalForceKnPerM) < 1e-12,
+  Hybrid$gradient$equilibriumStatus == "satisfied",
+  Hybrid$gradient$prescribedCompressionStatus == "satisfied"
+)
 
 cat("PASS: external interaction convention adapter.\n")

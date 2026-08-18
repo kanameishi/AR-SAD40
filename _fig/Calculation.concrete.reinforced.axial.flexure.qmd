@@ -4,8 +4,8 @@ source("scripts/fig/Calculation.concrete.axial.flexure.R")
 PLOT.PM <- buildCalculationConcreteAxialFlexurePlot(
   domainsPath = Calculation$paths$shotcreteReinforcementDomains,
   sweepPath = Calculation$paths$shotcreteReinforcementSweep,
-  configuredDemandsPath =
-    Calculation$paths$shotcreteReinforcementConfiguredDemands,
+  governingDemandsPath =
+    Calculation$paths$shotcreteReinforcementGoverningDemands,
   liningID = "reinforcedConcrete"
 )
 ```

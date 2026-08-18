@@ -1,12 +1,12 @@
-Este apéndice desarrolla las relaciones de equilibrio, rigidez y
-compatibilidad empleadas para determinar las resultantes seccionales de una
-línea circular de referencia. Se considera un problema transversal plano, con
+Este apéndice respalda el modelo presentado en @sec-calculation-model. Reúne
+las relaciones de equilibrio, rigidez y compatibilidad empleadas para
+determinar las resultantes seccionales de una línea circular de referencia.
+Se considera un problema transversal plano, con
 pequeños desplazamientos, respuesta elástica lineal, propiedades
 circunferenciales constantes y deformación por corte despreciada.
 
-## Equilibrio del elemento diferencial
-
-Se adoptan un eje global $x$ positivo hacia la derecha y un eje $z$ positivo
+El equilibrio del elemento diferencial se formula con un eje global $x$
+positivo hacia la derecha y un eje $z$ positivo
 hacia abajo. Con $\theta=0$ en la clave y sentido horario positivo,
 
 $$
@@ -71,6 +71,16 @@ Para $P_t=0$ se recupera la formulación radial de Baker
 [@Baker1968, ecs. 2.1a--2.1c, p. 16]; el término $RP_t$ resulta de la
 proyección tangencial de la acción perimetral.
 
+La solución de producción integra este sistema con el método explícito de
+Runge--Kutta de cuarto orden. La malla de integración reúne una partición
+uniforme de la circunferencia, los ángulos en los que se solicitan resultados
+y los puntos de discontinuidad declarados por la carga. En una discontinuidad,
+los valores de los extremos se toman desde el interior de cada intervalo para
+evitar contar dos veces el salto. Durante la misma marcha se acumulan las
+integrales de compatibilidad y las tres resultantes globales; por ello el
+procedimiento admite una distribución perimetral prescrita sin suponer de
+antemano una forma sinusoidal.
+
 Las resultantes globales de las acciones son
 
 $$
@@ -98,9 +108,8 @@ $$ {#eq-calculation-particular-closure}
 En consecuencia, $F_x=F_z=M_c=0$ asegura el cierre de la solución particular
 para las acciones prescritas consideradas.
 
-## Ley seccional y rigideces circunferenciales
-
-A un valor fijo de $\theta$, considérese la sección resistente $A_b$ de una
+La ley seccional se obtiene, para un valor fijo de $\theta$, sobre la sección
+resistente $A_b$ de una
 franja de ancho axial proyectado $b$. La coordenada $\xi$ se mide desde el eje
 baricéntrico y es positiva hacia la fibra interior. Bajo la hipótesis de
 secciones planas,
@@ -138,10 +147,8 @@ $\eta_s=I_\theta/(A_\theta R^2)$ es adimensional. Por estar normalizadas por
 $b$, $A_\theta$ e $I_\theta$ tienen dimensiones de longitud y longitud al
 cubo, respectivamente.
 
-## Cierre por compatibilidad
-
-Para acciones globalmente equilibradas, sea
-$(\widetilde N,\widetilde Q,\widetilde M)$ la solución particular de la
+El cierre por compatibilidad parte, para acciones globalmente equilibradas, de
+la solución particular $(\widetilde N,\widetilde Q,\widetilde M)$ de la
 @eq-calculation-first-order-system iniciada con valores nulos en $\theta=0$.
 La solución periódica completa puede escribirse como
 
@@ -212,13 +219,84 @@ $$
 \overline f=\frac{1}{2\pi}\int_0^{2\pi}f(\theta)\,d\theta.
 $$ {#eq-calculation-compatibility-constants}
 
-Estas constantes completan las tres resultantes seccionales sin parámetros
-libres.
+Estas constantes determinan de manera unívoca las tres resultantes
+seccionales.
 
-## Contraste de interacción elástica externa {#sec-calculation-appendix-external-interaction}
+La representación modal constituye una resolución independiente de las
+mismas ecuaciones. Para $n\geq1$, los coeficientes de las acciones se definen
+por
 
-Schwartz--Einstein se conserva como contraste independiente y no alimenta las
-verificaciones resistentes. Sus razones de rigidez son
+$$
+\begin{aligned}
+a_n&=\frac{1}{\pi}\int_0^{2\pi}P_r(\theta)\cos n\theta\,d\theta,&
+b_n&=\frac{1}{\pi}\int_0^{2\pi}P_r(\theta)\sin n\theta\,d\theta,\\
+c_n&=\frac{1}{\pi}\int_0^{2\pi}P_t(\theta)\cos n\theta\,d\theta,&
+d_n&=\frac{1}{\pi}\int_0^{2\pi}P_t(\theta)\sin n\theta\,d\theta,
+\end{aligned}
+$$
+
+con $a_0=(2\pi)^{-1}\int_0^{2\pi}P_r\,d\theta$ y
+$c_0=(2\pi)^{-1}\int_0^{2\pi}P_t\,d\theta$. El modo $n=0$ representa la
+componente uniforme. El modo $n=1$ contiene las fuerzas globales y su solución
+para el anillo libre requiere coeficientes equilibrados; la reacción de apoyo
+lleva la carga aplicada a esa condición. Los modos $n\geq2$ describen la
+distorsión del anillo y producen las amplitudes de la
+@eq-calculation-modal-resultants.
+
+Para $n\geq2$, las amplitudes obtenidas de las ecuaciones de equilibrio son
+
+$$
+N_n^{(c)}=R\frac{n d_n-a_n}{n^2-1},
+\qquad
+N_n^{(s)}=-R\frac{b_n+n c_n}{n^2-1},
+$$
+
+$$
+Q_n^{(c)}=-R\frac{n b_n+c_n}{n^2-1},
+\qquad
+Q_n^{(s)}=R\frac{n a_n-d_n}{n^2-1},
+$$
+
+$$
+M_n^{(c)}=-R^2\frac{n a_n-d_n}{n(n^2-1)},
+\qquad
+M_n^{(s)}=-R^2\frac{n b_n+c_n}{n(n^2-1)}.
+$$ {#eq-calculation-modal-resultants}
+
+Una serie truncada en $n_{\max}$ es una suma de componentes armónicas de la
+carga y de la respuesta, donde $n_{\max}$ identifica el mayor orden espacial
+incluido. Una distribución prescrita con un número finito de armónicos queda
+representada al conservar su mayor modo activo. Para cargas localizadas o
+discontinuas, $n_{\max}$ se aumenta hasta estabilizar las magnitudes de interés;
+la reconstrucción de la carga puede presentar oscilaciones de Gibbs cerca de
+los saltos. El caso biaxial uniforme comprende $n=0,2$ y la
+@eq-calculation-biaxial-fourier-response es su solución modal exacta.
+
+Definiendo $p_m=\Delta u+(\sigma'_v+\sigma'_h)/2$ y
+$\Delta\sigma=\sigma'_v-\sigma'_h$, esa solución es
+
+$$
+N_\theta=-Rp_m
++R\Delta\sigma\frac{1+2\alpha}{6}\cos2\theta,
+$$
+
+$$
+M_\theta=M_0
++R^2\Delta\sigma\frac{2+\alpha}{12}\cos2\theta,
+$$
+
+$$
+Q_\theta=-R\Delta\sigma\frac{2+\alpha}{6}\sin2\theta.
+$$ {#eq-calculation-biaxial-fourier-response}
+
+La integración numérica directa se compara punto por punto con esa solución
+cerrada y se controla además con $F_x$, $F_z$ y $M_c$. La tabla siguiente
+informa los errores obtenidos con la discretización angular adoptada.
+
+{{< include /_tbl/Calculation.controls.ES.qmd >}}
+
+La demanda de diseño se obtiene con la solución elástica de carga externa de
+Schwartz--Einstein y las siguientes razones de rigidez:
 
 $$
 C^*=\frac{E_gR(1-\nu_\ell^2)}
@@ -236,11 +314,11 @@ P_{SE}=\sigma'_v(z_{ref}),
 K_{SE}=\frac{\sigma'_h(z_{ref})}{P_{SE}}.
 $$ {#eq-calculation-se-reference-state}
 
-Sean $U=1-\nu_g$ y las razones anteriores. El coeficiente axisimétrico de la
+Sea $c_\nu=1-\nu_g$. El coeficiente axisimétrico de la
 secuencia de carga externa es [@SchwartzEinstein1980, ecs. A.49--A.54]
 
 $$
-a_1=\frac{C^*U-1+2\nu_g}{C^*U+1},
+a_1=\frac{C^*c_\nu-1+2\nu_g}{C^*c_\nu+1},
 \qquad
 t_0=\frac12(1+K_{SE})(1-a_1).
 $$ {#eq-calculation-appendix-se-axisymmetric}
@@ -248,9 +326,9 @@ $$ {#eq-calculation-appendix-se-axisymmetric}
 Para la interfaz con deslizamiento libre,
 
 $$
-a_2=\frac{F^*U+3-6\nu_g}{F^*U+15-18\nu_g},
+a_2=\frac{F^*c_\nu+3-6\nu_g}{F^*c_\nu+15-18\nu_g},
 \qquad
-a_3=\frac{F^*U-3}{F^*U+15-18\nu_g},
+a_3=\frac{F^*c_\nu-3}{F^*c_\nu+15-18\nu_g},
 $$
 
 $$
@@ -261,22 +339,22 @@ Para la interfaz sin deslizamiento se define
 
 $$
 \widehat a=
-\frac{F^*U}{6}\left[(3-2\nu_g)+C^*U\right]
-+C^*U\left(\frac52-3\nu_g\right)+6-8\nu_g,
+\frac{F^*c_\nu}{6}\left[(3-2\nu_g)+C^*c_\nu\right]
++C^*c_\nu\left(\frac52-3\nu_g\right)+6-8\nu_g,
 $$
 
 $$
 a_2=
 \frac{
-\dfrac{F^*U}{6}\left[(1-2\nu_g)-C^*U\right]
--\dfrac12C^*U(1-2\nu_g)+2}
+\dfrac{F^*c_\nu}{6}\left[(1-2\nu_g)-C^*c_\nu\right]
+-\dfrac12C^*c_\nu(1-2\nu_g)+2}
 {\widehat a},
 $$
 
 $$
 a_3=
 \frac{
-\dfrac{F^*U}{6}(C^*U+1)-\dfrac12C^*U-2}
+\dfrac{F^*c_\nu}{6}(C^*c_\nu+1)-\dfrac12C^*c_\nu-2}
 {\widehat a},
 $$
 
@@ -299,5 +377,9 @@ Q_\theta(\theta)&=-2P_{SE}Rm_2\sin2\theta.
 \end{aligned}
 $$ {#eq-calculation-se-resultants}
 
-Estas curvas se guardan en productos de comparación separados. No sustituyen
-la integración directa de las acciones prescritas ni sus controles cerrados.
+Estas expresiones contienen los modos $n=0,2$ de la respuesta interactiva.
+Schwartz--Einstein determina sus amplitudes mediante $C^*$, $F^*$ y la
+condición de interfaz; Fourier descompone las acciones perimetrales prescritas.
+La integración numérica directa, la solución cerrada y la representación de
+Fourier comprueban de manera independiente el equilibrio y la reconstrucción
+modal.

@@ -1,15 +1,17 @@
-# Render de la memoria de cálculo
+# Fuentes de respaldo de la memoria de cálculo
 
-El ensamblador principal es:
+Este directorio conserva material técnico de respaldo. No es un producto
+renderizable ni una segunda memoria. El producto vigente es el libro
+ensamblado desde:
 
 ```text
-_master/calculation.review.es.qmd
+_master/report.es.qmd
 ```
 
-Desde la raíz del repositorio, el HTML se regenera mediante:
+Desde la raíz del repositorio, el libro se regenera mediante:
 
 ```bash
-qrt render _master/calculation.review.es.qmd --profile html
+qrt render _master/report.es.qmd --profile book
 ```
 
 El render lee las 34 entradas del contrato `cover-case-2` en
@@ -29,11 +31,8 @@ Rscript scripts/R/testCalculationLoading.R
 El producto se publica localmente en:
 
 ```text
-html/calculation.review.es/index.html
+html/report.es/index.html
 ```
-
-La memoria es actualmente un informe HTML autónomo y no utiliza el perfil
-`book`.
 
 La hoja de trabajo editable es
 `scripts/wolfram/calculation.workbook.nb`; su único archivo de soporte es

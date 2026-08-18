@@ -1,0 +1,17 @@
+```{r}
+#| include: false
+CAP.PM100.TBL <- paste(
+  readLines(
+    "_captions/tbl.Calculation.concrete.t100.axial.flexure.sweep.ES.md",
+    warn = FALSE
+  ),
+  collapse = "\n"
+)
+```
+
+{{< include /_tbl/Calculation.concrete.t100.axial.flexure.sweep.qmd >}}
+
+```{r}
+#| include: false
+rm(CAP.PM100.TBL)
+```

@@ -4,6 +4,6 @@ root <- normalizePath(".", mustWork = TRUE)
 source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
 ```
 
-# Casos de referencia de acciones y resultantes {#sec-calculation-appendix-references}
+# Comparación con formulaciones clásicas {#sec-calculation-appendix-references}
 
 {{< include /_chapters/reference.appendix.es.qmd >}}

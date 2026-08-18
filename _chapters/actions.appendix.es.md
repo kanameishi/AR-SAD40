@@ -1,11 +1,11 @@
-Este apéndice desarrolla la acción circunferencial empleada en la comprobación
-del conducto y reúne, en secciones separadas, formulaciones que no integran el
-estado determinístico de la aplicación. Cada rama conserva sus propias
-entradas y condiciones de aplicabilidad.
+Este apéndice complementa las acciones definidas en
+@sec-calculation-model y las comprobaciones del liner de chapa de
+@sec-calculation-steel. Desarrolla la distribución vertical, la presión de
+agua, el empuje circunferencial de referencia y las relaciones de $K_0$
+aplicables a distintas trayectorias tensionales.
 
-## Distribución vertical y presión de agua
-
-La profundidad de un punto del contorno es
+La distribución vertical comienza con la profundidad de cada punto del
+contorno:
 
 $$
 z(\theta)=H_0+R(1-\cos\theta).
@@ -33,14 +33,12 @@ $$ {#eq-calculation-water-pressure}
 $z_w$ es la profundidad del nivel freático, $\gamma_w$ es el peso unitario
 del agua y $u_{int}$ es la presión sobre la cara interior del revestimiento.
 Por convención, $\Delta u>0$ representa una presión neta dirigida hacia el
-interior. Las tensiones efectivas y la presión intersticial se calculan por
-separado para no aplicar $K_0$ a una tensión total ni contabilizar dos veces
-la acción del agua.
+interior. $K_0$ se aplica a las tensiones efectivas; la presión intersticial se
+incorpora después como acción hidráulica neta.
 
-## Presión vertical debida al relleno y empuje circunferencial {#sec-calculation-prism-thrust}
-
-Para un relleno homogéneo sin sobrecarga, el ejemplo D4 de USACE obtiene la
-presión vertical de carga permanente en la clave mediante
+La comparación del empuje circunferencial utiliza, para un relleno homogéneo
+sin sobrecarga, la presión vertical de carga permanente del ejemplo D4 de
+USACE:
 
 $$
 P_{FD}=\gamma H_0,
@@ -131,11 +129,11 @@ R_s=\phi_sR_{n,c}
 $$ {#eq-calculation-aashto-seam}
 
 $R_{n,0}$ es la resistencia publicada de la costura sin pérdida de diámetro.
-Esta reducción es una formulación de sensibilidad derivada en este estudio:
-supone que la pérdida de resistencia de la costura es proporcional a la
-sección transversal remanente de los pernos. No sustituye la comprobación de
-agujeros, aplastamiento, desgarro, sección neta o solape de la chapa. Para
-$T_u\leq\phi_sR_{n,0}$, el límite analítico correspondiente a $U_s=1$ es
+Esta relación de sensibilidad supone que la resistencia de la costura varía en
+proporción al área remanente de los pernos. La inspección y la evaluación de la
+unión deben considerar además los agujeros, el aplastamiento, el desgarro, la
+sección neta y el solape de la chapa. Para $T_u\leq\phi_sR_{n,0}$, la igualdad
+entre demanda y resistencia se alcanza cuando
 
 $$
 \delta_{d,lim}
@@ -159,23 +157,24 @@ contrastan con la reproducción de AASHTO LRFD 9.ª edición de Anderson et al.,
 p. 164; la condición de tapada mínima corresponde a su tabla
 7.1, p. 133
 [@USACE2020, secs. 4.12.3.2--4.12.5;
-@AndersonEtAl2023, pp. 133, 164]. La memoria identifica esta base como una
-referencia compuesta de ediciones previas y no como comprobación de la edición
-AASHTO vigente.
+@AndersonEtAl2023, pp. 133, 164]. Estas fuentes reproducen disposiciones de
+ediciones anteriores; la emisión del proyecto requiere adoptar los factores y
+artículos de la edición contractual.
 
-La relación determina un empuje escalar. No suministra una distribución
-angular de presión de contacto, momento flector o fuerza de corte. FHWA adopta
-un factor vertical de arqueo igual a 1,0 para la teoría de compresión anular
-de tubos flexibles; los factores publicados para instalaciones SIDD de tubos
-rígidos no se transfieren al revestimiento metálico
+La relación determina un empuje circunferencial escalar para la rama
+AASHTO/USACE. La distribución angular de fuerza, momento y corte utilizada en
+las comprobaciones se obtiene por separado con Schwartz--Einstein; la
+integración numérica directa controla únicamente la respuesta a la carga
+perimetral prescrita.
+FHWA adopta un factor vertical de arqueo igual a 1,0 para la teoría de
+compresión anular de tubos flexibles; los factores SIDD publicados corresponden
+a instalaciones de tubos rígidos
 [@McGrathEtAl1999, ecs. 2.1--2.3 y p. 14].
-
-## Formulaciones de $K_0$ {#sec-calculation-appendix-k0-alternatives}
 
 La formulación de $K_0$ debe representar la trayectoria tensional del estado
 analizado. Una medición directa es aplicable cuando reproduce el material, la
 profundidad y el intervalo de tensiones considerados. En ausencia de una
-medición representativa, pueden evaluarse las ramas siguientes.
+medición representativa, pueden evaluarse las relaciones siguientes.
 
 Para una idealización elástica lineal e isótropa con deformación lateral
 impedida [@ChristopherEtAl2006, sec. 5.4.9],
@@ -192,11 +191,12 @@ K_{0,NC}=1-\sin\phi'.
 $$ {#eq-calculation-k0-jaky}
 
 La relación se aplica en tensiones efectivas a suelos no cohesivos y a suelos
-cohesivos normalmente consolidados en condiciones drenadas. No se adiciona un
-término en $c'$: las relaciones que contienen $\pm2c'\sqrt K$ corresponden a
-estados límite activo o pasivo y no al estado en reposo.
+cohesivos normalmente consolidados en condiciones drenadas. El estado en
+reposo se evalúa sin un término en $c'$; las relaciones que contienen
+$\pm2c'\sqrt K$ corresponden a los estados límite activo o pasivo.
 
-Para descarga desde la rama de compresión virgen, Mayne y Kulhawy proponen
+Para una descarga demostrada desde la compresión virgen, Mayne y Kulhawy
+proponen
 [@MayneKulhawy1982, ecs. 6--10]
 
 $$
@@ -227,11 +227,11 @@ K_0=(1-\sin\phi')\left[
 \right].
 $$ {#eq-calculation-k0-reloading}
 
-Esta expresión recupera la rama de descarga cuando
+Esta expresión recupera la relación de descarga cuando
 $\mathrm{OCR}=\mathrm{OCR}_{\max}$ y la condición normalmente consolidada
 cuando $\mathrm{OCR}=\mathrm{OCR}_{\max}=1$. Su dominio requiere
 $1\leq\mathrm{OCR}\leq\mathrm{OCR}_{\max}$ y
-$\mathrm{OCR}_{\max}\geq1$. Para $0<\phi'<90^\circ$, la rama queda fuera de
+$\mathrm{OCR}_{\max}\geq1$. Para $0<\phi'<90^\circ$, la relación queda fuera de
 su dominio cuando alcanza el límite pasivo adoptado por los autores:
 
 $$
@@ -243,7 +243,7 @@ K_p=\frac{1+\sin\phi'}{1-\sin\phi'},
 \right]^{1/\sin\phi'}.
 $$ {#eq-calculation-k0-passive-limit}
 
-La descarga requiere $\mathrm{OCR}<\mathrm{OCR}_{\lim}$; la recarga requiere
-$\mathrm{OCR}_{\max}<\mathrm{OCR}_{\lim}$. Al alcanzar esa frontera se
-descarta la rama. Cada estado adopta una sola formulación y $K_0$ se calcula a
-partir de sus variables primitivas.
+La descarga requiere $\mathrm{OCR}<\mathrm{OCR}_{\lim}$ y la recarga requiere
+$\mathrm{OCR}_{\max}<\mathrm{OCR}_{\lim}$. El escenario de esta memoria, con
+$\mathrm{OCR}=1$, utiliza la relación de Jáky para suelo normalmente
+consolidado.

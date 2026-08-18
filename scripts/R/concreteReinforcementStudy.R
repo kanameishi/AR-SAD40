@@ -143,13 +143,12 @@ normaliseAci31825ReinforcementStudyPolicy <- function(
   demands[Index, , drop = FALSE]
 }
 
-.reinforcementStudyConfiguredDemands <- function(
+.reinforcementStudyGoverningDemands <- function(
   demands,
   scenarioID,
   liningID,
   sectionID,
   studyID,
-  reinforcementCaseID,
   interfaceCaseIDs,
   strengthCaseIDs
 ) {
@@ -166,7 +165,7 @@ normaliseAci31825ReinforcementStudyPolicy <- function(
       drop = FALSE
     ]
     if (nrow(Data) == 0L) {
-      stop("The configured P-M demand groups are incomplete.", call. = FALSE)
+      stop("The P-M demand groups are incomplete.", call. = FALSE)
     }
     Data[order(-Data$radialUtilization, Data$thetaIndex)[1L], , drop = FALSE]
   })
@@ -186,17 +185,17 @@ normaliseAci31825ReinforcementStudyPolicy <- function(
   )
   if (nrow(OUT) != length(interfaceCaseIDs) * length(strengthCaseIDs) ||
       any(!Required %in% names(OUT))) {
-    stop("The configured P-M demand schema is incomplete.", call. = FALSE)
+    stop("The governing P-M demand schema is incomplete.", call. = FALSE)
   }
   cbind(
     data.frame(
       scenarioID = scenarioID,
       liningID = liningID,
       sectionID = sectionID,
-      concreteTypeID = "reinforced-concrete",
+      concreteTypeID = "reinforced-concrete-parametric",
       studyID = studyID,
-      reinforcementCaseID = reinforcementCaseID,
       demandOrder = seq_len(nrow(OUT)),
+      selectionBasisID = "lower-reference-domain",
       stringsAsFactors = FALSE
     ),
     OUT[, Required, drop = FALSE]
@@ -210,9 +209,8 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
   thicknessMm,
   stripWidthM,
   compressiveStrengthMPa,
-  baselineCircumferentialReinforcement,
-  orthogonalReinforcement,
-  interactionDiagram,
+  layerTemplate,
+  actions,
   interfaceCaseIDs,
   strengthCaseIDs,
   policy
@@ -234,11 +232,7 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
     minimum = .Machine$double.eps
   )
   Reinforcement <- .validateConcreteReinforcement(
-    baselineCircumferentialReinforcement,
-    Thickness
-  )
-  Orthogonal <- .validateConcreteReinforcement(
-    orthogonalReinforcement,
+    layerTemplate,
     Thickness
   )
   if (nrow(Reinforcement) != 2L ||
@@ -253,65 +247,48 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
       call. = FALSE
     )
   }
-  if (!is.list(interactionDiagram) ||
-      !is.data.frame(interactionDiagram[["domain", exact = TRUE]]) ||
-      !is.data.frame(interactionDiagram[["demands", exact = TRUE]])) {
-    stop("interactionDiagram must contain the configured P-M products.",
-      call. = FALSE
-    )
-  }
-  ConfiguredDomain <- interactionDiagram[["domain", exact = TRUE]]
-  DemandTemplate <- interactionDiagram[["demands", exact = TRUE]]
-  DemandRequired <- c(
-    "caseID", "interfaceID", "strengthCaseID", "thetaIndex", "thetaRad",
-    "thetaDeg", "combinationID", "stageID", "forceEffectStatus",
-    "axialDemandKnPerM", "bendingDemandKnMPerM",
-    "radialCapacityMultiplier", "radialUtilization", "domainPositionID",
-    "convergenceRelativeDifference", "convergenceStatus", "checkStatus",
-    "verticalStressFactor", "horizontalStressFactor",
-    "loadCombinationBasisID"
+  ActionRequired <- c(
+    "caseID", "interfaceID", "strengthCaseID", "thetaRad", "thetaDeg",
+    "combinationID", "stageID", "forceEffectStatus", "stripWidthM",
+    "axialForceKn", "bendingMomentKnM", "verticalStressFactor",
+    "horizontalStressFactor", "loadCombinationBasisID"
   )
-  if (nrow(DemandTemplate) == 0L ||
-      any(!DemandRequired %in% names(DemandTemplate)) ||
-      length(unique(DemandTemplate$forceEffectStatus)) != 1L ||
-      unique(DemandTemplate$forceEffectStatus) != "lrfd-factored" ||
-      any(DemandTemplate$convergenceStatus != "satisfied")) {
-    stop("The configured P-M demands cannot seed the study.", call. = FALSE)
+  if (!is.data.frame(actions) || nrow(actions) == 0L ||
+      any(!ActionRequired %in% names(actions)) ||
+      any(!is.finite(actions$axialForceKn)) ||
+      any(!is.finite(actions$bendingMomentKnM)) ||
+      any(actions$forceEffectStatus != "lrfd-factored") ||
+      any(abs(actions$stripWidthM - WidthM) > 1e-12)) {
+    stop("actions must contain the factored P-M demand field.", call. = FALSE)
   }
-  Minimum <- checkAci318214SymmetricShellReinforcement(
-    thicknessMm = Thickness,
-    stripWidthMm = 1000 * WidthM,
-    circumferentialReinforcement = Reinforcement,
-    orthogonalReinforcement = Orthogonal
+  GroupKey <- paste(actions$caseID, actions$strengthCaseID, sep = "\r")
+  ThetaIndex <- ave(seq_len(nrow(actions)), GroupKey, FUN = seq_along)
+  DemandTemplate <- data.frame(
+    caseID = actions$caseID,
+    interfaceID = actions$interfaceID,
+    strengthCaseID = actions$strengthCaseID,
+    thetaIndex = as.integer(ThetaIndex),
+    thetaRad = actions$thetaRad,
+    thetaDeg = actions$thetaDeg,
+    combinationID = actions$combinationID,
+    stageID = actions$stageID,
+    forceEffectStatus = actions$forceEffectStatus,
+    axialDemandKnPerM = actions$axialForceKn / WidthM,
+    bendingDemandKnMPerM = actions$bendingMomentKnM / WidthM,
+    verticalStressFactor = actions$verticalStressFactor,
+    horizontalStressFactor = actions$horizontalStressFactor,
+    loadCombinationBasisID = actions$loadCombinationBasisID,
+    stringsAsFactors = FALSE
   )
-  MinimumTotalAreaPerM <-
-    Minimum$requiredAreaPerDirectionMm2 / WidthM
-  MinimumRatio <- MinimumTotalAreaPerM / (1000 * Thickness)
-  if (!any(abs(Policy$reinforcementRatioGrid - MinimumRatio) < 1e-12)) {
-    stop("The discrete family must include the historical minimum.",
-      call. = FALSE
-    )
-  }
-  ConfiguredAreaPerFacePerM <- Reinforcement$areaMm2[1L] / WidthM
-  ConfiguredRatio <- 2 * ConfiguredAreaPerFacePerM / (1000 * Thickness)
-  Ratios <- sort(unique(c(
-    Policy$reinforcementRatioGrid,
-    ConfiguredRatio
-  )))
+  Ratios <- Policy$reinforcementRatioGrid
   AreasPerFace <- Ratios * 1000 * Thickness / 2
 
-  buildRecord <- function(areaPerFace, isConfigured) {
+  buildRecord <- function(areaPerFace) {
     Area <- .reinforcementStudyScalar(
       areaPerFace,
       "areaPerFaceMm2PerM",
       minimum = .Machine$double.eps
     )
-    if (isConfigured) {
-      return(list(
-        domain = ConfiguredDomain,
-        demands = DemandTemplate
-      ))
-    }
     Layers <- Reinforcement
     Layers$areaMm2 <- Area * WidthM
     Domains <- buildAci31825ReinforcedSectionDomains(
@@ -353,9 +330,8 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
     )
   }
 
-  ConfiguredFlags <- abs(Ratios - ConfiguredRatio) < 1e-12
   Records <- lapply(seq_along(Ratios), function(i) {
-    buildRecord(AreasPerFace[i], ConfiguredFlags[i])
+    buildRecord(AreasPerFace[i])
   })
   CaseIDs <- vapply(AreasPerFace, function(area) {
     .reinforcementStudyCaseID(2 * area)
@@ -363,7 +339,7 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
   if (anyDuplicated(CaseIDs)) {
     stop("Reinforcement case identifiers are not unique.", call. = FALSE)
   }
-  MinimumFlags <- abs(Ratios - MinimumRatio) < 1e-12
+  LowerReferenceFlags <- Ratios == min(Ratios)
   SummaryRows <- lapply(seq_along(Records), function(i) {
     Record <- Records[[i]]
     Governing <- .reinforcementStudyGoverningRow(Record$demands)
@@ -372,13 +348,12 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
       scenarioID = scenarioID,
       liningID = liningID,
       sectionID = sectionID,
-      concreteTypeID = "reinforced-concrete",
+      concreteTypeID = "reinforced-concrete-parametric",
       studyID = Policy$studyID,
       reinforcementCaseID = CaseIDs[i],
       reinforcementCaseOrder = i,
       circumferentialAreaTotalMm2PerM = 2 * AreasPerFace[i],
       reinforcementRatio = Ratios[i],
-      areaToMinimumRatio = 2 * AreasPerFace[i] / MinimumTotalAreaPerM,
       calculationStatus = "calculated",
       maximumRadialUtilization = MaximumUtilization,
       localPMStatus = if (MaximumUtilization <= 1) {
@@ -399,12 +374,8 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
       governingAxialDemandKnPerM = Governing$axialDemandKnPerM[1L],
       governingBendingDemandKnMPerM =
         Governing$bendingDemandKnMPerM[1L],
-      minimumComparisonStatus = if (
-        2 * AreasPerFace[i] + 1e-9 >= MinimumTotalAreaPerM
-      ) "satisfied" else "not-satisfied",
-      isConfiguredCase = ConfiguredFlags[i],
-      isMinimumHistoricalCase = MinimumFlags[i],
-      isParametricReferenceCase = !ConfiguredFlags[i],
+      isLowerReferenceCase = LowerReferenceFlags[i],
+      isParametricCase = TRUE,
       demandReuseBasisID =
         "gross-uncracked-short-term-invariant-demands",
       demandReuseStatus = "satisfied",
@@ -430,7 +401,7 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
         scenarioID = scenarioID,
         liningID = liningID,
         sectionID = sectionID,
-        concreteTypeID = "reinforced-concrete",
+        concreteTypeID = "reinforced-concrete-parametric",
         studyID = Policy$studyID,
         reinforcementCaseID = CaseIDs[i],
         stringsAsFactors = FALSE
@@ -440,24 +411,19 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
   })
   Domains <- do.call(rbind, DomainRows)
   rownames(Domains) <- NULL
-  ConfiguredIndex <- which(ConfiguredFlags)
-  if (length(ConfiguredIndex) != 1L) {
-    stop("The configured reinforcement case is ambiguous.", call. = FALSE)
-  }
-  ConfiguredGoverningDemands <- .reinforcementStudyConfiguredDemands(
-    demands = DemandTemplate,
+  GoverningDemands <- .reinforcementStudyGoverningDemands(
+    demands = Records[[which(LowerReferenceFlags)]]$demands,
     scenarioID = scenarioID,
     liningID = liningID,
     sectionID = sectionID,
     studyID = Policy$studyID,
-    reinforcementCaseID = CaseIDs[ConfiguredIndex],
     interfaceCaseIDs = interfaceCaseIDs,
     strengthCaseIDs = strengthCaseIDs
   )
   list(
     domains = Domains,
     summary = Summary,
-    configuredGoverningDemands = ConfiguredGoverningDemands
+    governingDemands = GoverningDemands
   )
 }
 
@@ -465,60 +431,54 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
   if (!is.list(config) || !is.list(additionalLinings)) {
     stop("config and additionalLinings must be named lists.", call. = FALSE)
   }
-  Lining <- config[["additionalLinings", exact = TRUE]][[
+  ReferenceLining <- config[["additionalLinings", exact = TRUE]][[
     "reinforcedConcrete",
     exact = TRUE
   ]]
-  Policy <- if (is.null(Lining)) {
+  Policy <- if (is.null(ReferenceLining)) {
     NULL
   } else {
-    Lining[["reinforcementStudy", exact = TRUE]]
+    ReferenceLining[["reinforcementStudy", exact = TRUE]]
   }
   if (is.null(Policy)) return(NULL)
-  Result <- additionalLinings[["reinforcedConcrete", exact = TRUE]]
-  if (is.null(Result) ||
-      !identical(Lining[["concreteTypeID", exact = TRUE]],
+  if (!identical(ReferenceLining[["concreteTypeID", exact = TRUE]],
         "reinforced-concrete") ||
-      !identical(Lining[["stiffnessBasisID", exact = TRUE]],
+      !identical(ReferenceLining[["stiffnessBasisID", exact = TRUE]],
         "gross-uncracked-short-term")) {
     stop("The reinforced-concrete study basis is unavailable.", call. = FALSE)
   }
-  Aci <- Result[["assessment", exact = TRUE]][["aci", exact = TRUE]]
-  Diagram <- if (is.null(Aci)) {
-    NULL
-  } else {
-    Aci[["interactionDiagram", exact = TRUE]]
+  ReferenceThickness <- 1000 * ReferenceLining[["thicknessM", exact = TRUE]]
+  TargetIDs <- intersect(c("shotcrete", "reinforcedConcrete"), names(additionalLinings))
+  Studies <- lapply(TargetIDs, function(LiningID) {
+    Lining <- config[["additionalLinings", exact = TRUE]][[LiningID]]
+    Result <- additionalLinings[[LiningID]]
+    Aci <- Result[["assessment", exact = TRUE]][["aci", exact = TRUE]]
+    Actions <- if (is.null(Aci)) NULL else Aci[["actions", exact = TRUE]]
+    Thickness <- 1000 * Lining[["thicknessM", exact = TRUE]]
+    Layers <- ReferenceLining[["reinforcement", exact = TRUE]]
+    Layers$coordinateMm <- Layers$coordinateMm * Thickness / ReferenceThickness
+    evaluateAci31825SymmetricCircumferentialStudy(
+      scenarioID = config[["scenarioID", exact = TRUE]],
+      liningID = LiningID,
+      sectionID = Lining[["sectionID", exact = TRUE]],
+      thicknessMm = Thickness,
+      stripWidthM = Lining[["stripWidthM", exact = TRUE]],
+      compressiveStrengthMPa = Lining[["compressiveStrengthMPa", exact = TRUE]],
+      layerTemplate = Layers,
+      actions = Actions,
+      interfaceCaseIDs = config[["interfaceCases", exact = TRUE]][["caseID", exact = TRUE]],
+      strengthCaseIDs = Lining[["aci", exact = TRUE]][["strengthCases", exact = TRUE]][["caseID", exact = TRUE]],
+      policy = Policy
+    )
+  })
+  bind <- function(name) {
+    OUT <- do.call(rbind, lapply(Studies, `[[`, name))
+    rownames(OUT) <- NULL
+    OUT
   }
-  if (is.null(Diagram)) {
-    stop("The configured reinforced P-M diagram is unavailable.", call. = FALSE)
-  }
-  evaluateAci31825SymmetricCircumferentialStudy(
-    scenarioID = config[["scenarioID", exact = TRUE]],
-    liningID = "reinforcedConcrete",
-    sectionID = Lining[["sectionID", exact = TRUE]],
-    thicknessMm = 1000 * Lining[["thicknessM", exact = TRUE]],
-    stripWidthM = Lining[["stripWidthM", exact = TRUE]],
-    compressiveStrengthMPa = Lining[[
-      "compressiveStrengthMPa",
-      exact = TRUE
-    ]],
-    baselineCircumferentialReinforcement = Lining[[
-      "reinforcement",
-      exact = TRUE
-    ]],
-    orthogonalReinforcement = Lining[[
-      "orthogonalReinforcement",
-      exact = TRUE
-    ]],
-    interactionDiagram = Diagram,
-    interfaceCaseIDs = config[["interfaceCases", exact = TRUE]][[
-      "caseID",
-      exact = TRUE
-    ]],
-    strengthCaseIDs = Lining[["aci", exact = TRUE]][[
-      "strengthCases",
-      exact = TRUE
-    ]][["caseID", exact = TRUE]],
-    policy = Policy
+  list(
+    domains = bind("domains"),
+    summary = bind("summary"),
+    governingDemands = bind("governingDemands")
   )
 }

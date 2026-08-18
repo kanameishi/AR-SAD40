@@ -1,1 +1,0 @@
-Reproducción del ejemplo D4 de USACE [@USACE2020, ap. D4, pp. 332--333]. $x_i$ identifica la magnitud; $v_{p,i}$ y $v_{c,i}$ son los valores publicado y calculado; $u_i$ es la unidad. El código $c_i=P$ identifica un valor publicado y $c_i=D$, un valor derivado en este estudio.

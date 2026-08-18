@@ -217,6 +217,37 @@
   )
 }
 
+.calculateSchwartzEinsteinDesignInteraction <- function(
+  scenario,
+  section,
+  theta,
+  effectiveVerticalStressKPa,
+  effectiveHorizontalStressKPa,
+  waterPressureDifferenceKPa,
+  combinationID,
+  forceEffectStatus
+) {
+  Rigidity <- section[["rigidity", exact = TRUE]]
+  calculateExternalInteraction(
+    theta = theta,
+    effectiveVerticalStressKPa = effectiveVerticalStressKPa,
+    effectiveHorizontalStressKPa = effectiveHorizontalStressKPa,
+    waterPressureDifferenceKPa = waterPressureDifferenceKPa,
+    stressReferenceID = scenario$cover$referencePositionID,
+    radiusM = scenario$lining$centroidalRadiusM,
+    groundModulusKPa = scenario$ground$modulusKPa,
+    groundPoisson = scenario$ground$poisson,
+    liningModulusKPa = Rigidity$youngModulus,
+    liningPoisson = scenario$lining$poisson,
+    liningAreaM2PerM = Rigidity$area,
+    liningInertiaM4PerM = Rigidity$inertia,
+    interface = scenario$comparisonInterfaceID,
+    combinationID = combinationID,
+    stageID = scenario$action$stageID,
+    forceEffectStatus = forceEffectStatus
+  )
+}
+
 .evaluateSteelCoverScenario <- function(
   scenario,
   sectionReference,
@@ -400,7 +431,7 @@
       sectionID = Lining$sectionID,
       coverCrownM = scenario$cover$coverCrownM,
       remainingBaseThicknessMm = Lining$remainingBaseThicknessMm,
-      interfaceID = scenario$interfaceID,
+      interfaceID = Values$interfaceID[1L],
       normalAbsoluteMaxKnPerM = max(abs(Values$normalForceKnPerM)),
       momentAbsoluteMaxKnMPerM = max(abs(Values$bendingMomentKnMPerM)),
       shearAbsoluteMaxKnPerM = max(abs(Values$shearForceKnPerM)),
@@ -513,9 +544,12 @@
       stop("lining.aci.strengthCases must be a non-empty table.", call. = FALSE)
     }
     Rigidity <- Section$rigidity
+    GradientK0State <- do.call(estimateK0, scenario$ground$k0)
     AciEvaluations <- lapply(seq_len(nrow(StrengthCases)), function(i) {
       StrengthCase <- StrengthCases[i, , drop = FALSE]
-      StrengthInteraction <- calculatePrescribedBiaxialInteraction(
+      StrengthBaseline <- .calculateSchwartzEinsteinDesignInteraction(
+        scenario = scenario,
+        section = Section,
         theta = Values$thetaRad,
         effectiveVerticalStressKPa =
           Values$effectiveVerticalStressKPa[1L] *
@@ -526,16 +560,19 @@
         waterPressureDifferenceKPa =
           Values$waterPressureDifferenceKPa[1L] *
           StrengthCase$horizontalStressFactor,
-        stressReferenceID = Values$stressReferenceID[1L],
-        radiusM = Lining$centroidalRadiusM,
-        sectionRatio = Rigidity$sectionRatio,
-        tangentialMultiplier = scenario$tangentialMultiplier,
-        actionRepresentationID = scenario$interfaceID,
         combinationID = StrengthCase$combinationID,
-        stageID = scenario$action$stageID,
-        forceEffectStatus = StrengthCase$forceEffectStatus,
-        integrationSteps = scenario$numerics$integrationSteps,
-        balanceTolerance = scenario$numerics$balanceTolerance
+        forceEffectStatus = StrengthCase$forceEffectStatus
+      )
+      StrengthInteraction <- addBalancedGeostaticGradient(
+        interaction = StrengthBaseline,
+        radiusM = scenario$lining$centroidalRadiusM,
+        verticalStressGradientKPaPerM =
+          scenario$cover$effectiveUnitWeightKnPerM3 *
+          StrengthCase$verticalStressFactor,
+        horizontalStressGradientKPaPerM =
+          scenario$cover$effectiveUnitWeightKnPerM3 *
+          GradientK0State$k0Applied *
+          StrengthCase$horizontalStressFactor
       )
       StrengthValues <- StrengthInteraction$values
       Evaluation <- evaluateAciShotcrete(
@@ -582,7 +619,7 @@
         combinationID = StrengthCase$combinationID,
         stageID = scenario$action$stageID,
         forceEffectStatus = StrengthCase$forceEffectStatus,
-        interfaceID = scenario$interfaceID,
+        interfaceID = StrengthValues$interfaceID[1L],
         thetaRad = NA_real_,
         thetaDeg = NA_real_,
         normalForceKnPerM = NA_real_,
@@ -842,7 +879,7 @@
       concreteTypeID = Lining$concreteTypeID,
       coverCrownM = scenario$cover$coverCrownM,
       thicknessM = Lining$thicknessM,
-      interfaceID = scenario$interfaceID,
+      interfaceID = Values$interfaceID[1L],
       normalAbsoluteMaxKnPerM = max(abs(Values$normalForceKnPerM)),
       momentAbsoluteMaxKnMPerM = max(abs(Values$bendingMomentKnMPerM)),
       shearAbsoluteMaxKnPerM = max(abs(Values$shearForceKnPerM)),
@@ -932,7 +969,7 @@ evaluateCoverScenario <- function(
     )
   }
   Rigidity <- Section$rigidity
-  Interaction <- calculatePrescribedBiaxialInteraction(
+  PrescribedInteraction <- calculatePrescribedBiaxialInteraction(
     theta = theta,
     effectiveVerticalStressKPa = VerticalStress,
     effectiveHorizontalStressKPa = HorizontalStress,
@@ -949,35 +986,37 @@ evaluateCoverScenario <- function(
     integrationSteps = Scenario$numerics$integrationSteps,
     balanceTolerance = Scenario$numerics$balanceTolerance
   )
-  ComparisonInteraction <- calculateExternalInteraction(
+  SchwartzEinsteinInteraction <- .calculateSchwartzEinsteinDesignInteraction(
+    scenario = Scenario,
+    section = Section,
     theta = theta,
     effectiveVerticalStressKPa = VerticalStress,
     effectiveHorizontalStressKPa = HorizontalStress,
-    stressReferenceID = Scenario$cover$referencePositionID,
-    radiusM = Lining$centroidalRadiusM,
-    groundModulusKPa = Scenario$ground$modulusKPa,
-    groundPoisson = Scenario$ground$poisson,
-    liningModulusKPa = Rigidity$youngModulus,
-    liningPoisson = Lining$poisson,
-    liningAreaM2PerM = Rigidity$area,
-    liningInertiaM4PerM = Rigidity$inertia,
-    interface = Scenario$comparisonInterfaceID,
+    waterPressureDifferenceKPa =
+      Scenario$action$waterPressureDifferenceKPa,
     combinationID = Scenario$action$combinationID,
-    stageID = Scenario$action$stageID,
     forceEffectStatus = Scenario$action$forceEffectStatus
+  )
+  DesignInteraction <- addBalancedGeostaticGradient(
+    interaction = SchwartzEinsteinInteraction,
+    radiusM = Lining$centroidalRadiusM,
+    verticalStressGradientKPaPerM =
+      Scenario$cover$effectiveUnitWeightKnPerM3,
+    horizontalStressGradientKPaPerM =
+      Scenario$cover$effectiveUnitWeightKnPerM3 * K0State$k0Applied
   )
   Assessment <- if (Lining$liningTypeID == "corrugated-steel") {
     .evaluateSteelCoverScenario(
       scenario = Scenario,
       sectionReference = sectionReference,
       section = Section,
-      interaction = Interaction
+      interaction = DesignInteraction
     )
   } else {
     .evaluateShotcreteCoverScenario(
       scenario = Scenario,
       section = Section,
-      interaction = Interaction
+      interaction = DesignInteraction
     )
   }
   list(
@@ -991,6 +1030,8 @@ evaluateCoverScenario <- function(
       centroidalRadiusM = Lining$centroidalRadiusM,
       interfaceID = Scenario$interfaceID,
       comparisonInterfaceID = Scenario$comparisonInterfaceID,
+      designInteractionModelID =
+        "schwartz-einstein-balanced-gradient-hybrid",
       tangentialMultiplier = Scenario$tangentialMultiplier,
       combinationID = Scenario$action$combinationID,
       stageID = Scenario$action$stageID,
@@ -1007,9 +1048,15 @@ evaluateCoverScenario <- function(
       stringsAsFactors = FALSE
     ),
     section = Assessment$section,
-    interaction = Interaction,
-    comparisonInteraction = ComparisonInteraction,
-    extrema = summarizePrescribedBiaxialInteraction(Interaction),
+    interaction = PrescribedInteraction,
+    prescribedInteraction = PrescribedInteraction,
+    designInteraction = DesignInteraction,
+    comparisonInteraction = SchwartzEinsteinInteraction,
+    hybridGradient = DesignInteraction[["gradient", exact = TRUE]],
+    extrema = summarizeExternalInteraction(DesignInteraction),
+    prescribedExtrema = summarizePrescribedBiaxialInteraction(
+      PrescribedInteraction
+    ),
     assessment = Assessment$assessment,
     summary = Assessment$summary
   )

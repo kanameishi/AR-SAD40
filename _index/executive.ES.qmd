@@ -3,7 +3,7 @@
 root <- normalizePath(".", mustWork = TRUE)
 source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
 
-ExecutiveExtreme <- function(caseID, resultantID) {
+ReportExtreme <- function(caseID, resultantID) {
   Row <- Calculation$extrema[
     Calculation$extrema$caseID == caseID &
       Calculation$extrema$resultantID == resultantID &
@@ -12,131 +12,109 @@ ExecutiveExtreme <- function(caseID, resultantID) {
     drop = FALSE
   ]
   if (nrow(Row) != 1L || !is.finite(Row$value)) {
-    stop("Missing executive-summary resultant: ", caseID, ".", resultantID)
+    stop("Missing resultant: ", caseID, ".", resultantID)
   }
   Row$value
 }
-ExecutiveAashtoCheck <- function(checkID) {
+ReportAashtoCheck <- function(checkID) {
   Row <- Calculation$aashto$checks[
     Calculation$aashto$checks$checkID == checkID,
     ,
     drop = FALSE
   ]
   if (nrow(Row) != 1L || !is.finite(Row$utilization)) {
-    stop("Missing executive-summary AASHTO check: ", checkID)
-  }
-  Row$utilization
-}
-ExecutivePlainCase <- function(caseID) {
-  Row <- Calculation$shotcrete$summary[
-    Calculation$shotcrete$summary$caseID == caseID,
-    ,
-    drop = FALSE
-  ]
-  if (nrow(Row) != 1L ||
-      Row$shotcreteLocalStrengthStatus != "not-satisfied") {
-    stop("Unexpected plain-concrete result: ", caseID)
+    stop("Missing AASHTO check: ", checkID)
   }
   Row
 }
 ExecutiveStress <- Calculation$stress[1L, , drop = FALSE]
 ExecutiveSection <- Calculation$section
-ExecutiveAashto <- Calculation$aashto$summary[1L, , drop = FALSE]
-ExecutiveAlpha1Plain <- ExecutivePlainCase("alpha-1")
-ExecutiveAlpha0Plain <- ExecutivePlainCase("alpha-0")
-ExecutiveWallLossPercent <- 100 * (
-  1 - ExecutiveSection$remainingBaseThicknessMm /
-    ExecutiveSection$referenceBaseThicknessMm
-)
-stopifnot(
-  ExecutiveAashto$calculationStatus == "satisfied",
-  ExecutiveAashto$specificationStatus != "verified-current-edition",
-  ExecutiveWallLossPercent >= 0,
-  Calculation$aashto$inputs$fastenerDiameterLossRatio >= 0
+ExecutiveThicknessLossRatio <- 1 -
+  ExecutiveSection$remainingBaseThicknessMm /
+    ExecutiveSection$designBaseThicknessMm
+ExecutiveSpecifiedThicknessLossRatio <- 1 -
+  ExecutiveSection$remainingBaseThicknessMm /
+    ExecutiveSection$specifiedThicknessMm
+ExecutiveSeam <- ReportAashtoCheck("seam")
+ExecutiveAashtoPass <- all(
+  Calculation$aashto$checks$checkStatus == "satisfied"
 )
 ```
 
 # Resumen ejecutivo {#sec-executive}
 
-La memoria analiza un túnel circular de
-`r formatCalculationFixed(Calculation$geometry$centroidalDiameterM, 2L)` m de
-diámetro, revestido actualmente con chapa de acero corrugada. El objetivo es
-cuantificar las fuerzas que actúan en ese revestimiento, comprobar su respuesta
-con la base AASHTO declarada y determinar si una capa de hormigón proyectado sin
-armadura puede constituir una alternativa de rehabilitación.
+Esta memoria calcula el liner corrugado existente y dos secciones de
+rehabilitación bajo la acción permanente del relleno y de la sobrecarga de
+lodo. Las cinco comparaciones aritméticas de
+referencia para la chapa —pared, pandeo, costura, flexibilidad y tapada—
+`r if (ExecutiveAashtoPass) "quedan dentro de sus límites" else "incluyen resultados fuera de sus límites"`.
+El cierre de la evaluación del liner existente requiere confirmar el espesor
+remanente, la resistencia de la unión y la edición contractual de la norma.
+También se analizan secciones de hormigón proyectado de 100 y 150 mm. Para
+ambos espesores se presentan diagramas de interacción fuerza--momento con
+distintas cuantías circunferenciales. Estos diagramas constituyen la base para
+seleccionar la armadura y desarrollar el detalle constructivo en la etapa
+siguiente.
 
-El escenario geotécnico adopta una tapada de
-`r formatCalculationFixed(ExecutiveStress$coverCrownM, 0L)` m sobre la clave,
-un peso unitario efectivo de
-`r formatCalculationFixed(ExecutiveStress$effectiveUnitWeightKnPerM3, 0L)`
-kN/m³, sobrecarga nula y ausencia de presión hidráulica neta. El coeficiente de
-presión lateral en reposo se estima con $\phi'=$
-`r formatCalculationFixed(ExecutiveStress$frictionAngleDeg, 0L)`° y OCR =
-`r formatCalculationGeneral(ExecutiveStress$ocr)` mediante la expresión de
-Mayne--Kulhawy. Se obtiene $K_0=$
-`r formatCalculationGeneral(ExecutiveStress$k0Applied)`, con tensiones efectivas
-en el eje de  
-`r formatCalculationFixed(ExecutiveStress$effectiveVerticalStressKPa, 0L)` kPa
+El túnel tiene
+`r formatCalculationFixed(Calculation$geometry$centroidalDiameterM, 1L)` m de
+diámetro y una tapada de
+`r formatCalculationFixed(ExecutiveStress$coverCrownM, 1L)` m sobre la clave.
+El cálculo adopta provisionalmente un peso unitario efectivo de
+`r formatCalculationFixed(ExecutiveStress$effectiveUnitWeightKnPerM3, 1L)`
+kN/m³, un ángulo de fricción efectiva de
+`r formatCalculationFixed(ExecutiveStress$frictionAngleDeg, 0L)`° y una
+relación de sobreconsolidación de
+`r formatCalculationGeneral(ExecutiveStress$ocr)`. La sobrecarga es
+`r formatCalculationFixed(ExecutiveStress$effectiveSurchargeKPa, 1L)` kPa y la
+representa 6 m de lodo con peso unitario de 1,5 t/m³; se incluye junto con el
+relleno como acción permanente. La
+presión hidráulica neta es
+`r formatCalculationFixed(Calculation$config$action$waterPressureDifferenceKPa, 1L)`
+kPa.
+El coeficiente de presión en reposo relaciona las tensiones efectivas horizontal
+y vertical; con estas hipótesis vale
+`r formatCalculationGeneral(ExecutiveStress$k0Applied)`. En el eje del túnel se
+obtienen
+`r formatCalculationFixed(ExecutiveStress$effectiveVerticalStressKPa, 1L)` kPa
 en dirección vertical y
-`r formatCalculationFixed(ExecutiveStress$effectiveHorizontalStressKPa, 0L)`
-kPa en dirección horizontal [@MayneKulhawy1982].
+`r formatCalculationFixed(ExecutiveStress$effectiveHorizontalStressKPa, 1L)`
+kPa en dirección horizontal. El ángulo de fricción y la condición de agua se
+actualizarán cuando se disponga de la caracterización del relleno.
 
-Al proyectar esas tensiones sobre una pared circular aparecen una presión
-perpendicular a la chapa y una acción paralela a ella. Como la transferencia de
-la componente paralela depende del estado real de la interfaz entre el suelo y
-el revestimiento, se estudian dos casos límite del mismo estado geotécnico. En
-el primero se transfieren ambas componentes; en el segundo se transfiere sólo
-la presión perpendicular. No son etapas constructivas ni tapadas diferentes,
-sino dos límites para representar una transferencia de interfaz que todavía no
-ha sido caracterizada en terreno.
+La componente uniforme de la demanda se calcula con Schwartz--Einstein. Esta
+solución permite que la carga se redistribuya según la rigidez del terreno y
+la del liner. A ella se suma la variación lineal de las tensiones entre clave
+y solera, equilibrada mediante una reacción radial continua. La condición de
+contacto se representa mediante los límites con deslizamiento libre y sin
+deslizamiento. Para la chapa,
+el límite con deslizamiento libre produce máximos absolutos de
+`r formatCalculationFixed(ReportExtreme("alpha-1", "N"), 1L)` kN/m de fuerza
+circunferencial,
+`r formatCalculationFixed(ReportExtreme("alpha-1", "M"), 1L)` kN·m/m de
+momento y
+`r formatCalculationFixed(ReportExtreme("alpha-1", "Q"), 1L)` kN/m de corte.
+Sin deslizamiento, los máximos respectivos son
+`r formatCalculationFixed(ReportExtreme("alpha-0", "N"), 1L)` kN/m,
+`r formatCalculationFixed(ReportExtreme("alpha-0", "M"), 1L)` kN·m/m y
+`r formatCalculationFixed(ReportExtreme("alpha-0", "Q"), 1L)` kN/m. El
+dominio físico corresponde a un medio elástico homogéneo con gradiente
+geostático lineal sobre la altura y reacción radial equilibrante.
 
-Cuando se transfieren ambas componentes, las máximas resultantes por metro de
-túnel son
-`r formatCalculationFixed(ExecutiveExtreme("alpha-1", "N"), 0L)` kN/m de
-fuerza circunferencial,
-`r formatCalculationFixed(ExecutiveExtreme("alpha-1", "M"), 0L)` kN·m/m de
-momento flector y
-`r formatCalculationFixed(ExecutiveExtreme("alpha-1", "Q"), 0L)` kN/m de
-fuerza de corte. Cuando se transfiere únicamente la presión perpendicular, los
-máximos son, respectivamente,
-`r formatCalculationFixed(ExecutiveExtreme("alpha-0", "N"), 0L)` kN/m,
-`r formatCalculationFixed(ExecutiveExtreme("alpha-0", "M"), 0L)` kN·m/m y
-`r formatCalculationFixed(ExecutiveExtreme("alpha-0", "Q"), 0L)` kN/m.
+La evaluación de la chapa adopta un espesor base remanente de
+`r formatCalculationGeneral(ExecutiveSection$remainingBaseThicknessMm)` mm,
+`r if (abs(ExecutiveThicknessLossRatio) < 1e-12) "igual al espesor base de diseño; esto equivale a asumir cero pérdida de espesor por corrosión" else paste0("equivalente a una pérdida de ", formatCalculationFixed(100 * ExecutiveSpecifiedThicknessLossRatio, 0L), " % respecto de los ", formatCalculationGeneral(ExecutiveSection$specifiedThicknessMm), " mm especificados y de ", formatCalculationFixed(100 * ExecutiveThicknessLossRatio, 0L), " % respecto del espesor base de diseño tabulado")`. En la comparación de la costura, la demanda
+calculada es
+`r formatCalculationFixed(ExecutiveSeam$observedValue, 1L)` kN/m y la
+resistencia publicada de referencia es
+`r formatCalculationFixed(ExecutiveSeam$limitValue, 1L)` kN/m, de modo que la
+demanda alcanza el
+`r formatCalculationFixed(100 * ExecutiveSeam$utilization, 0L)` % de esa
+resistencia. Esta comprobación AASHTO/USACE es un control escalar separado de
+las resultantes angulares del modelo híbrido. La inspección debe confirmar
+el espesor remanente y establecer la resistencia de la unión existente antes de
+cerrar la evaluación de la chapa.
 
-El perfil se identifica comercialmente como
-`r formatCalculationGeneral(ExecutiveSection$specifiedThicknessMm)` mm, pero
-su espesor base de referencia y el espesor remanente adoptado son ambos
-`r formatCalculationGeneral(ExecutiveSection$remainingBaseThicknessMm)` mm.
-Por lo tanto, el cálculo supone
-`r formatCalculationFixed(ExecutiveWallLossPercent, 0L)` % de pérdida del
-espesor base por corrosión; la diferencia entre la designación comercial y el
-espesor base no se contabiliza como corrosión. También se adopta
-`r formatCalculationFixed(100 * Calculation$aashto$inputs$fastenerDiameterLossRatio, 0L)`
-% de pérdida del diámetro de los elementos de unión.
-
-Con esas hipótesis, la comparación AASHTO de referencia satisface los controles
-aritméticos incluidos. Las utilizaciones son
-`r formatCalculationFixed(ExecutiveAashtoCheck("wall-yield"), 2L)` para
-fluencia de pared,
-`r formatCalculationFixed(ExecutiveAashtoCheck("wall-buckling"), 2L)` para
-pandeo,
-`r formatCalculationFixed(ExecutiveAashtoCheck("flexibility"), 2L)` para
-flexibilidad y
-`r formatCalculationFixed(ExecutiveAashtoCheck("minimum-cover"), 2L)` para
-tapada mínima. Gobierna la costura de referencia con una utilización de
-`r formatCalculationFixed(ExecutiveAashtoCheck("seam"), 2L)`. Esta comparación
-reproduce una base de ediciones anteriores y no demuestra la equivalencia de
-la unión existente ni el cumplimiento de la edición AASHTO vigente
-[@USACE2020; @AndersonEtAl2023].
-
-El liner de hormigón proyectado simple evaluado, de
-`r formatCalculationFixed(1000 * Calculation$shotcrete$section$thicknessM, 0L)`
-mm y $f'_c=`r formatCalculationFixed(Calculation$config$additionalLinings$shotcrete$compressiveStrengthMPa, 0L)`$
-MPa, no satisface la comprobación local de la cara traccionada: alcanza
-$U=`r formatCalculationFixed(ExecutiveAlpha1Plain$shotcreteLocalStrengthUtilization, 1L)`$
-cuando se transfieren ambas componentes y
-$U=`r formatCalculationFixed(ExecutiveAlpha0Plain$shotcreteLocalStrengthUtilization, 1L)`$
-cuando se transfiere únicamente la presión perpendicular. En consecuencia, la
-sección de hormigón proyectado simple no verifica para las acciones calculadas
-y la rehabilitación requiere armadura; su cuantía y detalle deben comprobarse
-como sección armada [@ACI31825].
+Las dos familias de hormigón se muestran en diagramas separados para distinguir
+el efecto del espesor del efecto de la cuantía. Las verificaciones y el alcance
+de cada familia se desarrollan en el capítulo correspondiente.

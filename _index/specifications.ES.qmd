@@ -4,6 +4,6 @@ root <- normalizePath(".", mustWork = TRUE)
 source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
 ```
 
-# Especificaciones técnicas para la inspección del revestimiento circular {#sec-specifications}
+# Especificación Técnica de Inspección — Túnel Espesador San Francisco {#sec-specifications}
 
 {{< include /_chapters/specifications.inspection.es.md >}}

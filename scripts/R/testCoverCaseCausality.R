@@ -55,7 +55,6 @@ Mutations <- list(
   list(path = c("plainConcrete", "thicknessM"), value = 0.11),
   list(path = c("plainConcrete", "poisson"), value = 0.21),
   list(path = c("plainConcrete", "compressiveStrengthMPa"), value = 26),
-  list(path = c("plainConcrete", "castAgainstSoil"), value = TRUE),
   list(path = c("reinforcedConcrete", "outerRadiusM"), value = 1.325),
   list(path = c("reinforcedConcrete", "thicknessM"), value = 0.13),
   list(path = c("reinforcedConcrete", "poisson"), value = 0.21),
@@ -78,7 +77,7 @@ Mutations <- list(
   )
 )
 
-stopifnot(length(Mutations) == 28L)
+stopifnot(length(Mutations) == 27L)
 for (i in seq_along(Mutations)) {
   AUX <- Mutations[[i]]
   Variant <- mutateCoverCaseInput(

@@ -2,6 +2,33 @@
 #| include: false
 root <- normalizePath(".", mustWork = TRUE)
 source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
+ReportExtreme <- function(caseID, resultantID) {
+  Row <- Calculation$extrema[
+    Calculation$extrema$caseID == caseID &
+      Calculation$extrema$resultantID == resultantID &
+      Calculation$extrema$statisticID == "absolute-maximum",
+    ,
+    drop = FALSE
+  ]
+  if (nrow(Row) != 1L || !is.finite(Row$value)) {
+    stop("Missing resultant: ", caseID, ".", resultantID)
+  }
+  Row$value
+}
+ReportAashtoCheck <- function(checkID) {
+  Row <- Calculation$aashto$checks[
+    Calculation$aashto$checks$checkID == checkID,
+    ,
+    drop = FALSE
+  ]
+  if (nrow(Row) != 1L || !is.finite(Row$utilization)) {
+    stop("Missing AASHTO check: ", checkID)
+  }
+  Row
+}
+RemainingThicknessLossRatio <- 1 -
+  Calculation$section$remainingBaseThicknessMm /
+    Calculation$section$designBaseThicknessMm
 ```
 
 # Verificación del liner existente {#sec-calculation-steel}

@@ -61,24 +61,19 @@ buildLinerRehabilitationInteractionPlot <- function(
     stop("A reinforcement P-M domain is not ordered.", call. = FALSE)
   }
   PublicLabel <- function(row) {
-    Role <- if (row$isConfiguredCase) {
-      "Configurada"
-    } else if (row$isMinimumHistoricalCase) {
-      "Mínimo histórico"
+    Role <- if (row$isMinimumHistoricalCase) {
+      " (mínimo histórico)"
     } else {
-      "Referencia"
+      ""
     }
     paste0(
-      Role,
-      " · rho=",
-      formatC(100 * row$reinforcementRatio, format = "f", digits = 3L),
-      "% · As=",
+      "As,total = ",
       formatC(
         row$circumferentialAreaTotalMm2PerM / 100,
         format = "f",
         digits = 2L
       ),
-      " cm2/m"
+      " cm²/m", Role
     )
   }
   LineRows <- lapply(seq_len(nrow(Sweep)), function(i) {
@@ -89,26 +84,26 @@ buildLinerRehabilitationInteractionPlot <- function(
       X = Domain$bendingStrengthKnMPerM,
       Y = Domain$axialStrengthKnPerM,
       style = if (Row$isMinimumHistoricalCase) "Dash" else "Solid",
-      size = if (Row$isConfiguredCase) THICK_LINE_SIZE else MID_LINE_SIZE
+      size = MID_LINE_SIZE
     )
   })
   Lines <- data.table::rbindlist(LineRows)
   InterfaceLabels <- c(
-    `full-traction` = "A1",
-    `normal-only` = "A0"
+    `full-slip` = "Deslizamiento libre",
+    `no-slip` = "Sin deslizamiento"
   )
   StrengthLabel <- paste0(
     format(Demands$verticalStressFactor, trim = TRUE),
-    "V + ",
+    " vertical + ",
     format(Demands$horizontalStressFactor, trim = TRUE),
-    "H"
+    " horizontal"
   )
   InterfaceCode <- unname(InterfaceLabels[Demands$interfaceID])
   if (anyNA(InterfaceCode) ||
       length(unique(Demands$reinforcementCaseID)) != 1L ||
       unique(Demands$reinforcementCaseID) !=
         Sweep$reinforcementCaseID[Sweep$isConfiguredCase]) {
-    stop("The configured P-M demand labels are incomplete.", call. = FALSE)
+    stop("The P-M family demand labels are incomplete.", call. = FALSE)
   }
   Points <- data.table::data.table(
     ID = paste(InterfaceCode, StrengthLabel, sep = " · "),
@@ -123,7 +118,7 @@ buildLinerRehabilitationInteractionPlot <- function(
     plot.height = 600,
     xAxis.legend = "Momento flector, M [kN·m/m]",
     yAxis.legend = "Fuerza axial, P [kN/m]",
-    group.legend = "Dominios por cuantía y demandas configuradas",
+    group.legend = "Capacidad por cuantía y demandas E–S",
     plot.theme = HC.THEME,
     line.size = MID_LINE_SIZE,
     point.size = 6,

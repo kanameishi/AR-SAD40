@@ -112,10 +112,337 @@ La transformación a la convención general se realiza mediante la
 
 La referencia no tabula la fuerza cortante. Su valor puede deducirse de la
 derivada del momento, pero no se utiliza como dato publicado de contraste.
+Este caso comprueba los coeficientes de la formulación Schwartz--Einstein
+empleada para las demandas de diseño. Los casos de Baker comprueban, de manera
+separada, la integración directa de cargas prescritas.
+
+## Relación entre Schwartz--Einstein, Fourier y el estado $K_0$
+
+Schwartz--Einstein entrega, después de transformar sus signos y coordenada, la
+respuesta
+
+$$
+N_\theta=N_0+N_2\cos2\theta,
+\qquad
+M_\theta=M_2\cos2\theta,
+\qquad
+Q_\theta=-\frac{2M_2}{R}\sin2\theta.
+$$ {#eq-se-project-harmonics}
+
+Para comprobar exclusivamente el equilibrio de esa respuesta, las
+@eq-ring-equilibrium-r y @eq-ring-equilibrium-t permiten reconstruir las
+tracciones equivalentes
+
+$$
+a_0=\frac{N_0}{R},
+\qquad
+a_2=\frac{N_2}{R}-\frac{4M_2}{R^2},
+\qquad
+d_2=\frac{2N_2}{R}-\frac{2M_2}{R^2},
+$$ {#eq-se-equivalent-tractions}
+
+con los demás coeficientes nulos. Al aplicar esos tres coeficientes a la
+solución Fourier y a la integración directa, las seis combinaciones de sección
+e interfaz del caso vigente reproducen las resultantes Schwartz--Einstein
+dentro de las tolerancias declaradas. Las diferencias de la
+@tbl-se-fourier-equivalence se normalizan con $P_{SE}R$ para fuerzas y
+$P_{SE}R^2$ para momentos.
+
+```{r}
+#| label: tbl-se-fourier-equivalence
+#| tbl-cap: "Reconstrucción de las resultantes Schwartz--Einstein mediante Fourier e integración directa."
+equivalence <- read.csv(
+  "TITO/kb/benchmarks/project-es-fourier-equivalence.csv",
+  na.strings = "UNKNOWN",
+  check.names = FALSE
+)
+liningNames <- c(
+  steel = "chapa corrugada",
+  shotcrete = "hormigón proyectado de 100 mm",
+  reinforcedConcrete = "hormigón proyectado de 150 mm"
+)
+interfaceNames <- c(
+  `full-slip` = "deslizamiento completo",
+  `no-slip` = "sin deslizamiento"
+)
+equivalenceTable <- data.frame(
+  Revestimiento = unname(liningNames[equivalence$liningID]),
+  `Interfaz E--S` = unname(interfaceNames[equivalence$interfaceID]),
+  Modos = equivalence$modes,
+  `Diferencia máxima Fourier` = formatC(
+    equivalence$fourierMaximumNormalizedDifference,
+    format = "e",
+    digits = 2
+  ),
+  `Diferencia máxima integración directa` = formatC(
+    equivalence$directMaximumNormalizedDifference,
+    format = "e",
+    digits = 2
+  ),
+  Estado = ifelse(
+    equivalence$fourierStatus == "satisfied" &
+      equivalence$directStatus == "satisfied",
+    "satisface",
+    "no satisface"
+  ),
+  check.names = FALSE
+)
+knitr::kable(equivalenceTable, align = c("l", "l", "r", "r", "r", "c"))
+```
+
+Este resultado no significa que Fourier converja físicamente a
+Schwartz--Einstein. La solución de interacción determina primero $N_0$, $N_2$
+y $M_2$ mediante $C^*$, $F^*$ y la interfaz; Fourier e integración directa sólo
+reproducen después el equilibrio de esos coeficientes. Si se parte, en cambio,
+de la proyección uniforme del estado $K_0$, los coeficientes son los de la
+@eq-k0-full-response o la @eq-k0-normal-response y no dependen de la rigidez
+del revestimiento.
+
+```{r}
+#| label: tbl-uniform-interaction-comparison
+#| tbl-cap: "Comparación de coeficientes para el mismo campo uniforme. Las prescripciones de carga y los límites de interfaz E--S no son condiciones equivalentes entre sí."
+interactionComparison <- read.csv(
+  "TITO/kb/benchmarks/project-uniform-interaction-comparison.csv",
+  na.strings = "UNKNOWN",
+  check.names = FALSE
+)
+isPrescribed <- interactionComparison$methodID == "prescribed-uniform-k0"
+prescribedRows <- interactionComparison[isPrescribed, , drop = FALSE]
+prescribedRows <- prescribedRows[
+  !duplicated(prescribedRows$interfaceID),
+  ,
+  drop = FALSE
+]
+comparisonRows <- rbind(
+  prescribedRows,
+  interactionComparison[!isPrescribed, , drop = FALSE]
+)
+methodNames <- c(
+  `prescribed-uniform-k0` = "carga K0 prescrita",
+  `schwartz-einstein-external-loading` = "Schwartz--Einstein"
+)
+conditionNames <- c(
+  `full-traction` = "proyección completa",
+  `normal-only` = "exclusivamente normal",
+  `full-slip` = "deslizamiento completo",
+  `no-slip` = "sin deslizamiento"
+)
+uniformTable <- data.frame(
+  Formulación = unname(methodNames[comparisonRows$methodID]),
+  Revestimiento = ifelse(
+    comparisonRows$methodID == "prescribed-uniform-k0",
+    "cualquier sección",
+    unname(liningNames[comparisonRows$liningID])
+  ),
+  Condición = unname(conditionNames[comparisonRows$interfaceID]),
+  `N0/(PSE R)` = formatC(
+    comparisonRows$normalMode0Ratio,
+    format = "f",
+    digits = 4
+  ),
+  `N2/(PSE R)` = formatC(
+    comparisonRows$normalMode2Ratio,
+    format = "f",
+    digits = 4
+  ),
+  `M2/(PSE R2)` = formatC(
+    comparisonRows$momentMode2Ratio,
+    format = "f",
+    digits = 4
+  ),
+  check.names = FALSE
+)
+knitr::kable(uniformTable, align = c("l", "l", "l", "r", "r", "r"))
+```
+
+La @tbl-uniform-interaction-comparison muestra el efecto buscado: las tres
+secciones reciben coeficientes diferentes con Schwartz--Einstein, mientras que
+la carga $K_0$ prescrita conserva los mismos coeficientes adimensionales. En la
+memoria vigente, Schwartz--Einstein gobierna la componente uniforme y la
+corrección equilibrada agrega el gradiente lineal; la proyección biaxial
+uniforme prescrita permanece como control y no se combina ni se promedia con
+la demanda.
+
+La @eq-methodology-linear-gradient-load introduce sólo $n=1$ y $n=3$. La
+primera fila de cada revestimiento en la @tbl-balanced-gradient-modes muestra
+la resultante vertical antes de definir el apoyo; la segunda incorpora la
+reacción radial exacta de la @eq-methodology-gradient-support-reaction y
+recupera el equilibrio global.
+
+```{r}
+#| label: tbl-balanced-gradient-modes
+#| tbl-cap: "Modos del gradiente geostático y reacción radial equilibrante. N, Q y Fz se expresan en kN/m; M, en kN m/m."
+gradientModes <- read.csv(
+  "TITO/kb/benchmarks/project-depth-gradient-modes.csv",
+  na.strings = "UNKNOWN",
+  check.names = FALSE
+)
+fullGradient <- gradientModes[
+  gradientModes$gradientCaseID ==
+    "full-geostatic-linear-gradient-unbalanced",
+  ,
+  drop = FALSE
+]
+balancedGradient <- gradientModes[
+  gradientModes$gradientCaseID ==
+    "balanced-full-geostatic-linear-gradient",
+  ,
+  drop = FALSE
+]
+balancedGradient <- balancedGradient[
+  match(fullGradient$liningID, balancedGradient$liningID),
+  ,
+  drop = FALSE
+]
+gradientTable <- data.frame(
+  Revestimiento = unname(liningNames[fullGradient$liningID]),
+  `Fz antes de la reacción` = formatC(
+    fullGradient$globalVerticalForceKnPerM,
+    format = "f",
+    digits = 0
+  ),
+  `Reacción radial n1` = formatC(
+    balancedGradient$supportRadialMode1KPa,
+    format = "f",
+    digits = 0
+  ),
+  `Fz equilibrada` = formatC(
+    balancedGradient$globalVerticalForceKnPerM,
+    format = "e",
+    digits = 1
+  ),
+  `N1` = formatC(
+    balancedGradient$normalMode1KnPerM,
+    format = "f",
+    digits = 0
+  ),
+  `N3` = formatC(
+    balancedGradient$normalMode3KnPerM,
+    format = "f",
+    digits = 0
+  ),
+  `M3` = formatC(
+    balancedGradient$momentMode3KnMPerM,
+    format = "f",
+    digits = 0
+  ),
+  `Q3` = formatC(
+    balancedGradient$shearMode3KnPerM,
+    format = "f",
+    digits = 0
+  ),
+  check.names = FALSE
+)
+knitr::kable(gradientTable, align = c("l", rep("r", 7)))
+```
+
+La corrección equilibrada se evaluó de dos maneras independientes: solución
+modal de Fourier e integración numérica de las ecuaciones diferenciales del
+anillo. La @tbl-balanced-gradient-verification informa la diferencia máxima
+normalizada, el residuo de equilibrio y la compresión mínima prescrita sobre
+el contacto.
+
+```{r}
+#| label: tbl-balanced-gradient-verification
+#| tbl-cap: "Controles numéricos de la corrección equilibrada para el escenario vigente."
+gradientVerification <- read.csv(
+  "TITO/kb/benchmarks/project-hybrid-gradient-verification.csv",
+  check.names = FALSE
+)
+gradientVerificationTable <- data.frame(
+  Revestimiento = unname(liningNames[gradientVerification$liningID]),
+  `Descenso de la resultante lateral [cm]` = formatC(
+    100 * gradientVerification$horizontalResultantOffsetBelowAxisM,
+    format = "f",
+    digits = 0
+  ),
+  `Diferencia Fourier--integración` = formatC(
+    gradientVerification$fourierDirectMaximumNormalizedDifference,
+    format = "e",
+    digits = 1
+  ),
+  `Residuo de equilibrio` = formatC(
+    gradientVerification$fourierMaximumNormalizedEquilibriumResidual,
+    format = "e",
+    digits = 1
+  ),
+  `Compresión mínima [kPa]` = formatC(
+    gradientVerification$minimumPrescribedCompressivePressureKPa,
+    format = "f",
+    digits = 0
+  ),
+  Estado = ifelse(
+    gradientVerification$parityStatus == "satisfied" &
+      gradientVerification$equilibriumStatus == "satisfied" &
+      gradientVerification$prescribedCompressionStatus == "satisfied",
+    "satisface",
+    "no satisface"
+  ),
+  check.names = FALSE
+)
+knitr::kable(
+  gradientVerificationTable,
+  align = c("l", "r", "r", "r", "r", "c")
+)
+```
+
+La comparación con la solución uniforme se presenta en la
+@tbl-hybrid-resultant-comparison. Las variaciones relativas grandes de momento
+y corte de la chapa se deben a que sus valores uniformes son pequeños; deben
+leerse junto con la diferencia absoluta.
+
+```{r}
+#| label: tbl-hybrid-resultant-comparison
+#| tbl-cap: "Máximos absolutos antes y después de incorporar el gradiente equilibrado para el límite con deslizamiento libre."
+hybridComparison <- read.csv(
+  "TITO/kb/benchmarks/project-hybrid-resultant-comparison.csv",
+  check.names = FALSE
+)
+hybridComparison <- hybridComparison[
+  hybridComparison$interfaceID == "full-slip",
+  ,
+  drop = FALSE
+]
+resultantNames <- c(N = "N", M = "M", Q = "Q")
+hybridComparisonTable <- data.frame(
+  Revestimiento = unname(liningNames[hybridComparison$liningID]),
+  Resultante = unname(resultantNames[hybridComparison$resultantID]),
+  `E--S uniforme` = formatC(
+    hybridComparison$schwartzEinsteinAbsoluteMaximum,
+    format = "f",
+    digits = 0
+  ),
+  `Modelo híbrido` = formatC(
+    hybridComparison$hybridAbsoluteMaximum,
+    format = "f",
+    digits = 0
+  ),
+  `Cambio absoluto` = formatC(
+    hybridComparison$absoluteMaximumChange,
+    format = "f",
+    digits = 0
+  ),
+  `Cambio [%]` = formatC(
+    100 * hybridComparison$relativeMaximumChange,
+    format = "f",
+    digits = 0
+  ),
+  check.names = FALSE
+)
+knitr::kable(
+  hybridComparisonTable,
+  align = c("l", "c", "r", "r", "r", "r")
+)
+```
+
+La comprobación separa así cuatro preguntas: HP97 valida las ecuaciones
+Schwartz--Einstein; la reconstrucción $n=0,2$ valida su transferencia a las
+ecuaciones del anillo; el equilibrio y la paridad Fourier--integración validan
+la corrección $n=1,3$; y el control de compresión verifica que la acción
+prescrita no exige tracción de contacto. No se atribuye a E--S una impedancia
+para $n=1$ o $n=3$ que la formulación publicada no contiene.
 
 ## Formulaciones de Núñez
-
-### Ejemplos circulares de 2000
 
 El ejemplo de Núñez de 2000 adopta $D=10\ \mathrm{m}$, profundidad del eje
 $H=15\ \mathrm{m}$, $\gamma=1.9\ \mathrm{tf/m^3}$,
@@ -142,8 +469,6 @@ La mayor diferencia relativa es $1.31\,\%$ y corresponde al momento del
 revestimiento permanente, publicado con dos cifras significativas. Para la
 conversión de las unidades originales se adopta
 $1\ \mathrm{tf}=9.80665\ \mathrm{kN}$.
-
-### Diferencia respecto de la formulación de 2014
 
 Las ecuaciones publicadas en 2014 no son intercambiables con las de 2000. La
 @tbl-nunez-version-check muestra las diferencias obtenidas al utilizar los
@@ -192,6 +517,8 @@ como una reproducción independiente.
 | USACE, ejemplo D4 | presión vertical y fuerza normal circunferencial | valores publicados reproducidos con los factores del ejemplo |
 | FHWA-RD-98-191 | presión horizontal de compactación | ocho filas reproducidas; una inconsistencia de datos identificada |
 | Schwartz--Einstein, HP97 | fuerza normal y momento para cuatro combinaciones | valores publicados reproducidos en la convención de la fuente |
+| Schwartz--Einstein frente a Fourier e integración directa | reconstrucción de $N$, $M$ y $Q$ mediante los modos $n=0,2$ | diferencias dentro de las tolerancias declaradas para las seis combinaciones |
+| gradiente lineal sobre la altura | modos $n=1,3$, equilibrio global y paridad Fourier--integración | la reacción radial $n=1$ equilibra el campo completo; los controles numéricos y de compresión satisfacen |
 | Núñez 2000 | parámetros, fuerza normal y momento | diferencia relativa máxima de $1.31\,\%$ respecto de valores redondeados |
 | Núñez et al. 2014 | comparación publicada con análisis bidimensionales | tres resultantes publicadas para el caso 3; la información disponible no permite reproducir independientemente los siete casos |
 

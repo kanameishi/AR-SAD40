@@ -7,8 +7,10 @@ source("scripts/fig/ringParametric.R")
   pathScales,
   radius,
   graphicAmplification = 1,
-  liningID = NULL
+  liningID = NULL,
+  scaleMode = c("provided", "local-by-lining-and-resultant")
 ) {
+  scaleMode <- match.arg(scaleMode)
   if (!file.exists(pathCurves) || !file.exists(pathScales)) {
     stop("The calculation result files are not available.", call. = FALSE)
   }
@@ -60,12 +62,20 @@ source("scripts/fig/ringParametric.R")
       fullTraction = "Proyección tangencial completa (α = 1)",
       `full-traction` = "Proyección tangencial completa (α = 1)",
       normalOnly = "Acción exclusivamente normal (α = 0)",
-      `normal-only` = "Acción exclusivamente normal (α = 0)"
+      `normal-only` = "Acción exclusivamente normal (α = 0)",
+      fullSlip = "Schwartz–Einstein: deslizamiento libre",
+      `full-slip` = "Schwartz–Einstein: deslizamiento libre",
+      noSlip = "Schwartz–Einstein: sin deslizamiento",
+      `no-slip` = "Schwartz–Einstein: sin deslizamiento"
     )
     Prescriptions <- unname(InterfaceLabels[Curves$interfaceID])
     StageLabels <- c(`completed-fill` = "Relleno completado")
     ModelLabels <- c(
-      `prescribed-biaxial-direct-integration` = "Integración directa"
+      `prescribed-biaxial-direct-integration` = "Integración directa",
+      `schwartz-einstein-external-loading` =
+        "Interacción elástica de carga externa",
+      `schwartz-einstein-balanced-gradient-hybrid` =
+        "Interacción E–S con gradiente geostático equilibrado"
     )
     Stages <- unname(StageLabels[Curves$stageID])
     Models <- unname(ModelLabels[Curves$interactionModelID])
@@ -128,12 +138,24 @@ source("scripts/fig/ringParametric.R")
     radialFraction = Scales$radialFraction,
     stringsAsFactors = FALSE
   )
+  if (identical(scaleMode, "local-by-lining-and-resultant")) {
+    if (any(!is.finite(Scales$maximumAbsoluteValue)) ||
+        any(Scales$maximumAbsoluteValue <= 0)) {
+      stop(
+        "Local display scaling requires positive resultant maxima.",
+        call. = FALSE
+      )
+    }
+    Scales$displayScale <-
+      Scales$radialFraction * radius / Scales$maximumAbsoluteValue
+  }
   Geometry <- prepareRingDiagram(
     Curves,
     Scales,
     radius,
     graphicAmplification = graphicAmplification
   )
+  Geometry$scaleMode <- scaleMode
   Geometry <- Geometry[order(
     match(as.character(Geometry$case), CaseOrder),
     match(as.character(Geometry$resultant), c("N", "M", "Q")),
@@ -149,14 +171,17 @@ buildCalculationResultants <- function(
   radius,
   graphicAmplification = 1,
   raysPerCircle = 36L,
-  liningID = NULL
+  liningID = NULL,
+  scaleMode = c("provided", "local-by-lining-and-resultant")
 ) {
+  scaleMode <- match.arg(scaleMode)
   Geometry <- .readResultantGeometry(
     pathCurves = pathCurves,
     pathScales = pathScales,
     radius = radius,
     graphicAmplification = graphicAmplification,
-    liningID = liningID
+    liningID = liningID,
+    scaleMode = scaleMode
   )
   buildRingStaticPlot(
     geometry = Geometry,
@@ -172,14 +197,17 @@ buildCalculationResultantsInteractive <- function(
   graphicAmplification = 1,
   raysPerCircle = 36L,
   resultant = c("N", "M", "Q"),
-  liningID = NULL
+  liningID = NULL,
+  scaleMode = c("provided", "local-by-lining-and-resultant")
 ) {
+  scaleMode <- match.arg(scaleMode)
   Geometry <- .readResultantGeometry(
     pathCurves = pathCurves,
     pathScales = pathScales,
     radius = radius,
     graphicAmplification = graphicAmplification,
-    liningID = liningID
+    liningID = liningID,
+    scaleMode = scaleMode
   )
   Resultants <- c("N", "M", "Q")
   if (!is.character(resultant) || length(resultant) == 0L ||
@@ -214,10 +242,23 @@ buildCalculationResultantsInteractive <- function(
       collapse = ", "
     )
   }
-  SubtitlePrefix <- if ("interfaceID" %in% names(Geometry)) {
+  SubtitlePrefix <- if (
+    "interfaceID" %in% names(Geometry) &&
+      all(unique(Geometry$interfaceID) %in% c("full-slip", "no-slip"))
+  ) {
+    "Interacción Schwartz–Einstein"
+  } else if ("interfaceID" %in% names(Geometry)) {
     "Proyecciones de la acción prescrita"
   } else {
     "Multiplicador tangencial α"
+  }
+  ScaleLabel <- if (identical(
+    scaleMode,
+    "local-by-lining-and-resultant"
+  )) {
+    "escala radial propia de esta sección y resultante"
+  } else {
+    "escala radial común de los productos"
   }
   Plot <- NGR::buildSectionResultantsPlot(
     curves = Geometry,
@@ -235,7 +276,8 @@ buildCalculationResultantsInteractive <- function(
       left = "Lateral izq."
     ),
     subtitle = paste0(
-      SubtitlePrefix, "; amplificación gráfica Ag = ",
+      SubtitlePrefix, "; ", ScaleLabel,
+      "; amplificación gráfica Ag = ",
       AmplificationLabel,
       ". La lectura interactiva conserva las magnitudes físicas."
     ),
@@ -247,9 +289,9 @@ buildCalculationResultantsInteractive <- function(
     formatter = htmlwidgets::JS(paste0(
       "function () {",
       "if (!this.point.custom) return false;",
-      "return '<b>' + this.series.name + '</b><br/>' + ",
-      "'&theta; = ' + Highcharts.numberFormat(this.point.custom.thetaDeg, 1) + '&deg;<br/>' + ",
-      "this.point.custom.resultant + ' = ' + Highcharts.numberFormat(this.point.custom.value, 0) + ' ' + this.point.custom.unit;",
+      "return '<b>' + this.series.name + '</b><br/>' +",
+      "'&theta; = ' + Highcharts.numberFormat(this.point.custom.thetaDeg, 1) + '&deg;<br/>' +",
+      "this.point.custom.resultant + ' = ' + Highcharts.numberFormat(this.point.custom.value, 1) + ' ' + this.point.custom.unit;",
       "}"
     ))
   )

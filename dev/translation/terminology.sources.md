@@ -84,8 +84,8 @@ antes de promoverlo:
 
 La cartografía semántica se realizó sobre:
 
-- `_master/calculation.review.es.qmd`, SHA-256
-  `4736a1d5a12752c156447d70400fb38186e181eb96b17f2b51c3059da048c265`;
+- `dev/legacy/calculation-review/_master/calculation.review.es.qmd`, SHA-256
+  `df7aec3c34b4156f06a16d2189e21a99e19ff19dc75be86ef62ed47acb8370b7`;
 - `calculation.basis.review.es.md`, SHA-256
   `c309e71c93079df5bb352a62ffa07ef4eb126e046c38a338dd82576d958eda19`;
 - `calculation.actions.review.es.md`, SHA-256

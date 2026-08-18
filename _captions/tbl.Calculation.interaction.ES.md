@@ -1,1 +1,1 @@
-Parámetros de la proyección biaxial y coeficientes armónicos de las resultantes del revestimiento de chapas de acero corrugadas. La integración directa gobierna el cálculo; $\alpha=1$ incorpora la tracción tangencial completa y $\alpha=0$ conserva únicamente la acción normal. $\eta_s=EI_\theta/(EA_\theta R^2)$ representa el acoplamiento uniforme de la sección.
+Coeficientes de interacción Schwartz--Einstein y amplitudes de la componente uniforme del liner de chapa. Los límites de deslizamiento libre y sin deslizamiento acotan la condición de contacto considerada en el diseño.

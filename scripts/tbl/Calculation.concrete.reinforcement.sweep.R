@@ -17,10 +17,10 @@ buildCalculationConcreteReinforcementSweepTable <- function(path, liningID) {
   Required <- c(
     "liningID", "reinforcementCaseOrder",
     "circumferentialAreaTotalMm2PerM", "reinforcementRatio",
-    "areaToMinimumRatio", "maximumRadialUtilization", "localPMStatus",
+    "maximumRadialUtilization", "localPMStatus",
     "governingInterfaceID", "governingVerticalStressFactor",
     "governingHorizontalStressFactor", "governingThetaDeg",
-    "isConfiguredCase", "isMinimumHistoricalCase", "calculationStatus"
+    "isLowerReferenceCase", "isParametricCase", "calculationStatus"
   )
   if (length(setdiff(Required, names(Data))) > 0L) {
     stop("The reinforcement P-M family has an invalid schema.", call. = FALSE)
@@ -33,59 +33,42 @@ buildCalculationConcreteReinforcementSweepTable <- function(path, liningID) {
   Data <- Data[order(Data$reinforcementCaseOrder), , drop = FALSE]
   if (nrow(Data) < 3L || nrow(Data) > 6L ||
       any(Data$calculationStatus != "calculated") ||
-      sum(Data$isConfiguredCase) != 1L ||
-      sum(Data$isMinimumHistoricalCase) != 1L) {
+      sum(Data$isLowerReferenceCase) != 1L ||
+      any(!Data$isParametricCase)) {
     stop("The reinforcement P-M family is incomplete.", call. = FALSE)
   }
   Role <- vapply(seq_len(nrow(Data)), function(i) {
-    if (Data$isConfiguredCase[i] && Data$isMinimumHistoricalCase[i]) {
-      "Configurada; mínimo histórico"
-    } else if (Data$isConfiguredCase[i]) {
-      "Configurada"
-    } else if (Data$isMinimumHistoricalCase[i]) {
-      "Mínimo histórico"
+    if (Data$isLowerReferenceCase[i]) {
+      "Cuantía mínima de referencia"
     } else {
-      "Referencia paramétrica"
+      "Cuantía evaluada"
     }
   }, character(1))
   InterfaceLabels <- c(
-    `full-traction` = "1",
-    `normal-only` = "0"
+    `full-slip` = "Deslizamiento libre",
+    `no-slip` = "Sin deslizamiento"
   )
   StatusLabels <- c(
-    satisfied = "Satisface",
-    `not-satisfied` = "No satisface"
+    satisfied = "Dentro del dominio",
+    `not-satisfied` = "Excede el dominio"
   )
   Output <- data.frame(
     Role = Role,
     Area = formatC(
       Data$circumferentialAreaTotalMm2PerM / 100,
       format = "f",
-      digits = 2L
+      digits = 1L
     ),
     Ratio = formatC(
       100 * Data$reinforcementRatio,
       format = "f",
-      digits = 3L
-    ),
-    MinimumMultiple = formatC(
-      Data$areaToMinimumRatio,
-      format = "f",
-      digits = 3L
+      digits = 2L
     ),
     Utilization = formatC(
       Data$maximumRadialUtilization,
       format = "f",
-      digits = 4L
+      digits = 2L
     ),
-    Interface = unname(InterfaceLabels[Data$governingInterfaceID]),
-    Combination = paste0(
-      format(Data$governingVerticalStressFactor, trim = TRUE),
-      "V + ",
-      format(Data$governingHorizontalStressFactor, trim = TRUE),
-      "H"
-    ),
-    Theta = formatC(Data$governingThetaDeg, format = "f", digits = 1L),
     Status = unname(StatusLabels[Data$localPMStatus]),
     check.names = FALSE,
     stringsAsFactors = FALSE
@@ -96,11 +79,10 @@ buildCalculationConcreteReinforcementSweepTable <- function(path, liningID) {
   knitr::kable(
     Output,
     col.names = c(
-      "Caso", "$A_{s,\\theta}$ [cm²/m]", "$\\rho_\\theta$ [%]",
-      "$\\mu$", "$U_{NM,\\max}$", "$\\alpha$", "Combinación",
-      "$\\theta$ [°]", "$S$"
+      "Caso", "Área circunferencial total [cm²/m]", "Cuantía [%]",
+      "Demanda/capacidad P–M", "Resultado P–M"
     ),
-    align = c("l", "r", "r", "r", "r", "c", "c", "r", "l"),
+    align = c("l", "r", "r", "r", "l"),
     escape = FALSE
   )
 }

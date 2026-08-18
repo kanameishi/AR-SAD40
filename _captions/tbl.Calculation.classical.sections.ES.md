@@ -1,0 +1,1 @@
+Propiedades de las tres secciones analizadas. Para la chapa corrugada, $e_N$ es el espesor homogéneo que reproduce su inercia por unidad de ancho; para el hormigón proyectado coincide con el espesor de la pared.

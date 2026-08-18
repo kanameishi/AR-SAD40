@@ -65,6 +65,23 @@
   Value
 }
 
+.coverCaseReadIncreasingGrid <- function(value, name, path) {
+  Grid <- unlist(
+    value[[name, exact = TRUE]],
+    recursive = TRUE,
+    use.names = FALSE
+  )
+  if (!is.numeric(Grid) || length(Grid) < 2L || any(!is.finite(Grid)) ||
+      any(Grid <= 0) || is.unsorted(Grid, strictly = TRUE)) {
+    stop(
+      path, ".", name,
+      " must be a strictly increasing array of at least two positive numbers.",
+      call. = FALSE
+    )
+  }
+  as.numeric(Grid)
+}
+
 .coverCaseNumberToken <- function(value) {
   Text <- format(value, scientific = FALSE, trim = TRUE, digits = 12)
   Text <- sub("[.]0+$", "", Text)
@@ -82,7 +99,7 @@
     inputs,
     c(
       "cover", "ground", "steel", "seam", "plainConcrete",
-      "reinforcedConcrete"
+      "reinforcedConcrete", "classicalComparison"
     ),
     "inputs"
   )
@@ -117,11 +134,15 @@
     ),
     "inputs.seam"
   )
+  ClassicalComparison <- .coverCaseRequireFields(
+    Inputs[["classicalComparison", exact = TRUE]],
+    c("nunezRelaxationFactor", "nunezContactFactor"),
+    "inputs.classicalComparison"
+  )
   Plain <- .coverCaseRequireFields(
     Inputs[["plainConcrete", exact = TRUE]],
     c(
-      "outerRadiusM", "thicknessM", "poisson", "compressiveStrengthMPa",
-      "castAgainstSoil"
+      "outerRadiusM", "thicknessM", "poisson", "compressiveStrengthMPa"
     ),
     "inputs.plainConcrete"
   )
@@ -130,7 +151,8 @@
     c(
       "outerRadiusM", "thicknessM", "poisson", "compressiveStrengthMPa",
       "reinforcementGradeID", "barDiameterMm", "barSpacingMm",
-      "clearCoverRatio", "reinforcementModulusMPa"
+      "clearCoverRatio", "reinforcementModulusMPa",
+      "reinforcementRatioGrid"
     ),
     "inputs.reinforcedConcrete"
   )
@@ -261,6 +283,11 @@
     minimum = 0,
     strictMinimum = TRUE
   )
+  ReinforcementRatioGrid <- .coverCaseReadIncreasingGrid(
+    Reinforced,
+    "reinforcementRatioGrid",
+    "inputs.reinforcedConcrete"
+  )
   calculateSymmetricReinforcementMesh(
     thicknessM = ReinforcedThickness,
     barDiameterMm = BarDiameter,
@@ -342,6 +369,22 @@
         maximum = 1, strictMaximum = TRUE
       )
     ),
+    classicalComparison = list(
+      nunezRelaxationFactor = .coverCaseReadNumber(
+        ClassicalComparison,
+        "nunezRelaxationFactor",
+        "inputs.classicalComparison",
+        minimum = 0,
+        maximum = 1
+      ),
+      nunezContactFactor = .coverCaseReadNumber(
+        ClassicalComparison,
+        "nunezContactFactor",
+        "inputs.classicalComparison",
+        minimum = 0,
+        strictMinimum = TRUE
+      )
+    ),
     plainConcrete = list(
       outerRadiusM = PlainOuterRadius,
       thicknessM = PlainThickness,
@@ -352,9 +395,6 @@
       compressiveStrengthMPa = .coverCaseReadNumber(
         Plain, "compressiveStrengthMPa", "inputs.plainConcrete", minimum = 0,
         strictMinimum = TRUE
-      ),
-      castAgainstSoil = .coverCaseReadFlag(
-        Plain, "castAgainstSoil", "inputs.plainConcrete"
       )
     ),
     reinforcedConcrete = list(
@@ -375,7 +415,8 @@
       barDiameterMm = BarDiameter,
       barSpacingMm = BarSpacing,
       clearCoverRatio = ClearCoverRatio,
-      reinforcementModulusMPa = ReinforcementModulus
+      reinforcementModulusMPa = ReinforcementModulus,
+      reinforcementRatioGrid = ReinforcementRatioGrid
     )
   )
 }
@@ -490,6 +531,7 @@
   Ground <- Inputs[["ground", exact = TRUE]]
   Steel <- Inputs[["steel", exact = TRUE]]
   Seam <- Inputs[["seam", exact = TRUE]]
+  ClassicalComparison <- Inputs[["classicalComparison", exact = TRUE]]
   Plain <- Inputs[["plainConcrete", exact = TRUE]]
   Reinforced <- Inputs[["reinforcedConcrete", exact = TRUE]]
 
@@ -527,6 +569,7 @@
     "waterPressureDifferenceKPa",
     exact = TRUE
   ]]
+  Config[["classicalComparison"]] <- ClassicalComparison
 
   Config[["lining"]][["sectionID"]] <- paste0(
     SectionReferenceID,
@@ -595,7 +638,7 @@
   ]] <- Plain[["compressiveStrengthMPa", exact = TRUE]]
   Config[["additionalLinings"]][["shotcrete"]][["aci"]][[
     "castAgainstSoil"
-  ]] <- Plain[["castAgainstSoil", exact = TRUE]]
+  ]] <- FALSE
   Config[["additionalLinings"]][["shotcrete"]][["sectionID"]] <- paste0(
     "shotcrete-t",
     formatC(Plain[["thicknessM", exact = TRUE]], format = "f", digits = 2L),
@@ -641,14 +684,7 @@
       "compressiveStrengthMPa",
       exact = TRUE
     ]]),
-    "-reinforced-d",
-    .coverCaseNumberToken(Reinforced[["barDiameterMm", exact = TRUE]]),
-    "-s",
-    .coverCaseNumberToken(Reinforced[["barSpacingMm", exact = TRUE]]),
-    "-c",
-    .coverCaseNumberToken(Reinforced[["clearCoverRatio", exact = TRUE]]),
-    "-",
-    .coverCaseTextToken(Reinforced[["reinforcementGradeID", exact = TRUE]])
+    "-parametric-pm"
   )
   ReinforcedConfig[["reinforcementGradeID"]] <- Reinforced[[
     "reinforcementGradeID",
@@ -659,6 +695,9 @@
     barSpacingMm = Reinforced[["barSpacingMm", exact = TRUE]],
     clearCoverRatio = Reinforced[["clearCoverRatio", exact = TRUE]]
   )
+  ReinforcedConfig[["reinforcementStudy"]][[
+    "reinforcementRatioGrid"
+  ]] <- as.list(Reinforced[["reinforcementRatioGrid", exact = TRUE]])
   StrengthCases <- Config[["additionalLinings", exact = TRUE]][[
     "shotcrete",
     exact = TRUE
@@ -789,6 +828,11 @@ resolveCoverCaseConfig <- function(
     stress = evaluation[["stress", exact = TRUE]],
     section = evaluation[["section", exact = TRUE]],
     interaction = evaluation[["interaction", exact = TRUE]],
+    schwartzEinsteinComparison = evaluation[[
+      "schwartzEinsteinComparison",
+      exact = TRUE
+    ]],
+    hybridGradient = evaluation[["hybridGradient", exact = TRUE]],
     resultants = evaluation[["resultants", exact = TRUE]],
     extrema = evaluation[["extrema", exact = TRUE]],
     controls = evaluation[["controls", exact = TRUE]],

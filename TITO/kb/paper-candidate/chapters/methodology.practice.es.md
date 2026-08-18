@@ -7,7 +7,7 @@ cada una y su función dentro de la metodología.
 | Referencia | Sistema considerado | Resultados que entrega la formulación | Función en la metodología |
 |---|---|---|---|
 | Baker [@Baker1968] | viga curva circular delgada con carga radial prescrita | $N_\theta$, $M_\theta$ y desplazamientos mediante series de Fourier | base mecánica del caso radial y comprobación con cargas por sectores |
-| Schwartz--Einstein [@SchwartzEinstein1980] | revestimiento circular extensible en un medio elástico homogéneo | fuerza normal y momento en función de la rigidez relativa, el estado inicial y la interfaz | comparación de interacción suelo--revestimiento para carga externa y descarga por excavación |
+| Schwartz--Einstein [@SchwartzEinstein1980] | revestimiento circular extensible en un medio elástico homogéneo | fuerza normal y momento en función de la rigidez relativa, el estado inicial y la interfaz | demanda interactiva mediante carga externa; descarga por excavación conservada como contraste |
 | USACE [@USACE2020] | tubería metálica corrugada enterrada, diseño LRFD | fuerza normal circunferencial factorizada por unidad de longitud | comparación externa de la componente uniforme de fuerza normal |
 | FHWA [@McGrathEtAl1999] | conductos instalados en zanja o terraplén; ensayos y análisis de interacción | carga vertical, empuje en hastiales y acción de la compactación | definición de estados de instalación y reproducción de la Ec. 5.1 |
 | Núñez [@Nunez2000] | túneles excavados en suelos pampeanos | fuerzas normales y momentos en puntos característicos | comparación semiempírica con los ejemplos circulares sin presión de agua de 2000 |
@@ -75,9 +75,18 @@ La referencia distingue carga externa —el revestimiento existe cuando se
 aplica el estado tensional— y descarga por excavación —el terreno está
 tensionado antes de excavar e instalar el sostenimiento—
 [@SchwartzEinstein1980, sec. 2.3, pp. 18--20]. Para el conducto colocado y
-rellenado se adopta la carga externa únicamente como comparación de interacción;
-el medio infinito, el campo uniforme y la ausencia de tongadas no representan
-la instalación real.
+rellenado se adopta la carga externa como modelo de interacción. Sus límites
+son explícitos: el medio infinito, el campo uniforme y la ausencia de tongadas
+no reproducen la instalación real ni la superficie libre.
+
+Las razones $C^*$ y $F^*$ introducen la compatibilidad de deformaciones y el
+reparto elástico de carga: un cambio de rigidez del revestimiento modifica los
+coeficientes de fuerza normal y momento. Esta compatibilidad no es el método de
+convergencia--confinamiento empleado para túneles excavados. La formulación
+no construye una curva de reacción del terreno ni una curva característica del
+sostenimiento, y por lo tanto no calcula la intersección denominada a veces
+“punto de convergencia”. Tampoco necesita un factor de liberación por frente
+para la secuencia de carga externa adoptada.
 
 ## Formulación circular de Núñez (2000)
 
@@ -162,6 +171,8 @@ $H_0$ medida sobre la clave, $H=H_0+D/2$.
 Las dos versiones corresponden a túneles excavados. Su función es proporcionar
 comparaciones separadas para ese dominio; las cargas del conducto colocado y
 rellenado se determinan mediante las formulaciones geotécnicas posteriores.
+El parámetro $\eta_N$ representa específicamente la relajación asociada al
+avance del frente y no se transfiere al conducto ejecutado a cielo abierto.
 
 ## USACE, FHWA y CANDE
 
@@ -169,16 +180,24 @@ El manual USACE aplica la especificación AASHTO a tuberías metálicas corrugad
 y calcula una fuerza normal circunferencial factorizada
 [@USACE2020, sec. 4.12]. Esa magnitud permite comparar la componente uniforme
 de fuerza normal circunferencial dentro del procedimiento citado. La
-distribución angular necesaria para calcular $M_\theta(\theta)$ y
-$Q_\theta(\theta)$ se establece mediante los modelos de carga del capítulo
-siguiente.
+distribución angular base para calcular $M_\theta(\theta)$ y
+$Q_\theta(\theta)$ se obtiene con Schwartz--Einstein; la variación lineal
+entre clave y solera se agrega mediante la corrección equilibrada de
+gradiente. La comparación
+AASHTO/USACE permanece como una rama escalar separada: la tapada y la luz
+determinan el nivel de empuje anular, pero esa expresión no proporciona una
+corrección general por $H/D$, una ley de interfaz ni la distribución angular
+de flexión y corte.
 
 FHWA-RD-98-191 combina caracterización de rellenos, ensayos de instalación y
 análisis bidimensionales. El material, la densidad alcanzada, el procedimiento
 de compactación, el tratamiento de riñones y la geometría de la zanja modifican
 la respuesta del conducto [@McGrathEtAl1999, caps. 4--5]. La acción horizontal
 empleada para reproducir la compactación se transforma a cargas perimetrales en
-la sección siguiente.
+la sección siguiente. En el procedimiento vigente sólo está formulada esa
+acción constructiva; permanece inactiva mientras no se definan equipo,
+tongadas y retención. No se utiliza FHWA como un factor oculto para reducir o
+aumentar la demanda permanente de Schwartz--Einstein.
 
 CANDE es un sistema especializado de análisis y diseño de conductos enterrados.
 El informe original define niveles de análisis, incluidos modelos en los que

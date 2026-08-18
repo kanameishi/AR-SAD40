@@ -2,7 +2,7 @@
 
 ## D.1 Controles del cálculo de acciones {.unnumbered}
 
-Para cada combinación y prescripción de proyección se comprueba:
+Para cada combinación y condición de interfaz se comprueba:
 
 - correspondencia entre los factores vertical y horizontal declarados y el
   estado tensional utilizado para resolver la interacción;
@@ -77,7 +77,8 @@ de las capas y el módulo elástico son primitivas de la sección, no valores
 deducidos de la cuantía total.
 
 Estas verificaciones demuestran el cálculo de compatibilidad y equilibrio y la
-cuantía mínima adoptada; no demuestran la conformidad integral con ACI. Antes
+evaluación de la cuantía mínima; no adoptan una malla ni demuestran la
+conformidad integral con ACI. Antes
 de emitir un dictamen integral de una cáscara delgada armada deben cerrarse,
 con el articulado aplicable de ACI CODE-318.2-25, las demandas de cáscara, el
 corte, la acción longitudinal, la estabilidad y el detallado.

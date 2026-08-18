@@ -51,8 +51,6 @@ esa formulación.
 
 ## Carga primaria
 
-### Forma abreviada de Jáky
-
 Para carga primaria, la expresión de uso habitual es
 
 $$
@@ -77,8 +75,6 @@ agrega un término genérico en $c'$: las expresiones que contienen
 $\pm2c'\sqrt K$ corresponden a estados límite activo o pasivo, no al estado en
 reposo. Un análisis no drenado en tensiones totales constituye otra rama
 constitutiva y no se habilita sin datos y evidencia propios.
-
-### Forma de 1944 y alcance de la derivación
 
 Michalowski transcribe la forma obtenida por Jáky en 1944:
 
@@ -237,8 +233,6 @@ distribución de $\Delta\sigma'_{h,c}$ permanecen sin determinar hasta
 caracterizar la secuencia, el equipo, el contenido de agua, la densidad
 alcanzada y la movilidad del revestimiento.
 
-### Presión nodal equivalente durante la compactación
-
 FHWA-RD-98-191 propone, para representar la acción de un equipo de
 compactación durante la colocación del relleno, la presión nodal horizontal
 equivalente [@McGrathEtAl1999, sec. 5.2.1, ec. 5.1]:
@@ -274,8 +268,6 @@ $\phi_\ell=28^\circ$ no reproduce $n_p=0.2$ kPa, mientras que
 $\phi_\ell=36^\circ$ sí lo hace al redondear. Esta discrepancia documental no
 autoriza a sustituir el parámetro impreso ni constituye una alternativa de
 diseño.
-
-### Incorporación al procedimiento de cálculo
 
 La aplicación de la relación de FHWA sigue una secuencia distinta de la
 estimación de $K_0$:

@@ -1,0 +1,20 @@
+```{r}
+#| include: false
+source("scripts/tbl/Calculation.concrete.reinforcement.sweep.R")
+TBL.PM100 <- buildCalculationConcreteReinforcementSweepTable(
+  path = Calculation$paths$shotcreteReinforcementSweep,
+  liningID = "shotcrete"
+)
+```
+
+```{r}
+#| label: tbl-calculation-concrete-t100-axial-flexure-sweep
+#| tbl-cap: !expr CAP.PM100.TBL
+#| echo: false
+TBL.PM100
+```
+
+```{r}
+#| include: false
+rm(TBL.PM100, buildCalculationConcreteReinforcementSweepTable)
+```

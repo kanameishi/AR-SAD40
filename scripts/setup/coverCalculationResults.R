@@ -127,6 +127,10 @@ loadCoverCalculationResults <- function(
     section = file.path(Directory, "section.properties.csv"),
     stress = file.path(Directory, "stress.state.csv"),
     interaction = file.path(Directory, "interaction.parameters.csv"),
+    schwartzEinstein = file.path(
+      Directory,
+      "schwartz.einstein.comparison.csv"
+    ),
     resultants = file.path(Directory, "section.resultants.csv"),
     extrema = file.path(Directory, "section.extrema.csv"),
     controls = file.path(Directory, "numerical.controls.csv"),
@@ -143,6 +147,10 @@ loadCoverCalculationResults <- function(
     shotcreteInteraction = file.path(
       Directory,
       "shotcrete.interaction.parameters.csv"
+    ),
+    shotcreteSchwartzEinstein = file.path(
+      Directory,
+      "shotcrete.schwartz.einstein.comparison.csv"
     ),
     shotcreteResultants = file.path(
       Directory,
@@ -178,9 +186,24 @@ loadCoverCalculationResults <- function(
       Directory,
       "shotcrete.axial.flexure.reinforcement.sweep.csv"
     ),
-    shotcreteReinforcementConfiguredDemands = file.path(
+    shotcreteReinforcementGoverningDemands = file.path(
       Directory,
-      "shotcrete.axial.flexure.reinforcement.configured.demands.csv"
+      "shotcrete.axial.flexure.reinforcement.governing.demands.csv"
+    ),
+    classicalComparisonInputs = file.path(
+      Directory, "classical.comparison.inputs.csv"
+    ),
+    classicalComparisonSections = file.path(
+      Directory, "classical.comparison.sections.csv"
+    ),
+    classicalComparisonCurves = file.path(
+      Directory, "classical.comparison.curves.csv"
+    ),
+    classicalComparisonPoints = file.path(
+      Directory, "classical.comparison.points.csv"
+    ),
+    classicalComparisonSummary = file.path(
+      Directory, "classical.comparison.summary.csv"
     ),
     config = file.path(Directory, "calculation.config.json")
   )
@@ -207,7 +230,7 @@ loadCoverCalculationResults <- function(
   Config <- validateCalculationConfig(readCalculationJson(Paths$config))
   if (Config[["schemaVersion", exact = TRUE]] != "3.1.0" ||
       Config[["analysisModelID", exact = TRUE]] !=
-        "prescribed-biaxial-direct-integration") {
+        "schwartz-einstein-balanced-gradient-hybrid") {
     stop("The main calculation must use schema 3.1.0.", call. = FALSE)
   }
   Inputs <- readProduct(
@@ -298,6 +321,7 @@ loadCoverCalculationResults <- function(
       "productTypeID", "sourceBasisID", "specificationStatus",
       "demandBasisID", "factorBasisID", "combinationID", "stageID",
       "forceEffectStatus", "coverCrownM", "totalUnitWeightKnPerM3",
+      "deadSurchargeKPa",
       "spanM", "areaMm2PerMm", "inertiaMm4PerMm",
       "yieldStrengthMPa", "tensileStrengthMPa", "elasticModulusMPa",
       "deadLoadFactor", "liveLoadFactor", "demandModifier",
@@ -348,6 +372,57 @@ loadCoverCalculationResults <- function(
       "specificationStatus", "systemStatus", "normativeStatus",
       "wallStatus", "seamStatus", "flexibilityStatus",
       "minimumCoverStatus", "governingCheckID", "governingUtilization"
+    )
+  )
+  ClassicalComparisonInputs <- readProduct(
+    Paths$classicalComparisonInputs,
+    c(
+      "scenarioID", "coverCrownM", "depthAxisM",
+      "effectiveUnitWeightKnPerM3", "effectiveSurchargeKPa",
+      "effectiveVerticalStressKPa", "effectiveHorizontalStressKPa",
+      "k0Applied", "groundModulusKPa", "groundPoisson",
+      "waterPressureDifferenceKPa", "nunezRelaxationFactor",
+      "nunezContactFactor", "curveAngleStepDeg", "forceEffectStatus"
+    )
+  )
+  ClassicalComparisonSections <- readProduct(
+    Paths$classicalComparisonSections,
+    c(
+      "scenarioID", "liningID", "sectionID", "centroidalDiameterM",
+      "structuralThicknessM", "nunezEquivalentThicknessM",
+      "nunezThicknessBasisID", "youngModulusKPa", "poisson",
+      "extensionalRigidityKnPerM", "flexuralRigidityKnM2PerM",
+      "nunezInteractionRatio"
+    )
+  )
+  ClassicalComparisonCurves <- readProduct(
+    Paths$classicalComparisonCurves,
+    c(
+      "scenarioID", "liningID", "sectionID", "methodID", "caseID",
+      "forceEffectStatus", "resultScopeID", "thetaIndex", "thetaRad",
+      "thetaDeg", "resultantID", "value", "unit", "sourceKey",
+      "sourceLocator"
+    )
+  )
+  ClassicalComparisonPoints <- readProduct(
+    Paths$classicalComparisonPoints,
+    c(
+      "scenarioID", "liningID", "sectionID", "methodID", "caseID",
+      "forceEffectStatus", "resultScopeID", "pointID", "resultantID",
+      "thetaDeg", "value", "unit", "valueStatusID", "sourceKey",
+      "sourceLocator"
+    )
+  )
+  ClassicalComparisonSummary <- readProduct(
+    Paths$classicalComparisonSummary,
+    c(
+      "scenarioID", "liningID", "sectionID", "methodID", "caseID",
+      "forceEffectStatus", "resultScopeID", "applicabilityStatus",
+      "normalAbsoluteMaxKnPerM", "normalThetaDeg",
+      "momentAbsoluteMaxKnMPerM", "momentThetaDeg",
+      "shearAbsoluteMaxKnPerM", "shearThetaDeg",
+      "normalRatioToOfficialEnvelope", "momentRatioToOfficialEnvelope",
+      "shearRatioToOfficialEnvelope", "sourceKey", "sourceLocator"
     )
   )
   ShotcreteSection <- readProduct(
@@ -476,23 +551,22 @@ loadCoverCalculationResults <- function(
       "scenarioID", "liningID", "sectionID", "concreteTypeID",
       "studyID", "reinforcementCaseID", "reinforcementCaseOrder",
       "circumferentialAreaTotalMm2PerM", "reinforcementRatio",
-      "areaToMinimumRatio", "calculationStatus",
+      "calculationStatus",
       "maximumRadialUtilization", "localPMStatus", "governingCaseID",
       "governingInterfaceID", "governingStrengthCaseID",
       "governingCombinationID", "governingVerticalStressFactor",
       "governingHorizontalStressFactor", "governingThetaIndex",
       "governingThetaDeg", "governingAxialDemandKnPerM",
-      "governingBendingDemandKnMPerM", "minimumComparisonStatus",
-      "isConfiguredCase", "isMinimumHistoricalCase",
-      "isParametricReferenceCase", "demandReuseBasisID",
+      "governingBendingDemandKnMPerM", "isLowerReferenceCase",
+      "isParametricCase", "demandReuseBasisID",
       "demandReuseStatus", "blockReason"
     )
   )
-  ShotcreteReinforcementConfiguredDemands <- readProduct(
-    Paths$shotcreteReinforcementConfiguredDemands,
+  ShotcreteReinforcementGoverningDemands <- readProduct(
+    Paths$shotcreteReinforcementGoverningDemands,
     c(
       "scenarioID", "liningID", "sectionID", "concreteTypeID",
-      "studyID", "reinforcementCaseID", "demandOrder", "caseID",
+      "studyID", "demandOrder", "selectionBasisID", "caseID",
       "interfaceID", "strengthCaseID", "combinationID",
       "verticalStressFactor", "horizontalStressFactor", "stageID",
       "forceEffectStatus", "loadCombinationBasisID", "thetaIndex",
@@ -528,7 +602,16 @@ loadCoverCalculationResults <- function(
       nrow(ShotcreteAxialFlexureDemands) == 0L ||
       nrow(ShotcreteReinforcementDomains) == 0L ||
       nrow(ShotcreteReinforcementSweep) < 2L ||
-      nrow(ShotcreteReinforcementConfiguredDemands) != 4L) {
+      nrow(ShotcreteReinforcementGoverningDemands) != 4L * LiningCount ||
+      nrow(ClassicalComparisonInputs) != 1L ||
+      nrow(ClassicalComparisonSections) != LiningCount + 1L ||
+      nrow(ClassicalComparisonCurves) == 0L ||
+      nrow(ClassicalComparisonPoints) == 0L ||
+      nrow(ClassicalComparisonSummary) == 0L ||
+      !setequal(
+        unique(ClassicalComparisonSections$liningID),
+        c("steel", LiningIDs)
+      )) {
     stop("The cover-calculation products have incompatible row counts.", call. = FALSE)
   }
   ScenarioIDs <- unique(c(
@@ -550,7 +633,7 @@ loadCoverCalculationResults <- function(
     ShotcreteAxialFlexureDemands$scenarioID,
     ShotcreteReinforcementDomains$scenarioID,
     ShotcreteReinforcementSweep$scenarioID,
-    ShotcreteReinforcementConfiguredDemands$scenarioID
+    ShotcreteReinforcementGoverningDemands$scenarioID
   ))
   if (length(ScenarioIDs) != 1L || ScenarioIDs != Config$scenarioID) {
     stop("The calculation products do not share the configured scenarioID.", call. = FALSE)
@@ -560,7 +643,7 @@ loadCoverCalculationResults <- function(
     exact = TRUE
   ]]
   ExpectedInterfaceIDs <- Config[["interfaceCases", exact = TRUE]][[
-    "interfaceID",
+    "comparisonInterfaceID",
     exact = TRUE
   ]]
   ReinforcedConfig <- AdditionalLinings[["reinforcedConcrete", exact = TRUE]]
@@ -574,98 +657,27 @@ loadCoverCalculationResults <- function(
       call. = FALSE
     )
   }
-  ConfiguredRatio <- sum(ReinforcedConfig$reinforcement$areaMm2) /
-    ReinforcedConfig$stripWidthM /
-    (1000 * 1000 * ReinforcedConfig$thicknessM)
-  ExpectedStudyRatios <- sort(unique(c(
-    ReinforcementPolicy$reinforcementRatioGrid,
-    ConfiguredRatio
-  )))
+  ExpectedStudyRatios <- ReinforcementPolicy$reinforcementRatioGrid
   StudyIDs <- unique(c(
     ShotcreteReinforcementDomains$studyID,
     ShotcreteReinforcementSweep$studyID,
-    ShotcreteReinforcementConfiguredDemands$studyID
+    ShotcreteReinforcementGoverningDemands$studyID
   ))
-  StudyCaseIDs <- ShotcreteReinforcementSweep$reinforcementCaseID
-  DomainCaseIDs <- unique(
-    ShotcreteReinforcementDomains$reinforcementCaseID
-  )
-  DomainGroups <- split(
-    ShotcreteReinforcementDomains,
-    ShotcreteReinforcementDomains$reinforcementCaseID
-  )
-  ConfiguredStudyID <- ShotcreteReinforcementSweep$reinforcementCaseID[
-    ShotcreteReinforcementSweep$isConfiguredCase
-  ]
   if (length(StudyIDs) != 1L ||
       StudyIDs != ReinforcementPolicy$studyID ||
-      nrow(ShotcreteReinforcementSweep) != length(ExpectedStudyRatios) ||
-      anyDuplicated(StudyCaseIDs) ||
-      !identical(
-        ShotcreteReinforcementSweep$reinforcementCaseOrder,
-        seq_len(nrow(ShotcreteReinforcementSweep))
-      ) ||
-      !isTRUE(all.equal(
-        ShotcreteReinforcementSweep$reinforcementRatio,
-        ExpectedStudyRatios,
-        tolerance = 1e-12,
-        check.attributes = FALSE
-      )) ||
-      sum(ShotcreteReinforcementSweep$isConfiguredCase) != 1L ||
-      sum(ShotcreteReinforcementSweep$isMinimumHistoricalCase) != 1L ||
-      !setequal(DomainCaseIDs, StudyCaseIDs) ||
-      any(!vapply(DomainGroups, function(x) {
-        identical(x$domainPointIndex, seq_len(nrow(x))) &&
-          length(unique(x$domainPrimitiveID)) == 1L
-      }, logical(1))) ||
-      length(ConfiguredStudyID) != 1L ||
-      any(
-        ShotcreteReinforcementConfiguredDemands$reinforcementCaseID !=
-          ConfiguredStudyID
-      ) ||
-      !identical(
-        ShotcreteReinforcementConfiguredDemands$demandOrder,
-        1:4
-      ) ||
+      nrow(ShotcreteReinforcementSweep) !=
+        LiningCount * length(ExpectedStudyRatios) ||
       any(
         ShotcreteReinforcementSweep$calculationStatus != "calculated" |
           ShotcreteReinforcementSweep$demandReuseStatus != "satisfied"
       ) ||
       any(
-        ShotcreteReinforcementConfiguredDemands$convergenceStatus !=
+        ShotcreteReinforcementGoverningDemands$convergenceStatus !=
           "satisfied"
       )) {
-    stop("The reinforced-concrete P-M family is inconsistent.",
+    stop("The parametric P-M families are inconsistent.",
       call. = FALSE
     )
-  }
-  for (i in seq_len(nrow(ShotcreteReinforcementConfiguredDemands))) {
-    ObservedDemand <- ShotcreteReinforcementConfiguredDemands[
-      i,
-      ,
-      drop = FALSE
-    ]
-    ExpectedDemand <- ShotcreteAxialFlexureDemands[
-      ShotcreteAxialFlexureDemands$liningID == "reinforcedConcrete" &
-        ShotcreteAxialFlexureDemands$caseID == ObservedDemand$caseID &
-        ShotcreteAxialFlexureDemands$strengthCaseID ==
-          ObservedDemand$strengthCaseID &
-        ShotcreteAxialFlexureDemands$thetaIndex ==
-          ObservedDemand$thetaIndex,
-      ,
-      drop = FALSE
-    ]
-    if (nrow(ExpectedDemand) != 1L ||
-        ExpectedDemand$axialDemandKnPerM !=
-          ObservedDemand$axialDemandKnPerM ||
-        ExpectedDemand$bendingDemandKnMPerM !=
-          ObservedDemand$bendingDemandKnMPerM ||
-        ExpectedDemand$radialUtilization !=
-          ObservedDemand$radialUtilization) {
-      stop("A configured P-M family demand does not match the canonical case.",
-        call. = FALSE
-      )
-    }
   }
   ConcreteProducts <- lapply(LiningIDs, function(liningID) {
     LiningConfig <- AdditionalLinings[[liningID, exact = TRUE]]
@@ -689,17 +701,60 @@ loadCoverCalculationResults <- function(
         ,
         drop = FALSE
       ],
-      reinforcementSweep = if (liningID == "reinforcedConcrete") {
-        list(
-          domains = ShotcreteReinforcementDomains,
-          summary = ShotcreteReinforcementSweep,
-          configuredGoverningDemands =
-            ShotcreteReinforcementConfiguredDemands
-        )
-      } else {
-        NULL
-      }
+      reinforcementSweep = list(
+        domains = ShotcreteReinforcementDomains[
+          ShotcreteReinforcementDomains$liningID == liningID,
+          ,
+          drop = FALSE
+        ],
+        summary = ShotcreteReinforcementSweep[
+          ShotcreteReinforcementSweep$liningID == liningID,
+          ,
+          drop = FALSE
+        ],
+        governingDemands = ShotcreteReinforcementGoverningDemands[
+          ShotcreteReinforcementGoverningDemands$liningID == liningID,
+          ,
+          drop = FALSE
+        ]
+      )
     )
+    Sweep <- Products$reinforcementSweep$summary
+    StudyDomains <- Products$reinforcementSweep$domains
+    StudyDemands <- Products$reinforcementSweep$governingDemands
+    StudyCaseIDs <- Sweep$reinforcementCaseID
+    DomainGroups <- split(StudyDomains, StudyDomains$reinforcementCaseID)
+    ExpectedAreas <- ExpectedStudyRatios *
+      1000 * (1000 * LiningConfig$thicknessM)
+    if (nrow(Sweep) != length(ExpectedStudyRatios) ||
+        anyDuplicated(StudyCaseIDs) ||
+        !identical(Sweep$reinforcementCaseOrder, seq_along(ExpectedStudyRatios)) ||
+        !isTRUE(all.equal(
+          Sweep$reinforcementRatio,
+          ExpectedStudyRatios,
+          tolerance = 1e-12,
+          check.attributes = FALSE
+        )) ||
+        !isTRUE(all.equal(
+          Sweep$circumferentialAreaTotalMm2PerM,
+          ExpectedAreas,
+          tolerance = 1e-9,
+          check.attributes = FALSE
+        )) ||
+        sum(Sweep$isLowerReferenceCase) != 1L ||
+        any(!Sweep$isParametricCase) ||
+        !setequal(unique(StudyDomains$reinforcementCaseID), StudyCaseIDs) ||
+        any(!vapply(DomainGroups, function(x) {
+          identical(x$domainPointIndex, seq_len(nrow(x))) &&
+            length(unique(x$domainPrimitiveID)) == 1L
+        }, logical(1))) ||
+        nrow(StudyDemands) != 4L ||
+        !identical(StudyDemands$demandOrder, 1:4) ||
+        any(StudyDemands$selectionBasisID != "lower-reference-domain")) {
+      stop("The parametric P-M family is inconsistent for liningID: ",
+        liningID, ".", call. = FALSE
+      )
+    }
     if (nrow(Products$section) != 1L ||
         nrow(Products$interaction) != InterfaceCount ||
         nrow(Products$resultants) == 0L ||
@@ -791,8 +846,8 @@ loadCoverCalculationResults <- function(
       }
     } else if (nrow(Products$axialFlexureDomain) != 0L ||
         nrow(Products$axialFlexureDemands) != 0L ||
-        !is.null(Products$reinforcementSweep)) {
-      stop("P-M products are not applicable to liningID: ", LiningID, ".", call. = FALSE)
+        !is.list(Products$reinforcementSweep)) {
+      stop("The plain-concrete canonical branch is inconsistent for liningID: ", LiningID, ".", call. = FALSE)
     }
     Products$liningConfig <- LiningConfig
     Products$strengthCases <- StrengthCases
@@ -807,16 +862,29 @@ loadCoverCalculationResults <- function(
     stop("One or more materialized numerical controls failed.", call. = FALSE)
   }
 
-  InterfaceLabels <- c(
+  PrescribedInterfaceLabels <- c(
     `full-traction` = "proyección tangencial completa",
     `normal-only` = "acción exclusivamente normal"
   )
-  InterfaceCodes <- c(`full-traction` = "α=1", `normal-only` = "α=0")
-  if (any(!(Interaction$interfaceID %in% names(InterfaceLabels)))) {
+  PrescribedInterfaceCodes <- c(
+    `full-traction` = "α=1",
+    `normal-only` = "α=0"
+  )
+  DesignInterfaceLabels <- c(
+    `full-slip` = "interfaz con deslizamiento libre",
+    `no-slip` = "interfaz sin deslizamiento"
+  )
+  if (any(!(
+    Interaction$interfaceID %in% names(PrescribedInterfaceLabels)
+  ))) {
     stop("The public interface mapping is incomplete.", call. = FALSE)
   }
-  Interaction$interfaceLabel <- unname(InterfaceLabels[Interaction$interfaceID])
-  Interaction$interfaceCode <- unname(InterfaceCodes[Interaction$interfaceID])
+  Interaction$interfaceLabel <- unname(
+    PrescribedInterfaceLabels[Interaction$interfaceID]
+  )
+  Interaction$interfaceCode <- unname(
+    PrescribedInterfaceCodes[Interaction$interfaceID]
+  )
 
   findExtremum <- function(caseID, resultantID, statisticID) {
     Data <- Extrema[
@@ -833,13 +901,19 @@ loadCoverCalculationResults <- function(
   }
   CaseSummary <- vapply(seq_len(nrow(Interaction)), function(i) {
     CaseID <- Interaction$caseID[i]
+    CaseInterfaceID <- unique(Extrema$interfaceID[Extrema$caseID == CaseID])
+    if (length(CaseInterfaceID) != 1L ||
+        !(CaseInterfaceID %in% names(DesignInterfaceLabels))) {
+      stop("The design interface mapping is incomplete.", call. = FALSE)
+    }
     NormalMinimum <- findExtremum(CaseID, "N", "minimum")$value
     NormalMaximum <- findExtremum(CaseID, "N", "maximum")$value
     MomentMinimum <- findExtremum(CaseID, "M", "minimum")$value
     MomentMaximum <- findExtremum(CaseID, "M", "maximum")$value
     ShearMaximum <- findExtremum(CaseID, "Q", "absolute-maximum")$value
     paste0(
-      "Para ", tolower(Interaction$interfaceLabel[i]), " se obtiene\n\n$$\n",
+      "Para ", tolower(DesignInterfaceLabels[[CaseInterfaceID]]),
+      " se obtiene\n\n$$\n",
       formatCalculationFixed(NormalMinimum, 0L),
       "\\le N_\\theta\\le ",
       formatCalculationFixed(NormalMaximum, 0L),
@@ -861,7 +935,7 @@ loadCoverCalculationResults <- function(
       drop = FALSE
     ]
     Row <- Data[which.max(Data$value), , drop = FALSE]
-    Row$interfaceLabel <- unname(InterfaceLabels[Row$interfaceID])
+    Row$interfaceLabel <- unname(DesignInterfaceLabels[Row$interfaceID])
     Row
   }))
   rownames(Governing) <- NULL
@@ -981,7 +1055,7 @@ loadCoverCalculationResults <- function(
     SectionData <- products$section
     SummaryData <- products$summary
     SummaryData$interfaceLabel <- unname(
-      InterfaceLabels[SummaryData$interfaceID]
+      DesignInterfaceLabels[SummaryData$interfaceID]
     )
     if (anyNA(SummaryData$interfaceLabel) ||
         any(!is.finite(SummaryData$shotcreteLocalStrengthUtilization)) ||
@@ -1200,6 +1274,13 @@ loadCoverCalculationResults <- function(
       summary = AashtoSummary,
       resultMarkdown = AashtoResultMarkdown,
       statusSummaryMarkdown = buildAashtoStatusSummary(AashtoChecks)
+    ),
+    classicalComparison = list(
+      inputs = ClassicalComparisonInputs,
+      sections = ClassicalComparisonSections,
+      curves = ClassicalComparisonCurves,
+      points = ClassicalComparisonPoints,
+      summary = ClassicalComparisonSummary
     ),
     caseSummaryMarkdown = paste(CaseSummary, collapse = "\n\n")
   )

@@ -1,70 +1,69 @@
-## Estado tensional y acciones adoptadas {#sec-calculation-actions}
-
-El estado de cálculo se define mediante las tensiones efectivas del terreno en
-ausencia del revestimiento, evaluadas en el centro geométrico de la sección
-transversal. Ese estado biaxial se proyecta sobre el contorno y se resuelve por
-integración directa. La presión vertical debida al peso del relleno se
-desarrolla en el [Apéndice B](#sec-calculation-appendix-actions). El caso
-provisional adopta presión hidráulica neta nula y no incorpora una tensión
-horizontal residual de compactación, porque ambos efectos requieren datos que
-aún no han sido suministrados.
-
-### Tensión vertical efectiva de referencia
-
-Sea $H_0$ la altura de relleno medida desde la superficie del terreno hasta la
-clave y $R$ la distancia desde la clave hasta el centro geométrico de la
-sección circular. Para la profundidad de referencia adoptada,
+El estado de cálculo se define mediante las tensiones efectivas del relleno en
+la cota del centro del túnel, antes de introducir el revestimiento. Si $H_0$ es
+la altura de relleno sobre la clave y $R$ la distancia desde la clave hasta el
+centro de la sección, la profundidad de referencia es
 
 $$
 z_{ref}=H_0+R.
 $$ {#eq-calculation-reference-depth}
 
-El escenario ejecutado representa un relleno homogéneo. La tensión vertical
-efectiva en la profundidad de referencia se calcula mediante
+Para el relleno homogéneo adoptado, la tensión vertical efectiva se calcula
+como
 
 $$
 \sigma'_v(z_{ref})=q'+\gamma' z_{ref},
 $$ {#eq-calculation-vertical-effective-stress}
 
-donde $q'$ es la sobrecarga asignada al cálculo de tensiones efectivas y
-$\gamma'$ es el peso unitario asignado directamente a ese cálculo. Esta
-entrada no se reclasifica como peso unitario total o sumergido. Las
-profundidades se expresan en m, el peso unitario en kN/m³ y las tensiones en
-kPa. La entrada de presión hidráulica neta permite recalcular el caso cuando
-se disponga de la condición de agua.
+donde $q'$ es la sobrecarga efectiva y $\gamma'$ el peso unitario efectivo. La
+presión hidráulica neta adoptada es
+`r formatCalculationFixed(Calculation$config$action$waterPressureDifferenceKPa, 1L)`
+kPa y la tensión horizontal residual de compactación se adopta igual a cero;
+ambas magnitudes se actualizarán cuando la investigación del relleno y la
+condición de agua las cuantifique.
 
-### Tensión horizontal efectiva y coeficiente $K_0$ {#sec-calculation-k0-estimation}
-
-El coeficiente de empuje en reposo se define en tensiones efectivas:
+El coeficiente de presión en reposo relaciona las tensiones efectivas horizontal
+y vertical:
 
 $$
-K_0(z_{ref})=\frac{\sigma'_h(z_{ref})}{\sigma'_v(z_{ref})},
+K_0=\frac{\sigma'_h}{\sigma'_v},
 \qquad
-\sigma'_h(z_{ref})=K_0(z_{ref})\,\sigma'_v(z_{ref}).
+\sigma'_h=K_0\sigma'_v.
 $$ {#eq-calculation-k0}
 
-La aplicación calcula $K_0$ a partir de sus variables primitivas. Para la rama
-de descarga de Mayne--Kulhawy se emplea [@MayneKulhawy1982]
+La relación empleada vincula $K_0$ con el ángulo de fricción efectiva y la
+relación de sobreconsolidación [@MayneKulhawy1982]:
 
 $$
 K_0=(1-\sin\phi')\,\mathrm{OCR}^{\sin\phi'}.
-$$ {#eq-calculation-k0-unloading}
+$$ {#eq-calculation-k0-application}
 
-Con las entradas vigentes,
-$\phi'=`r formatCalculationGeneral(Calculation$stress$frictionAngleDeg)`^\circ$,
-$\mathrm{OCR}=`r formatCalculationGeneral(Calculation$stress$ocr)`$ y la
-expresión produce
-$K_0=`r formatCalculationGeneral(Calculation$stress$k0Applied)`$.
+Para $\mathrm{OCR}=1$, la expresión se reduce a la relación de Jáky. Con
+$\phi'=`r formatCalculationFixed(Calculation$stress$frictionAngleDeg, 0L)`^\circ$
+y $\mathrm{OCR}=`r formatCalculationGeneral(Calculation$stress$ocr)`$, se
+obtiene $K_0=`r formatCalculationGeneral(Calculation$stress$k0Applied)`$.
+Las expresiones aplicables a otras trayectorias tensionales y las acciones
+complementarias se presentan en @sec-calculation-appendix-actions.
 
-Las formulaciones alternativas y sus dominios se reúnen en el
-[Apéndice B.3](#sec-calculation-appendix-k0-alternatives). Cada estado emplea
-una sola rama.
+En la cota de referencia se define el estado de campo libre utilizado por
+Schwartz--Einstein:
 
-### Proyección del estado biaxial {#sec-calculation-external-interaction}
+$$
+P_{SE}=\sigma'_{v,A},
+\qquad
+K_{SE}=\frac{\sigma'_{h,A}}{\sigma'_{v,A}}.
+$$ {#eq-calculation-se-action-state}
 
-En la cota del centro de la sección se prescribe un estado uniforme con
-componentes principales $\sigma'_{v,A}$ y $\sigma'_{h,A}$. Su proyección sobre
-el contorno es
+La solución de carga externa transforma este estado en resultantes del anillo
+mediante las razones de rigidez $C^*$ y $F^*$ de cada revestimiento y las
+condiciones de interfaz con deslizamiento libre y sin deslizamiento. La presión
+hidráulica neta uniforme se superpone a la componente media de fuerza
+circunferencial. Las expresiones completas se presentan en
+@sec-calculation-appendix-derivations.
+
+Para verificar independientemente el equilibrio, el mismo estado biaxial se
+proyecta como una carga prescrita sobre un plano tangente a la pared. Esa
+proyección produce una presión normal $p'_n$ y una componente paralela
+$p_t^*$:
 
 $$
 \begin{aligned}
@@ -76,7 +75,7 @@ p_n(\theta)&=p'_n(\theta)+\Delta u_A.
 \end{aligned}
 $$ {#eq-calculation-stress-projection}
 
-Con la convención estructural adoptada,
+Las acciones estructurales se escriben como
 
 $$
 P_r(\theta)=-p_n(\theta),
@@ -85,9 +84,10 @@ P_t(\theta)=\alpha p_t^*(\theta),
 \qquad 0\leq\alpha\leq1.
 $$ {#eq-calculation-tangential-multiplier}
 
-$\alpha=1$ incorpora la proyección tangencial completa y $\alpha=0$ conserva
-únicamente la acción normal. $\alpha$ no es un coeficiente de fricción ni una
-ley constitutiva de contacto.
+En esta comprobación de carga prescrita, $\alpha=1$ representa el vector
+proyectado completo y $\alpha=0$ representa su componente normal. La solución
+Schwartz--Einstein caracteriza el contacto mediante sus propios coeficientes
+para deslizamiento libre y ausencia de deslizamiento.
 
 Definiendo
 
@@ -97,7 +97,7 @@ p_m=\Delta u_A+\frac{\sigma'_{v,A}+\sigma'_{h,A}}{2},
 \Delta\sigma=\sigma'_{v,A}-\sigma'_{h,A},
 $$
 
-las acciones se reducen a
+las acciones quedan
 
 $$
 P_r(\theta)=-p_m-\frac{\Delta\sigma}{2}\cos2\theta,
@@ -105,8 +105,56 @@ P_r(\theta)=-p_m-\frac{\Delta\sigma}{2}\cos2\theta,
 P_t(\theta)=\alpha\frac{\Delta\sigma}{2}\sin2\theta.
 $$ {#eq-calculation-biaxial-load}
 
-Las resultantes se obtienen por integración directa del equilibrio,
-periodicidad y compatibilidad del anillo. La solución cerrada del mismo estado
-biaxial y su representación de Fourier controlan el cálculo numérico. La rama
-de Schwartz--Einstein se materializa en tablas separadas de comparación y no
-alimenta las verificaciones resistentes.
+$\sigma'_{v,A}$ y $\sigma'_{h,A}$ son las tensiones principales del campo libre
+en el eje. Su proyección sobre el contorno circular produce la dependencia
+angular de la @eq-calculation-biaxial-load y los modos de Fourier $n=0,2$.
+
+La profundidad local y las tensiones efectivas alrededor del contorno se
+definen mediante
+
+$$
+z(\theta)=z_{ref}-R\cos\theta,
+$$
+
+$$
+\sigma'_v(\theta)=\sigma'_{v,A}-\gamma_vR\cos\theta,
+\qquad
+\sigma'_h(\theta)=\sigma'_{h,A}-\gamma_hR\cos\theta.
+$$ {#eq-calculation-local-geostatic-stress}
+
+Para el relleno homogéneo con $K_0$ constante,
+$\gamma_v=\gamma'$ y $\gamma_h=K_0\gamma'$. La diferencia respecto del estado
+uniforme del eje se proyecta como
+
+$$
+\Delta P_r(\theta)=a_1^g\cos\theta+a_3^g\cos3\theta,
+\qquad
+\Delta P_t(\theta)=d_1^g\sin\theta+d_3^g\sin3\theta,
+$$
+
+$$
+\begin{aligned}
+a_1^g&=\frac{R}{4}(3\gamma_v+\gamma_h),
+&d_1^g&=-\frac{R}{4}(\gamma_v-\gamma_h),\\
+a_3^g&=\frac{R}{4}(\gamma_v-\gamma_h),
+&d_3^g&=-\frac{R}{4}(\gamma_v-\gamma_h).
+\end{aligned}
+$$ {#eq-calculation-linear-gradient-load}
+
+La resultante gravitatoria del modo $n=1$ se equilibra con una reacción radial
+distribuida de coeficiente $a_1^s=-R\gamma_v$. Con
+$\Delta\gamma=\gamma_v-\gamma_h$, la corrección resultante es
+
+$$
+\Delta N_\theta(\theta)=
+-\frac{R^2\Delta\gamma}{4}\cos\theta
+-\frac{R^2\Delta\gamma}{8}\cos3\theta,
+$$
+
+$$
+\Delta M_\theta(\theta)=
+-\frac{R^3\Delta\gamma}{24}\cos3\theta,
+\qquad
+\Delta Q_\theta(\theta)=
+\frac{R^2\Delta\gamma}{8}\sin3\theta.
+$$ {#eq-calculation-balanced-gradient-resultants}

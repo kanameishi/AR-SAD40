@@ -26,6 +26,10 @@ if (!requireNamespace("chromote", quietly = TRUE)) {
     "const er = el.getBoundingClientRect();",
     "const relative = r => ({left:r.left-er.left,top:r.top-er.top,right:r.right-er.left,bottom:r.bottom-er.top,width:r.width,height:r.height});",
     "const reference = chart.series.filter(s => s.name === 'Reference section').map(s => relative(s.group.element.getBoundingClientRect()));",
+    "const referencePoints = chart.series.filter(s => s.name === 'Reference section').flatMap(s => s.points || []);",
+    "const referenceRadius = Math.max(...referencePoints.map(p => Math.hypot(p.x, p.y)));",
+    "const physicalPoints = chart.series.filter(s => (s.points || []).some(p => p.options && p.options.custom)).flatMap(s => s.points || []);",
+    "const maxRelativeExcursion = Math.max(...physicalPoints.map(p => Math.abs(Math.hypot(p.x, p.y) - referenceRadius))) / referenceRadius;",
     "const bottomLabels = Array.from(chart.container.querySelectorAll('.highcharts-data-label text')).filter(x => x.textContent.trim() === 'Fondo').map(x => relative(x.getBoundingClientRect()));",
     "const masters = chart.series.filter(s => s.options.showInLegend === true);",
     "const legendItems = Array.from(chart.container.querySelectorAll('.highcharts-legend-item'));",
@@ -44,7 +48,7 @@ if (!requireNamespace("chromote", quietly = TRUE)) {
     "chart:{width:chart.chartWidth,height:chart.chartHeight},",
     "xAxes:chart.xAxis.map(a => ({left:a.left,top:a.top,width:a.width,height:a.height})),",
     "yAxes:chart.yAxis.map(a => ({left:a.left,top:a.top,width:a.width,height:a.height})),",
-    "reference:reference,bottomLabels:bottomLabels,toggles:toggles",
+    "reference:reference,bottomLabels:bottomLabels,toggles:toggles,maxRelativeExcursion:maxRelativeExcursion",
     "};",
     "})()"
   )
@@ -87,6 +91,10 @@ if (!requireNamespace("chromote", quietly = TRUE)) {
   if (length(Metrics$reference) != 1L || length(Metrics$bottomLabels) != 1L) {
     stop(label, ": reference circles or bottom labels are missing.", call. = FALSE)
   }
+  if (!is.finite(Metrics$maxRelativeExcursion) ||
+      Metrics$maxRelativeExcursion < 0.35) {
+    stop(label, ": resultant curves are not visibly separated from the reference section.", call. = FALSE)
+  }
   VisibleBounds <- c(Metrics$reference, Metrics$bottomLabels)
   for (Bounds in VisibleBounds) {
     if (Bounds$left < -Tolerance || Bounds$top < -Tolerance ||
@@ -120,15 +128,15 @@ if (!requireNamespace("chromote", quietly = TRUE)) {
 
 Checks <- list(
   list(
-    path = "html/calculation.review.es/index.html",
+    path = "html/report.es/_index/liner.ES.html",
     selector = "#fig-calculation-normal"
   ),
   list(
-    path = "html/calculation.review.es/index.html",
+    path = "html/report.es/_index/liner.ES.html",
     selector = "#fig-calculation-moment"
   ),
   list(
-    path = "html/calculation.review.es/index.html",
+    path = "html/report.es/_index/liner.ES.html",
     selector = "#fig-calculation-shear"
   )
 )

@@ -1,200 +1,189 @@
 # Estado vigente — metodología, memoria de cálculo y Wolfram
 
-Fecha de corte: 2026-08-16.
+Fecha de corte: 2026-08-17.
 
-Este archivo contiene únicamente el estado necesario para continuar. Sustituye
-el registro histórico de 7150 líneas, que no debe reconstruirse ni releerse.
-Las fuentes técnicas preservadas y Git conservan la trazabilidad histórica.
+Este archivo contiene sólo el estado necesario para continuar después de una
+compactación. No reconstruir handoffs, planes históricos ni auditorías.
 
-## Objetivo aceptado
+## Objetivo y productos únicos
 
-El proyecto entrega exactamente dos productos públicos:
+El proyecto entrega una metodología integrada y una memoria de cálculo. R es
+el motor de cálculo; `calculation.json` es la entrada humana; Wolfram consume
+la misma frontera R para estudiar otros escenarios.
 
-1. una metodología integrada para el análisis del revestimiento circular; y
-2. una memoria de cálculo del caso determinístico.
+- Metodología: `_master/methodology.review.es.qmd`,
+  `_index/methodology.review.ES.qmd` y
+  `html/methodology.review.es/index.html`.
+- Memoria: libro multipágina `_master/report.es.qmd`, sus capítulos en
+  `_index/` y `html/report.es/index.html`.
+- Wolfram: únicamente `scripts/wolfram/calculation.workbook.nb` y
+  `scripts/wolfram/calculationWorkbookSupport.wl`.
 
-Wolfram es una memoria interna editable. R es la única implementación de
-producción. No crear una segunda metodología, un segundo notebook, una rama
-`extension`, un optimizador de armadura ni un nuevo handoff.
+La antigua memoria HTML continua se conserva sólo como fuente bajo
+`dev/legacy/calculation-review/`; no es un producto vigente ni debe
+renderizarse para revisión.
 
-## Productos vigentes
+No crear variantes `extension`, un segundo notebook, un optimizador de
+armadura, archivos `.codex-task*`, handoffs ni auditorías en cascada.
 
-### Metodología única
+## Modelo vigente
 
-- master: `_master/methodology.review.es.qmd`
-- índice: `_index/methodology.review.ES.qmd`
-- capítulos: `TITO/kb/paper-candidate/chapters/methodology.*.es.md`
-- HTML: `html/methodology.review.es/index.html`
-- SHA-256 master:
-  `9b4f4e69386f8b44415d1958652d177d93db0b0a00ce07fc2a49bceac2e1a292`
-- SHA-256 índice:
-  `d7049b390e7c67b8e42abaeebabd5fbf30b198a422d2cc964e1ac57c9d861699`
-- SHA-256 HTML:
-  `836b3a3f052b7232c471386dac0114954026c141f250b928f750e551fe1b8f12`
-- último render: `qrt render _master/methodology.review.es.qmd --profile html`,
-  código 0.
+Las demandas de cada revestimiento se recalculan con sus propias rigideces.
+La respuesta de cálculo es híbrida:
 
-### Memoria de cálculo
+1. Schwartz--Einstein, en la secuencia de carga externa, calcula la componente
+   uniforme y los modos $n=0,2$ para los límites de deslizamiento libre y sin
+   deslizamiento;
+2. el gradiente geostático lineal sobre la altura se proyecta en los modos
+   $n=1,3$ y se equilibra mediante una reacción radial circunferencial;
+3. se superponen ambas componentes para obtener
+   $N_\theta(\theta)$, $M_\theta(\theta)$ y $Q_\theta(\theta)$;
+4. Fourier y la integración directa RK4 controlan la reconstrucción. Los 8192
+   valores de RK4 son pasos angulares, no términos de Fourier;
+5. la solución cerrada controla el caso uniforme de carga prescrita.
 
-- master: `_master/calculation.review.es.qmd`
-- índice: `_index/calculation.review.ES.qmd`
-- HTML: `html/calculation.review.es/index.html`
-- SHA-256 HTML vigente:
-  `56fb8b01845ef316e2ef2b7a9a35ea6fa0538205bbf7182e969eb104819b1114`
-- último render: `qrt render _master/calculation.review.es.qmd --profile html`,
-  código 0.
-- no generar PDF salvo instrucción explícita del usuario.
+La reacción del gradiente es una restricción de equilibrio, no un resorte
+calibrado; no se informa $k_r$ ni un desplazamiento asociado. El modelo no
+reproduce por tongadas la construcción del relleno. AASHTO/USACE, FHWA y Núñez
+se conservan en sus dominios como referencias separadas y no se promedian con
+la demanda híbrida.
 
-### Wolfram
+## Caso determinístico vigente
 
-La superficie vigente contiene exactamente dos archivos:
+Entradas en `calculation.json`:
 
-- `scripts/wolfram/calculation.workbook.nb`
-  (`299597e3c87879f3eb496c020afff85f37b27ca72e73e12980f009692de1d72e`);
-- `scripts/wolfram/calculationWorkbookSupport.wl`
-  (`220632b99725cf1e50b5ee6b81ac6c373766f7dc5a5fefd08378dd48c12479ec`).
+- tapada sobre clave: 4,0 m;
+- peso unitario efectivo: 19,6133 kN/m³, equivalente a 2,0 tf/m³;
+- sobrecarga permanente: 88,25985 kPa, equivalente a 6 m de lodo de
+  1,5 tf/m³; no se desagrega una combinación de carga viva;
+- $E_g=30000$ kPa y $\nu_g=0,30$;
+- $\phi'=30^\circ$, OCR = 1 y presión hidráulica neta nula;
+- $K_0$ se deriva con la rama Mayne--Kulhawy y resulta 0,50; no está fijado de
+  manera independiente del suelo;
+- chapa CSPI 76 × 25, espesor especificado 3,5 mm y espesor remanente analizado
+  3,0 mm;
+- shotcrete de 100 y 150 mm, $f'_c=25$ MPa;
+- familia P--M total $\rho_\theta=0,18\%,1\%,2\%,3\%$ para ambos espesores.
 
-El notebook expone entradas editables, ejecuta una sola evaluación R y muestra
-los resultados y los dominios P--M. No volver a ejecutar evaluaciones headless
-automáticas: una inicialización anterior de RLink quedó colgada. El usuario
-puede abrir y evaluar el notebook de forma interactiva.
+$\phi'$, OCR y ausencia de agua son hipótesis provisionales hasta recibir datos
+geotécnicos definitivos.
 
-El notebook quedó cargado como tanteo con `t = 0.10 m`, Ø10/150 y
-`clearCoverRatio = 0.15`; `calculation.json` conserva el caso publicado de
-0.15 m y Ø6/150. El tanteo proporciona 10.47 cm2/m totales, satisface el mínimo
-histórico y no satisface P--M (`U_max = 4.212845`). La tolerancia de convergencia
-del barrido gráfico discreto es 0.015; el control resistente configurado
-conserva su tolerancia 0.01.
+## Resultados vigentes
 
-## Modelo de producción
+Para la chapa, los máximos absolutos del estado no mayorado son:
 
-- La respuesta vigente se obtiene mediante integración directa del
-  revestimiento circular en R.
-- Las salidas son `N_theta(theta)`, `M_theta(theta)` y `Q_theta(theta)`, sus
-  extremos y envolventes.
-- La solución cerrada y Fourier son controles independientes.
-- Schwartz--Einstein se conserva sólo como contraste; no gobierna las demandas.
-- La chapa se comprueba por la rama AASHTO aplicable a conductos corrugados.
-- AISI es sólo antecedente y no participa del dictamen.
-- El hormigón simple y el hormigón armado tienen espesores y rigideces propias.
-- La rama armada usa dominios seccionales P--M por compatibilidad y equilibrio.
-- El problema es plano y no introduce variación longitudinal de cargas.
+| Interfaz | $|N|$ [kN/m] | $|M|$ [kN·m/m] | $|Q|$ [kN/m] |
+|---|---:|---:|---:|
+| deslizamiento libre | 262 | 1,76 | 3,25 |
+| sin deslizamiento | 329 | 1,62 | 3,06 |
 
-## Entradas editables
+La reproducción de comprobaciones AASHTO/USACE de ediciones previas satisface
+fluencia, pandeo, costura de referencia, flexibilidad y tapada mínima. Esto no
+acredita una verificación normativa de la edición contractual vigente. La
+costura publicada de referencia tampoco está demostrada como equivalente a la
+unión existente.
 
-La fuente humana es `calculation.json`. Las claves principales son:
+Para shotcrete, los máximos absolutos del estado no mayorado son:
 
-- tapada: `inputs.cover.coverCrownM`;
-- peso unitario efectivo: `inputs.ground.effectiveUnitWeightKnPerM3`;
-- sobrecarga: `inputs.ground.effectiveSurchargeKPa`;
-- módulo y Poisson del suelo: `inputs.ground.modulusKPa` y `poisson`;
-- modelo de K0: `inputs.ground.k0ModelID`;
-- ángulo de fricción efectivo: `inputs.ground.frictionAngleDeg`;
-- OCR: `inputs.ground.ocr`;
-- presión hidráulica neta: `inputs.ground.waterPressureDifferenceKPa`;
-- espesor remanente de chapa: `inputs.steel.remainingBaseThicknessMm`;
-- hormigón simple: `inputs.plainConcrete.thicknessM` y
-  `compressiveStrengthMPa`;
-- hormigón armado: `inputs.reinforcedConcrete.thicknessM`,
-  `compressiveStrengthMPa`, `barDiameterMm`, `barSpacingMm` y
-  `clearCoverRatio`.
+| Espesor | Interfaz | $|N|$ [kN/m] | $|M|$ [kN·m/m] | $|Q|$ [kN/m] |
+|---:|---|---:|---:|---:|
+| 100 mm | deslizamiento libre | 268 | 20,73 | 32,92 |
+| 100 mm | sin deslizamiento | 330 | 17,74 | 28,20 |
+| 150 mm | deslizamiento libre | 280 | 39,65 | 64,06 |
+| 150 mm | sin deslizamiento | 332 | 34,45 | 55,68 |
 
-El espesor armado vigente es 0.15 m. El recubrimiento se calcula como
-`clearCoverRatio * thicknessM`; el valor provisional 0.15 produce 22.5 mm
-(2.25 cm). Es editable y no se presenta como conformidad normativa definitiva.
+La sección simple de 100 mm no satisface la comprobación local de tracción. La
+familia P--M no adopta una armadura. Sus resultados discretos son:
 
-## Hipótesis geotécnicas provisionales
+| Espesor | $\rho_\theta$ | $A_{s,\theta}$ total [cm²/m] | $U_{PM,\max}$ | Estado |
+|---:|---:|---:|---:|---|
+| 100 mm | 0,18 % | 1,8 | 8,36 | no satisface |
+| 100 mm | 1,00 % | 10,0 | 2,03 | no satisface |
+| 100 mm | 2,00 % | 20,0 | 1,14 | no satisface |
+| 100 mm | 3,00 % | 30,0 | 0,84 | satisface |
+| 150 mm | 0,18 % | 2,7 | 8,11 | no satisface |
+| 150 mm | 1,00 % | 15,0 | 1,89 | no satisface |
+| 150 mm | 2,00 % | 30,0 | 1,04 | no satisface |
+| 150 mm | 3,00 % | 45,0 | 0,72 | satisface |
 
-Hasta que el usuario suministre los datos definitivos:
+Cada curva P--M reúne estados resistentes compatibles; sus puntos no son
+iteraciones. Las cuatro marcas son demandas físicas críticas. No interpolar
+estos cuatro niveles como una búsqueda de cuantía óptima ni convertirlos en
+una armadura adoptada.
 
-- `phi' = 30 grados`;
-- `OCR = 1`;
-- sin presencia de agua;
-- `gamma' = 19 kN/m3`.
+## Contenido restaurado
 
-Con esas entradas resulta `K0 = 0.5`; no es una constante clavada. Cambia al
-modificar el ángulo de fricción, OCR o la rama de K0.
+La memoria conserva su estructura actual y vuelve a incluir:
 
-## Armadura y diagrama P--M
+- definición de $z(\theta)$, tensiones efectivas, $K_0$, presiones normales y
+  tangenciales y convenciones de signo;
+- ecuaciones de equilibrio de la viga circular, integración directa, solución
+  cerrada, Fourier y relación con Schwartz--Einstein;
+- componente de gradiente, reacción equilibrante y controles numéricos;
+- propiedades y rigideces separadas de chapa, shotcrete de 100 mm y de 150 mm;
+- croquis catalogado del perfil CSPI 76 × 25 mm con sus dimensiones y vínculo
+  con la tabla de propiedades de la chapa;
+- diagramas verdaderos de $N$, $M$ y $Q$ para las tres secciones;
+- comprobaciones de chapa, hormigón simple y dominios P--M de ambos espesores;
+- casos Baker, HP97, USACE D4, FHWA y Núñez en los apéndices, enlazados desde
+  los capítulos que emplean o controlan esas formulaciones.
 
-La malla configurada es Ø6 cada 150 mm, simétrica en ambas caras:
+La prosa pública no usa encabezados de nivel 3 ni narrativa interna de
+software, auditoría o aceptación.
 
-- armadura total provista: 3.77 cm2/m;
-- mínimo histórico ACI 318.2-14: 2.70 cm2/m;
-- el mínimo se satisface;
-- utilización P--M máxima: 5.7579;
-- la sección configurada no satisface P--M.
+## Wolfram
 
-La figura muestra cinco dominios físicos, no iteraciones. Cada curva reúne los
-estados resistentes de una cuantía y las cuatro marcas son demandas físicas.
-La familia discreta vigente es:
+El notebook contiene celdas editables para tapada, peso unitario, sobrecarga,
+propiedades del suelo, $K_0$, agua, perfil y espesor remanente de chapa,
+resistencia de costura, espesores y resistencia del shotcrete, posición de
+capas y grilla de cuantías P--M. Sus valores iniciales coinciden con
+`calculation.json`.
 
-| Armadura total (cm2/m) | Utilización máxima | Estado P--M |
-|---:|---:|---|
-| 2.70 | 7.8938 | no satisface |
-| 3.77 | 5.7579 | no satisface |
-| 15.00 | 1.7712 | no satisface |
-| 30.00 | 0.9662 | satisface |
-| 45.00 | 0.66985 | satisface |
+El notebook ejecuta una sola evaluación R mediante `evaluateCoverCase()` y
+muestra la misma respuesta híbrida, las tres familias de resultantes y los dos
+diagramas P--M. Cambiarlo no reescribe `calculation.json`: después de aceptar
+un escenario, copiar los valores al JSON y regenerar la memoria.
 
-No implementar búsqueda de cuantía óptima. El usuario puede elegir otra malla,
-regenerar y observar de nuevo la familia P--M. 3000 mm2/m equivalen a
-30 cm2/m, no a 3 cm2/m.
+No ejecutar Wolfram en modo headless. El usuario debe abrir
+`scripts/wolfram/calculation.workbook.nb` en un kernel nuevo y evaluar las
+celdas de forma interactiva.
 
-## Convenciones de presentación
+## Verificación y render del cierre
 
-- armaduras en cm2/m;
-- mm, mm2 y kN sin decimales en superficies públicas;
-- conservar precisión completa en cálculo y CSV;
-- las curvas P--M pueden conservar la precisión necesaria, con ejes legibles;
-- no describir los puntos de una curva resistente como iteraciones.
+- `Rscript scripts/R/testCoverCase.R`: PASS antes del cierre editorial.
+- `Rscript scripts/R/runCalculationMemo.R`: PASS antes del cierre editorial.
+- `Rscript scripts/R/runInteractionMethodStudy.R`: PASS antes del cierre
+  editorial.
+- `Rscript scripts/R/testCalculationFigures.R`: PASS el 2026-08-17.
+- `Rscript scripts/R/testCalculationResultantsDom.R`: PASS el 2026-08-17;
+  tres figuras cuadradas, contenidas y con ambas formulaciones seleccionables.
+- `qrt render _master/methodology.review.es.qmd --profile html`: código 0 el
+  2026-08-17.
+- `qrt render _master/report.es.qmd --profile book`: código 0 el
+  2026-08-17.
+
+SHA-256 de los productos renderizados:
+
+- metodología HTML:
+  `c1662a652f7ad7af04ab33cd881ef2174763b2ca179b9dfa68501e0a76329c66`;
+- memoria HTML:
+  `0b3cee736e7c5f92d6f3eba8a0567970c212310ad7d852fbd4ce38f69157c660`;
+- notebook:
+  `85a98115614d6cbd6fa4680ff0b0af0ef0e66b6ddfea07eb295c6f2a4c6a3d43`;
+- soporte Wolfram:
+  `33effe209ac118f48acf804af825f6bb3f49993de0cd10650485e258b9802a10`;
+- `calculation.json`:
+  `fc42a0ecea76cca49d280c09e4cfb3c397df603f43f3565981acceab115e9560`.
 
 ## Regeneración mínima
 
-Cuando cambie `calculation.json`:
+Cuando se acepte un cambio de `calculation.json`:
 
 1. ejecutar una vez `Rscript scripts/R/runCalculationMemo.R`;
-2. si termina correctamente, renderizar una vez
-   `qrt render _master/calculation.review.es.qmd --profile html`;
-3. abrir el notebook Wolfram y evaluarlo interactivamente si se desea comparar
-   el nuevo caso.
+2. renderizar una vez
+   `qrt render _master/report.es.qmd --profile book`;
+3. evaluar Wolfram interactivamente sólo si se desea comparar el escenario.
 
-No iniciar auditorías, agentes, optimizaciones ni ciclos de render adicionales
-sin una solicitud explícita. Ante un fallo, diagnosticar el fallo observado y
-no repetir a ciegas.
-
-## Limpieza completada
-
-Se retiraron:
-
-- `.codex-task.md`, `.codex-task-wolfram-bundle.md` y `dev/handoff/`;
-- `dev/chapa/HANDOFF-chapa-76x25-espesor-2026-08-13.md`;
-- notebooks y scripts Wolfram duplicados;
-- los planes históricos bajo `TITO/`;
-- `_master/methodology.extension.review.es.qmd`;
-- `_index/methodology.extension.review.ES.qmd`;
-- `html/methodology.extension.review.es/`;
-- `TITO/kb/review/`;
-- `TITO/kb/metodologia-anillo-enterrado.md`;
-- ledgers, informe S1 y planes ACI/Wolfram ya ejecutados que dependían de esas
-  variantes.
-
-Los capítulos todavía usados fueron trasladados al único árbol metodológico
-vigente. Los PDF y textos fuente se conservaron. No inspeccionar `_ref`.
-
-`AGENTS.md` fue reducido a reglas locales esenciales y ya no obliga a leer el
-router global ni registros históricos al comenzar cada tarea.
-
-El registro histórico completo previo a esta compactación quedó respaldado en
-`/private/tmp/ar-sad40-methodology-retirement.KEsfSo/fossils/METHODOLOGY-PHASE2.full.md`,
-SHA-256 `752ebff5fc70f0d19f65651e3d41144438931e1bb38f02d80e8a7c9d806b25dc`.
-
-## Estado de Git y autoridad
-
-- Rama observada durante el cierre: `main`.
-- HEAD inicial del cierre:
-  `33ce40bdcf7c7e6ec027d44e1371eaf656a2f07e`.
-- El worktree contiene cambios amplios del usuario y del trabajo anterior;
-  preservarlos.
-- No hay cambios preparados por este cierre, no se creó commit y no se publicó.
-- La aceptación técnica y editorial final corresponde al usuario.
+No repetir pruebas o renders si no cambió su superficie relevante. No generar
+PDF, preparar cambios, crear commits ni publicar sin una instrucción explícita.
+El worktree contiene cambios amplios; preservar todo cambio ajeno.

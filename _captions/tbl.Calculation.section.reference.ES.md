@@ -1,1 +1,1 @@
-Propiedades publicadas para la fila adoptada de la tabla seccional de referencia. $t_s$ y $t_d$ se expresan en mm; $A_p$, en mm²/mm; $I_p$, en mm⁴/mm; y $S_p$, en mm³/mm, por unidad de ancho proyectado [@CSPIHandbookChapter2, tabla 2.4].
+Fila publicada adoptada y propiedades remanentes empleadas en el cálculo. $t_s$ es el espesor especificado, $t_d$ el espesor base de diseño tabulado y $t_{rem}$ el espesor neto analizado, en mm. $A_p$, $I_p$ y $S_p$ son las propiedades remanentes por unidad de ancho proyectado [@CSPIHandbookChapter2, tabla 2.4].

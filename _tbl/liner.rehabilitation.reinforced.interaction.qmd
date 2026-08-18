@@ -1,8 +1,8 @@
 ```{r}
 #| include: false
 source("scripts/tbl/Calculation.interaction.R")
-TBL <- buildCalculationInteractionTable(
-  path = Calculation$paths$shotcreteInteraction,
+TBL <- buildCalculationSchwartzEinsteinTable(
+  path = Calculation$paths$shotcreteSchwartzEinstein,
   liningID = "reinforcedConcrete"
 )
 ```
@@ -16,5 +16,6 @@ TBL
 
 ```{r}
 #| include: false
-rm(CAP, TBL, buildCalculationInteractionTable)
+rm(CAP, TBL, buildCalculationInteractionTable,
+  buildCalculationSchwartzEinsteinTable)
 ```

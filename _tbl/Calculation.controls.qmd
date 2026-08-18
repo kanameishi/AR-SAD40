@@ -5,7 +5,7 @@ if (!exists("CAP", inherits = FALSE)) {
 }
 source("scripts/tbl/Calculation.controls.R")
 TBL <- buildCalculationControlsTable(
-  BiaxialControl$paths$controls
+  Calculation$paths$controls
 )
 ```
 

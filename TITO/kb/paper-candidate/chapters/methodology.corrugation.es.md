@@ -17,9 +17,9 @@ $$ {#eq-sectional-virtual-work}
 Dentro de esta idealización, la ley seccional queda reducida a
 
 $$
-N_\theta=EA_\theta\varepsilon_\theta,
+N_\theta=K_N\varepsilon_\theta,
 \qquad
-M_\theta=EI_\theta\kappa_\theta.
+M_\theta=K_M\kappa_\theta.
 $$ {#eq-sectional-constitutive-law}
 
 Esta reducción es una hipótesis cinemática del modelo de viga curva; su dominio
@@ -33,18 +33,18 @@ circunferencia, el área $A_p$ y el segundo momento de área $I_p$ del perfil,
 ambos por unidad de ancho axial proyectado, proporcionan
 
 $$
-EA_\theta=E_\theta A_p,
+K_N=E_\ell A_p,
 \qquad
-EI_\theta=E_\theta I_p.
+K_M=E_\ell I_p.
 $$ {#eq-corrugated-rigidities}
 
 La ley unidimensional de viga curva adoptada utiliza el módulo circunferencial
-$E_\theta$. Para el ejemplo se toma $E_\theta=E_s=200\ \mathrm{GPa}$, es decir,
+$E_\ell$. Para el ejemplo se toma $E_\ell=E_s=200\ \mathrm{GPa}$, es decir,
 el módulo elástico uniaxial del acero, sin amplificación por restricción axial.
 Como el mismo módulo interviene en ambas rigideces, se obtiene
 
 $$
-\eta_s=\frac{EI_\theta}{EA_\theta R^2}
+\eta_\ell=\frac{K_M}{K_NR^2}
 =\frac{I_p}{A_pR^2},
 $$ {#eq-corrugated-ratio}
 
@@ -55,12 +55,12 @@ la respuesta bajo cargas prescritas.
 
 Para comparar con formulaciones que emplean una sección lisa, se define un
 espesor y un módulo equivalentes que conservan simultáneamente
-$EA_\theta$ y $EI_\theta$:
+$K_N$ y $K_M$:
 
 $$
 t_{eq}=\sqrt{\frac{12I_p}{A_p}},
 \qquad
-E_{eq}=\frac{E_\theta A_p}{t_{eq}}.
+E_{eq}=\frac{E_\ell A_p}{t_{eq}}.
 $$ {#eq-equivalent-smooth-section}
 
 El par $(t_{eq},E_{eq})$ reproduce las dos rigideces globales en la dirección
@@ -105,17 +105,17 @@ de espesor establecida mediante especificación, certificado o medición.
 
 ## Valores derivados para el ejemplo numérico
 
-Con $E_\theta=200\ \mathrm{GPa}$ y $R=1.315\ \mathrm{m}$, adoptados en el
+Con $E_\ell=200\ \mathrm{GPa}$ y $R=1.315\ \mathrm{m}$, adoptados en el
 ejemplo,
 
 $$
-EA_\theta\simeq7.46\times10^5\ \mathrm{kN/m},
+K_N\simeq7.46\times10^5\ \mathrm{kN/m},
 \qquad
-EI_\theta\simeq57.6\ \mathrm{kN\,m^2/m},
+K_M\simeq57.6\ \mathrm{kN\,m^2/m},
 $$
 
 $$
-\eta_s\simeq4.46\times10^{-5},
+\eta_\ell\simeq4.46\times10^{-5},
 \qquad
 t_{eq}\simeq30.4\ \mathrm{mm},
 \qquad
@@ -131,4 +131,4 @@ $152\times51\times3\ \mathrm{mm}$ los valores
 $A_p=3.522\ \mathrm{mm^2/mm}$ e $I_p=1057.25\ \mathrm{mm^4/mm}$
 [@Mai2013, ecs. 2.1--2.2 y tabla 2.1]. La @eq-equivalent-smooth-section produce
 $t_{eq}\simeq60.0\ \mathrm{mm}$ y $E_{eq}\simeq11.74\ \mathrm{GPa}$ para
-$E_\theta=200\ \mathrm{GPa}$, coincidentes con la precisión publicada.
+$E_\ell=200\ \mathrm{GPa}$, coincidentes con la precisión publicada.

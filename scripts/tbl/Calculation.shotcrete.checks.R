@@ -32,12 +32,15 @@ buildCalculationShotcreteChecksTable <- function(path, liningID) {
   if (nrow(Data) == 0L || any(!is.finite(Data[["utilization", exact = TRUE]]))) {
     stop("The calculated shotcrete checks are unavailable.", call. = FALSE)
   }
-  InterfaceCodes <- c(`full-traction` = "1", `normal-only` = "0")
-  CheckCodes <- c(
-    `tension-face` = "T",
-    `compression-face` = "C",
-    `one-way-shear` = "V",
-    `axial-flexure` = "NM"
+  InterfaceLabels <- c(
+    `full-slip` = "Deslizamiento libre",
+    `no-slip` = "Sin deslizamiento"
+  )
+  CheckLabels <- c(
+    `tension-face` = "Tracción de la cara",
+    `compression-face` = "Compresión de la cara",
+    `one-way-shear` = "Corte unidireccional",
+    `axial-flexure` = "Fuerza normal y momento"
   )
   StatusLabels <- c(
     satisfied = "Satisface",
@@ -56,8 +59,8 @@ buildCalculationShotcreteChecksTable <- function(path, liningID) {
     )
   }
   Output <- data.frame(
-    Interface = unname(InterfaceCodes[Data[["interfaceID", exact = TRUE]]]),
-    Check = unname(CheckCodes[Data[["checkID", exact = TRUE]]]),
+    Interface = unname(InterfaceLabels[Data[["interfaceID", exact = TRUE]]]),
+    Check = unname(CheckLabels[Data[["checkID", exact = TRUE]]]),
     VerticalFactor = formatC(
       Data[["verticalStressFactor", exact = TRUE]],
       format = "fg",
@@ -80,7 +83,7 @@ buildCalculationShotcreteChecksTable <- function(path, liningID) {
     Utilization = formatC(
       Data[["utilization", exact = TRUE]],
       format = "f",
-      digits = 4L
+      digits = 2L
     ),
     Status = unname(StatusLabels[Data[["checkStatus", exact = TRUE]]]),
     check.names = FALSE,
@@ -92,8 +95,9 @@ buildCalculationShotcreteChecksTable <- function(path, liningID) {
   knitr::kable(
     Output,
     col.names = c(
-      "$\\alpha$", "$C$", "$f_v$", "$f_h$", "$D$", "$R$", "$u$", "$U$",
-      "$S$"
+      "Contacto", "Comprobación", "Carga vertical", "Empuje lateral",
+      "Demanda", "Resistencia", "Unidad", "Demanda/resistencia",
+      "Resultado"
     ),
     align = c("c", "c", "r", "r", "r", "r", "c", "r", "l"),
     escape = FALSE
@@ -142,9 +146,9 @@ buildCalculationReinforcementChecksTable <- function(path, liningID) {
     stop("The calculated reinforcement checks are incomplete.", call. = FALSE)
   }
   CheckLabels <- c(
-    `minimum-circumferential-reinforcement` = "Cuantía circunferencial",
-    `minimum-longitudinal-reinforcement` = "Cuantía ortogonal",
-    `equal-reinforcement-at-opposite-faces` = "Igualdad entre caras"
+    `minimum-circumferential-reinforcement` = "Armadura circunferencial",
+    `minimum-longitudinal-reinforcement` = "Armadura longitudinal",
+    `equal-reinforcement-at-opposite-faces` = "Diferencia entre caras"
   )
   StatusLabels <- c(
     satisfied = "Satisface",
@@ -173,7 +177,7 @@ buildCalculationReinforcementChecksTable <- function(path, liningID) {
   }
   knitr::kable(
     Output,
-    col.names = c("Control", "Requerido", "Provisto o calculado", "$u$", "$S$"),
+    col.names = c("Control", "Requerido", "Provisto", "Unidad", "Resultado"),
     align = c("l", "r", "r", "c", "l"),
     escape = FALSE
   )

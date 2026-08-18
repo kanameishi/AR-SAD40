@@ -80,39 +80,59 @@ buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
   }
   if (CoverModel) {
     Output <- do.call(rbind, list(
-      row("$H_0$", formatGeneral(Stress$coverCrownM), "$\\mathrm{m}$"),
-      row("$R$", formatGeneral(Stress$crownToAxisM), "$\\mathrm{m}$"),
+      row("Altura de relleno sobre la clave", formatGeneral(Stress$coverCrownM), "$\\mathrm{m}$"),
+      row("Distancia de la clave al centro", formatGeneral(Stress$crownToAxisM), "$\\mathrm{m}$"),
       row(
-        "$\\gamma'$",
+        "Peso unitario efectivo",
         formatGeneral(Stress$effectiveUnitWeightKnPerM3),
         "$\\mathrm{kN/m^3}$"
       ),
-      row("$q'$", formatGeneral(Stress$effectiveSurchargeKPa), "$\\mathrm{kPa}$"),
+      row("Sobrecarga efectiva", formatGeneral(Stress$effectiveSurchargeKPa), "$\\mathrm{kPa}$"),
       if (is.finite(Stress$frictionAngleDeg)) {
         row(
-          "$\\phi'$",
+          "Ángulo de fricción efectiva",
           formatGeneral(Stress$frictionAngleDeg),
           "$^{\\circ}$"
         )
       } else {
         NULL
       },
-      row("$K_0$", formatGeneral(Stress$k0Applied), "—"),
+      if (is.finite(Stress$ocr)) {
+        row("Relación de sobreconsolidación", formatGeneral(Stress$ocr), "—")
+      } else {
+        NULL
+      },
+      row("Coeficiente de presión en reposo", formatGeneral(Stress$k0Applied), "—"),
       row(
-        "$E_g$",
+        "Tensión vertical efectiva en el centro",
+        formatGeneral(Stress$effectiveVerticalStressKPa),
+        "$\\mathrm{kPa}$"
+      ),
+      row(
+        "Tensión horizontal efectiva en el centro",
+        formatGeneral(Stress$effectiveHorizontalStressKPa),
+        "$\\mathrm{kPa}$"
+      ),
+      row(
+        "Presión hidráulica neta",
+        formatGeneral(inputNumberInGroup("action", "net-water-pressure")),
+        "$\\mathrm{kPa}$"
+      ),
+      row(
+        "Módulo de deformación del relleno",
         formatGeneral(inputNumberInGroup("ground", "modulus") / 1000),
         "$\\mathrm{MPa}$"
       ),
       row(
-        "$\\nu_g$",
+        "Coeficiente de Poisson del relleno",
         formatGeneral(inputNumberInGroup("ground", "poisson-ratio")),
         "—"
       )
     ))
     return(knitr::kable(
       Output,
-      col.names = c("$x_i$", "$v_i$", "$u_i$"),
-      align = c("c", "r", "c"),
+      col.names = c("Magnitud", "Valor", "Unidad"),
+      align = c("l", "r", "c"),
       escape = FALSE
     ))
   }

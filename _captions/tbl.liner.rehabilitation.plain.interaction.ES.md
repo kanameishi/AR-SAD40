@@ -1,1 +1,1 @@
-Parámetros de la proyección biaxial y coeficientes armónicos de las resultantes del revestimiento de hormigón proyectado. La integración directa se ejecuta con las propiedades de cada alternativa; $\alpha=1$ incorpora la tracción tangencial completa y $\alpha=0$ conserva únicamente la acción normal.
+Razones de rigidez, coeficientes y amplitudes de la solución de carga externa de Schwartz--Einstein para el hormigón proyectado simple. Los dos límites de interfaz se recalculan con el radio y las rigideces de esta alternativa.

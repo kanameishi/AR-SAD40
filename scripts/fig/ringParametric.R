@@ -120,7 +120,7 @@ buildRingParametricPlot <- function(
         "if (!this.point.custom) { return false; }",
         "return '<b>' + this.series.name + '</b><br/>' +",
         "'&theta; = ' + Highcharts.numberFormat(this.point.custom.thetaDeg, 1) + '&deg;<br/>' +",
-        "this.point.custom.resultant + ' = ' + Highcharts.numberFormat(this.point.custom.value, 3) + ' ' + this.point.custom.unit;",
+        "this.point.custom.resultant + ' = ' + Highcharts.numberFormat(this.point.custom.value, 0) + ' ' + this.point.custom.unit;",
         "}"
       ))
     ) |>
@@ -399,7 +399,7 @@ buildRingComparisonPlot <- function(
         "if (!this.point.custom) return false;",
         "return '<b>' + this.series.name + '</b><br/>' +",
         "'&theta; = ' + Highcharts.numberFormat(this.point.custom.thetaDeg, 1) + '&deg;<br/>' +",
-        "this.point.custom.resultant + ' = ' + Highcharts.numberFormat(this.point.custom.value, 3) + ' ' + this.point.custom.unit;",
+        "this.point.custom.resultant + ' = ' + Highcharts.numberFormat(this.point.custom.value, 0) + ' ' + this.point.custom.unit;",
         "}"
       ))
     ) |>

@@ -53,10 +53,14 @@ readRRecord[expression_String] := First @ readRRows[expression];
 readCoverProducts[] := <|
   "theta" -> readRRows["workbookProducts$theta"],
   "stress" -> readRRows[
-    "workbookProducts$stress[c('depthM','effectiveVerticalStressKPa','effectiveHorizontalStressKPa','k0Applied')]"
+    "workbookProducts$stress[c('coverCrownM','depthM','effectiveUnitWeightKnPerM3','effectiveSurchargeKPa','effectiveVerticalStressKPa','effectiveHorizontalStressKPa','k0Applied')]"
   ],
   "section" -> readRRows["workbookProducts$section"],
   "interaction" -> readRRows["workbookProducts$interaction"],
+  "schwartzEinstein" -> readRRows[
+    "workbookProducts$schwartzEinsteinComparison"
+  ],
+  "hybridGradient" -> readRRows["workbookProducts$hybridGradient"],
   "resultants" -> readRRows["workbookProducts$resultants"],
   "extrema" -> readRRows["workbookProducts$extrema"],
   "controls" -> readRRows["workbookProducts$controls"],
@@ -74,6 +78,12 @@ readAdditionalLiningProducts[name_String] := (
   <|
     "section" -> readRRows[
       "workbookProducts$additionalLinings[[workbookLiningID]]$section"
+    ],
+    "schwartzEinstein" -> readRRows[
+      "workbookProducts$additionalLinings[[workbookLiningID]]$schwartzEinsteinComparison"
+    ],
+    "hybridGradient" -> readRRows[
+      "workbookProducts$additionalLinings[[workbookLiningID]]$hybridGradient"
     ],
     "resultants" -> readRRows[
       "workbookProducts$additionalLinings[[workbookLiningID]]$resultants"
@@ -93,46 +103,25 @@ readAdditionalLiningProducts[name_String] := (
     |>,
     "summary" -> readRRows[
       "workbookProducts$additionalLinings[[workbookLiningID]]$summary"
-    ]
+    ],
+    "reinforcementStudy" -> <|
+      "domains" -> readRRows[
+        "workbookProducts$reinforcementStudy$domains[workbookProducts$reinforcementStudy$domains$liningID == workbookLiningID, , drop = FALSE]"
+      ],
+      "summary" -> readRRows[
+        "workbookProducts$reinforcementStudy$summary[workbookProducts$reinforcementStudy$summary$liningID == workbookLiningID, , drop = FALSE]"
+      ],
+      "governingDemands" -> readRRows[
+        "workbookProducts$reinforcementStudy$governingDemands[workbookProducts$reinforcementStudy$governingDemands$liningID == workbookLiningID, , drop = FALSE]"
+      ]
+    |>
   |>
 );
 
 readAdditionalLiningProducts[
   name_String,
-  "plain-concrete"
+  _String
 ] := readAdditionalLiningProducts[name];
-
-readAdditionalLiningProducts[
-  name_String,
-  "reinforced-concrete"
-] := With[
-  {products = readAdditionalLiningProducts[name]},
-  Join[
-    products,
-    <|
-      "assessment" -> Append[
-        products["assessment"],
-        "minimumReinforcement" -> readRRows[
-          "workbookProducts$additionalLinings[[workbookLiningID]]$assessment$minimumReinforcement"
-        ]
-      ],
-      "mesh" -> readRRecord[
-        "as.data.frame(workbookProducts$derived[c('reinforcedBarAreaMm2','reinforcedAreaMm2PerFaceAndDirection','reinforcedClearCoverMm','reinforcedLayerCentroidCoverMm','reinforcedInteriorLayerCoordinateMm','reinforcedExteriorLayerCoordinateMm','reinforcementYieldStrengthMPa')], check.names = FALSE)"
-      ],
-      "reinforcementStudy" -> <|
-        "domains" -> readRRows[
-          "workbookProducts$reinforcementStudy$domains"
-        ],
-        "summary" -> readRRows[
-          "workbookProducts$reinforcementStudy$summary"
-        ],
-        "configuredGoverningDemands" -> readRRows[
-          "workbookProducts$reinforcementStudy$configuredGoverningDemands"
-        ]
-      |>
-    |>
-  ]
-];
 
 runCoverCalculation[inputs_Association] := Module[
   {
@@ -174,7 +163,7 @@ runCoverCalculation[inputs_Association] := Module[
     "as.data.frame(workbookProducts$methodBasis[c('requestedMethodID','methodProfileID','methodProfileVersion')], check.names = FALSE)"
   ];
   derived = readRRecord[
-    "as.data.frame(workbookProducts$derived[c('scenarioID','steelSpanM','totalUnitWeightKnPerM3','plainConcreteCentroidalRadiusM','reinforcedConcreteCentroidalRadiusM','reinforcedBarAreaMm2','reinforcedAreaMm2PerFaceAndDirection','reinforcedClearCoverMm','reinforcedLayerCentroidCoverMm','reinforcedInteriorLayerCoordinateMm','reinforcedExteriorLayerCoordinateMm','reinforcementYieldStrengthMPa')], check.names = FALSE)"
+    "as.data.frame(workbookProducts$derived[c('scenarioID','steelSpanM','totalUnitWeightKnPerM3','plainConcreteCentroidalRadiusM','reinforcedConcreteCentroidalRadiusM','reinforcedClearCoverMm','reinforcedLayerCentroidCoverMm','reinforcedInteriorLayerCoordinateMm','reinforcedExteriorLayerCoordinateMm','reinforcementYieldStrengthMPa')], check.names = FALSE)"
   ];
   graphics = readRRecord[
     "as.data.frame(workbookProducts$derived$resolvedConfig$graphics[c('graphicAmplification','radialFraction','ordinateCount')], check.names = FALSE)"
@@ -319,12 +308,12 @@ scopeReasonName[id_] := Lookup[
 
 caseName[id_] := Lookup[
   <|
-    "alpha-1" -> "[Alpha] = 1",
-    "alpha-0" -> "[Alpha] = 0",
+    "alpha-1" -> "Full slip",
+    "alpha-0" -> "No slip",
     "full-traction" -> "[Alpha] = 1",
     "normal-only" -> "[Alpha] = 0",
-    "full-slip" -> "Full slip (comparison)",
-    "no-slip" -> "No slip (comparison)"
+    "full-slip" -> "Full slip",
+    "no-slip" -> "No slip"
   |>,
   id,
   id
@@ -332,8 +321,8 @@ caseName[id_] := Lookup[
 
 strengthCaseName[id_] := Lookup[
   <|
-    "d14-h16" -> "1.4V + 1.6H",
-    "d14-h09" -> "1.4V + 0.9H"
+    "d14-h16" -> "Vertical permanent x1.4; lateral earth pressure x1.6",
+    "d14-h09" -> "Vertical permanent x1.4; lateral earth pressure x0.9"
   |>,
   id,
   id
@@ -412,7 +401,10 @@ groundStressAndSteelSectionView[products_Association] := With[
     engineeringTable[
       {"Ground-stress quantity", "Value", "Unit"},
       {
+        {"Fill height above crown", formatValue[stress["coverCrownM"]], "m"},
         {"Reference depth", formatValue[stress["depthM"]], "m"},
+        {"Effective fill unit weight", formatValue[stress["effectiveUnitWeightKnPerM3"]], "kN/m^3"},
+        {"Permanent uniform surcharge", formatValue[stress["effectiveSurchargeKPa"]], "kPa"},
         {"Effective vertical stress", formatValue[stress["effectiveVerticalStressKPa"]], "kPa"},
         {"Effective horizontal stress", formatValue[stress["effectiveHorizontalStressKPa"]], "kPa"},
         {"Applied K0", formatValue[stress["k0Applied"]], "\[LongDash]"}
@@ -424,7 +416,9 @@ groundStressAndSteelSectionView[products_Association] := With[
     engineeringTable[
       {"Corrugated-steel property", "Value", "Unit"},
       {
-        {"Remaining base thickness", formatValue[section["remainingBaseThicknessMm"], 0], "mm"},
+        {"Specified nominal thickness", formatValue[section["specifiedThicknessMm"], 1], "mm"},
+        {"Published design base thickness", formatValue[section["designBaseThicknessMm"], 2], "mm"},
+        {"Remaining analyzed thickness", formatValue[section["remainingBaseThicknessMm"], 1], "mm"},
         {"Area per projected width", formatValue[section["areaMm2PerMm"]], "mm^2/mm"},
         {"Second moment per projected width", formatValue[section["inertiaMm4PerMm"]], "mm^4/mm"},
         {"Extensional stiffness, EA", formatValue[section["extensionalRigidityKnPerM"], 0], "kN/m"},
@@ -442,7 +436,7 @@ interactionExtremaView[products_Association] := With[
     extrema = products["extrema"]
   },
   Column[{
-    Style["Direct-integration parameters", Bold],
+    Style["Prescribed-load direct-integration control", Bold],
     engineeringTable[
       {"Projection", "[Alpha]", "[Eta]s", "Mean N [kN/m]", "Cosine N [kN/m]", "Mean M [kN\[CenterDot]m/m]", "Cosine M [kN\[CenterDot]m/m]", "Sine Q [kN/m]"},
       ({
@@ -458,7 +452,43 @@ interactionExtremaView[products_Association] := With[
       {Left, Right, Right, Right, Right, Right, Right, Right}
     ],
     Spacer[10],
-    Style["Section-resultant extrema", Bold],
+    Style["Schwartz-Einstein uniform-field interaction coefficients", Bold],
+    engineeringTable[
+      {"Interface", "C*", "F*", "t0", "t2", "m2", "Mean N [kN/m]", "Cosine N [kN/m]", "Cosine M [kN[CenterDot]m/m]", "Sine Q [kN/m]"},
+      ({
+        caseName[#1["interfaceID"]],
+        formatValue[#1["cStar"], 6],
+        formatValue[#1["fStar"], 3],
+        formatValue[#1["t0"], 6],
+        formatValue[#1["t2"], 6],
+        formatValue[#1["m2"], 6],
+        formatValue[#1["normalMeanKnPerM"], 0],
+        formatValue[#1["normalCosineKnPerM"], 0],
+        formatValue[#1["momentCosineKnMPerM"], 0],
+        formatValue[#1["shearSineKnPerM"], 0]
+      } &) /@ products["schwartzEinstein"],
+      {Left, Right, Right, Right, Right, Right, Right, Right, Right, Right}
+    ],
+    Spacer[10],
+    Style["Balanced geostatic-gradient correction", Bold],
+    engineeringTable[
+      {"Interface", "Vertical gradient [kPa/m]", "Horizontal gradient [kPa/m]", "Radial n=1 reaction [kPa]", "N1 [kN/m]", "N3 [kN/m]", "M3 [kN m/m]", "Q3 [kN/m]", "Minimum compression [kPa]", "Equilibrium"},
+      ({
+        caseName[#1["interfaceID"]],
+        formatValue[#1["verticalStressGradientKPaPerM"], 0],
+        formatValue[#1["horizontalStressGradientKPaPerM"], 0],
+        formatValue[#1["supportRadialMode1KPa"], 0],
+        formatValue[#1["normalMode1KnPerM"], 0],
+        formatValue[#1["normalMode3KnPerM"], 0],
+        formatValue[#1["momentMode3KnMPerM"], 0],
+        formatValue[#1["shearMode3KnPerM"], 0],
+        formatValue[#1["minimumPrescribedCompressivePressureKPa"], 0],
+        statusName[#1["equilibriumStatus"]]
+      } &) /@ products["hybridGradient"],
+      {Left, Right, Right, Right, Right, Right, Right, Right, Right, Center}
+    ],
+    Spacer[10],
+    Style["Hybrid design extrema: E-S uniform field plus balanced gradient", Bold],
     engineeringTable[
       {"Projection", "Resultant", "Minimum", "\[Theta] at min [deg]", "Maximum", "\[Theta] at max [deg]", "Absolute maximum", "\[Theta] at |max| [deg]", "Unit"},
       Flatten[
@@ -754,7 +784,7 @@ resultantsView[
       {
         Style[Row[{liningTitle, " \[LongDash] circular section-resultant diagrams"}], Bold],
         Style[
-          "Radial ordinates: blue is positive and orange is negative. The alpha = 1 and alpha = 0 projections are distinguished by grey curve shade and dash pattern.",
+          "Radial ordinates: blue is positive and orange is negative. Full-slip and no-slip E-S interfaces are distinguished by grey curve shade and dash pattern; every curve includes the balanced geostatic-gradient correction returned by R.",
           GrayLevel[0.30]
         ]
       },
@@ -912,12 +942,12 @@ concreteCommonView[
     ],
     Spacer[10],
     Style[
-      "Unfactored reference-state section resultants by projection",
+      "Unfactored hybrid section resultants by interface",
       Bold
     ],
     resultantsView[products, graphics, liningTitle],
     Spacer[10],
-    Style["Unfactored reference-state extrema by projection", Bold],
+    Style["Unfactored hybrid extrema by interface", Bold],
     engineeringTable[
       {"Projection", "|N|max [kN/m]", "|M|max [kN\[CenterDot]m/m]", "|Q|max [kN/m]"},
       ({
@@ -929,7 +959,7 @@ concreteCommonView[
       {Left, Right, Right, Right}
     ],
     Style[
-      "The diagrams and extrema above are the unfactored reference state. Strength checks below use separately recomputed LRFD actions from R.",
+      "The diagrams and extrema above combine the Schwartz-Einstein uniform-field interaction recomputed by R for this lining stiffness with the balanced n=1,n=3 geostatic-gradient correction. Strength checks below use separately recomputed LRFD actions from the same R model.",
       GrayLevel[0.30]
     ]
   }, Spacings -> 1.2]
@@ -1030,7 +1060,10 @@ concreteLiningView[
     Style[
       "Scope \[LongDash] The local tension-face and one-way-shear comparisons are calculated conditionally for the declared LRFD combinations. ACI 318-25 Chapter 14 applicability is not established because the structural classification and qualifying plain-concrete support condition are not characterized; the overall ACI assessment therefore remains Not evaluated.",
       GrayLevel[0.30]
-    ]
+    ],
+    Spacer[10],
+    Style["Parametric reinforced-section comparison at this thickness", Bold],
+    reinforcementStudyView[products["reinforcementStudy"]]
   }, Spacings -> 1.2]
 ];
 
@@ -1046,7 +1079,7 @@ pmReinforcementFamilyPlot[study_Association] := Module[
   ];
   domains = study["domains"];
   demands = SortBy[
-    study["configuredGoverningDemands"],
+    study["governingDemands"],
     #1["demandOrder"] &
   ];
   domainSeries = Table[
@@ -1065,11 +1098,7 @@ pmReinforcementFamilyPlot[study_Association] := Module[
   curveColors = Table[ColorData[97][index], {index, Length[domainSeries]}];
   demandColors = Table[ColorData[112][index], {index, Length[demands]}];
   curveLabels = ({
-    If[
-      TrueQ[#1["isConfiguredCase"]],
-      "Configured",
-      If[TrueQ[#1["isMinimumHistoricalCase"]], "Historical minimum", "Reference"]
-    ],
+    If[TrueQ[#1["isLowerReferenceCase"]], "Lower reference", "Evaluated ratio"],
     Row[{"rho = ", NumberForm[100 #1["reinforcementRatio"], {5, 3}], "%"}],
     Row[{"As,total = ", NumberForm[#1["circumferentialAreaTotalMm2PerM"]/100, {7, 2}], " cm^2/m"}]
   } &) /@ orderedSummary;
@@ -1126,7 +1155,7 @@ reinforcementStudyView[study_Association] := Module[
   {summary, demands, demandColors},
   summary = SortBy[study["summary"], #1["reinforcementCaseOrder"] &];
   demands = SortBy[
-    study["configuredGoverningDemands"],
+    study["governingDemands"],
     #1["demandOrder"] &
   ];
   demandColors = Table[ColorData[112][index], {index, Length[demands]}];
@@ -1134,18 +1163,14 @@ reinforcementStudyView[study_Association] := Module[
     Style["P-M interaction domains for several reinforcement ratios", Bold],
     pmReinforcementFamilyPlot[study],
     Style[
-      "Each line is a resistant interaction domain for one reinforcement ratio, beginning with the historical minimum. The four colored markers are physical governing demands of the configured section; they are not calculation iterations.",
+      "Each line is a resistant interaction domain for one evaluated reinforcement ratio, beginning with the lower reference ratio. The four colored markers are physical governing demands common to the whole family; they are not calculation iterations.",
       GrayLevel[0.30]
     ],
     Spacer[8],
     engineeringTable[
       {"Role", "rho [%]", "As,total [cm^2/m]", "Maximum utilization", "Local P-M"},
       ({
-        If[
-          TrueQ[#1["isConfiguredCase"]],
-          "Configured",
-          If[TrueQ[#1["isMinimumHistoricalCase"]], "Historical minimum", "Reference"]
-        ],
+        If[TrueQ[#1["isLowerReferenceCase"]], "Lower reference", "Evaluated ratio"],
         formatValue[100 #1["reinforcementRatio"], 3],
         formatValue[#1["circumferentialAreaTotalMm2PerM"]/100, 2],
         formatValue[#1["maximumRadialUtilization"]],
@@ -1154,7 +1179,7 @@ reinforcementStudyView[study_Association] := Module[
       {Left, Right, Right, Right, Center}
     ],
     Spacer[8],
-    Style["Four governing demands of the configured section", Bold],
+    Style["Four governing demands common to the reinforcement family", Bold],
     engineeringTable[
       {"Marker", "Projection", "LRFD combination", "theta [deg]", "N [kN/m]", "M [kN m/m]", "Utilization"},
       MapThread[
@@ -1172,7 +1197,7 @@ reinforcementStudyView[study_Association] := Module[
       {Center, Left, Center, Right, Right, Right, Right}
     ],
     Style[
-      "This is a discrete visual comparison, not an optimizer. Change the mesh inputs, reevaluate the single R calculation cell, and inspect the updated configured curve and checks.",
+      "This is a discrete visual comparison, not an optimizer and not a selected reinforcement design. Change reinforcementRatioGrid or the section inputs, reevaluate the single R calculation cell, and inspect the updated family.",
       GrayLevel[0.30]
     ]
   }, Spacings -> 1.2]
@@ -1185,17 +1210,7 @@ concreteLiningView[
   graphics_Association
 ] := With[
   {
-    summary = products["summary"],
-    mesh = products["mesh"],
     study = products["reinforcementStudy"],
-    minimum = First[products["assessment"]["minimumReinforcement"]],
-    aciSummary = products["assessment"]["aci"]["summary"],
-    controls = products["assessment"]["aci"]["controls"],
-    axialFlexureChecks = Select[
-      products["assessment"]["aci"]["checks"],
-      #1["calculationStatus"] === "calculated" &&
-        #1["checkID"] === "axial-flexure" &
-    ],
     outsideScope = DeleteDuplicatesBy[
       Select[
         products["assessment"]["aci"]["checks"],
@@ -1205,124 +1220,19 @@ concreteLiningView[
     ]
   },
   Column[{
-    concreteCommonView[name, "Reinforced shotcrete", products, graphics],
-    Spacer[10],
-    Style["Configured reinforcement mesh returned by R", Bold],
-    engineeringTable[
-      {"Derived mesh quantity", "Value", "Unit"},
-      {
-        {"Bar area", formatValue[mesh["reinforcedBarAreaMm2"]/100, 2], "cm^2"},
-        {"Clear cover", formatValue[mesh["reinforcedClearCoverMm"], 0], "mm"},
-        {"Cover to bar centroid", formatValue[mesh["reinforcedLayerCentroidCoverMm"], 0], "mm"},
-        {"Interior layer coordinate", formatValue[mesh["reinforcedInteriorLayerCoordinateMm"], 0], "mm"},
-        {"Exterior layer coordinate", formatValue[mesh["reinforcedExteriorLayerCoordinateMm"], 0], "mm"},
-        {"Area per face and direction", formatValue[mesh["reinforcedAreaMm2PerFaceAndDirection"]/100, 2], "cm^2/m"},
-        {"Reinforcement yield strength", formatValue[mesh["reinforcementYieldStrengthMPa"], 1], "MPa"}
-      },
-      {Left, Right, Center}
-    ],
-    Spacer[10],
-    Style["Reinforced-concrete local P-M result by projection", Bold],
-    engineeringTable[
-      {"Projection", "Governing LRFD combination", "Utilization", "Result"},
-      ({
-        caseName[#1["interfaceID"]],
-        strengthCaseName[#1["shotcreteGoverningStrengthCaseID"]],
-        formatValue[#1["shotcreteLocalStrengthUtilization"]],
-        statusName[#1["shotcreteLocalStrengthStatus"]]
-      } &) /@ summary,
-      {Left, Center, Right, Center}
-    ],
-    Spacer[10],
-    Style["ACI 318-25 local P-M summary by LRFD combination", Bold],
-    engineeringTable[
-      {"Projection", "LRFD combination", "fv", "fh", "Utilization", "Result"},
-      ({
-        caseName[#1["interfaceID"]],
-        strengthCaseName[#1["strengthCaseID"]],
-        formatValue[#1["verticalStressFactor"], 1],
-        formatValue[#1["horizontalStressFactor"], 1],
-        formatValue[#1["governingUtilization"]],
-        statusName[#1["localStrengthStatus"]]
-      } &) /@ aciSummary,
-      {Left, Center, Right, Right, Right, Center}
-    ],
-    Spacer[10],
-    Style["Calculated local P-M checks at concurrent LRFD actions", Bold],
-    engineeringTable[
-      {"Projection", "LRFD combination", "\[Theta] [deg]", "N [kN/m]", "M [kN\[CenterDot]m/m]", "Utilization", "Result"},
-      ({
-        caseName[#1["interfaceID"]],
-        strengthCaseName[#1["strengthCaseID"]],
-        formatValue[#1["thetaDeg"], 1],
-        formatValue[#1["normalForceKnPerM"], 0],
-        formatValue[#1["bendingMomentKnMPerM"], 0],
-        formatValue[#1["utilization"]],
-        statusName[#1["checkStatus"]]
-      } &) /@ axialFlexureChecks,
-      {Left, Center, Right, Right, Right, Right, Center}
-    ],
-    Style[
-      "Moment sign convention: M(\[Theta]) > 0 tensions the inner face; M(\[Theta]) < 0 tensions the outer face.",
-      GrayLevel[0.30]
-    ],
-    Spacer[10],
-    Style["Minimum reinforcement by direction [cm^2/m]", Bold],
-    engineeringTable[
-      {"Direction", "As,min total", "As,inner", "As,outer", "Result"},
-      {
-        {
-          "Circumferential",
-          formatValue[minimum["requiredAreaPerDirectionMm2"]/100, 2],
-          formatValue[minimum["circumferentialInteriorAreaMm2"]/100, 2],
-          formatValue[minimum["circumferentialExteriorAreaMm2"]/100, 2],
-          statusName[minimum["circumferentialTotalStatus"]]
-        },
-        {
-          "Longitudinal / orthogonal",
-          formatValue[minimum["requiredAreaPerDirectionMm2"]/100, 2],
-          formatValue[minimum["orthogonalInteriorAreaMm2"]/100, 2],
-          formatValue[minimum["orthogonalExteriorAreaMm2"]/100, 2],
-          statusName[minimum["orthogonalTotalStatus"]]
-        }
-      },
-      {Left, Right, Right, Right, Center}
-    ],
-    Style[
-      Row[{
-        "The minimum requirement is ",
-        formatValue[minimum["requiredAreaPerDirectionMm2"]/100, 2],
-        " cm^2/m total in each direction. The configured mesh provides ",
-        formatValue[minimum["circumferentialInteriorAreaMm2"]/100, 2],
-        " + ",
-        formatValue[minimum["circumferentialExteriorAreaMm2"]/100, 2],
-        " cm^2/m at the inner and outer faces."
-      }],
-      GrayLevel[0.30]
+    concreteCommonView[
+      name,
+      "Shotcrete for the parametric P-M study",
+      products,
+      graphics
     ],
     Spacer[10],
     reinforcementStudyView[study],
     Spacer[8],
     Style[
-      "Scope \[LongDash] ACI 318-25 governs the implemented local axial-force and bending check. ACI 318.2-14 is used only as a historical supplement for minimum reinforcement and equal reinforcement at opposite faces. This is not a full current-code shell assessment.",
+      "Scope \[LongDash] ACI 318-25 governs the implemented local axial-force and bending check. The displayed family is parametric and does not select a bar diameter, spacing, or final reinforcement detail. This is not a full current-code shell assessment.",
       GrayLevel[0.30]
     ],
-    OpenerView[{
-      Style["Numerical controls for the local P-M check", Bold],
-      engineeringTable[
-        {"Projection", "LRFD combination", "Relative difference", "Tolerance", "Convergence", "Strength-reduction rule", "Axial limit"},
-        ({
-          caseName[#1["interfaceID"]],
-          strengthCaseName[#1["strengthCaseID"]],
-          formatValue[#1["convergenceRelativeDifference"], 6],
-          formatValue[#1["convergenceTolerance"], 3],
-          statusName[#1["convergenceStatus"]],
-          statusName[#1["strengthReductionStatus"]],
-          statusName[#1["axialLimitStatus"]]
-        } &) /@ controls,
-        {Left, Center, Right, Right, Center, Center, Center}
-      ]
-    }, False],
     OpenerView[{
       Style["Outside the evaluated reinforced-concrete scope", Bold],
       engineeringTable[
@@ -1342,7 +1252,9 @@ rObjectCatalogRows[additionalIDs_List] := Join[
     {"workbookProducts$theta", "Angular mesh"},
     {"workbookProducts$stress", "Free-field stress"},
     {"workbookProducts$section", "Corrugated-steel section"},
-    {"workbookProducts$interaction", "External-interaction coefficients"},
+    {"workbookProducts$interaction", "Prescribed-load control coefficients"},
+    {"workbookProducts$schwartzEinsteinComparison", "Schwartz-Einstein design coefficients"},
+    {"workbookProducts$hybridGradient", "Balanced geostatic-gradient coefficients and checks"},
     {"workbookProducts$resultants", "Angular N/M/Q rows"},
     {"workbookProducts$extrema", "Section-resultant extrema"},
     {"workbookProducts$controls", "Numerical controls"},
@@ -1353,7 +1265,7 @@ rObjectCatalogRows[additionalIDs_List] := Join[
     {"workbookProducts$aashto$summary", "Governing statuses"},
     {"workbookProducts$reinforcementStudy$domains", "P-M domains for the discrete reinforcement family"},
     {"workbookProducts$reinforcementStudy$summary", "Reinforcement-family utilizations and statuses"},
-    {"workbookProducts$reinforcementStudy$configuredGoverningDemands", "Four governing demands of the configured section"}
+    {"workbookProducts$reinforcementStudy$governingDemands", "Four governing demands per lining thickness"}
   },
   Flatten[
     Table[
@@ -1369,10 +1281,11 @@ rObjectCatalogRows[additionalIDs_List] := Join[
         {"stress"},
         {"section"},
         {"interaction"},
+        {"schwartzEinsteinComparison"},
+        {"hybridGradient"},
         {"resultants"},
         {"extrema"},
         {"controls"},
-        {"assessment", "minimumReinforcement"},
         {"assessment", "aci", "actions"},
         {"assessment", "aci", "checks"},
         {"assessment", "aci", "controls"},

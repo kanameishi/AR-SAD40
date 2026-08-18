@@ -28,6 +28,7 @@ calculatePrismThrust <- function(
   combinationID,
   stageID,
   forceEffectStatus,
+  deadSurchargeKPa = 0,
   liveCrownPressureKPa = 0,
   liveLoadedWidthM = 0,
   liveLoadFactor = 0
@@ -36,6 +37,7 @@ calculatePrismThrust <- function(
   .assertText(stageID, "stageID")
   .assertText(forceEffectStatus, "forceEffectStatus")
   .assertFiniteScalar(spanM, "spanM", minimum = 0, strict = TRUE)
+  .assertFiniteScalar(deadSurchargeKPa, "deadSurchargeKPa", minimum = 0)
   .assertFiniteScalar(
     liveCrownPressureKPa,
     "liveCrownPressureKPa",
@@ -68,7 +70,7 @@ calculatePrismThrust <- function(
   CrownPressure <- usaceCrownPressure(
     unitWeight = unitWeightKnPerM3,
     coverCrown = coverCrownM
-  )
+  ) + deadSurchargeKPa
   Source <- usaceCmpThrust(
     deadCrownPressure = CrownPressure,
     span = spanM,

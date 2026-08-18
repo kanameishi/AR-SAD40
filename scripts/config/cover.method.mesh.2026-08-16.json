@@ -2,13 +2,13 @@
   "methodProfileID": "ar-sad40-cover-mesh-2026-08-16",
   "methodProfileVersion": "1.3.0",
   "schemaVersion": "3.1.0",
-  "analysisModelID": "prescribed-biaxial-direct-integration",
-  "scenarioID": "deterministic-cover-h8",
+  "analysisModelID": "schwartz-einstein-balanced-gradient-hybrid",
+  "scenarioID": "deterministic-cover-h4",
   "cover": {
-    "coverCrownM": 8.0,
+    "coverCrownM": 4.0,
     "crownToAxisM": 1.315,
-    "effectiveUnitWeightKnPerM3": 19.0,
-    "effectiveSurchargeKPa": 0.0,
+    "effectiveUnitWeightKnPerM3": 19.6133,
+    "effectiveSurchargeKPa": 88.25985,
     "referencePositionID": "axis"
   },
   "ground": {
@@ -44,14 +44,14 @@
   "sectionReference": {
     "propertyTable": "data/reference/cspi.corrugation.section.properties.csv",
     "profileID": "cspi-76x25-csp-sheet",
-    "referenceRowID": "cspi-76x25-2.8"
+    "referenceRowID": "cspi-76x25-3.5"
   },
   "lining": {
     "liningTypeID": "corrugated-steel",
-    "sectionID": "cspi-76x25-2.8-remaining-t2p64",
+    "sectionID": "cspi-76x25-3.5-remaining-t3",
     "centroidalRadiusM": 1.315,
     "poisson": 0.30,
-    "remainingBaseThicknessMm": 2.64,
+    "remainingBaseThicknessMm": 3.0,
     "youngModulusKPa": 200000000.0,
     "yieldStrengthMPa": 250.0
   },
@@ -76,7 +76,7 @@
     "materialID": "adopted-steel-fy250-fu400",
     "materialSourceKey": "adopted-scenario",
     "materialSourceLocator": "calculation.json; material properties pending confirmation",
-    "totalUnitWeightKnPerM3": 19.0,
+    "totalUnitWeightKnPerM3": 19.6133,
     "spanM": 2.63,
     "tensileStrengthMPa": 400.0,
     "deadLoadFactor": 1.95,
@@ -158,7 +158,7 @@
     },
     "reinforcedConcrete": {
       "liningTypeID": "shotcrete",
-      "sectionID": "shotcrete-t0.15-fc25-reinforced-d6-s150-c0p15-grade-60",
+      "sectionID": "shotcrete-t0.15-fc25-parametric-pm",
       "concreteTypeID": "reinforced-concrete",
       "outerRadiusM": 1.315,
       "thicknessM": 0.15,

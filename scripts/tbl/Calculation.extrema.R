@@ -44,7 +44,11 @@ buildCalculationExtremaTable <- function(
       fullTraction = "1",
       `full-traction` = "1",
       normalOnly = "0",
-      `normal-only` = "0"
+      `normal-only` = "0",
+      fullSlip = "Deslizamiento libre",
+      `full-slip` = "Deslizamiento libre",
+      noSlip = "Sin deslizamiento",
+      `no-slip` = "Sin deslizamiento"
     )
     ResultantLabels <- c(
       N = "$N_\\theta$",
@@ -103,7 +107,7 @@ buildCalculationExtremaTable <- function(
       Output,
       digits = c(0, 0, 0, 1, 0, 1, 0, 1, 0),
       col.names = c(
-        "$\\alpha$", "$X$", "$X_{\\min}$", "$\\theta_{\\min}$",
+        "Interfaz", "$X$", "$X_{\\min}$", "$\\theta_{\\min}$",
         "$X_{\\max}$", "$\\theta_{\\max}$",
         "$\\lvert X\\rvert_{\\max}$", "$\\theta_*$", "$u_X$"
       ),

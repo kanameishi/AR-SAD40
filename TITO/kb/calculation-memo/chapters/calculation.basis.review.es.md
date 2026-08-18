@@ -1,119 +1,59 @@
-# Modelo de cálculo {#sec-calculation-model}
+# Introducción {#sec-calculation-introduction}
 
 ## Objeto y alcance {#sec-calculation-scope}
 
-Esta memoria documenta el cálculo de las resultantes seccionales de un
-revestimiento circular, expresadas por unidad de ancho axial proyectado, para
-un escenario determinístico definido por la altura de relleno sobre la clave
-y el estado de tensiones efectivas. Las componentes radial y tangencial se
-obtienen proyectando sobre el contorno un estado biaxial uniforme prescrito;
-la respuesta transversal se resuelve por integración directa del equilibrio,
-la periodicidad y la compatibilidad del anillo. La solución cerrada y la serie
-de Fourier se emplean como controles numéricos. Schwartz--Einstein se conserva
-como contraste independiente y no gobierna las demandas resistentes.
+Esta memoria calcula las resultantes de un revestimiento circular sometido al
+estado de tensiones del relleno. La fuerza normal circunferencial
+$N_\theta(\theta)$, el momento flector $M_\theta(\theta)$ y el corte
+$Q_\theta(\theta)$ se expresan por unidad de ancho axial proyectado. El
+escenario determinístico queda definido por la altura de relleno sobre la
+clave, las propiedades efectivas del suelo, la sobrecarga y la presión de agua
+neta.
 
-El cálculo determina la fuerza normal circunferencial $N_\theta(\theta)$, el
-momento flector circunferencial $M_\theta(\theta)$ y la fuerza de corte
-circunferencial $Q_\theta(\theta)$, junto con sus extremos y posiciones
-angulares. Las entradas del escenario son hipótesis de la aplicación numérica;
-no se presentan como resultados de una caracterización del relleno existente.
+La demanda estructural combina la solución de carga externa de
+Schwartz--Einstein para el campo uniforme del eje con una corrección
+equilibrada por la variación geostática entre clave y solera. Para cada
+revestimiento, Schwartz--Einstein utiliza el radio y las rigideces propias del
+anillo; por lo tanto, un liner más rígido y uno más flexible no reciben
+artificialmente las mismas resultantes. Se calculan los límites de interfaz
+con deslizamiento libre y sin deslizamiento, porque la condición real de
+contacto no está caracterizada.
 
-El procedimiento se aplica por separado al revestimiento existente de chapas
-de acero corrugadas y a dos alternativas autónomas de hormigón proyectado:
-simple y
-armado. Cada alternativa emplea su propio radio hasta el baricentro de la
-pared, su sección y sus
-rigideces; la interacción y las resultantes se recalculan y no se transfieren
-entre revestimientos. Para el hormigón simple se calculan las comprobaciones
-locales del Capítulo 14 de ACI 318-25, condicionadas a que la clasificación
-estructural y las disposiciones de aplicabilidad del artículo 14.1.2 queden
-acreditadas [@ACI31825]. La alternativa armada
-se evalúa mediante un dominio local $P$--$M$ de ACI 318-25 y la cuantía
-mínima de armadura para cáscaras adoptada de ACI 318.2-14
-[@ACI31825; @ACI318214].
+La integración directa de las ecuaciones de equilibrio de la viga circular,
+su solución cerrada para el estado biaxial y su representación de Fourier
+controlan tanto la carga uniforme prescrita como la corrección de gradiente.
+Comprueban equilibrio, compatibilidad y signos; no sustituyen los coeficientes
+de interacción $C^*$ y $F^*$ de Schwartz--Einstein.
 
-En forma separada, la comprobación del conducto corrugado determina el empuje
-circunferencial mayorado y lo compara con los límites de resistencia de la
-pared y de la costura, flexibilidad y tapada mínima. La comprobación emplea
-una base documental compuesta: las expresiones reproducidas por USACE, los
-parámetros de AASHTO LRFD 9.ª edición recopilados por Anderson et al. y las
-propiedades publicadas por CSPI; CIRSOC 804-4 se utiliza sólo como contraste
-de una edición anterior [@USACE2020; @AndersonEtAl2023; @CSPIHandbookChapter6;
-@CIRSOC8044]. Esta base no demuestra conformidad con la edición vigente de
-AASHTO. El empuje escalar y las resultantes angulares responden a
-formulaciones de carga distintas y no se combinan entre sí.
+El procedimiento se aplica al liner existente de chapa corrugada y a secciones
+de hormigón proyectado de 100 y 150 mm. La sección de 100 mm se comprueba
+además como hormigón simple. Para ambos espesores de hormigón se presentan
+dominios $P$--$M$ correspondientes a distintas cuantías circunferenciales. No
+se adopta una armadura ni un detalle de barras.
 
-## Datos comunes y convenciones {#sec-calculation-basis}
+La chapa se contrasta también con las comprobaciones escalares de
+AASHTO/USACE para pared, pandeo, costura, flexibilidad y tapada. Ese cálculo y
+las resultantes angulares de Schwartz--Einstein responden a formulaciones
+distintas y se informan por separado [@USACE2020; @AndersonEtAl2023].
 
-### Datos del caso
+## Datos comunes e hipótesis {#sec-calculation-basis}
 
-La @tbl-calculation-inputs reúne las magnitudes comunes del escenario. La
-altura de relleno sobre la clave, el peso unitario asignado al cálculo de
-tensiones efectivas, la sobrecarga, $\phi'$, OCR y la presión hidráulica neta
-determinan el estado tensional prescrito. $K_0$ se calcula con la formulación
-seleccionada y no se introduce como una constante independiente. $E_g$ y
-$\nu_g$ se conservan para el contraste de Schwartz--Einstein. Las entradas
-propias de cada alternativa se presentan en sus respectivas secciones; las
-propiedades del perfil corrugado se informan en la
-@tbl-calculation-section-reference.
+La @tbl-calculation-inputs reúne las entradas geotécnicas y geométricas del
+escenario. Son hipótesis de cálculo y no se presentan como resultados de una
+caracterización del relleno existente.
 
 {{< include /_tbl/Calculation.inputs.ES.qmd >}}
 
-En esta aplicación provisional se adopta la rama de descarga de
-Mayne--Kulhawy con $\phi'=30^\circ$ y $\mathrm{OCR}=1$, que se reduce a la
-relación de Jáky y produce $K_0=0{,}5$ [@MayneKulhawy1982]. La ausencia de agua
-se representa mediante presión hidráulica neta nula. Estos valores permanecen
-editables y deben reemplazarse cuando se disponga de la caracterización
-geotécnica. Las formulaciones y sus dominios se reúnen en el
-[Apéndice B.3](#sec-calculation-appendix-k0-alternatives).
+El caso vigente usa $\phi'=30^\circ$, $\mathrm{OCR}=1$ y ausencia de presión
+hidráulica neta. Con la formulación de $K_0$ seleccionada, esos valores
+producen $K_0=0{,}5$. El valor no está fijado de manera independiente: se
+recalcula a partir de $\phi'$ y OCR. Estas entradas deben reemplazarse cuando
+se disponga de la caracterización geotécnica.
 
-El parámetro $\alpha$ multiplica la componente tangencial prescrita. Se
-calculan $\alpha=1$, que incorpora la proyección completa, y $\alpha=0$, que
-conserva sólo la componente normal. No es un coeficiente de fricción ni una
-ley constitutiva de contacto.
-
-### Coordenada angular y convenciones de signo
-
-La coordenada angular se define con $\theta=0$ en la clave y sentido positivo
-horario. El vector unitario radial $\mathbf e_r$ es positivo hacia el exterior
-del revestimiento y el vector unitario tangencial $\mathbf e_t$ sigue el
-sentido creciente de $\theta$. En consecuencia, $P_r>0$ actúa hacia el
-exterior y $P_t>0$ actúa en la dirección de $\mathbf e_t$.
-
-La fuerza normal circunferencial es positiva a tracción. La coordenada
-seccional $\xi$ es positiva hacia la fibra interior; por lo tanto,
-$M_\theta>0$ produce tracción en esa fibra. En la cara positiva del elemento
-diferencial, cuya normal sigue $\mathbf e_t$, $Q_\theta>0$ actúa hacia el
-centro de la sección circular. Las componentes de acción perimetral $P_r$ y
-$P_t$ se expresan en kPa; $N_\theta$ y $Q_\theta$, en kN/m; y $M_\theta$, en
-kN·m/m.
-
-### Definición de las resultantes seccionales
-
-Para una posición angular $\theta$ fija, sea $A_b$ el dominio material de la
-sección resistente idealizada comprendido en una franja de ancho axial
-proyectado $b$, en un corte normal a la dirección circunferencial. Sean $x_L$
-la coordenada axial y $\xi$ la coordenada radial local medida desde el eje
-baricéntrico de esa sección; $dA$ denota un elemento diferencial de $A_b$.
-La tensión de corte $\tau_{\theta\xi}$ es positiva en la dirección de
-$\xi>0$. Las resultantes por unidad de ancho se definen mediante
-
-$$
-\begin{aligned}
-N_\theta(\theta)
-&=\frac{1}{b}\iint_{A_b}
-\sigma_\theta(\theta,x_L,\xi)\,dA,\\
-M_\theta(\theta)
-&=\frac{1}{b}\iint_{A_b}
-\sigma_\theta(\theta,x_L,\xi)\,\xi\,dA,\\
-Q_\theta(\theta)
-&=\frac{1}{b}\iint_{A_b}
-\tau_{\theta\xi}(\theta,x_L,\xi)\,dA.
-\end{aligned}
-$$ {#eq-calculation-resultant-definitions}
-
-En una descripción cartesiana local, $dA=dx_L\,d\xi$. Para la sección de
-material homogéneo considerada, el origen de $\xi$ satisface
-$\iint_{A_b}\xi\,dA=0$; $\xi>0$ corresponde a la fibra interior y $\xi<0$ a
-la exterior. Las tres expresiones son integrales bidimensionales sobre $A_b$ con
-$\theta$ constante; no integran alrededor de la circunferencia.
+El modelo supone un medio elástico homogéneo alrededor del anillo. La
+interacción por rigidez se calcula para el campo libre evaluado a la
+profundidad del eje y la variación lineal sobre la altura se incorpora con una
+reacción radial de equilibrio, sin asignar un resorte físico. No se representan
+explícitamente la superficie libre, las tongadas, la secuencia de compactación
+ni el arqueo tridimensional de una zanja. Esos efectos no se introducen
+mediante factores implícitos.

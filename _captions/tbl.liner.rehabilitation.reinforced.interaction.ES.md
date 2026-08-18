@@ -1,1 +1,1 @@
-Parámetros de la proyección biaxial y coeficientes armónicos de las resultantes del revestimiento de hormigón proyectado armado. La integración directa se ejecuta con la sección propia; $\alpha=1$ incorpora la proyección tangencial completa y $\alpha=0$ conserva únicamente la acción normal.
+Razones de rigidez, coeficientes y amplitudes de la solución de carga externa de Schwartz--Einstein para la sección de hormigón proyectado usada en el estudio paramétrico de armadura. Los dos límites de interfaz se recalculan con el radio y las rigideces de esta sección.

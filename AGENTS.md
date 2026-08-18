@@ -15,8 +15,8 @@
 
 - Metodología: `_master/methodology.review.es.qmd`,
   `_index/methodology.review.ES.qmd` y `html/methodology.review.es/`.
-- Memoria: `_master/calculation.review.es.qmd`,
-  `_index/calculation.review.ES.qmd` y `html/calculation.review.es/`.
+- Memoria: libro multipágina `_master/report.es.qmd`, sus capítulos en
+  `_index/` y `html/report.es/`.
 - Wolfram: únicamente `scripts/wolfram/calculation.workbook.nb` y
   `scripts/wolfram/calculationWorkbookSupport.wl`.
 - No recrear variantes `extension`, una segunda metodología ni notebooks

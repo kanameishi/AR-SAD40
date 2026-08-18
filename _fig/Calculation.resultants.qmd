@@ -27,7 +27,8 @@ PLOT.N <- buildCalculationResultantsInteractive(
   radius = Calculation$geometry$radiusM,
   graphicAmplification = Calculation$display$graphicAmplification,
   raysPerCircle = Calculation$display$raysPerCircle,
-  resultant = "N"
+  resultant = "N",
+  scaleMode = "local-by-lining-and-resultant"
 )
 PLOT.M <- buildCalculationResultantsInteractive(
   pathCurves = PATH.curves,
@@ -35,7 +36,8 @@ PLOT.M <- buildCalculationResultantsInteractive(
   radius = Calculation$geometry$radiusM,
   graphicAmplification = Calculation$display$graphicAmplification,
   raysPerCircle = Calculation$display$raysPerCircle,
-  resultant = "M"
+  resultant = "M",
+  scaleMode = "local-by-lining-and-resultant"
 )
 PLOT.Q <- buildCalculationResultantsInteractive(
   pathCurves = PATH.curves,
@@ -43,7 +45,8 @@ PLOT.Q <- buildCalculationResultantsInteractive(
   radius = Calculation$geometry$radiusM,
   graphicAmplification = Calculation$display$graphicAmplification,
   raysPerCircle = Calculation$display$raysPerCircle,
-  resultant = "Q"
+  resultant = "Q",
+  scaleMode = "local-by-lining-and-resultant"
 )
 ```
 

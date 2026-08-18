@@ -79,8 +79,8 @@ DashByName <- stats::setNames(
 )
 stopifnot(identical(
   unname(DashByName[c(
-    "Interfaz con deslizamiento libre",
-    "Interfaz sin deslizamiento"
+    "Schwartz–Einstein: deslizamiento libre",
+    "Schwartz–Einstein: sin deslizamiento"
   )]),
   c("ShortDash", "Dash")
 ))
@@ -115,8 +115,51 @@ Geometry <- .readResultantGeometry(
 )
 stopifnot(identical(
   unique(as.character(Geometry$case)),
+  c("alpha-1", "alpha-0")
+))
+stopifnot(identical(
+  unique(Geometry$interfaceID),
   c("full-slip", "no-slip")
 ))
+LocalGeometry <- .readResultantGeometry(
+  PathCurves,
+  PathScales,
+  Radius,
+  graphicAmplification = GraphicAmplification,
+  scaleMode = "local-by-lining-and-resultant"
+)
+LocalExcursions <- vapply(c("N", "M", "Q"), function(ResultantID) {
+  Current <- LocalGeometry[
+    LocalGeometry$resultant == ResultantID &
+      !LocalGeometry$displayClosed,
+    ,
+    drop = FALSE
+  ]
+  max(abs(Current$plotRadius - Radius)) / Radius
+}, numeric(1))
+stopifnot(
+  all(LocalGeometry$scaleMode == "local-by-lining-and-resultant"),
+  all(abs(
+    LocalExcursions - GraphicAmplification * RadialFraction
+  ) < 1e-12)
+)
+LocalMomentInteractive <- buildCalculationResultantsInteractive(
+  PathCurves,
+  PathScales,
+  Radius,
+  graphicAmplification = GraphicAmplification,
+  raysPerCircle = OrdinateCount,
+  resultant = "M",
+  scaleMode = "local-by-lining-and-resultant"
+)
+stopifnot(
+  inherits(LocalMomentInteractive, "highchart"),
+  grepl(
+    "escala radial propia de esta sección y resultante",
+    LocalMomentInteractive$x$hc_opts$subtitle$text,
+    fixed = TRUE
+  )
+)
 PathConcreteCurves <- "data/calculation/shotcrete.section.resultants.csv"
 PathConcreteScales <- "data/calculation/shotcrete.display.scales.csv"
 PathConcreteSections <- "data/calculation/shotcrete.section.properties.csv"
@@ -185,12 +228,14 @@ ReinforcedGeometry <- .readResultantGeometry(
 stopifnot(
   identical(
     unique(as.character(ConcreteGeometry$case)),
-    c("full-slip", "no-slip")
+    c("alpha-1", "alpha-0")
   ),
   identical(
     unique(as.character(ReinforcedGeometry$case)),
-    c("full-slip", "no-slip")
+    c("alpha-1", "alpha-0")
   ),
+  identical(unique(ConcreteGeometry$interfaceID), c("full-slip", "no-slip")),
+  identical(unique(ReinforcedGeometry$interfaceID), c("full-slip", "no-slip")),
   !isTRUE(all.equal(
     ReinforcedGeometry$value,
     ConcreteGeometry$value,
@@ -224,7 +269,7 @@ AxialFlexureInteractive <- buildCalculationConcreteAxialFlexurePlot(
   "data/calculation/shotcrete.axial.flexure.reinforcement.sweep.csv",
   paste0(
     "data/calculation/",
-    "shotcrete.axial.flexure.reinforcement.configured.demands.csv"
+    "shotcrete.axial.flexure.reinforcement.governing.demands.csv"
   )
 )
 AxialFlexureSeries <- AxialFlexureInteractive[["x"]][["hc_opts"]][[
@@ -238,28 +283,39 @@ stopifnot(
   identical(
     vapply(AxialFlexureSeries, `[[`, character(1), "name"),
     c(
-      "Mínimo histórico · rho=0.180% · As=216 mm2/m",
-      "Configurada · rho=0.314% · As=377 mm2/m",
-      "Referencia · rho=1.000% · As=1200 mm2/m",
-      "Referencia · rho=2.000% · As=2400 mm2/m",
-      "Referencia · rho=3.000% · As=3600 mm2/m",
-      "D · 1.4V + 1.6H",
-      "D · 1.4V + 0.9H",
-      "S · 1.4V + 1.6H",
-      "S · 1.4V + 0.9H"
+      "Referencia inferior · rho=0.18% · As=2.7 cm2/m",
+      "rho=1.00% · As=15.0 cm2/m",
+      "rho=2.00% · As=30.0 cm2/m",
+      "rho=3.00% · As=45.0 cm2/m",
+      paste0(
+        "Deslizamiento libre · Permanente vertical ×1,4 · ",
+        "Empuje lateral ×1,6"
+      ),
+      paste0(
+        "Deslizamiento libre · Permanente vertical ×1,4 · ",
+        "Empuje lateral ×0,9"
+      ),
+      paste0(
+        "Sin deslizamiento · Permanente vertical ×1,4 · ",
+        "Empuje lateral ×1,6"
+      ),
+      paste0(
+        "Sin deslizamiento · Permanente vertical ×1,4 · ",
+        "Empuje lateral ×0,9"
+      )
     )
   ),
   identical(
     vapply(
-      AxialFlexureSeries[seq_len(5L)],
+      AxialFlexureSeries[seq_len(4L)],
       function(x) length(x[["data"]]),
       integer(1)
     ),
-    rep(807L, 5L)
+    rep(807L, 4L)
   ),
   identical(
     vapply(
-      AxialFlexureSeries[-seq_len(5L)],
+      AxialFlexureSeries[-seq_len(4L)],
       function(x) length(x[["data"]]),
       integer(1)
     ),
@@ -273,20 +329,21 @@ ReinforcementSweepTable <- buildCalculationConcreteReinforcementSweepTable(
 ReinforcementSweepText <- as.character(ReinforcementSweepTable)
 stopifnot(
   inherits(ReinforcementSweepTable, "knitr_kable"),
-  any(grepl("2.000", ReinforcementSweepText, fixed = TRUE)),
-  any(grepl("No satisface", ReinforcementSweepText, fixed = TRUE)),
-  any(grepl("Satisface", ReinforcementSweepText, fixed = TRUE))
+  any(grepl("2.00", ReinforcementSweepText, fixed = TRUE)),
+  any(grepl("Excede el dominio", ReinforcementSweepText, fixed = TRUE)),
+  any(grepl("Dentro del dominio", ReinforcementSweepText, fixed = TRUE))
 )
 Baseline <- buildRingComparisonPlot(
   geometry = Geometry,
   baselineRadius = Radius,
   raysPerCircle = OrdinateCount,
   subtitle = paste0(
-    "Idealizaciones cinemáticas de interfaz; amplificación gráfica Ag = ",
+    "Interacción Schwartz–Einstein; escala radial común de los productos; amplificación gráfica Ag = ",
     GraphicAmplification,
     ". La lectura interactiva conserva las magnitudes físicas."
   )
 )
+Baseline$x$hc_opts$tooltip <- Interactive$x$hc_opts$tooltip
 stopifnot(identical(Baseline$x$hc_opts, Interactive$x$hc_opts))
 stopifnot(identical(Baseline$width, Interactive$width))
 stopifnot(identical(Baseline$height, Interactive$height))

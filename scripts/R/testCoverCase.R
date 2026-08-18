@@ -48,12 +48,12 @@ stopifnot(
     Manifest[["methodID", exact = TRUE]],
     "ar-sad40-cover-current"
   ),
-  countCoverCaseLeaves(Inputs) == 34L,
+  countCoverCaseLeaves(Inputs) == 39L,
   identical(
     names(Inputs),
     c(
-      "cover", "ground", "steel", "seam", "plainConcrete",
-      "reinforcedConcrete"
+      "cover", "ground", "steel", "seam", "classicalComparison",
+      "plainConcrete", "reinforcedConcrete"
     )
   )
 )
@@ -63,9 +63,9 @@ Resolution <- resolveCoverCaseConfig(
   projectRoot = projectRoot,
   methodID = Manifest[["methodID", exact = TRUE]]
 )
-ExpectedConfig <- validateCoverCalculationConfig(
-  readCoverCaseMethodProfile(projectRoot)
-)
+ExpectedProfile <- readCoverCaseMethodProfile(projectRoot)
+ExpectedProfile[["classicalComparison"]] <- Inputs[["classicalComparison"]]
+ExpectedConfig <- validateCoverCalculationConfig(ExpectedProfile)
 stopifnot(
   identical(Resolution[["config", exact = TRUE]], ExpectedConfig),
   identical(
@@ -114,7 +114,7 @@ stopifnot(
 )
 
 Expected <- evaluateCoverConfiguration(
-  config = readCoverCaseMethodProfile(projectRoot),
+  config = ExpectedProfile,
   projectRoot = projectRoot
 )
 Observed <- evaluateCoverCase(
@@ -123,8 +123,9 @@ Observed <- evaluateCoverCase(
   methodID = Manifest[["methodID", exact = TRUE]]
 )
 Surfaces <- c(
-  "theta", "stress", "section", "interaction", "resultants", "extrema",
-  "controls", "aashto", "additionalLinings"
+  "theta", "stress", "section", "interaction",
+  "schwartzEinsteinComparison", "resultants", "extrema", "controls",
+  "aashto", "additionalLinings"
 )
 stopifnot(all(vapply(
   Surfaces,
@@ -132,14 +133,40 @@ stopifnot(all(vapply(
   logical(1)
 )))
 stopifnot(
+  is.data.frame(Observed[["schwartzEinsteinComparison", exact = TRUE]]),
+  nrow(Observed[["schwartzEinsteinComparison", exact = TRUE]]) == 2L,
+  all(c(
+    "interfaceID", "normalMeanKnPerM", "normalCosineKnPerM",
+    "momentCosineKnMPerM", "shearSineKnPerM"
+  ) %in% names(Observed[["schwartzEinsteinComparison", exact = TRUE]])),
   identical(
     names(Observed[["reinforcementStudy", exact = TRUE]]),
-    c("domains", "summary", "configuredGoverningDemands")
+    c("domains", "summary", "governingDemands")
   ),
   nrow(Observed[["reinforcementStudy", exact = TRUE]][[
     "summary",
     exact = TRUE
-  ]]) == 5L
+  ]]) == 8L
+)
+Study <- Observed[["reinforcementStudy", exact = TRUE]]
+stopifnot(
+  all(c(
+    "liningID", "reinforcementCaseID", "domainPointIndex",
+    "axialStrengthKnPerM", "bendingStrengthKnMPerM"
+  ) %in% names(Study[["domains", exact = TRUE]])),
+  all(c(
+    "liningID", "reinforcementCaseID", "reinforcementCaseOrder",
+    "reinforcementRatio", "circumferentialAreaTotalMm2PerM",
+    "maximumRadialUtilization", "localPMStatus", "isLowerReferenceCase"
+  ) %in% names(Study[["summary", exact = TRUE]])),
+  all(c(
+    "liningID", "demandOrder", "interfaceID", "strengthCaseID",
+    "thetaDeg", "axialDemandKnPerM", "bendingDemandKnMPerM",
+    "radialUtilization"
+  ) %in% names(Study[["governingDemands", exact = TRUE]])),
+  identical(sort(unique(Study[["summary"]][["liningID"]])), c(
+    "reinforcedConcrete", "shotcrete"
+  ))
 )
 
 Contaminated <- copyCoverCaseInputs(Inputs)
@@ -257,7 +284,6 @@ Mutations <- list(
   list(path = c("plainConcrete", "thicknessM"), value = 0.11),
   list(path = c("plainConcrete", "poisson"), value = 0.21),
   list(path = c("plainConcrete", "compressiveStrengthMPa"), value = 26),
-  list(path = c("plainConcrete", "castAgainstSoil"), value = TRUE),
   list(path = c("reinforcedConcrete", "outerRadiusM"), value = 1.325),
   list(path = c("reinforcedConcrete", "thicknessM"), value = 0.13),
   list(path = c("reinforcedConcrete", "poisson"), value = 0.21),
@@ -277,6 +303,10 @@ Mutations <- list(
   list(
     path = c("reinforcedConcrete", "reinforcementModulusMPa"),
     value = 201000
+  ),
+  list(
+    path = c("reinforcedConcrete", "reinforcementRatioGrid"),
+    value = list(0.0018, 0.008, 0.016, 0.024)
   )
 )
 stopifnot(length(Mutations) == 31L)

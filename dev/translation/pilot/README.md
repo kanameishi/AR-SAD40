@@ -42,5 +42,5 @@ una acción hidráulica y no permite reclasificar ese dato como peso total o
 flotante. Una condición con agua requerirá entradas distintas y una nueva
 revisión.
 
-No se modificarán `_master/calculation.review.es.qmd`, los capítulos públicos
-ni la Fase 1 hasta recibir esa revisión.
+La instantánea continua trasladada a `dev/legacy/calculation-review/`, los
+capítulos públicos y la Fase 1 no se modificarán hasta recibir esa revisión.

@@ -2,7 +2,7 @@
 
 ## Acciones sobre una franja longitudinal
 
-Para cada prescripción de proyección, combinación y posición angular se reciben las
+Para cada condición de interfaz, combinación y posición angular se reciben las
 resultantes concurrentes $N_\theta$, $M_\theta$ y $Q_\theta$, expresadas por
 unidad de longitud del eje. Se adopta $N_\theta>0$ a tracción y
 $M_\theta>0$ cuando tracciona la cara interior. Para una franja de ancho $b$,
@@ -28,23 +28,27 @@ V_u[\mathrm N]=10^3\lvert Q_\theta\rvert b.
 $$ {#eq-shotcrete-unit-conversion}
 
 El cálculo resistente no aplica factores adicionales. La combinación, la
-etapa, la condición factorizada, la proyección y el ángulo forman parte de cada
+etapa, la condición factorizada, la interfaz y el ángulo forman parte de cada
 registro de demanda.
+
+En las combinaciones resistentes de esta aplicación, la acción vertical
+permanente comprende el relleno y la sobrecarga de lodo; la acción horizontal
+es el empuje lateral del terreno. Se consideran los pares de factores 1,4 y
+1,6 cuando ambas acciones incrementan el efecto, y 1,4 y 0,9 cuando el empuje
+lateral permanente lo contrarresta. Los factores se aplican al estado libre
+antes de recalcular la interacción, no a $N_\theta$, $M_\theta$ o
+$Q_\theta$ ya calculados.
 
 ## Hormigón simple: propiedades de la franja
 
-Sea $h$ el espesor especificado. Cuando el hormigón se coloca directamente
-contra el suelo, ACI CODE-318-25 exige reducir en 50 mm el espesor empleado en
-la comprobación; en caso contrario se utiliza el espesor especificado
-[@ACI31825]:
+Sea $h$ el espesor especificado. En esta aplicación, el shotcrete se coloca
+sobre la cara interior del liner existente y se utiliza el espesor completo:
 
 $$
-h_d=
-\begin{cases}
-h-50\ \mathrm{mm}, & \text{hormigón colocado contra el suelo},\\
-h, & \text{en los demás casos}.
-\end{cases}
+h_d=h.
 $$ {#eq-shotcrete-design-thickness}
+
+No se descuenta espesor por contacto con el terreno.
 
 Para una franja rectangular:
 

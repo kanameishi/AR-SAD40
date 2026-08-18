@@ -4,6 +4,6 @@ root <- normalizePath(".", mustWork = TRUE)
 source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
 ```
 
-# Acciones y formulaciones complementarias {#sec-calculation-appendix-actions}
+# Acciones y comprobaciones complementarias {#sec-calculation-appendix-actions}
 
 {{< include /_chapters/actions.appendix.es.md >}}

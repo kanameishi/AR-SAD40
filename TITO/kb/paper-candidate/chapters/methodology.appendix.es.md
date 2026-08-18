@@ -60,7 +60,7 @@ Al introducir estas relaciones en la tercera condición de la
 
 $$
 \lambda_0=
-R\frac{\eta_s}{1+\eta_s}\overline{\widetilde N}
+R\frac{\eta_\ell}{1+\eta_\ell}\overline{\widetilde N}
 -\overline{\widetilde M},
 $$
 

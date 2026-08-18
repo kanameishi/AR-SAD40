@@ -3,12 +3,12 @@
   "methodID": "ar-sad40-cover-current",
   "inputs": {
     "cover": {
-      "coverCrownM": 8.0,
+      "coverCrownM": 4.0,
       "crownToAxisM": 1.315
     },
     "ground": {
-      "effectiveUnitWeightKnPerM3": 19.0,
-      "effectiveSurchargeKPa": 0.0,
+      "effectiveUnitWeightKnPerM3": 19.6133,
+      "effectiveSurchargeKPa": 88.25985,
       "modulusKPa": 30000.0,
       "poisson": 0.30,
       "k0ModelID": "mayne-kulhawy-unloading",
@@ -17,9 +17,9 @@
       "waterPressureDifferenceKPa": 0.0
     },
     "steel": {
-      "sectionReferenceID": "cspi-76x25-2.8",
+      "sectionReferenceID": "cspi-76x25-3.5",
       "centroidalRadiusM": 1.315,
-      "remainingBaseThicknessMm": 2.64,
+      "remainingBaseThicknessMm": 3.0,
       "youngModulusKPa": 200000000.0,
       "poisson": 0.30,
       "yieldStrengthMPa": 250.0,
@@ -30,12 +30,15 @@
       "fastenerDiameterMm": 12.7,
       "fastenerDiameterLossRatio": 0.0
     },
+    "classicalComparison": {
+      "nunezRelaxationFactor": 1.0,
+      "nunezContactFactor": 2.0
+    },
     "plainConcrete": {
       "outerRadiusM": 1.315,
       "thicknessM": 0.10,
       "poisson": 0.20,
-      "compressiveStrengthMPa": 25.0,
-      "castAgainstSoil": false
+      "compressiveStrengthMPa": 25.0
     },
     "reinforcedConcrete": {
       "outerRadiusM": 1.315,
@@ -46,7 +49,13 @@
       "barDiameterMm": 6.0,
       "barSpacingMm": 150.0,
       "clearCoverRatio": 0.15,
-      "reinforcementModulusMPa": 200000.0
+      "reinforcementModulusMPa": 200000.0,
+      "reinforcementRatioGrid": [
+        0.0018,
+        0.01,
+        0.02,
+        0.03
+      ]
     }
   }
 }

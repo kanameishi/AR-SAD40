@@ -2,6 +2,71 @@
 #| include: false
 root <- normalizePath(".", mustWork = TRUE)
 source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
+ReportConcreteCase <- function(liningID, caseID) {
+  Data <- if (identical(liningID, "shotcrete")) {
+    Calculation$shotcrete$summary
+  } else if (identical(liningID, "reinforcedConcrete")) {
+    Calculation$reinforcedConcrete$summary
+  } else {
+    stop("Unsupported concrete lining: ", liningID)
+  }
+  Row <- Data[Data$caseID == caseID, , drop = FALSE]
+  if (nrow(Row) != 1L) {
+    stop("Missing concrete result: ", liningID, ".", caseID)
+  }
+  Row
+}
+PlainPass <- all(c(
+  ReportConcreteCase("shotcrete", "alpha-1")$shotcreteLocalStrengthStatus,
+  ReportConcreteCase("shotcrete", "alpha-0")$shotcreteLocalStrengthStatus
+) == "satisfied")
+ReinforcedConcreteStrength <- Calculation$config$additionalLinings$
+  reinforcedConcrete$compressiveStrengthMPa
+ReinforcedBeta1 <- calculateAci31825Beta1(ReinforcedConcreteStrength)
+ReinforcedGradeLabel <- gsub(
+  "-",
+  " ",
+  Calculation$config$additionalLinings$reinforcedConcrete$
+    reinforcementGradeID,
+  fixed = TRUE
+)
+ReinforcedSteel <- unique(
+  Calculation$reinforcedConcrete$reinforcement[
+    c("yieldStrengthMPa", "modulusMPa")
+  ]
+)
+if (nrow(ReinforcedSteel) != 1L) {
+  stop("The reinforced-concrete layers must use one steel grade.")
+}
+StrengthCases <- Calculation$reinforcedConcrete$strengthCases
+FormatStrengthFactor <- function(value) {
+  gsub(".", ",", formatCalculationGeneral(value), fixed = TRUE)
+}
+StrengthCasePairs <- paste0(
+  "carga permanente vertical ×",
+  vapply(
+    StrengthCases$verticalStressFactor,
+    FormatStrengthFactor,
+    character(1)
+  ),
+  " y empuje lateral ×",
+  vapply(
+    StrengthCases$horizontalStressFactor,
+    FormatStrengthFactor,
+    character(1)
+  )
+)
+StrengthCaseSentence <- if (length(StrengthCasePairs) == 1L) {
+  StrengthCasePairs
+} else {
+  paste(
+    paste(StrengthCasePairs[-length(StrengthCasePairs)], collapse = ", "),
+    StrengthCasePairs[length(StrengthCasePairs)],
+    sep = " y "
+  )
+}
+ReinforcementStudy <- Calculation$config$additionalLinings$
+  reinforcedConcrete$reinforcementStudy
 ```
 
 # Rehabilitación del liner con hormigón proyectado {#sec-calculation-concrete}

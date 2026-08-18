@@ -1,90 +1,70 @@
-## Sección de hormigón proyectado simple
-
-La alternativa se analiza como un revestimiento autónomo, sin acción compuesta
-con la chapa. Se adopta un espesor
+La alternativa de hormigón proyectado simple se calcula como un revestimiento
+independiente de la chapa. Tiene
 $t_c=`r formatCalculationFixed(1000 * Calculation$shotcrete$section$thicknessM, 0L)`$
-mm y una resistencia especificada
-$f'_c=`r formatCalculationGeneral(Calculation$config$additionalLinings$shotcrete$compressiveStrengthMPa)`$
-MPa. El radio exterior coincide con el radio del revestimiento existente y el
-radio hasta el baricentro de la pared es
-$R_c=`r formatCalculationGeneral(Calculation$shotcrete$section$centroidalRadiusM)`$
-m.
-
-Para el análisis elástico se adopta hormigón de peso normal, con
+mm de espesor y una resistencia especificada
+$f'_c=`r formatCalculationFixed(Calculation$config$additionalLinings$shotcrete$compressiveStrengthMPa, 0L)`$
+MPa. El radio baricéntrico es
+`r formatCalculationFixed(Calculation$shotcrete$section$centroidalRadiusM, 1L)` m.
+Para el análisis elástico de corto plazo se adopta hormigón de peso normal, con
 
 $$
 E_c=4700\sqrt{f'_c}
-=`r formatCalculationGeneral(Calculation$shotcrete$section$youngModulusKPa / 1000)`
+=`r formatCalculationFixed(Calculation$shotcrete$section$youngModulusKPa / 1000, 0L)`
 \ \mathrm{MPa},
 \qquad
 \nu_c=`r formatCalculationGeneral(Calculation$shotcrete$section$poisson)`.
 $$ {#eq-calculation-shotcrete-modulus}
 
-La relación anterior estima la rigidez bruta de corto plazo
-[@ACI31825, sec. 19.2.2.1(b)]. Para una franja de un metro de ancho axial
-proyectado,
+La sección bruta produce las rigideces
 
 $$
 EA_c=
-`r formatCalculationFixed(Calculation$shotcrete$section$extensionalRigidityKnPerM, 0L)`
+`r formatCalculationFixed(Calculation$shotcrete$section$extensionalRigidityKnPerM, 1L)`
 \ \mathrm{kN/m},
 \qquad
 EI_c=
-`r formatCalculationFixed(Calculation$shotcrete$section$flexuralRigidityKnM2PerM, 0L)`
+`r formatCalculationFixed(Calculation$shotcrete$section$flexuralRigidityKnM2PerM, 1L)`
 \ \mathrm{kN\,m^2/m}.
 $$ {#eq-calculation-shotcrete-rigidities}
 
-Estas rigideces corresponden a la sección bruta, no fisurada y de corto plazo.
-Se emplean en la integración estructural y no constituyen una resistencia.
-
-## Integración directa y resultantes del hormigón
-
-La respuesta se resuelve nuevamente con el radio y la sección del hormigón. La
-@tbl-liner-rehabilitation-plain-interaction presenta las amplitudes obtenidas para
-$\alpha=1$ y $\alpha=0$.
+La @tbl-liner-rehabilitation-plain-interaction reúne las razones de rigidez y
+las amplitudes de Schwartz--Einstein de esta alternativa; la
+@tbl-liner-rehabilitation-plain-extrema presenta sus extremos para factores de
+carga unitarios.
 
 {{< include /_tbl/liner.rehabilitation.plain.interaction.ES.qmd >}}
 
-La @tbl-liner-rehabilitation-plain-extrema reúne los extremos de las resultantes
-del revestimiento de hormigón.
-
 {{< include /_tbl/liner.rehabilitation.plain.extrema.ES.qmd >}}
 
-`r if (all(Calculation$shotcrete$resultants$forceEffectStatus == "unfactored-reference-state")) "La tabla de extremos y los diagramas corresponden al estado de referencia no mayorado. Las comprobaciones resistentes posteriores emplean resultantes recalculadas para cada combinación LRFD; por lo tanto, sus utilizaciones no se comparan directamente con estos extremos." else stop("El estado de las resultantes de hormigón simple no está identificado.")`
+Con deslizamiento libre, los máximos absolutos calculados son
+`r formatCalculationFixed(ReportConcreteCase("shotcrete", "alpha-1")$normalAbsoluteMaxKnPerM, 1L)`
+kN/m de fuerza circunferencial,
+`r formatCalculationFixed(ReportConcreteCase("shotcrete", "alpha-1")$momentAbsoluteMaxKnMPerM, 1L)`
+kN·m/m de momento y
+`r formatCalculationFixed(ReportConcreteCase("shotcrete", "alpha-1")$shearAbsoluteMaxKnPerM, 1L)`
+kN/m de corte. Sin deslizamiento, los máximos
+son
+`r formatCalculationFixed(ReportConcreteCase("shotcrete", "alpha-0")$normalAbsoluteMaxKnPerM, 1L)`
+kN/m,
+`r formatCalculationFixed(ReportConcreteCase("shotcrete", "alpha-0")$momentAbsoluteMaxKnMPerM, 1L)`
+kN·m/m y
+`r formatCalculationFixed(ReportConcreteCase("shotcrete", "alpha-0")$shearAbsoluteMaxKnPerM, 1L)`
+kN/m, respectivamente.
 
-La @fig-liner-rehabilitation-plain-resultants presenta $N_\theta$,
-$M_\theta$ y $Q_\theta$ con el radio y la escala gráfica de esta alternativa.
+Las distribuciones completas de fuerza circunferencial, momento y corte de la
+sección de 100 mm se presentan con una escala radial propia para cada
+resultante.
 
-{{< include /_fig/liner.rehabilitation.plain.resultants.ES.qmd >}}
+{{< include /_fig/Calculation.concrete.resultants.ES.qmd >}}
 
-## Comprobación de hormigón simple
-
-```{r}
-#| include: false
-PlainApplicabilityChecks <- Calculation$shotcrete$checks[
-  Calculation$shotcrete$checks$checkID %in% c(
-    "structural-classification", "plain-concrete-permission"
-  ),
-  ,
-  drop = FALSE
-]
-PlainApplicabilityIDs <- unique(PlainApplicabilityChecks$checkID)
-if (!setequal(
-  PlainApplicabilityIDs,
-  c("structural-classification", "plain-concrete-permission")
-) || any(!(PlainApplicabilityChecks$checkStatus %in% c(
-  "satisfied", "not-satisfied", "blocked"
-)))) {
-  stop("Los controles de aplicabilidad del hormigón simple están incompletos.")
-}
-PlainApplicabilityClosed <- all(
-  PlainApplicabilityChecks$checkStatus == "satisfied"
-)
-```
-
-`r if (!PlainApplicabilityClosed) "La clasificación estructural del revestimiento y la condición que habilita el empleo del Capítulo 14 no están acreditadas para esta alternativa. Las comprobaciones siguientes se informan como resultados locales condicionales; no constituyen una verificación normativa integral del revestimiento." else "La clasificación estructural y la condición de aplicabilidad declaradas permiten ejecutar las comprobaciones locales del Capítulo 14 para el alcance indicado."`
-
-Para una franja de ancho $b$, las acciones concurrentes son
+Las combinaciones resistentes vuelven a calcular las resultantes concurrentes
+en cada posición angular. Los pares de factores adoptados son
+`r StrengthCaseSentence`, conforme a las combinaciones identificadas en la
+tabla de resultados. La carga permanente vertical comprende el relleno y la
+sobrecarga de lodo; el empuje lateral corresponde a la presión del terreno.
+Los factores se aplican a esas dos acciones y la interacción
+suelo--revestimiento recalcula concurrentemente $N$, $M$ y $Q$. Para una
+franja de ancho $b$ se utilizan
 
 $$
 P_u=-N_\theta b,
@@ -94,118 +74,130 @@ M_u=\lvert M_\theta\rvert b,
 V_u=\lvert Q_\theta\rvert b.
 $$ {#eq-calculation-shotcrete-actions}
 
-Cada combinación mayorada modifica las componentes vertical y horizontal del
-estado tensional. La integración se resuelve nuevamente para obtener
-$N_\theta$, $M_\theta$ y $Q_\theta$
-concurrentes en cada posición angular.
-
-La resistencia local del hormigón simple se comprueba con $\phi=0.60$. Para
-la cara traccionada y el corte unidireccional se emplean
+El shotcrete se coloca sobre la cara interior del liner existente. El espesor
+resistente $h_d$ coincide con el espesor especificado completo:
 
 $$
-\frac{M_u}{S_m}-\frac{P_u}{A_g}
+h_d=h=`r formatCalculationFixed(1000 * Calculation$shotcrete$section$thicknessM, 0L)`\ \mathrm{mm}.
+$$ {#eq-calculation-shotcrete-design-thickness}
+
+Con $A_g=bh_d$, $S_m=bh_d^2/6$ y $\phi=0.60$, la tensión calculada de la cara
+traccionada y la resistencia a corte son
+
+$$
+f_t=\max\left(0,\frac{M_u}{S_m}-\frac{P_u}{A_g}\right)
 \le
 \phi\,0.42\lambda\sqrt{f'_c},
 \qquad
-\phi V_n=\phi\,0.11\lambda\sqrt{f'_c}\,b t_c,
+\phi V_n=\phi\,0.11\lambda\sqrt{f'_c}\,b h_d.
 $$ {#eq-calculation-shotcrete-local-strength}
 
-donde $A_g=bt_c$ y $S_m=bt_c^2/6$ [@ACI31825, tabla 14.5.4.1 y
-art. 14.5.5.1(a)]. La tabla presenta las comprobaciones locales calculadas. La
-resistencia de la cara comprimida depende además de la longitud de compresión
-definida por ACI 318-25, magnitud que no se ha caracterizado para este caso.
+La comprobación de la cara comprimida requiere además
+
+$$
+M_{n,c}=0.85f'_cS_m,
+\qquad
+P_n=0.60f'_cA_g
+\left[1-\left(\frac{\ell_c}{32h_d}\right)^2\right],
+$$
+
+$$
+U_c=\frac{M_u}{\phi M_{n,c}}+\frac{P_u}{\phi P_n}\leq1.
+$$ {#eq-calculation-shotcrete-compression}
+
+Estas expresiones proceden de ACI 318-25, Capítulo 14
+[@ACI31825, tabla 14.5.4.1 y arts. 14.5.3.1 y 14.5.5.1(a)]. La comprobación de
+la cara comprimida se completa al incorporar la longitud de compresión
+$\ell_c$. Con las entradas actuales, la
+@tbl-liner-rehabilitation-plain-checks presenta las demandas y resistencias de
+tracción y corte.
 
 {{< include /_tbl/liner.rehabilitation.plain.checks.ES.qmd >}}
 
-## Resultado de la alternativa de hormigón simple
+La cara traccionada gobierna las comprobaciones calculadas y la demanda de
+corte unidireccional excede la resistencia en las combinaciones indicadas. La
+demanda gobernante equivale a
+`r formatCalculationFixed(ReportConcreteCase("shotcrete", "alpha-1")$shotcreteLocalStrengthUtilization, 1L)`
+veces la resistencia con deslizamiento libre, y a
+`r formatCalculationFixed(ReportConcreteCase("shotcrete", "alpha-0")$shotcreteLocalStrengthUtilization, 1L)`
+veces sin deslizamiento.
+`r if (PlainPass) "Las demandas quedan dentro de las resistencias locales calculadas para el hormigón proyectado simple." else "Las demandas exceden las resistencias locales calculadas para el hormigón proyectado simple; el escenario requiere capacidad resistente adicional."`
 
-`r Calculation$shotcrete$resultMarkdown`
-
-```{r}
-#| include: false
-rm(PlainApplicabilityChecks, PlainApplicabilityIDs, PlainApplicabilityClosed)
-```
-
-## Caso de cálculo de hormigón proyectado armado
-
-Para examinar la respuesta de una sección armada se evalúa una configuración
-paramétrica con una misma malla en ambas caras y en las direcciones
-circunferencial y ortogonal. Esta configuración no constituye un diseño final,
-una especificación constructiva ni una geometría adoptada. La
-@tbl-liner-rehabilitation-reinforced-section presenta el diámetro, la
-separación y el recubrimiento empleados exclusivamente en ese caso de cálculo,
-junto con las magnitudes seccionales derivadas.
+El estudio paramétrico de la alternativa armada conserva
+$t_c=`r formatCalculationFixed(1000 * Calculation$reinforcedConcrete$section$thicknessM, 0L)`$
+mm y $f'_c=`r formatCalculationFixed(Calculation$config$additionalLinings$reinforcedConcrete$compressiveStrengthMPa, 0L)`$
+MPa mientras varía la cuantía circunferencial total. Las capas resistentes se
+idealizan simétricamente en ambas caras con un recubrimiento libre de
+`r formatCalculationFixed(Calculation$config$additionalLinings$reinforcedConcrete$reinforcementLayout$clearCoverMm / 10, 1L)`
+cm. La @tbl-liner-rehabilitation-reinforced-section reúne la geometría y los
+materiales comunes. La cuantía circunferencial es la variable del estudio y se
+distribuye simétricamente entre ambas caras.
 
 {{< include /_tbl/liner.rehabilitation.reinforced.section.ES.qmd >}}
 
-Para una franja de ancho $b$, ACI 318.2-14 establece para acero Grade 60 una
-armadura mínima total en cada dirección igual a
+Para una franja de ancho $b$, la armadura mínima total por dirección utilizada
+como referencia es
 
 $$
-A_{s,\min}=0.0018\,b\,t_c
-=`r formatCalculationFixed(Calculation$reinforcedConcrete$checks$demandValue[Calculation$reinforcedConcrete$checks$checkID == "minimum-circumferential-reinforcement"][1L] / 100, 2L)`
-\ \mathrm{cm^2/m}.
+A_{s,\min}=0.0018\,b\,t_c.
 $$ {#eq-calculation-concrete-reinforced-minimum}
 
-El área por cara y por dirección se obtiene de
+Si posteriormente se seleccionan un diámetro $\phi$ y una separación $s$, el
+área por cara y por dirección correspondiente se obtiene de
 
 $$
 A_s=\frac{\pi\phi^2}{4}\frac{1000}{s}.
 $$ {#eq-calculation-concrete-reinforced-mesh-area}
 
-El procedimiento compara por separado el área total circunferencial y el área
-total ortogonal con el valor requerido por la
-@eq-calculation-concrete-reinforced-minimum, y comprueba además la igualdad
-entre caras. La dirección ortogonal participa únicamente en estos controles;
-no modifica el dominio local $P$--$M$, que emplea la armadura
-circunferencial. La cuantía requerida procede de ACI 318.2-14, 6.1.3, y la
-consideración de ambas superficies responde a 6.1.9 [@ACI318214].
-ACI 318-25 remite el proyecto de cáscaras delgadas a ACI 318.2
-[@ACI31825, art. 1.4.4]. El dominio $P$--$M$ se construye con ACI 318-25; la
-armadura mínima anterior se conserva como comparación con la edición completa
-de ACI 318.2 disponible. En consecuencia, esta memoria no atribuye a esa
-comparación conformidad con ACI 318.2-25.
+La armadura mínima se conserva como referencia histórica de ACI 318.2-14
+[@ACI318214] y constituye el primer caso de la familia. La resistencia frente a
+la fuerza circunferencial y el momento se comprueba por separado para cada
+cuantía mediante su diagrama de interacción.
 
-{{< include /_tbl/liner.rehabilitation.reinforced.reinforcement.ES.qmd >}}
-
-La rigidez para el análisis elástico se calcula sobre la sección bruta
-de hormigón, no fisurada y de corto plazo. Para los datos seccionales
-configurados se obtienen:
+La rigidez del análisis se calcula con la sección bruta de hormigón:
 
 $$
 EA_r=
-`r formatCalculationFixed(Calculation$reinforcedConcrete$section$extensionalRigidityKnPerM, 0L)`
+`r formatCalculationFixed(Calculation$reinforcedConcrete$section$extensionalRigidityKnPerM, 1L)`
 \ \mathrm{kN/m},
 \qquad
 EI_r=
-`r formatCalculationFixed(Calculation$reinforcedConcrete$section$flexuralRigidityKnM2PerM, 0L)`
+`r formatCalculationFixed(Calculation$reinforcedConcrete$section$flexuralRigidityKnM2PerM, 1L)`
 \ \mathrm{kN\,m^2/m}.
 $$ {#eq-calculation-concrete-reinforced-rigidities}
 
-El estado de interacción, las resultantes y la comprobación resistente se
-calculan y registran por separado para cada alternativa.
-
-## Integración directa y resultantes del hormigón armado
-
-La @tbl-liner-rehabilitation-reinforced-interaction presenta las amplitudes
-obtenidas con la sección de esta alternativa para $\alpha=1$ y $\alpha=0$.
+La @tbl-liner-rehabilitation-reinforced-interaction reúne las razones de
+rigidez y las amplitudes de Schwartz--Einstein obtenidas con el radio y la
+sección de hormigón del estudio paramétrico. La
+@tbl-liner-rehabilitation-reinforced-extrema presenta los extremos para
+factores de carga unitarios.
 
 {{< include /_tbl/liner.rehabilitation.reinforced.interaction.ES.qmd >}}
 
-La @tbl-liner-rehabilitation-reinforced-extrema reúne los extremos de
-$N_\theta$, $M_\theta$ y $Q_\theta$. Los tres diagramas siguientes emplean el
-radio, las escalas y las resultantes propias de la alternativa armada.
-
 {{< include /_tbl/liner.rehabilitation.reinforced.extrema.ES.qmd >}}
 
-`r if (all(Calculation$reinforcedConcrete$resultants$forceEffectStatus == "unfactored-reference-state")) "La tabla de extremos y los diagramas corresponden al estado de referencia no mayorado. Las comprobaciones resistentes posteriores emplean resultantes recalculadas para cada combinación LRFD; por lo tanto, sus utilizaciones no se comparan directamente con estos extremos." else stop("El estado de las resultantes de hormigón armado no está identificado.")`
+Con deslizamiento libre, los máximos absolutos son
+`r formatCalculationFixed(ReportConcreteCase("reinforcedConcrete", "alpha-1")$normalAbsoluteMaxKnPerM, 1L)`
+kN/m de fuerza circunferencial,
+`r formatCalculationFixed(ReportConcreteCase("reinforcedConcrete", "alpha-1")$momentAbsoluteMaxKnMPerM, 1L)`
+kN·m/m de momento y
+`r formatCalculationFixed(ReportConcreteCase("reinforcedConcrete", "alpha-1")$shearAbsoluteMaxKnPerM, 1L)`
+kN/m de corte. Sin deslizamiento, los máximos
+son
+`r formatCalculationFixed(ReportConcreteCase("reinforcedConcrete", "alpha-0")$normalAbsoluteMaxKnPerM, 1L)`
+kN/m,
+`r formatCalculationFixed(ReportConcreteCase("reinforcedConcrete", "alpha-0")$momentAbsoluteMaxKnMPerM, 1L)`
+kN·m/m y
+`r formatCalculationFixed(ReportConcreteCase("reinforcedConcrete", "alpha-0")$shearAbsoluteMaxKnPerM, 1L)`
+kN/m.
 
-{{< include /_fig/liner.rehabilitation.reinforced.resultants.ES.qmd >}}
+Las distribuciones completas de fuerza circunferencial, momento y corte de la
+sección de 150 mm emplean también una escala radial propia para cada
+resultante.
 
-## Comprobación local del hormigón armado
+{{< include /_fig/Calculation.concrete.reinforced.resultants.ES.qmd >}}
 
-Las acciones de una franja de ancho $b$ se obtienen, para cada posición y
-combinación concurrente, mediante
+Para cada combinación y posición angular, las acciones de una franja son
 
 $$
 P_u=-N_\theta b,
@@ -213,70 +205,87 @@ P_u=-N_\theta b,
 M_u=M_\theta b.
 $$ {#eq-calculation-concrete-reinforced-actions}
 
-El dominio resistente $(\phi P_n,\phi M_n)$ se construye mediante
-compatibilidad de deformaciones y equilibrio de la sección, con la ley del
-acero limitada por $f_y$ y los factores $\phi$ de ACI 318-25. La utilización
-local se obtiene con el multiplicador $\lambda_*>0$ para el cual la semirrecta
-que parte del origen y pasa por la demanda intersecta el dominio de resistencia:
+El límite resistente $(\phi P_n,\phi M_n)$ se obtiene mediante compatibilidad
+de deformaciones y equilibrio de la sección. Para una coordenada $y$ medida
+desde el centro de la pared,
 
 $$
-\left(\phi P_n,\phi M_n\right)
-=\lambda_*\left(P_u,M_u\right),
+\varepsilon(y)=\varepsilon_0+\kappa(y-y_0),
 \qquad
-U_{NM}=\frac{1}{\lambda_*}\le 1.
+f_{s,i}=\max\left[-f_y,\min(E_s\varepsilon_i,f_y)\right].
+$$ {#eq-calculation-reinforced-strain-field}
+
+La fuerza y el momento nominales se obtienen mediante
+
+$$
+P_n=\int_{A_c}\sigma_c\,dA+\sum_iA_{s,i}f_{s,i},
+\qquad
+M_n=\int_{A_c}\sigma_c y\,dA+\sum_iA_{s,i}f_{s,i}y_i.
+$$ {#eq-calculation-reinforced-equilibrium}
+
+El dominio adopta $\varepsilon_{cu}=0.003$, un bloque de compresión de
+$0.85f'_c$ y
+$\beta_1=`r formatCalculationFixed(ReinforcedBeta1, 2L)`$
+para el hormigón de
+`r formatCalculationFixed(ReinforcedConcreteStrength, 0L)`
+MPa. Para el acero `r ReinforcedGradeLabel`,
+$f_y=`r formatCalculationFixed(ReinforcedSteel$yieldStrengthMPa, 0L)`$
+MPa y
+$E_s=`r formatCalculationFixed(ReinforcedSteel$modulusMPa, 0L)`$
+MPa, por lo que $\varepsilon_y=f_y/E_s$. El factor de resistencia varía como
+
+$$
+\phi=
+\begin{cases}
+0.65, & \varepsilon_t\leq\varepsilon_y,\\
+0.65+0.25\dfrac{\varepsilon_t-\varepsilon_y}{0.003},
+& \varepsilon_y<\varepsilon_t<\varepsilon_y+0.003,\\
+0.90, & \varepsilon_t\geq\varepsilon_y+0.003,
+\end{cases}
+$$ {#eq-calculation-reinforced-strength-reduction}
+
+con el límite axial adicional del artículo 21.2.2.3 de ACI 318-25
+[@ACI31825, tabla 21.2.2 y arts. 21.2.2.3, 22.2.1 y 22.2.2]. La utilización
+se determina con el multiplicador radial $\lambda_*$ que satisface
+
+$$
+(\phi P_n,\phi M_n)=\lambda_*(P_u,M_u),
+\qquad
+U_{PM}=\frac{1}{\lambda_*}\leq1.
 $$ {#eq-calculation-concrete-reinforced-utilization}
 
-La construcción del dominio aplica ACI 318-25, Tabla 21.2.2 y artículos
-21.2.2.3, 22.2.1 y 22.2.2 [@ACI31825]. La comprobación se ejecuta para cada
-signo de $M_\theta$; por lo tanto, las caras interior y exterior quedan
-representadas en las envolventes analizadas.
+El dominio se calcula con discretizaciones de
+`r formatCalculationFixed(ReinforcementStudy$domainBasePointCount, 0L)` y
+`r formatCalculationFixed(ReinforcementStudy$domainRefinedPointCount, 0L)`
+puntos y se acepta
+cuando la diferencia relativa de utilización no supera
+`r formatCalculationGeneral(ReinforcementStudy$convergenceTolerance)`.
+Las mismas cuatro demandas gobernantes se comparan con todas las envolventes,
+de modo que cada cuantía se evalúa frente a un conjunto común de acciones.
 
-Para examinar la sensibilidad frente a la armadura circunferencial se define
+La sensibilidad conserva el espesor, el hormigón, el acero y la posición
+relativa de las capas, y varía el área circunferencial total de ambas caras. La
+sección de 100 mm se presenta en la
+@tbl-calculation-concrete-t100-axial-flexure-sweep y la
+@fig-calculation-concrete-t100-axial-flexure.
 
-$$
-A_{s,\theta}=A_{s,i}+A_{s,e},
-\qquad
-\rho_\theta=\frac{A_{s,\theta}}{b t_c},
-\qquad
-\mu=\frac{A_{s,\theta}}{A_{s,\min}}.
-$$ {#eq-calculation-concrete-reinforced-reinforcement-family}
+{{< include /_tbl/Calculation.concrete.t100.axial.flexure.sweep.ES.qmd >}}
 
-La familia discreta conserva el espesor, los materiales, el recubrimiento al
-centroide y la posición simétrica de las capas; varía únicamente
-$A_{s,\theta}$. La armadura ortogonal permanece fuera de estos dominios y sólo
-interviene en los controles de cuantía. Las demandas son comunes a toda la
-familia porque el análisis emplea la rigidez bruta de hormigón, no fisurada y
-de corto plazo. Las cuantías de referencia son casos analíticos continuos y no
-definen por sí mismas un diámetro, una separación ni un detalle constructivo.
+{{< include /_fig/Calculation.concrete.t100.axial.flexure.ES.qmd >}}
 
-La
-@tbl-liner-rehabilitation-reinforced-sweep presenta la malla
-configurada y cuatro referencias discretas. Su estado permite identificar el
-intervalo de cuantías en el que cambia el resultado local, sin introducir una
-búsqueda de optimización.
+La sección de 150 mm se presenta en la
+@tbl-calculation-concrete-reinforced-axial-flexure-sweep y la
+@fig-calculation-concrete-reinforced-axial-flexure.
 
-{{< include /_tbl/liner.rehabilitation.reinforced.sweep.ES.qmd >}}
+{{< include /_tbl/Calculation.concrete.reinforced.axial.flexure.sweep.ES.qmd >}}
 
-`r local({PM.SWEEP <- Calculation$reinforcedConcrete$reinforcementSweep$summary; PM.OK <- which(PM.SWEEP$localPMStatus == "satisfied")[1L]; if (length(PM.OK) == 1L && !is.na(PM.OK) && PM.OK > 1L) paste0("En los casos discretos evaluados, $\\rho_\\theta=", formatCalculationGeneral(100 * PM.SWEEP$reinforcementRatio[PM.OK - 1L]), "\\%$ no satisface y $\\rho_\\theta=", formatCalculationGeneral(100 * PM.SWEEP$reinforcementRatio[PM.OK]), "\\%$ satisface la comprobación local; este intervalo no se interpreta como una cuantía óptima.") else "La familia discreta no encierra un cambio de estado local dentro del intervalo evaluado."})`
+{{< include /_fig/Calculation.concrete.reinforced.axial.flexure.ES.qmd >}}
 
-La @fig-liner-rehabilitation-interaction superpone
-`r nrow(Calculation$reinforcedConcrete$reinforcementSweep$summary)` dominios,
-desde la armadura mínima histórica hasta las cuantías mayores, y los puntos
-gobernantes de la malla configurada. Para cada par
-$\alpha$--combinación se conserva la posición de mayor utilización radial;
-esos puntos representan posiciones reales del revestimiento, no iteraciones
-numéricas. Las curvas unen estados de deformación de la sección y tampoco
-representan iteraciones.
-
-{{< include /_fig/liner.rehabilitation.interaction.ES.qmd >}}
-
-{{< include /_tbl/liner.rehabilitation.reinforced.checks.ES.qmd >}}
-
-## Resultado de la alternativa de hormigón armado
-
-`r Calculation$reinforcedConcrete$resultMarkdown`
-
-El resultado anterior comprende el dominio local $P$--$M$ y los controles de
-armadura mínima presentados en esta sección. No incluye una comprobación
-integral de corte, estabilidad, durabilidad, servicio, fisuración,
-recubrimientos, separación y anclaje conforme a ACI 318.2-25.
+Cada curva es una envolvente resistente formada por estados compatibles de
+deformación de la sección. El estudio compara cuatro cuantías discretas para
+cada espesor frente a las mismas demandas perimetrales. La etapa de selección
+de armadura comprende el corte unidireccional de la sección armada, la acción
+longitudinal, la estabilidad del revestimiento, la fisuración y deformación en
+servicio, las clases de exposición y durabilidad, y el detallado de
+recubrimiento, separación, desarrollo y anclaje conforme al articulado
+contractual aplicable.

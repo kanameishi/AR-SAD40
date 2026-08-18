@@ -23,26 +23,7 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for citations */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-}
-.hanging-indent div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}</style>
+</style>
 
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -52,7 +33,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../_index/model.ES.html" rel="next">
+<link href="../_index/introduction.ES.html" rel="next">
 <link href="../index.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -192,26 +173,32 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../_index/introduction.ES.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Introducción</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../_index/model.ES.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Modelo de cálculo</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Modelo de cálculo</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../_index/liner.ES.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Verificación del liner existente</span></span></a>
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Verificación del liner existente</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../_index/rehabilitation.ES.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Rehabilitación del liner con hormigón proyectado</span></span></a>
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Rehabilitación del liner con hormigón proyectado</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../_index/specifications.ES.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Especificaciones técnicas para la inspección del revestimiento circular</span></span></a>
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Especificación Técnica de Inspección — Túnel Espesador San Francisco</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -232,19 +219,19 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../_index/model.appendix.ES.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Desarrollos empleados</span></span></a>
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Equilibrio, compatibilidad y solución del anillo</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../_index/actions.appendix.ES.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Acciones y formulaciones complementarias</span></span></a>
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Acciones y comprobaciones complementarias</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../_index/reference.appendix.ES.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Casos de referencia de acciones y resultantes</span></span></a>
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Comparación con formulaciones clásicas</span></span></a>
   </div>
 </li>
       </ul>
@@ -264,32 +251,15 @@ window.Quarto = {
 
 
 
-<p>La memoria analiza un túnel circular de 2.63 m de diámetro, revestido actualmente con chapa de acero corrugada. El objetivo es cuantificar las fuerzas que actúan en ese revestimiento, comprobar su respuesta con la base AASHTO declarada y determinar si una capa de hormigón proyectado sin armadura puede constituir una alternativa de rehabilitación.</p>
-<p>El escenario geotécnico adopta una tapada de 8 m sobre la clave, un peso unitario efectivo de 19 kN/m³, sobrecarga nula y ausencia de presión hidráulica neta. El coeficiente de presión lateral en reposo se estima con <span class="math inline">\(\phi'=\)</span> 30° y OCR = 1 mediante la expresión de Mayne–Kulhawy. Se obtiene <span class="math inline">\(K_0=\)</span> 0.5, con tensiones efectivas en el eje de<br>
-177 kPa en dirección vertical y 88 kPa en dirección horizontal <span class="citation" data-cites="MayneKulhawy1982">(<a href="references.ES.html#ref-MayneKulhawy1982" role="doc-biblioref">Mayne y Kulhawy 1982</a>)</span>.</p>
-<p>Al proyectar esas tensiones sobre una pared circular aparecen una presión perpendicular a la chapa y una acción paralela a ella. Como la transferencia de la componente paralela depende del estado real de la interfaz entre el suelo y el revestimiento, se estudian dos casos límite del mismo estado geotécnico. En el primero se transfieren ambas componentes; en el segundo se transfiere sólo la presión perpendicular. No son etapas constructivas ni tapadas diferentes, sino dos límites para representar una transferencia de interfaz que todavía no ha sido caracterizada en terreno.</p>
-<p>Cuando se transfieren ambas componentes, las máximas resultantes por metro de túnel son 233 kN/m de fuerza circunferencial, 38 kN·m/m de momento flector y 58 kN/m de fuerza de corte. Cuando se transfiere únicamente la presión perpendicular, los máximos son, respectivamente, 194 kN/m, 26 kN·m/m y 39 kN/m.</p>
-<p>El perfil se identifica comercialmente como 2.8 mm, pero su espesor base de referencia y el espesor remanente adoptado son ambos 2.64 mm. Por lo tanto, el cálculo supone 0 % de pérdida del espesor base por corrosión; la diferencia entre la designación comercial y el espesor base no se contabiliza como corrosión. También se adopta 0 % de pérdida del diámetro de los elementos de unión.</p>
-<p>Con esas hipótesis, la comparación AASHTO de referencia satisface los controles aritméticos incluidos. Las utilizaciones son 0.50 para fluencia de pared, 0.38 para pandeo, 0.73 para flexibilidad y 0.04 para tapada mínima. Gobierna la costura de referencia con una utilización de 0.79. Esta comparación reproduce una base de ediciones anteriores y no demuestra la equivalencia de la unión existente ni el cumplimiento de la edición AASHTO vigente <span class="citation" data-cites="USACE2020 AndersonEtAl2023">(<a href="references.ES.html#ref-USACE2020" role="doc-biblioref">U.S. Army Corps of Engineers 2020</a>; <a href="references.ES.html#ref-AndersonEtAl2023" role="doc-biblioref">Anderson et&nbsp;al. 2023</a>)</span>.</p>
-<p>El liner de hormigón proyectado simple evaluado, de 100 mm y <span class="math inline">\(f'_c=25\)</span> MPa, no satisface la comprobación local de la cara traccionada: alcanza <span class="math inline">\(U=31.2\)</span> cuando se transfieren ambas componentes y <span class="math inline">\(U=19.9\)</span> cuando se transfiere únicamente la presión perpendicular. En consecuencia, la sección de hormigón proyectado simple no verifica para las acciones calculadas y la rehabilitación requiere armadura; su cuantía y detalle deben comprobarse como sección armada <span class="citation" data-cites="ACI31825">(<a href="references.ES.html#ref-ACI31825" role="doc-biblioref">ACI Committee 318 2025</a>)</span>.</p>
+<p>Esta memoria calcula el liner corrugado existente y dos secciones de rehabilitación bajo la acción permanente del relleno y de la sobrecarga de lodo. Las cinco comparaciones aritméticas de referencia para la chapa —pared, pandeo, costura, flexibilidad y tapada— quedan dentro de sus límites. El cierre de la evaluación del liner existente requiere confirmar el espesor remanente, la resistencia de la unión y la edición contractual de la norma. También se analizan secciones de hormigón proyectado de 100 y 150 mm. Para ambos espesores se presentan diagramas de interacción fuerza–momento con distintas cuantías circunferenciales. Estos diagramas constituyen la base para seleccionar la armadura y desarrollar el detalle constructivo en la etapa siguiente.</p>
+<p>El túnel tiene 2.6 m de diámetro y una tapada de 4.0 m sobre la clave. El cálculo adopta provisionalmente un peso unitario efectivo de 19.6 kN/m³, un ángulo de fricción efectiva de 30° y una relación de sobreconsolidación de 1. La sobrecarga es 88.3 kPa y la representa 6 m de lodo con peso unitario de 1,5 t/m³; se incluye junto con el relleno como acción permanente. La presión hidráulica neta es 0.0 kPa. El coeficiente de presión en reposo relaciona las tensiones efectivas horizontal y vertical; con estas hipótesis vale 0.5. En el eje del túnel se obtienen 192.5 kPa en dirección vertical y 96.3 kPa en dirección horizontal. El ángulo de fricción y la condición de agua se actualizarán cuando se disponga de la caracterización del relleno.</p>
+<p>La componente uniforme de la demanda se calcula con Schwartz–Einstein. Esta solución permite que la carga se redistribuya según la rigidez del terreno y la del liner. A ella se suma la variación lineal de las tensiones entre clave y solera, equilibrada mediante una reacción radial continua. La condición de contacto se representa mediante los límites con deslizamiento libre y sin deslizamiento. Para la chapa, el límite con deslizamiento libre produce máximos absolutos de 262.0 kN/m de fuerza circunferencial, 1.8 kN·m/m de momento y 3.2 kN/m de corte. Sin deslizamiento, los máximos respectivos son 329.3 kN/m, 1.6 kN·m/m y 3.1 kN/m. El dominio físico corresponde a un medio elástico homogéneo con gradiente geostático lineal sobre la altura y reacción radial equilibrante.</p>
+<p>La evaluación de la chapa adopta un espesor base remanente de 3 mm, equivalente a una pérdida de 14 % respecto de los 3.5 mm especificados y de 10 % respecto del espesor base de diseño tabulado. En la comparación de la costura, la demanda calculada es 448.9 kN/m y la resistencia publicada de referencia es 515.2 kN/m, de modo que la demanda alcanza el 87 % de esa resistencia. Esta comprobación AASHTO/USACE es un control escalar separado de las resultantes angulares del modelo híbrido. La inspección debe confirmar el espesor remanente y establecer la resistencia de la unión existente antes de cerrar la evaluación de la chapa.</p>
+<p>Las dos familias de hormigón se muestran en diagramas separados para distinguir el efecto del espesor del efecto de la cuantía. Las verificaciones y el alcance de cada familia se desarrollan en el capítulo correspondiente.</p>
 
 
 
 <div class="page-footer column-body"><div class="page-footer__inner"><div class="page-footer__content"><div class="page-footer__title">Memoria de cálculo del revestimiento circular</div><div class="page-footer__meta">SRK Consulting © 2026</div></div></div></div>
-<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
-<div id="ref-ACI31825" class="csl-entry" role="listitem">
-ACI Committee 318. 2025. <em>Building Code for Structural Concrete—Code Requirements and Commentary</em>. ACI CODE-318-25. American Concrete Institute. <a href="https://www.concrete.org/store/productdetail?ItemID=318U25&amp;Language=English">https://www.concrete.org/store/productdetail?ItemID=318U25&amp;Language=English</a>.
-</div>
-<div id="ref-AndersonEtAl2023" class="csl-entry" role="listitem">
-Anderson, J. Brian, James S. Davidson, Bujing Liu, Chukwuma C. Okafor, Olga L. Rojas, y Kelly N. Turner. 2023. <em>Load Rating for Corrugated Metal Culverts under Shallow Cover Depths</em>. Final Research Report prepared for the Alabama Department of Transportation. Highway Research Center; Department of Civil Engineering, Auburn University. <a href="https://rosap.ntl.bts.gov/view/dot/68707">https://rosap.ntl.bts.gov/view/dot/68707</a>.
-</div>
-<div id="ref-MayneKulhawy1982" class="csl-entry" role="listitem">
-Mayne, Paul W., y Fred H. Kulhawy. 1982. <span>«<span><span class="math inline">\(K_0\)</span>–<span>OCR</span> Relationships in Soil</span>»</span>. <em>Journal of the Geotechnical Engineering Division</em> 108 (6): 851-72. <a href="https://doi.org/10.1061/AJGEB6.0001306">https://doi.org/10.1061/AJGEB6.0001306</a>.
-</div>
-<div id="ref-USACE2020" class="csl-entry" role="listitem">
-U.S. Army Corps of Engineers. 2020. <em>Conduits, Pipes, and Culverts Associated with Dams and Levee Systems</em>. EM 1110-2-2902. Washington, D.C.
-</div>
-</div>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -642,8 +612,8 @@ U.S. Army Corps of Engineers. 2020. <em>Conduits, Pipes, and Culverts Associated
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../_index/model.ES.html" class="pagination-link" aria-label="Modelo de cálculo">
-        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Modelo de cálculo</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../_index/introduction.ES.html" class="pagination-link" aria-label="Introducción">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Introducción</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

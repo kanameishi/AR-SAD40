@@ -17,26 +17,31 @@ rewrite calculation.json; to regenerate the HTML report, copy the accepted \
 values to calculation.json and run the report workflow.\n3. Section 2.1 \
 controls cover. Section 2.2 / GroundInputs controls unit weight, surcharge, \
 ground stiffness, the K0 model, friction angle, OCR, and net water pressure; \
-K0 is derived and is not typed as a constant. Section 2.3 / SteelInputs \
+K0 is derived and is not typed as a constant. Unit weight defines the linear \
+gradient over the liner height; surcharge is uniform. R combines the uniform \
+Schwartz-Einstein interaction with the balanced n=1,n=3 gradient correction; \
+no radial spring stiffness is an input. Section 2.3 / SteelInputs \
 controls the corrugated profile, remaining base thickness \
 (remainingBaseThicknessMm), radius, and steel strengths. Section 2.5 / \
 PlainConcreteInputs controls plain-shotcrete thickness (thicknessM) and \
 concrete strength (compressiveStrengthMPa). Section 2.6 / \
 ReinforcedConcreteInputs controls reinforced-shotcrete thickness and concrete \
-strength, reinforcement grade, bar diameter, spacing, clear-cover ratio, and \
-steel modulus. R derives bar area, reinforcement per face and direction, \
-layer coordinates, reinforcement ratio, and every P-M domain; do not type a \
-derived steel area directly.\n4. The 34 input leaves comprise 31 editable \
-primitive values or conditions and three catalog-reference selections. \
-Calculation-method constants are read-only and are returned with the results.\
-\n5. For a first run, evaluate the complete notebook from a fresh kernel. The \
+strength, reinforcement grade, bar diameter, reference spacing, clear-cover \
+ratio, steel modulus, and the reinforcement-ratio grid plotted in both P-M \
+families. Diameter and clear-cover ratio define the layer \
+coordinates. Spacing remains part of the input contract but does not select a \
+curve or an adopted reinforcement. Edit reinforcementRatioGrid to choose the \
+total reinforcement ratios compared by R; do not type a derived steel area \
+directly.\n4. Calculation-method constants are read-only and are returned with the \
+results.\n5. For a first run, evaluate the complete notebook from a fresh kernel. The \
 workbook loads the setup once and calls R once.\n6. After changing inputs, \
 reevaluate the edited input cell, Section 3.2 (EngineeringInputs), Section 3.3 \
-(Evaluate once), and the affected result section. The configured P-M curve \
-and checks will update; the discrete curves, beginning with the historical \
-minimum, remain visible for comparison.\n7. Review the normalized inputs, \
-derived mesh, three solution sections, nine circular diagrams, and the P-M \
-interaction family before adopting a design.", "Text", ExpressionUUID -> 
+(Evaluate once), and the affected result section. The complete discrete P-M \
+families for both shotcrete thicknesses, beginning with the lower evaluated \
+ratio, will update. No curve is \
+selected as the final reinforcement.\n7. Review the normalized inputs, three \
+solution sections, nine circular diagrams, and both P-M interaction families.", \
+"Text", ExpressionUUID -> 
              "113fef14-4500-d119-28ac-c1c0411dae88"]}, Open]], 
         Cell[CellGroupData[{Cell["1.2 Input-to-result map", "Section", 
             ExpressionUUID -> "80a04672-ce4c-d972-287a-8aec48d8222a"], 
@@ -48,10 +53,11 @@ catalog section, independent steel radius, remaining thickness, and material \
 properties.\nSeam and corrosion \[LongDash] published reference selection, \
 initial diameter, and relative diameter loss.\nPlain-concrete lining \
 \[LongDash] independent outer radius, thickness, material, and construction \
-condition.\nReinforced-concrete lining and reinforcement \[LongDash] \
+condition.\nSecond shotcrete section and P-M study inputs \[LongDash] \
 independent outer radius, thickness, concrete material, reinforcement grade, \
-bar diameter, spacing, clear-cover ratio, and reinforcement modulus; R \
-derives bar area, layer coordinates, steel area, and yield strength.\nThe crown-to-axis distance, steel centroidal \
+bar diameter, reference spacing, clear-cover ratio, reinforcement modulus, and \
+the reinforcement-ratio grid; R derives the layer coordinates and evaluates the configured reinforcement-ratio \
+family for both shotcrete thicknesses. No bar spacing or steel area is adopted.\nThe crown-to-axis distance, steel centroidal \
 radius, plain-concrete outer radius, and reinforced-concrete outer radius are \
 four separate inputs even when their defaults are equal.", "Text", 
             ExpressionUUID -> "47e1ac61-872d-1664-76ea-4e3cd26838f3"]}, 
@@ -82,7 +88,7 @@ lining radius.", "Text", ExpressionUUID ->
                    StripOnInput -> False], Background -> RGBColor[0.14, 0.2, 
                     0.28], StripOnInput -> False]}, 
                 {"\"Fill height above crown\"", "\"H\"", "\"m\"", 
-                 "\"8.000\"", "\"Fill depth and vertical fill action\""}, 
+                 "\"4.000\"", "\"Fill depth and vertical fill action\""}, 
                 {"\"Crown-to-axis distance\"", "\"z_c\"", "\"m\"", 
                  "\"1.315\"", 
                  "\"Depth of the free-field reference point\""}}, 
@@ -97,8 +103,8 @@ lining radius.", "Text", ExpressionUUID ->
                   {0.55, 0.55}}], "Grid"]], "Text", ExpressionUUID -> 
              "70851047-bfa5-dc14-be3a-b10468c9729e"], 
            Cell[BoxData[RowBox[{"CoverInputs", " ", "=", " ", RowBox[
-                {"<|", "\n", "  ", RowBox[{RowBox[{"\"coverCrownM\"", " ", 
-                     "->", " ", "8.`"}], RowBox[{",", "\n", "  "}], 
+                    {"<|", "\n", "  ", RowBox[{RowBox[{"\"coverCrownM\"", " ", 
+                     "->", " ", "4.`"}], RowBox[{",", "\n", "  "}], 
                    RowBox[{"\"crownToAxisM\"", " ", "->", " ", "1.315`"}]}], 
                  "\n", "|>"}], ";"}]], "Input", CellLabelAutoDelete -> True, 
             Background -> RGBColor[1, 0.96, 0.78], ExpressionUUID -> 
@@ -107,7 +113,7 @@ lining radius.", "Text", ExpressionUUID ->
             ExpressionUUID -> "93c3f2db-d6a5-440c-985d-7583e24cc8f6"], 
            Cell["Eight project inputs define the effective fill action, the \
 K0 branch and its primitive variables, net water pressure, and the ground \
-properties retained for the Schwartz-Einstein comparison. K0 is derived.", "Text", ExpressionUUID -> 
+properties used by the E-S plus balanced-gradient interaction. K0 is derived.", "Text", ExpressionUUID -> 
              "4c1d478d-8ca8-0ef4-a0b7-30359112abd3"], 
            Cell[BoxData[TagBox[GridBox[{{ItemBox[StyleBox["\"Input\"", 
                    GrayLevel[1], Bold, StripOnInput -> False], Background -> 
@@ -124,14 +130,13 @@ properties retained for the Schwartz-Einstein comparison. K0 is derived.", "Text
                    StripOnInput -> False], Background -> RGBColor[0.14, 0.2, 
                     0.28], StripOnInput -> False]}, 
                 {"\"Effective unit weight\"", "\"gamma_eff\"", "\"kN/m^3\"", 
-                 "\"19\"", "\"Effective vertical stress; also feeds total \
-weight in the current no-water method\""}, {"\"Effective surcharge\"", 
-                 "\"q_eff\"", "\"kPa\"", "\"0.000\"", 
-                 "\"Surface contribution to effective vertical stress\""}, 
+                 "\"19.613\"", "\"Permanent fill: 2.0 t/m^3; defines the gradient over the liner height\""}, {"\"Effective surcharge\"", 
+                 "\"q_eff\"", "\"kPa\"", "\"88.260\"", 
+                 "\"Permanent uniform surcharge: 6 m of mud at 1.5 t/m^3\""}, 
                 {"\"Ground Young's modulus\"", "\"E_g\"", "\"kPa\"", 
-                 "\"30000\"", "\"Schwartz-Einstein comparison only\""}, 
+                 "\"30000\"", "\"Uniform Schwartz-Einstein interaction component\""}, 
                 {"\"Ground Poisson's ratio\"", "\"nu_g\"", "\"-\"", 
-                 "\"0.30\"", "\"Schwartz-Einstein comparison only\""}, 
+                 "\"0.30\"", "\"Uniform Schwartz-Einstein interaction component\""}, 
                 {"\"K0 model\"", "\"-\"", "\"selection\"", 
                  "\"mayne-kulhawy-unloading\"", "\"Selects the derived K0 branch\""}, 
                 {"\"Effective friction angle\"", "\"phi'\"", "\"deg\"", 
@@ -153,8 +158,8 @@ weight in the current no-water method\""}, {"\"Effective surcharge\"",
            Cell[BoxData[RowBox[{"GroundInputs", " ", "=", " ", RowBox[
                 {"<|", "\n", "  ", RowBox[{RowBox[
                     {"\"effectiveUnitWeightKnPerM3\"", " ", "->", " ", 
-                     "19.`"}], RowBox[{",", "\n", "  "}], RowBox[
-                    {"\"effectiveSurchargeKPa\"", " ", "->", " ", "0.`"}], 
+                     "19.6133`"}], RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"effectiveSurchargeKPa\"", " ", "->", " ", "88.25985`"}], 
                    RowBox[{",", "\n", "  "}], RowBox[{"\"modulusKPa\"", " ", 
                      "->", " ", "30000.`"}], RowBox[{",", "\n", "  "}], 
                    RowBox[{"\"poisson\"", " ", "->", " ", "0.3`"}], 
@@ -193,18 +198,18 @@ independent of crown-to-axis distance and both concrete radii.", "Text",
                     0.28], StripOnInput -> False]}, 
                 {"\"Corrugated section reference\"", "\"-\"", 
                  "\"catalog selection\"", 
-                 "\"CSPI 76 x 25; specified thickness 3 mm\"", "\"Resolves \
+                 "\"CSPI 76 x 25; specified thickness 3.5 mm\"", "\"Resolves \
 profile, published row, properties, and provenance\""}, 
                 {"\"Steel lining centroidal radius\"", "\"R_s\"", "\"m\"", 
                  "\"1.315\"", "\"Steel interaction radius; circular span is \
 derived as 2 R_s\""}, {"\"Remaining base thickness\"", "\"t_s\"", "\"mm\"", 
                  "\"3\"", 
-                 "\"Scales the published corrugated-section properties\""}, 
+                 "\"Net analyzed thickness; 0.5 mm below the specified thickness\""}, 
                 {"\"Steel Young's modulus\"", "\"E_s\"", "\"kPa\"", 
                  "\"200000000\"", 
                  "\"Circumferential stiffness and stability\""}, 
                 {"\"Steel Poisson's ratio\"", "\"nu_s\"", "\"-\"", 
-                 "\"0.30\"", "\"Schwartz-Einstein comparison only\""}, 
+                 "\"0.30\"", "\"Uniform Schwartz-Einstein interaction component\""}, 
                 {"\"Yield strength\"", "\"F_y\"", "\"MPa\"", "\"250\"", 
                  "\"Wall resistance\""}, {"\"Tensile strength\"", "\"F_u\"", 
                  "\"MPa\"", "\"400\"", "\"AASHTO buckling branch\""}}, 
@@ -220,11 +225,11 @@ derived as 2 R_s\""}, {"\"Remaining base thickness\"", "\"t_s\"", "\"mm\"",
              "2b4def9c-7604-a270-7c04-8e9bacb03299"], 
            Cell[BoxData[RowBox[{"SteelInputs", " ", "=", " ", RowBox[
                 {"<|", "\n", "  ", RowBox[{RowBox[{"\"sectionReferenceID\"", 
-                     " ", "->", " ", "\"cspi-76x25-2.8\""}], RowBox[
+                     " ", "->", " ", "\"cspi-76x25-3.5\""}], RowBox[
                     {",", "\n", "  "}], RowBox[{"\"centroidalRadiusM\"", " ", 
                      "->", " ", "1.315`"}], RowBox[{",", "\n", "  "}], 
                    RowBox[{"\"remainingBaseThicknessMm\"", " ", "->", " ", 
-                     "2.64`"}], RowBox[{",", "\n", "  "}], RowBox[
+                     "3.`"}], RowBox[{",", "\n", "  "}], RowBox[
                     {"\"youngModulusKPa\"", " ", "->", " ", "2.`*^8"}], 
                    RowBox[{",", "\n", "  "}], RowBox[{"\"poisson\"", " ", 
                      "->", " ", "0.3`"}], RowBox[{",", "\n", "  "}], 
@@ -289,8 +294,8 @@ method; does not change seam utilization\""}, {"\"Relative diameter loss\"",
         Cell[CellGroupData[{Cell["2.5 Plain-concrete lining", "Section", 
             ExpressionUUID -> "d32885d3-2a06-4cfe-9dba-dd8f89d646a5"], 
            Cell["This is an independent structural alternative. Its outer \
-radius derives its own centroidal radius; the construction condition affects \
-the applicable ACI design thickness.", "Text", ExpressionUUID -> 
+radius derives its own centroidal radius. The full specified shotcrete \
+thickness is used because it is applied to the existing liner.", "Text", ExpressionUUID -> 
              "1547f9e8-39be-a4a5-2f7d-d25c40002771"], 
            Cell[BoxData[TagBox[GridBox[{{ItemBox[StyleBox["\"Input\"", 
                    GrayLevel[1], Bold, StripOnInput -> False], Background -> 
@@ -311,12 +316,9 @@ the applicable ACI design thickness.", "Text", ExpressionUUID ->
                 {"\"Specified thickness\"", "\"t_p\"", "\"m\"", "\"0.100\"", 
                  "\"Stiffness and ACI checks\""}, 
                 {"\"Concrete Poisson's ratio\"", "\"nu_cp\"", "\"-\"", 
-                 "\"0.20\"", "\"Schwartz-Einstein comparison only\""}, 
+                 "\"0.20\"", "\"Uniform Schwartz-Einstein interaction component\""}, 
                 {"\"Specified compressive strength\"", "\"f'_c\"", "\"MPa\"", 
-                 "\"25.0\"", "\"Concrete modulus and capacities\""}, 
-                {"\"Cast directly against soil\"", "\"-\"", "\"True/False\"", 
-                 "\"False\"", 
-                 "\"Changes ACI design thickness when applicable\""}}, 
+                 "\"25.0\"", "\"Concrete modulus and capacities\""}}, 
                GridBoxAlignment -> {"Columns" -> {Left, Center, Center, 
                    Right, Left}, "Rows" -> {{Center}}}, AutoDelete -> False, 
                GridBoxBackground -> {"Columns" -> {{None}}, "Rows" -> 
@@ -334,18 +336,20 @@ the applicable ACI design thickness.", "Text", ExpressionUUID ->
                    RowBox[{",", "\n", "  "}], RowBox[{"\"poisson\"", " ", 
                      "->", " ", "0.2`"}], RowBox[{",", "\n", "  "}], 
                    RowBox[{"\"compressiveStrengthMPa\"", " ", "->", " ", 
-                     "25.`"}], RowBox[{",", "\n", "  "}], RowBox[
-                    {"\"castAgainstSoil\"", " ", "->", " ", "False"}]}], 
+                     "25.`"}]}], 
                  "\n", "|>"}], ";"}]], "Input", CellLabelAutoDelete -> True, 
             Background -> RGBColor[1, 0.96, 0.78], ExpressionUUID -> 
              "1aae8cde-4a46-46a0-8a21-96b7de235e39"]}, Open]], 
         Cell[CellGroupData[
-          {Cell["2.6 Reinforced-concrete lining and reinforcement", 
+          {Cell["2.6 Second shotcrete section and P-M study inputs", 
             "Section", ExpressionUUID -> 
              "68969ff3-6ec3-420e-b118-0db6e1286d6a"], Cell["This alternative \
-uses nine editable geometry, material, and mesh primitives. R derives bar \
-area, clear cover, layer coordinates, reinforcement area, yield strength, \
-and the complete P-M interaction family.", "Text", ExpressionUUID -> 
+uses ten geometry, material, and study input fields. Diameter and clear-cover \
+ratio define the layer position. Spacing is retained as a reference field in \
+the input contract but does not select a curve. reinforcementRatioGrid selects \
+the total steel ratios shown as separate curves. R evaluates the complete P-M \
+interaction family for both shotcrete thicknesses. The workbook does not \
+select a final reinforcement.", "Text", ExpressionUUID -> 
              "01110577-e335-d45a-7d96-2a80c6e93f46"], 
            Cell[BoxData[TagBox[GridBox[{{ItemBox[StyleBox["\"Input\"", 
                    GrayLevel[1], Bold, StripOnInput -> False], Background -> 
@@ -363,22 +367,25 @@ and the complete P-M interaction family.", "Text", ExpressionUUID ->
                     0.28], StripOnInput -> False]}, {"\"Outer radius\"", 
                  "\"R_o,r\"", "\"m\"", "\"1.315\"", 
                  "\"Independent reinforced-lining geometry\""}, 
-                {"\"Specified thickness\"", "\"t_r\"", "\"m\"", "\"0.100\"", 
-                 "\"Stiffness, P-M domain, and minimum reinforcement\""}, 
+                {"\"Specified thickness\"", "\"t_r\"", "\"m\"", "\"0.150\"", 
+                 "\"Stiffness and P-M domains\""}, 
                 {"\"Concrete Poisson's ratio\"", "\"nu_cr\"", "\"-\"", 
-                 "\"0.20\"", "\"Schwartz-Einstein comparison only\""}, 
+                 "\"0.20\"", "\"Uniform Schwartz-Einstein interaction component\""}, 
                 {"\"Specified compressive strength\"", "\"f'_c\"", "\"MPa\"", 
                  "\"25.0\"", "\"Concrete modulus and P-M domain\""}, 
                 {"\"Reinforcement grade\"", "\"-\"", "\"catalog selection\"", 
                  "\"Grade-60\"", "\"Yield strength resolved by R\""}, 
-                {"\"Bar diameter\"", "\"d_b\"", "\"mm\"", "\"10\"", 
-                 "\"Bar area and layer centroid cover\""}, 
+                {"\"Bar diameter\"", "\"d_b\"", "\"mm\"", "\"6\"", 
+                 "\"Layer centroid position for the parametric family\""}, 
                 {"\"Bar spacing\"", "\"s\"", "\"mm\"", "\"150\"", 
-                 "\"Steel area per face and direction\""}, 
+                 "\"Reference input; does not select a family curve\""}, 
                 {"\"Clear-cover ratio\"", "\"c/t\"", "\"-\"", "\"0.15\"", 
                  "\"R derives clear cover and layer coordinates\""}, 
                 {"\"Reinforcing-steel modulus\"", "\"E_s,r\"", "\"MPa\"", 
-                 "\"200000\"", "\"Common material for all four layers\""}}, 
+                 "\"200000\"", "\"Common material for all four layers\""}, 
+                {"\"Reinforcement-ratio grid\"", "\"rho\"", 
+                 "\"As,total/(b t)\"", "\"{0.18%, 1%, 2%, 3%}\"", 
+                 "\"Curves evaluated for both shotcrete thicknesses\""}}, 
                GridBoxAlignment -> {"Columns" -> {Left, Center, Center, 
                    Right, Left}, "Rows" -> {{Center}}}, AutoDelete -> False, 
                GridBoxBackground -> {"Columns" -> {{None}}, "Rows" -> 
@@ -392,21 +399,25 @@ and the complete P-M interaction family.", "Text", ExpressionUUID ->
            Cell[BoxData[RowBox[{"ReinforcedConcreteInputs", " ", "=", " ", 
                RowBox[{"<|", "\n", "  ", RowBox[{RowBox[{"\"outerRadiusM\"", 
                      " ", "->", " ", "1.315`"}], RowBox[{",", "\n", "  "}], 
-                   RowBox[{"\"thicknessM\"", " ", "->", " ", "0.1`"}], 
+                   RowBox[{"\"thicknessM\"", " ", "->", " ", "0.15`"}], 
                    RowBox[{",", "\n", "  "}], RowBox[{"\"poisson\"", " ", 
                      "->", " ", "0.2`"}], RowBox[{",", "\n", "  "}], 
                    RowBox[{"\"compressiveStrengthMPa\"", " ", "->", " ", 
                      "25.`"}], RowBox[{",", "\n", "  "}], RowBox[
                     {"\"reinforcementGradeID\"", " ", "->", " ", 
                      "\"Grade-60\""}], RowBox[{",", "\n", "  "}], RowBox[
-                    {"\"barDiameterMm\"", " ", "->", " ", "10.`"}], 
+                    {"\"barDiameterMm\"", " ", "->", " ", "6.`"}], 
                    RowBox[{",", "\n", "  "}], RowBox[
                     {"\"barSpacingMm\"", " ", "->", " ", "150.`"}], 
                    RowBox[{",", "\n", "  "}], RowBox[
                     {"\"clearCoverRatio\"", " ", "->", " ", "0.15`"}], 
                    RowBox[{",", "\n", "  "}], RowBox[
                     {"\"reinforcementModulusMPa\"", " ", "->", " ", 
-                     "200000.`"}]}], "\n", "|>"}], ";"}]], "Input", 
+                     "200000.`"}], RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"reinforcementRatioGrid\"", " ", "->", " ", 
+                     RowBox[{"{", RowBox[{"0.0018`", ",", "0.01`", ",", 
+                          "0.02`", ",", "0.03`"}], "}"}]}]}], "\n", 
+                "|>"}], ";"}]], "Input", 
             CellLabelAutoDelete -> True, Background -> RGBColor[1, 0.96, 
               0.78], ExpressionUUID -> 
              "c898e83b-bd8f-407a-86c9-3b56d87608a7"]}, Open]]}, Open]], 
@@ -509,7 +520,7 @@ Evaluation[\"resolvedConfig\"][\"aashto\"]\n]"], "Input",
              "1f3a47ee-def9-4da3-8d45-4ab049122200"]}, Open]], 
         Cell[CellGroupData[
           {Cell[
-            "4.6 Plain-concrete stiffness, resultants, and local ACI checks", 
+            "4.6 First shotcrete thickness: resultants, plain-concrete checks, and parametric P-M family", 
             "Section", ExpressionUUID -> 
              "d5aeaa5d-aef5-fd3b-de9c-22be73b3910e"], 
            Cell[BoxData["concreteAlternativeView[\n  \"shotcrete\",\n  \
@@ -517,8 +528,7 @@ Evaluation[\"additionalLinings\"][\"shotcrete\"],\n  \
 Evaluation[\"resolvedConfig\"][\"graphics\"]\n]"], "Input", 
             CellLabelAutoDelete -> True, ExpressionUUID -> 
              "1b66d785-b291-42dc-944b-7b94fa659a0e"]}, Open]], 
-        Cell[CellGroupData[{Cell["4.7 Reinforced-concrete stiffness, \
-resultants, and local ACI P-M checks", "Section", ExpressionUUID -> 
+        Cell[CellGroupData[{Cell["4.7 Second shotcrete thickness: resultants and parametric P-M family", "Section", ExpressionUUID -> 
              "0c24797b-d6ab-1005-1390-6a2f228122a0"], 
            Cell[BoxData["concreteAlternativeView[\n  \
 \"reinforcedConcrete\",\n  \
@@ -527,7 +537,7 @@ Evaluation[\"resolvedConfig\"][\"graphics\"]\n]"], "Input",
             CellLabelAutoDelete -> True, ExpressionUUID -> 
              "38a079ae-5210-4815-85f0-e4ab71455b70"]}, Open]]}, Open]], 
      Cell["Review the engineering inputs, calculation basis, returned tables, \
-circular diagrams, and the P-M interaction family before saving the evaluated \
+circular diagrams, and both P-M interaction families before saving the evaluated \
 workbook.", "Text", 
       ExpressionUUID -> "22ce1773-a386-05b4-9bae-df5705ac6ae4"]}, Open]]}, 
  WindowSize -> {1320, 920}, WindowMargins -> 

@@ -40,6 +40,7 @@ if (any(!vapply(
     combinationID = Aashto[["combinationID", exact = TRUE]],
     stageID = Aashto[["stageID", exact = TRUE]],
     forceEffectStatus = Aashto[["forceEffectStatus", exact = TRUE]],
+    deadSurchargeKPa = Cover[["effectiveSurchargeKPa", exact = TRUE]],
     liveCrownPressureKPa = Aashto[[
       "liveCrownPressureKPa",
       exact = TRUE
@@ -168,6 +169,7 @@ if (any(!vapply(
     deadLoadFactor = Aashto[["deadLoadFactor", exact = TRUE]],
     liveLoadFactor = Aashto[["liveLoadFactor", exact = TRUE]],
     demandModifier = Aashto[["demandModifier", exact = TRUE]],
+    deadSurchargeKPa = Cover[["effectiveSurchargeKPa", exact = TRUE]],
     liveCrownPressureKPa = Aashto[[
       "liveCrownPressureKPa",
       exact = TRUE
@@ -492,7 +494,10 @@ if (any(!vapply(
     names(Results) <- Cases[["caseID", exact = TRUE]]
     Resultants <- .buildCoverResultants(Config, Results)
     Summary <- do.call(rbind, lapply(Results, `[[`, "summary"))
-    Summary[["interfaceID"]] <- Cases[["interfaceID", exact = TRUE]]
+    Summary[["interfaceID"]] <- Cases[[
+      "comparisonInterfaceID",
+      exact = TRUE
+    ]]
     MechanicalChecks <- do.call(rbind, lapply(seq_along(Results), function(j) {
       Assessment <- Results[[j]][["assessment", exact = TRUE]]
       Mechanical <- Assessment[["mechanical", exact = TRUE]]
@@ -539,7 +544,7 @@ if (any(!vapply(
         caseID = Cases[["caseID", exact = TRUE]][j],
         sectionID = Lining[["sectionID", exact = TRUE]],
         concreteTypeID = Lining[["concreteTypeID", exact = TRUE]],
-        interfaceID = Cases[["interfaceID", exact = TRUE]][j],
+        interfaceID = Cases[["comparisonInterfaceID", exact = TRUE]][j],
         thetaRad = ThetaRad,
         thetaDeg = ThetaDeg,
         mechanicalUtilization = MechanicalUtilization,
@@ -572,7 +577,10 @@ if (any(!vapply(
             stop("ACI assessment is not tabular: ", name, ".", call. = FALSE)
           }
           Data$caseID <- Cases[["caseID", exact = TRUE]][j]
-          Data$interfaceID <- Cases[["interfaceID", exact = TRUE]][j]
+          Data$interfaceID <- Cases[[
+            "comparisonInterfaceID",
+            exact = TRUE
+          ]][j]
           Data
         })
         OUT <- do.call(rbind, Rows)
@@ -611,8 +619,8 @@ if (any(!vapply(
         }
         DiagramDemands <- lapply(seq_along(InteractionDiagrams), function(j) {
           Data <- InteractionDiagrams[[j]][["demands", exact = TRUE]]
-          InterfaceID <- Cases[["interfaceID", exact = TRUE]][j]
-          InternalInterfaceID <- .coverInterfaceAPI(InterfaceID)
+          InterfaceID <- Cases[["comparisonInterfaceID", exact = TRUE]][j]
+          InternalInterfaceID <- .coverComparisonInterfaceAPI(InterfaceID)
           if (!all(
             Data[["interfaceID", exact = TRUE]] == InternalInterfaceID
           )) {
@@ -646,6 +654,7 @@ if (any(!vapply(
       interaction = .buildCoverInteractionTable(Config, Results),
       schwartzEinsteinComparison =
         .buildCoverSchwartzEinsteinComparisonTable(Config, Results),
+      hybridGradient = .buildCoverHybridGradientTable(Config, Results),
       resultants = Resultants,
       extrema = .buildCoverExtrema(Config, Results),
       controls = .buildCoverControls(Config, Results),
@@ -759,6 +768,7 @@ if (any(!vapply(
     interaction = .buildCoverInteractionTable(Config, Results),
     schwartzEinsteinComparison =
       .buildCoverSchwartzEinsteinComparisonTable(Config, Results),
+    hybridGradient = .buildCoverHybridGradientTable(Config, Results),
     resultants = Resultants,
     extrema = .buildCoverExtrema(Config, Results),
     controls = .buildCoverControls(Config, Results),

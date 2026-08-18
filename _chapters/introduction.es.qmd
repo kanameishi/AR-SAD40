@@ -1,0 +1,56 @@
+Esta memoria evalúa la respuesta transversal del revestimiento circular del
+túnel espesador San Francisco bajo el peso del relleno existente. El análisis
+comprende la chapa de acero corrugada, una capa de hormigón proyectado simple y
+una capa de hormigón proyectado armado. Para cada revestimiento se calculan la
+fuerza circunferencial, el momento flector y la fuerza de corte por metro de
+túnel; las comprobaciones resistentes emplean las propiedades de la sección
+correspondiente.
+
+El alcance comprende la definición de las acciones permanentes, la interacción
+elástica suelo--revestimiento, las resultantes $N$--$M$--$Q$, la comprobación
+de referencia del liner corrugado, la evaluación local del hormigón simple y
+los dominios $P$--$M$ de varias cuantías para espesores de 100 y 150 mm.
+Quedan fuera del alcance la selección de una armadura definitiva, el detalle
+constructivo, la acreditación de la edición contractual de las normas y la
+asignación de propiedades a la chapa y a sus uniones sin respaldo de la
+inspección. Esas actividades corresponden a la etapa de diseño e inspección
+posterior.
+
+La @tbl-model-inputs resume el escenario analizado. La altura de relleno se
+mide desde la clave y la tensión del terreno se evalúa a la cota del centro del
+túnel. El peso unitario efectivo y la sobrecarga definen la tensión vertical;
+la presión hidráulica neta se incorpora como una acción separada. La tensión
+horizontal se obtiene mediante el
+coeficiente de presión en reposo $K_0$, definido como la razón entre las
+tensiones efectivas horizontal y vertical.
+
+{{< include /_tbl/model.inputs.ES.qmd >}}
+
+La caracterización geotécnica pendiente definirá el valor representativo de
+$\phi'$. Para este cálculo se adoptan provisionalmente
+$\phi'=`r formatCalculationFixed(Calculation$stress$frictionAngleDeg, 0L)`^\circ$
+y $\mathrm{OCR}=`r formatCalculationGeneral(Calculation$stress$ocr)`$. La
+presión hidráulica neta adoptada es
+`r formatCalculationFixed(Calculation$config$action$waterPressureDifferenceKPa, 1L)`
+kPa. La relación utilizada para $K_0$ produce
+$K_0=`r formatCalculationGeneral(Calculation$stress$k0Applied)`$
+[@MayneKulhawy1982]. Estas hipótesis se reemplazarán por los parámetros del
+relleno y la condición de agua cuando estén disponibles.
+
+La interacción entre el relleno y cada revestimiento se representa mediante la
+solución de carga externa de Schwartz--Einstein. Se calculan dos límites de
+interfaz: deslizamiento libre y ausencia de deslizamiento. Ambos parten de la
+misma tapada y del mismo estado geotécnico, pero utilizan el radio y las
+rigideces propias de la chapa o de cada alternativa de hormigón. La comparación
+muestra la sensibilidad de las resultantes a la rigidez relativa y al contacto.
+
+La chapa se comprueba con una comparación de referencia basada en las
+expresiones documentadas por USACE, los parámetros AASHTO reproducidos por
+Anderson et al. y las propiedades publicadas por CSPI
+[@USACE2020; @AndersonEtAl2023; @CSPIHandbookChapter2;
+@CSPIHandbookChapter6]. El hormigón se evalúa con ACI 318-25 y la armadura
+mínima se conserva como referencia histórica de ACI 318.2-14
+[@ACI31825; @ACI318214]. La memoria compara varias cuantías en dominios
+fuerza--momento para los dos espesores estudiados. La especificación de
+inspección establece las mediciones de espesor, geometría y uniones necesarias
+para actualizar las propiedades del revestimiento existente.

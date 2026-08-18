@@ -1,0 +1,54 @@
+```{r}
+#| include: false
+source("scripts/fig/Calculation.classical.comparison.R")
+readFigureCaption <- function(path) paste(readLines(path, warn = FALSE), collapse = "\n")
+CAP.STEEL.FIG <- readFigureCaption("_captions/fig.Calculation.classical.steel.ES.md")
+CAP.SC100.FIG <- readFigureCaption("_captions/fig.Calculation.classical.shotcrete100.ES.md")
+CAP.SC150.FIG <- readFigureCaption("_captions/fig.Calculation.classical.shotcrete150.ES.md")
+PLOT.STEEL <- buildCalculationClassicalComparisonFigure(
+  Calculation$classicalComparison$curves, "steel"
+)
+PLOT.SC100 <- buildCalculationClassicalComparisonFigure(
+  Calculation$classicalComparison$curves, "shotcrete"
+)
+PLOT.SC150 <- buildCalculationClassicalComparisonFigure(
+  Calculation$classicalComparison$curves, "reinforcedConcrete"
+)
+```
+
+::: {.column-page}
+
+```{r}
+#| label: fig-calculation-classical-steel
+#| fig-cap: !expr CAP.STEEL.FIG
+#| echo: false
+#| out-width: 100%
+PLOT.STEEL
+```
+
+```{r}
+#| label: fig-calculation-classical-shotcrete-100
+#| fig-cap: !expr CAP.SC100.FIG
+#| echo: false
+#| out-width: 100%
+PLOT.SC100
+```
+
+```{r}
+#| label: fig-calculation-classical-shotcrete-150
+#| fig-cap: !expr CAP.SC150.FIG
+#| echo: false
+#| out-width: 100%
+PLOT.SC150
+```
+
+:::
+
+```{r}
+#| include: false
+rm(
+  CAP.STEEL.FIG, CAP.SC100.FIG, CAP.SC150.FIG,
+  PLOT.STEEL, PLOT.SC100, PLOT.SC150,
+  readFigureCaption, buildCalculationClassicalComparisonFigure
+)
+```

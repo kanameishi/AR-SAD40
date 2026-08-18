@@ -1,0 +1,1 @@
+Sección de 100 mm: comprobación local $P$--$M$ para cada cuantía circunferencial. $A_{s,\theta}$ suma ambas caras y $\rho_\theta=A_{s,\theta}/(b t_c)$. El resultado indica si el dominio contiene todas las demandas calculadas en las 720 posiciones del perímetro.

@@ -128,6 +128,7 @@ runCoverCalculationDataTests <- function() {
   Usage <- readProduct(Baseline, "aisi.capacity.usage.csv")
   AisiSummary <- readProduct(Baseline, "aisi.summary.csv")
   Controls <- readProduct(Baseline, "numerical.controls.csv")
+  Scales <- readProduct(Baseline, "display.scales.csv")
 
   stopifnot(
     nrow(Stress) == 1L,
@@ -144,7 +145,7 @@ runCoverCalculationDataTests <- function() {
     all(is.finite(Interaction$tangentialMultiplier)),
     identical(
       sort(unique(Resultants$interfaceID)),
-      c("full-traction", "normal-only")
+      c("full-slip", "no-slip")
     ),
     all(is.na(AisiSummary$aisiWallMemberUtilization)),
     all(AisiSummary$aisiWallMemberStatus == "not-evaluated-capacities"),
@@ -200,7 +201,10 @@ runCoverCalculationDataTests <- function() {
     "shotcrete.axial.flexure.demands.csv",
     "shotcrete.axial.flexure.reinforcement.domains.csv",
     "shotcrete.axial.flexure.reinforcement.sweep.csv",
-    "shotcrete.axial.flexure.reinforcement.configured.demands.csv"
+    "shotcrete.axial.flexure.reinforcement.governing.demands.csv",
+    "classical.comparison.inputs.csv", "classical.comparison.sections.csv",
+    "classical.comparison.curves.csv", "classical.comparison.points.csv",
+    "classical.comparison.summary.csv"
   )
   stopifnot(
     all(file.exists(file.path(AashtoVariant$outputDirectory, AashtoFiles))),
@@ -212,6 +216,7 @@ runCoverCalculationDataTests <- function() {
     AashtoVariant,
     "aashto.calculation.csv"
   )
+  AashtoScales <- readProduct(AashtoVariant, "display.scales.csv")
   ShotcreteSection <- readProduct(
     AashtoVariant,
     "shotcrete.section.properties.csv"
@@ -238,9 +243,24 @@ runCoverCalculationDataTests <- function() {
     AashtoVariant,
     "shotcrete.axial.flexure.reinforcement.sweep.csv"
   )
-  ReinforcementConfiguredDemands <- readProduct(
+  ReinforcementGoverningDemands <- readProduct(
     AashtoVariant,
-    "shotcrete.axial.flexure.reinforcement.configured.demands.csv"
+    "shotcrete.axial.flexure.reinforcement.governing.demands.csv"
+  )
+  ClassicalInputs <- readProduct(
+    AashtoVariant, "classical.comparison.inputs.csv"
+  )
+  ClassicalSections <- readProduct(
+    AashtoVariant, "classical.comparison.sections.csv"
+  )
+  ClassicalCurves <- readProduct(
+    AashtoVariant, "classical.comparison.curves.csv"
+  )
+  ClassicalPoints <- readProduct(
+    AashtoVariant, "classical.comparison.points.csv"
+  )
+  ClassicalSummary <- readProduct(
+    AashtoVariant, "classical.comparison.summary.csv"
   )
   PlainSection <- ShotcreteSection[
     ShotcreteSection$liningID == "shotcrete",
@@ -262,6 +282,10 @@ runCoverCalculationDataTests <- function() {
     ,
     drop = FALSE
   ]
+  AllDisplayScales <- rbind(
+    AashtoScales[, c("resultantID", "displayScale", "scaleBasisID")],
+    ShotcreteScales[, c("resultantID", "displayScale", "scaleBasisID")]
+  )
   PlainChecks <- ShotcreteChecks[
     ShotcreteChecks$liningID == "shotcrete",
     ,
@@ -298,6 +322,19 @@ runCoverCalculationDataTests <- function() {
   )
   stopifnot(
     nrow(AashtoChecks) == 5L,
+    nrow(ClassicalInputs) == 1L,
+    nrow(ClassicalSections) == 3L,
+    nrow(ClassicalCurves) > 0L,
+    nrow(ClassicalPoints) == 21L,
+    nrow(ClassicalSummary) == 30L,
+    setequal(
+      unique(ClassicalSummary$methodID),
+      c(
+        "official-hybrid", "schwartz-einstein-uniform",
+        "prescribed-k0-ring", "nunez-2000", "nunez-2014",
+        "aashto-usace"
+      )
+    ),
     nrow(AashtoSummary) == 1L,
     nrow(AashtoCalculation) == 1L,
     AashtoSummary$wallStatus == "satisfied",
@@ -325,6 +362,12 @@ runCoverCalculationDataTests <- function() {
     nrow(ShotcreteScales) == 6L,
     nrow(PlainScales) == 3L,
     nrow(ReinforcedScales) == 3L,
+    all(AllDisplayScales$scaleBasisID ==
+      "common-by-resultant-across-linings"),
+    all(vapply(split(
+      AllDisplayScales$displayScale,
+      AllDisplayScales$resultantID
+    ), function(x) length(unique(x)) == 1L, logical(1))),
     all(
       PlainScales$referenceRadiusM == PlainSection$centroidalRadiusM
     ),
@@ -391,21 +434,22 @@ runCoverCalculationDataTests <- function() {
     ) == 720L),
     setequal(
       AxialFlexureDemands$interfaceID,
-      c("full-traction", "normal-only")
+      c("full-slip", "no-slip")
     ),
     setequal(AxialFlexureDemands$strengthCaseID, c("d14-h16", "d14-h09")),
-    nrow(ReinforcementSweep) == 5L,
-    nrow(ReinforcementConfiguredDemands) == 4L,
-    length(unique(ReinforcementDomains$reinforcementCaseID)) == 5L,
-    all(table(ReinforcementDomains$reinforcementCaseID) == 807L),
-    sum(ReinforcementSweep$isConfiguredCase) == 1L,
-    sum(ReinforcementSweep$isMinimumHistoricalCase) == 1L,
-    ReinforcementSweep$localPMStatus[
-      ReinforcementSweep$reinforcementRatio == 0.01
-    ] == "not-satisfied",
-    ReinforcementSweep$localPMStatus[
-      ReinforcementSweep$reinforcementRatio == 0.02
-    ] == "satisfied",
+    nrow(ReinforcementSweep) == 8L,
+    nrow(ReinforcementGoverningDemands) == 8L,
+    all(table(ReinforcementSweep$liningID) == 4L),
+    all(table(ReinforcementGoverningDemands$liningID) == 4L),
+    all(table(
+      ReinforcementDomains$liningID,
+      ReinforcementDomains$reinforcementCaseID
+    )[table(
+      ReinforcementDomains$liningID,
+      ReinforcementDomains$reinforcementCaseID
+    ) > 0L] == 807L),
+    sum(ReinforcementSweep$isLowerReferenceCase) == 2L,
+    all(ReinforcementSweep$isParametricCase),
     identical(
       LoaderEnvironment$Calculation$reinforcedConcrete$axialFlexureDomain,
       AxialFlexureDomain
@@ -417,17 +461,37 @@ runCoverCalculationDataTests <- function() {
     identical(
       LoaderEnvironment$Calculation$reinforcedConcrete$
         reinforcementSweep$domains,
-      ReinforcementDomains
+      ReinforcementDomains[
+        ReinforcementDomains$liningID == "reinforcedConcrete",
+        ,
+        drop = FALSE
+      ]
     ),
     identical(
       LoaderEnvironment$Calculation$reinforcedConcrete$
         reinforcementSweep$summary,
-      ReinforcementSweep
+      ReinforcementSweep[
+        ReinforcementSweep$liningID == "reinforcedConcrete",
+        ,
+        drop = FALSE
+      ]
     ),
     identical(
       LoaderEnvironment$Calculation$reinforcedConcrete$
-        reinforcementSweep$configuredGoverningDemands,
-      ReinforcementConfiguredDemands
+        reinforcementSweep$governingDemands,
+      ReinforcementGoverningDemands[
+        ReinforcementGoverningDemands$liningID == "reinforcedConcrete",
+        ,
+        drop = FALSE
+      ]
+    ),
+    identical(
+      LoaderEnvironment$Calculation$shotcrete$reinforcementSweep$summary,
+      ReinforcementSweep[
+        ReinforcementSweep$liningID == "shotcrete",
+        ,
+        drop = FALSE
+      ]
     ),
     nzchar(LoaderEnvironment$Calculation$shotcrete$resultMarkdown),
     nzchar(LoaderEnvironment$Calculation$reinforcedConcrete$resultMarkdown)

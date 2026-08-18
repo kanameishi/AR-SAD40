@@ -4,6 +4,6 @@ root <- normalizePath(".", mustWork = TRUE)
 source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
 ```
 
-# Desarrollos empleados {#sec-calculation-appendix-derivations}
+# Equilibrio, compatibilidad y solución del anillo {#sec-calculation-appendix-derivations}
 
 {{< include /_chapters/model.appendix.es.md >}}

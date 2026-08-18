@@ -26,7 +26,7 @@ stopifnot(
     Config[["methodProfileID", exact = TRUE]],
     "ar-sad40-cover-mesh-2026-08-16"
   ),
-  identical(Config[["methodProfileVersion", exact = TRUE]], "1.2.0")
+  identical(Config[["methodProfileVersion", exact = TRUE]], "1.3.0")
 )
 Config[["methodProfileID"]] <- NULL
 Config[["methodProfileVersion"]] <- NULL
@@ -137,19 +137,19 @@ stopifnot(
   ConfiguredReinforced[["section", exact = TRUE]][[
     "thicknessM",
     exact = TRUE
-  ]] == 0.12,
+  ]] == 0.15,
   ConfiguredReinforced[["section", exact = TRUE]][[
     "centroidalRadiusM",
     exact = TRUE
-  ]] == 1.255,
+  ]] == 1.24,
   ConfiguredReinforced[["assessment", exact = TRUE]][[
     "minimumReinforcement",
     exact = TRUE
-  ]][["requiredAreaPerDirectionMm2", exact = TRUE]] == 216,
+  ]][["requiredAreaPerDirectionMm2", exact = TRUE]] == 270,
   ConfiguredReinforced[["assessment", exact = TRUE]][[
     "minimumReinforcement",
     exact = TRUE
-  ]][["requiredAreaPerFaceMm2", exact = TRUE]] == 108,
+  ]][["requiredAreaPerFaceMm2", exact = TRUE]] == 135,
   abs(ConfiguredReinforced[["assessment", exact = TRUE]][[
     "minimumReinforcement",
     exact = TRUE
@@ -292,7 +292,7 @@ ReinforcedVariationLining <- ReinforcedVariationLinings[[
   exact = TRUE
 ]]
 ReinforcedVariationLining[["sectionID"]] <-
-  "shotcrete-t0.13-fc25-reinforced-d6-s150-c0p15-grade-60"
+  "shotcrete-t0.13-fc25-parametric-pm"
 ReinforcedVariationLining[["thicknessM"]] <- 0.13
 ReinforcedVariationMesh <- calculateSymmetricReinforcementMesh(
   thicknessM = 0.13,

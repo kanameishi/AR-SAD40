@@ -1,1 +1,1 @@
-Parámetros de la proyección biaxial y coeficientes armónicos de las resultantes del revestimiento de hormigón proyectado. La integración directa se ejecuta con las propiedades de cada alternativa; $\alpha=1$ incorpora la tracción tangencial completa y $\alpha=0$ conserva únicamente la acción normal.
+Coeficientes de interacción Schwartz--Einstein y amplitudes de la componente uniforme para la sección de hormigón proyectado de 100 mm. Los límites de deslizamiento libre y sin deslizamiento acotan la condición de contacto considerada en el diseño.

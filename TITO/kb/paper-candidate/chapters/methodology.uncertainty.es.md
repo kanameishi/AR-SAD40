@@ -21,7 +21,7 @@ incertidumbre estadística y correlación entre propiedades
 | estado vertical | $\gamma'_j$, espesores de capas, $q'$, $z_w$, $\gamma_w$ | perfil geotécnico, ensayos y condición hidráulica |
 | estado lateral | $K_0$ o variables que lo determinan; $\Delta\sigma'_{h,c}$ | tipo de suelo, historia tensional y compactación |
 | construcción | fuerza y posición del equipo, espesor y secuencia de tongadas | registros de obra o escenarios constructivos definidos |
-| transferencia de carga | proyección completa o carga exclusivamente normal | alternativas discretas sin pesos probabilísticos mientras no exista calibración |
+| transferencia de carga | deslizamiento libre o ausencia de deslizamiento en Schwartz--Einstein | alternativas discretas sin pesos probabilísticos mientras no exista calibración |
 
 : Magnitudes incluidas en la propagación de incertidumbre. {#tbl-uncertain-inputs}
 
@@ -39,18 +39,20 @@ realización $j$. La evaluación sigue la cadena
 $$
 \mathbf X_j
 \longrightarrow
-\{P_{r,j}(\theta),P_{t,j}(\theta)\}
+\{\sigma'_{v,j},\sigma'_{h,j},C_j^*,F_j^*,i_j\}
 \longrightarrow
 \{N_{\theta,j}(\theta),M_{\theta,j}(\theta),Q_{\theta,j}(\theta)\}.
 $$ {#eq-monte-carlo-chain}
+
+$i_j$ identifica la condición discreta de interfaz de la realización.
 
 Cada realización comprende las siguientes operaciones:
 
 1. integrar las tensiones verticales y la diferencia de presión intersticial;
 2. determinar el estado lateral y las acciones constructivas;
-3. formar las cargas normal y tangencial sobre el contorno;
-4. verificar el equilibrio global del estado de carga;
-5. integrar las ecuaciones estructurales e imponer compatibilidad;
+3. calcular $C^*$ y $F^*$ para la sección correspondiente;
+4. resolver Schwartz--Einstein para cada condición de interfaz;
+5. ejecutar por separado los controles de carga prescrita; y
 6. registrar las distribuciones, los valores en posiciones de interés y los
    extremos sobre toda la circunferencia.
 
@@ -66,8 +68,6 @@ $$ {#eq-construction-extremes}
 
 Este orden conserva la coincidencia entre el valor extremo, su posición y la
 etapa que lo produce.
-
-### Localización de extremos espaciales
 
 La circunferencia se divide en los intervalos definidos por las
 discontinuidades de $P_r(\theta)$ y $P_t(\theta)$. En cada intervalo abierto,

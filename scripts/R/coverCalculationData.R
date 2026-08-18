@@ -824,7 +824,7 @@ validateCoverCalculationConfig <- function(config) {
       "action", "interfaceCases", "sectionReference", "lining", "numerics",
       "graphics"
     ),
-    optional = c("aashto", "additionalLinings"),
+    optional = c("aashto", "additionalLinings", "classicalComparison"),
     path = "calculation.json"
   )
   SchemaVersion <- .readText(config, "schemaVersion", "calculation.json")
@@ -832,18 +832,30 @@ validateCoverCalculationConfig <- function(config) {
     stop("Cover calculation schemaVersion is not supported.", call. = FALSE)
   }
   AashtoInput <- config[["aashto", exact = TRUE]]
+  ClassicalComparisonInput <- config[["classicalComparison", exact = TRUE]]
   if (SchemaVersion == "3.1.0" && is.null(AashtoInput)) {
     stop("Schema 3.1.0 requires aashto.", call. = FALSE)
   }
+  if (SchemaVersion == "3.1.0" && is.null(ClassicalComparisonInput)) {
+    stop("Schema 3.1.0 requires classicalComparison.", call. = FALSE)
+  }
   if (SchemaVersion == "3.0.0" && !is.null(AashtoInput)) {
     stop("Schema 3.0.0 does not support aashto.", call. = FALSE)
+  }
+  if (SchemaVersion == "3.0.0" && !is.null(ClassicalComparisonInput)) {
+    stop("Schema 3.0.0 does not support classicalComparison.", call. = FALSE)
   }
   AnalysisModelID <- .readText(
     config,
     "analysisModelID",
     "calculation.json"
   )
-  if (AnalysisModelID != "prescribed-biaxial-direct-integration") {
+  ExpectedAnalysisModelID <- if (SchemaVersion == "3.1.0") {
+    "schwartz-einstein-balanced-gradient-hybrid"
+  } else {
+    "prescribed-biaxial-direct-integration"
+  }
+  if (AnalysisModelID != ExpectedAnalysisModelID) {
     stop(
       "Unsupported calculation analysisModelID: ", AnalysisModelID, ".",
       call. = FALSE
@@ -1080,6 +1092,11 @@ validateCoverCalculationConfig <- function(config) {
     } else {
       NULL
     },
+    classicalComparison = if (SchemaVersion == "3.1.0") {
+      .normaliseCoverClassicalComparison(ClassicalComparisonInput)
+    } else {
+      NULL
+    },
     additionalLinings = .normaliseCoverAdditionalLinings(
       config[["additionalLinings", exact = TRUE]]
     ),
@@ -1261,6 +1278,7 @@ validateCoverCalculationConfig <- function(config) {
   Lining <- config[["lining", exact = TRUE]]
   Numerics <- config[["numerics", exact = TRUE]]
   Graphics <- config[["graphics", exact = TRUE]]
+  ClassicalComparison <- config[["classicalComparison", exact = TRUE]]
   Rows <- list(
     .inputRow(ScenarioID, NA, "model", "analysis-model", "model", textValue = config[["analysisModelID", exact = TRUE]], evidenceLevel = "HA", conditionCode = "selected-model"),
     .inputRow(ScenarioID, NA, "cover", "cover-at-crown", "H", Cover[["coverCrownM", exact = TRUE]], unit = "m", evidenceLevel = "HA", conditionCode = "scenario-input"),
@@ -1295,6 +1313,12 @@ validateCoverCalculationConfig <- function(config) {
     .inputRow(ScenarioID, NA, "graphics", "radial-fraction", "f_r", Graphics[["radialFraction", exact = TRUE]], evidenceLevel = "HA", conditionCode = "display-setting"),
     .inputRow(ScenarioID, NA, "graphics", "ordinate-count", "n_o", Graphics[["ordinateCount", exact = TRUE]], evidenceLevel = "HA", conditionCode = "display-setting")
   )
+  if (!is.null(ClassicalComparison)) {
+    Rows <- c(Rows, list(
+      .inputRow(ScenarioID, NA, "classical-comparison", "nunez-relaxation-factor", "eta_N", ClassicalComparison[["nunezRelaxationFactor", exact = TRUE]], evidenceLevel = "HA", conditionCode = "sensitivity-input"),
+      .inputRow(ScenarioID, NA, "classical-comparison", "nunez-contact-factor", "chi_N", ClassicalComparison[["nunezContactFactor", exact = TRUE]], evidenceLevel = "HA", conditionCode = "sensitivity-input")
+    ))
+  }
   AdditionalLinings <- config[["additionalLinings", exact = TRUE]]
   if (length(AdditionalLinings) > 0L) {
     Rows <- c(Rows, unlist(lapply(seq_along(AdditionalLinings), function(i) {
@@ -1582,6 +1606,10 @@ validateCoverCalculationConfig <- function(config) {
       stressReferenceID = Values[["stressReferenceID", exact = TRUE]][1L],
       effectiveVerticalStressKPa = Values[["effectiveVerticalStressKPa", exact = TRUE]][1L],
       effectiveHorizontalStressKPa = Values[["effectiveHorizontalStressKPa", exact = TRUE]][1L],
+      waterPressureDifferenceKPa = Values[[
+        "waterPressureDifferenceKPa",
+        exact = TRUE
+      ]][1L],
       stressRatio = Values[["stressRatio", exact = TRUE]][1L],
       cStar = Stiffness[["cStar", exact = TRUE]],
       fStar = Stiffness[["fStar", exact = TRUE]],
@@ -1603,6 +1631,34 @@ validateCoverCalculationConfig <- function(config) {
   OUT
 }
 
+.buildCoverHybridGradientTable <- function(config, results) {
+  Cases <- config[["interfaceCases", exact = TRUE]]
+  LIST <- lapply(seq_len(nrow(Cases)), function(i) {
+    Result <- results[[i]]
+    Gradient <- Result[["hybridGradient", exact = TRUE]]
+    if (!is.data.frame(Gradient) || nrow(Gradient) != 1L) {
+      stop("The hybrid gradient metadata must contain one row.", call. = FALSE)
+    }
+    cbind(
+      data.frame(
+        scenarioID = config[["scenarioID", exact = TRUE]],
+        caseID = Cases[["caseID", exact = TRUE]][i],
+        sectionID = Result[["scenario", exact = TRUE]][[
+          "sectionID",
+          exact = TRUE
+        ]][1L],
+        interfaceID = Cases[["comparisonInterfaceID", exact = TRUE]][i],
+        stringsAsFactors = FALSE
+      ),
+      Gradient,
+      stringsAsFactors = FALSE
+    )
+  })
+  OUT <- do.call(rbind, LIST)
+  rownames(OUT) <- NULL
+  OUT
+}
+
 .buildCoverResultants <- function(config, results) {
   Cases <- config[["interfaceCases", exact = TRUE]]
   Columns <- c(
@@ -1612,7 +1668,10 @@ validateCoverCalculationConfig <- function(config) {
   )
   Units <- c(N = "kN/m", M = "kN m/m", Q = "kN/m")
   LIST <- lapply(seq_len(nrow(Cases)), function(i) {
-    Values <- results[[i]][["interaction", exact = TRUE]][["values", exact = TRUE]]
+    Values <- results[[i]][["designInteraction", exact = TRUE]][[
+      "values",
+      exact = TRUE
+    ]]
     do.call(rbind, lapply(names(Columns), function(s) {
       data.frame(
         scenarioID = config[["scenarioID", exact = TRUE]],
@@ -1623,7 +1682,7 @@ validateCoverCalculationConfig <- function(config) {
         stageID = Values[["stageID", exact = TRUE]],
         forceEffectStatus = Values[["forceEffectStatus", exact = TRUE]],
         interactionModelID = Values[["interactionModelID", exact = TRUE]],
-        interfaceID = Cases[["interfaceID", exact = TRUE]][i],
+        interfaceID = Cases[["comparisonInterfaceID", exact = TRUE]][i],
         stressReferenceID = Values[["stressReferenceID", exact = TRUE]],
         resultantID = s,
         thetaIndex = seq_len(nrow(Values)) - 1L,
@@ -1654,7 +1713,7 @@ validateCoverCalculationConfig <- function(config) {
       stageID = Extrema[["stageID", exact = TRUE]],
       forceEffectStatus = Extrema[["forceEffectStatus", exact = TRUE]],
       interactionModelID = Extrema[["interactionModelID", exact = TRUE]],
-      interfaceID = Cases[["interfaceID", exact = TRUE]][i],
+      interfaceID = Cases[["comparisonInterfaceID", exact = TRUE]][i],
       stressReferenceID = Extrema[["stressReferenceID", exact = TRUE]],
       resultantID = Extrema[["resultantID", exact = TRUE]],
       statisticID = Extrema[["statisticID", exact = TRUE]],
@@ -1785,7 +1844,7 @@ validateCoverCalculationConfig <- function(config) {
       scenarioID = config[["scenarioID", exact = TRUE]],
       caseID = Cases[["caseID", exact = TRUE]][i],
       sectionID = Summary[["sectionID", exact = TRUE]],
-      interfaceID = Cases[["interfaceID", exact = TRUE]][i],
+      interfaceID = Cases[["comparisonInterfaceID", exact = TRUE]][i],
       aisiWallMemberUtilization = Summary[["aisiWallMemberUtilization", exact = TRUE]],
       aisiWallMemberStatus = Summary[["aisiWallMemberStatus", exact = TRUE]],
       aisiSystemStatus = Summary[["aisiSystemStatus", exact = TRUE]],
@@ -1818,7 +1877,8 @@ validateCoverCalculationConfig <- function(config) {
   resultants,
   centroidalRadiusM,
   graphics,
-  scenarioID
+  scenarioID,
+  commonScaleBasis = NULL
 ) {
   Units <- c(N = "kN/m", M = "kN m/m", Q = "kN/m")
   Radius <- centroidalRadiusM
@@ -1826,10 +1886,21 @@ validateCoverCalculationConfig <- function(config) {
   do.call(rbind, lapply(names(Units), function(s) {
     AUX <- resultants[resultants$resultantID == s, , drop = FALSE]
     Maximum <- max(abs(AUX$value))
-    Scale <- if (Maximum == 0) {
-      NA_real_
+    BasisRow <- if (is.null(commonScaleBasis)) {
+      NULL
     } else {
-      Graphics[["radialFraction", exact = TRUE]] * Radius / Maximum
+      commonScaleBasis[commonScaleBasis$resultantID == s, , drop = FALSE]
+    }
+    if (!is.null(BasisRow) && nrow(BasisRow) != 1L) {
+      stop("The common display-scale basis is incomplete.", call. = FALSE)
+    }
+    ScaleMaximum <- if (is.null(BasisRow)) Maximum else BasisRow$maximumAbsoluteValue
+    Scale <- if (is.null(BasisRow)) {
+      if (Maximum == 0) NA_real_ else {
+        Graphics[["radialFraction", exact = TRUE]] * Radius / Maximum
+      }
+    } else {
+      BasisRow$displayScale
     }
     data.frame(
       scenarioID = scenarioID,
@@ -1837,6 +1908,12 @@ validateCoverCalculationConfig <- function(config) {
       referenceRadiusM = Radius,
       displayScale = Scale,
       maximumAbsoluteValue = Maximum,
+      scaleMaximumAbsoluteValue = ScaleMaximum,
+      scaleBasisID = if (is.null(BasisRow)) {
+        "local-by-lining-and-resultant"
+      } else {
+        "common-by-resultant-across-linings"
+      },
       resultantUnit = Units[[s]],
       radialFraction = Graphics[["radialFraction", exact = TRUE]],
       graphicAmplification = Graphics[["graphicAmplification", exact = TRUE]],
@@ -1847,7 +1924,39 @@ validateCoverCalculationConfig <- function(config) {
   }))
 }
 
-.buildCoverDisplayScales <- function(config, resultants) {
+.buildCommonDisplayScaleBasis <- function(config, evaluation) {
+  Linings <- evaluation[["additionalLinings", exact = TRUE]]
+  ResultantSets <- c(
+    list(evaluation[["resultants", exact = TRUE]]),
+    lapply(Linings, `[[`, "resultants")
+  )
+  Radii <- c(
+    config[["lining", exact = TRUE]][["centroidalRadiusM", exact = TRUE]],
+    vapply(Linings, function(x) {
+      x[["section", exact = TRUE]][["centroidalRadiusM", exact = TRUE]]
+    }, numeric(1))
+  )
+  ResultantIDs <- c("N", "M", "Q")
+  Rows <- lapply(ResultantIDs, function(ResultantID) {
+    Maximum <- max(vapply(ResultantSets, function(Data) {
+      max(abs(Data$value[Data$resultantID == ResultantID]))
+    }, numeric(1)))
+    Radius <- min(Radii)
+    data.frame(
+      resultantID = ResultantID,
+      maximumAbsoluteValue = Maximum,
+      referenceRadiusM = Radius,
+      displayScale = if (Maximum == 0) NA_real_ else {
+        config[["graphics", exact = TRUE]][["radialFraction", exact = TRUE]] *
+          Radius / Maximum
+      },
+      stringsAsFactors = FALSE
+    )
+  })
+  do.call(rbind, Rows)
+}
+
+.buildCoverDisplayScales <- function(config, resultants, commonScaleBasis = NULL) {
   .buildLiningDisplayScales(
     resultants = resultants,
     centroidalRadiusM = config[["lining", exact = TRUE]][[
@@ -1855,7 +1964,8 @@ validateCoverCalculationConfig <- function(config) {
       exact = TRUE
     ]],
     graphics = config[["graphics", exact = TRUE]],
-    scenarioID = config[["scenarioID", exact = TRUE]]
+    scenarioID = config[["scenarioID", exact = TRUE]],
+    commonScaleBasis = commonScaleBasis
   )
 }
 
@@ -1938,7 +2048,11 @@ validateCoverCalculationConfig <- function(config) {
   OUT
 }
 
-.buildCoverShotcreteProducts <- function(config, evaluation) {
+.buildCoverShotcreteProducts <- function(
+  config,
+  evaluation,
+  commonScaleBasis = NULL
+) {
   Linings <- evaluation[["additionalLinings", exact = TRUE]]
   if (length(Linings) == 0L) {
     return(list())
@@ -1956,8 +2070,8 @@ validateCoverCalculationConfig <- function(config) {
         ReinforcementStudy[["domains", exact = TRUE]],
       "shotcrete.axial.flexure.reinforcement.sweep.csv" =
         ReinforcementStudy[["summary", exact = TRUE]],
-      "shotcrete.axial.flexure.reinforcement.configured.demands.csv" =
-        ReinforcementStudy[["configuredGoverningDemands", exact = TRUE]]
+      "shotcrete.axial.flexure.reinforcement.governing.demands.csv" =
+        ReinforcementStudy[["governingDemands", exact = TRUE]]
     )
   }
   bindProduct <- function(name) {
@@ -2082,7 +2196,8 @@ validateCoverCalculationConfig <- function(config) {
       scenarioID = Result[["section", exact = TRUE]][[
         "scenarioID",
         exact = TRUE
-      ]]
+      ]],
+      commonScaleBasis = commonScaleBasis
     )
     cbind(
       data.frame(liningID = LiningIDs[i], stringsAsFactors = FALSE),
@@ -2150,6 +2265,7 @@ validateCoverCalculationConfig <- function(config) {
     "shotcrete.interaction.parameters.csv" = bindProduct("interaction"),
     "shotcrete.schwartz.einstein.comparison.csv" =
       bindProduct("schwartzEinsteinComparison"),
+    "shotcrete.hybrid.gradient.csv" = bindProduct("hybridGradient"),
     "shotcrete.section.resultants.csv" = bindProduct("resultants"),
     "shotcrete.section.extrema.csv" = bindProduct("extrema"),
     "shotcrete.display.scales.csv" = Scales,
@@ -2182,6 +2298,7 @@ validateCoverCalculationConfig <- function(config) {
     )
     Resultants <- Evaluation[["resultants", exact = TRUE]]
     Aashto <- Evaluation[["aashto", exact = TRUE]]
+    CommonScaleBasis <- .buildCommonDisplayScaleBasis(config, Evaluation)
     Products <- list(
       "calculation.inputs.csv" = .buildCoverInputs(config),
       "stress.state.csv" = Evaluation[["stress", exact = TRUE]],
@@ -2194,6 +2311,7 @@ validateCoverCalculationConfig <- function(config) {
         "schwartzEinsteinComparison",
         exact = TRUE
       ]],
+      "hybrid.gradient.csv" = Evaluation[["hybridGradient", exact = TRUE]],
       "section.resultants.csv" = Resultants,
       "section.extrema.csv" = Evaluation[["extrema", exact = TRUE]],
       "aashto.inputs.csv" = Aashto[["inputs", exact = TRUE]],
@@ -2201,12 +2319,17 @@ validateCoverCalculationConfig <- function(config) {
       "aashto.calculation.csv" = Aashto[["calculation", exact = TRUE]],
       "aashto.checks.csv" = Aashto[["checks", exact = TRUE]],
       "aashto.summary.csv" = Aashto[["summary", exact = TRUE]],
-      "display.scales.csv" = .buildCoverDisplayScales(config, Resultants),
+      "display.scales.csv" = .buildCoverDisplayScales(
+        config,
+        Resultants,
+        CommonScaleBasis
+      ),
       "numerical.controls.csv" = Evaluation[["controls", exact = TRUE]]
     )
     return(c(
       Products,
-      .buildCoverShotcreteProducts(config, Evaluation)
+      .buildCoverShotcreteProducts(config, Evaluation, CommonScaleBasis),
+      .buildCoverClassicalComparisonProducts(config, Evaluation)
     ))
   }
   if (!identical(SchemaVersion, "3.0.0")) {

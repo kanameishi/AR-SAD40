@@ -11,23 +11,31 @@ escenario determinado; no constituye una segunda metodología.
 El estado efectivo inicial se obtiene a partir de la tapada, el peso unitario,
 la sobrecarga, el ángulo de fricción efectiva, la historia tensional y la
 presión de agua. En el escenario normalmente consolidado, $K_0$ se calcula a
-partir de $\phi'$; no se fija como una constante independiente del relleno. Las
-tensiones vertical y horizontal se proyectan sobre el contorno circular con
-dos prescripciones explícitas: proyección tangencial completa
-($\alpha=1$) y acción exclusivamente normal ($\alpha=0$).
+partir de $\phi'$; no se fija como una constante independiente del relleno. El
+estado de campo libre resultante alimenta la solución de carga externa de
+Schwartz--Einstein para los límites con deslizamiento libre y sin
+deslizamiento.
 
 Las resultantes $N_\theta(\theta)$, $M_\theta(\theta)$ y
-$Q_\theta(\theta)$ se obtienen mediante integración directa de las ecuaciones
-de equilibrio de la viga curva y cierre por compatibilidad. La solución
-cerrada del estado biaxial uniforme y la representación mediante series de
-Fourier son controles matemáticos de esa integración. La formulación de
-Schwartz--Einstein se conserva como comparación independiente de interacción
-suelo--revestimiento y no genera las demandas de las comprobaciones vigentes.
+$Q_\theta(\theta)$ de diseño suman dos componentes. Schwartz--Einstein
+determina los modos uniformes y de ovalización con las rigideces propias de
+cada revestimiento; la variación geostática lineal entre clave y solera se
+incorpora mediante una corrección equilibrada de modos $n=1,3$. En forma
+separada, el estado biaxial uniforme se proyecta como carga prescrita y se
+resuelve mediante integración directa de las ecuaciones de la viga curva y
+cierre por compatibilidad. La solución cerrada y Fourier controlan esa
+integración; no reemplazan la interacción ni convergen a ella.
 
 Cada alternativa utiliza sus propias rigideces circunferenciales. Las
 resultantes de la chapa no se transfieren al hormigón simple ni al hormigón
 armado. El problema es plano, sin variación longitudinal de las cargas, y las
 magnitudes se expresan por unidad de longitud del eje.
+
+En Schwartz--Einstein, $E_g$, $\nu_g$, el radio y las rigideces del anillo
+determinan las razones $C^*$ y $F^*$ y redistribuyen la demanda. En el control
+de carga prescrita, la rigidez no redistribuye los modos $n\geq2$; la razón
+$I/(AR^2)$ sólo interviene en la compatibilidad del momento uniforme. Esta
+diferencia mantiene separadas ambas formulaciones.
 
 ## Secuencia de cálculo
 
@@ -37,25 +45,28 @@ El procedimiento comprende las operaciones siguientes:
    hidráulica y la sección de cada alternativa;
 2. derivar $K_0$ de las variables geotécnicas y calcular el estado efectivo en
    la cota de referencia;
-3. proyectar ese estado sobre el contorno para $\alpha=1$ y $\alpha=0$;
-4. integrar directamente el equilibrio circunferencial e imponer
-   compatibilidad para obtener $N_\theta$, $M_\theta$ y $Q_\theta$;
-5. contrastar la solución con el caso cerrado y con la representación de
-   Fourier sin sustituir la respuesta de producción;
-6. repetir la respuesta con las rigideces propias de la chapa, del hormigón
-   simple y del hormigón armado;
-7. evaluar la chapa mediante la rama de referencia AASHTO aplicable a
+3. calcular $C^*$ y $F^*$ y resolver la carga externa de
+   Schwartz--Einstein para cada revestimiento y cada límite de interfaz;
+4. proyectar el gradiente geostático lineal, incorporar la reacción radial
+   que equilibra el modo $n=1$ y superponer sus modos $n=1,3$;
+5. formar las combinaciones resistentes y recalcular las resultantes
+   concurrentes;
+6. proyectar por separado el estado biaxial uniforme como carga prescrita, integrarlo y
+   controlarlo contra la solución cerrada y Fourier;
+7. comprobar que cada alternativa conserva su propio radio y sus propias
+   rigideces;
+8. evaluar la chapa mediante la rama de referencia AASHTO aplicable a
    conductos corrugados, manteniendo separados pared, pandeo, costura,
    flexibilidad y tapada mínima; y
-8. evaluar el hormigón simple y armado mediante las comprobaciones seccionales
+9. evaluar el hormigón simple y armado mediante las comprobaciones seccionales
    ACI adoptadas, incluida la familia de dominios $P$--$M$ para distintas
    cuantías de armadura.
 
 La comparación de armaduras es discreta. Cada curva $P$--$M$ representa los
 estados resistentes de una cuantía determinada; sus puntos no son iteraciones
 del cálculo. Las demandas se mantienen fijas mientras se comparan las curvas,
-de modo que el usuario puede adoptar otra malla, reevaluar el caso y revisar
-su posición respecto de los dominios.
+de modo que el usuario puede modificar los parámetros y reevaluar el caso. La
+metodología no selecciona una cuantía óptima ni adopta una malla final.
 
 ## Bases resistentes y límites
 
@@ -79,5 +90,5 @@ estabilidad global.
 La metodología determinística no asigna distribuciones probabilísticas. La
 incertidumbre puede propagarse mediante Monte Carlo después de definir y
 aprobar las variables primitivas, sus distribuciones marginales y sus
-dependencias. Hasta entonces, los estados de proyección, las propiedades y las
-alternativas se informan como escenarios separados.
+dependencias. Hasta entonces, las condiciones de interfaz, las propiedades y
+las alternativas se informan como escenarios separados.

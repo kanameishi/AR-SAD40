@@ -1,28 +1,24 @@
 Proyecto: SRK UY SAD40 — Revisión Estructural Túnel Espesador San Francisco
 Revisión: 0 — 24-jul-2026
 
-## Objetivo y alcance
-
-Definir el procedimiento de terreno para:
+La inspección comprende el ensayo de espesores, la revisión de los pernos de
+conexión y la confirmación de la sección de chapa corrugada. El procedimiento
+de terreno tiene los siguientes objetivos:
 
 1. **(A)** Medir por ultrasonido (UT) el espesor de la chapa de acero corrugado del túnel, en zonas representativas y en las costuras apernadas.
 2. **(B)** Evaluar el estado físico y la capacidad resistente de los pernos y tuercas de las uniones longitudinales y circunferenciales.
 3. **(C)** Confirmar la geometría real de la chapa (paso, profundidad, espesor) para verificar las propiedades de sección (A, I, S, r) usadas en la revisión estructural.
 4. **(D)** Medir la ovalización de la sección actual para estimar la reserva estructural a flexión del sostenimiento.
 
-Aplica a la totalidad del desarrollo del túnel de descarga bajo el espesador de la planta San Francisco, con énfasis en los tramos identificados con mayor deterioro visual (costuras apernadas, encuentro con el radier, zonas de escurrimiento de agua).
-
-### Antecedentes que enmarcan esta especificación
+Aplica a la totalidad del desarrollo del túnel de descarga bajo el espesador de la planta San Francisco, con énfasis en los tramos identificados con mayor deterioro visual (costuras apernadas, encuentro con el radier, zonas de escurrimiento de agua). Los antecedentes que orientan el levantamiento son:
 
 - Perfil de chapa identificado por croquis: paso 76 mm, profundidad 25 mm, espesor nominal 3 mm, compatible con el perfil comercial estándar 76×25 mm ("3″×1″") de estructura de acero corrugado (AASHTO M36 / ASTM A760).
 - Diámetro interior medido: ≈2.63 m.
 - Evaluación visual preliminar de fotografías: el deterioro superficial dominante en el campo de chapa corresponde a desprendimiento de un sistema de pintura (no necesariamente pérdida de sección); la corrosión real del acero parece estar concentrada en costuras apernadas y pernos/tuercas.
 
-Esta especificación busca verificar cuantitativamente ambas conclusiones preliminares.
-
----
-
-## Referencias normativas
+El levantamiento verificará cuantitativamente estas observaciones preliminares.
+Las referencias normativas utilizadas para preparar y documentar la inspección
+son:
 
 | Tema | Referencia |
 |---|---|
@@ -31,9 +27,8 @@ Esta especificación busca verificar cuantitativamente ambas conclusiones prelim
 | Grado de oxidación sobre acero pintado (para diferenciar corrosión de desprendimiento de recubrimiento) | SSPC-VIS 2; ASTM D610 |
 | Pernos y elementos de unión — inspección dimensional | ASTM F3125 / A307 (como referencia de grados típicos de la época; grado real a confirmar en terreno) |
 
----
-
-## Definiciones clave
+Para el registro y la interpretación de resultados se adoptan las siguientes
+definiciones:
 
 - Espesor especificado (nominal): espesor de fabricación de catálogo (en este caso, 3.0 mm supuestos).
 - Espesor de diseño: espesor especificado reducido según convención AISI/AASHTO (incorpora pérdida típica de recubrimiento).
@@ -41,10 +36,7 @@ Esta especificación busca verificar cuantitativamente ambas conclusiones prelim
 - Pérdida de sección: (espesor de diseño − espesor remanente) / espesor de diseño, expresada en %.
 - Punto de medición (PM): ubicación física individual, georreferenciada por progresiva (estación) y posición angular (corona, riñón, hastial, solera).
 
-
----
-
-## Equipamiento
+La inspección requiere el siguiente equipamiento:
 
 - Medidor de espesores por ultrasonido, transductor dual-elemento (rango recomendado 1–10 mm, resolución 0.01 mm), con bloques de calibración certificados (escalón conocido, acero al carbono).
 - Acoplante (couplant) apto para superficie curva/vertical.
@@ -56,9 +48,8 @@ Esta especificación busca verificar cuantitativamente ambas conclusiones prelim
 - Torquímetro (si se decide verificar apriete de pernos accesibles) y/o llave dinamométrica.
 - Kit de extracción de muestra (si se autoriza retiro de 2–3 pernos representativos para ensayo de laboratorio).
 
----
-
-## Plan de muestreo — grilla de puntos
+El muestreo se distribuirá mediante una grilla de puntos y refuerzos en las
+zonas de mayor interés:
 
 1. Definir progresivas (estaciones) cada 5 m a lo largo del túnel, referenciadas al levantamiento topográfico existente.
 2. En cada estación, medir en 4 posiciones angulares: corona (12h), ambos riñones (3h y 9h) y solera/hastial bajo (6h, si accesible sin agua/lodo).
@@ -69,22 +60,17 @@ Esta especificación busca verificar cuantitativamente ambas conclusiones prelim
    - Zona de encuentro chapa–hormigón (radier y frentes).
 4. Registrar cada punto con: progresiva, posición angular, foto con escala, y si corresponde a campo de chapa o costura.
 
-Objetivo mínimo orientativo: 3 estaciones de grilla regular por cada 10 m de túnel, más el 100% de costuras accesibles.
-
----
-
-## Procedimiento A — Medición de espesores por ultrasonido
+El objetivo mínimo orientativo es disponer tres estaciones de grilla regular
+por cada 10 m de túnel y cubrir todas las costuras accesibles. La medición de
+espesores por ultrasonido se realizará mediante la siguiente secuencia:
 
 1. Calibración del equipo al inicio de la jornada y cada 2 horas, sobre bloque patrón de mismo material base (acero al carbono).
 2. Preparación: limpiar mecánicamente un área de ~50×50 mm en cada punto hasta metal sano visible (sin escamas de óxido ni pintura), evitando desbaste del metal base. Fotografiar antes y después de la limpieza.
 3. Medición: tomar 5 lecturas por punto en un patrón cerrado de ~20 mm, descartando valores atípicos; registrar el mínimo y el promedio.
 4. Medir en la chapa (en la cresta y en el valle) y en la chapa adyacente a la unión (a 10–20 mm del borde de solape).
 
----
-
-## Procedimiento B — Inspección de pernos y conexiones
-
-Para el 20% de los pernos accesibles (ampliable según hallazgos):
+La inspección de pernos y conexiones cubrirá inicialmente el 20% de los pernos
+accesibles y se ampliará cuando los hallazgos lo requieran:
 
 1. Limpieza puntual de cabeza, tuerca y chapa circundante.
 2. Inspección visual con clasificación en 4 grados:
@@ -100,9 +86,8 @@ Para el 20% de los pernos accesibles (ampliable según hallazgos):
    - Ensayo de tracción/dureza si se requiere confirmar grado de acero.
 7. Registrar cada perno con: progresiva, tipo de costura, grado (G1–G4), foto con escala, y resultado de sondeo.
 
----
-
-## Procedimiento C/D — Confirmación de la sección de chapa y ovalización
+La geometría de la chapa y la ovalización del túnel se confirmarán con las
+siguientes mediciones:
 
 1. En 5 ubicaciones representativas, medir con la galga de perfiles/calibre:
    - Paso de corrugación (cresta a cresta), 3 mediciones por ubicación.
@@ -111,9 +96,7 @@ Para el 20% de los pernos accesibles (ampliable según hallazgos):
 2. Si existe algún tramo con acceso para corte de una probeta pequeña (p.ej. en un extremo a reparar de todos modos, o en una perforación existente), se recomienda un corte de muestra física de ~150×150 mm para medición directa y contraste con UT.
 3. Medir el diámetro del túnel en dirección horizontal, vertical, y a 45º (cuatro mediciones) con precisión mínima 1 mm.
 
----
-
-## Registro de datos y entregables
+El registro de campo y los entregables comprenderán:
 
 1. Planilla de espesores UT (progresiva, posición, zona, lecturas, mín., promedio, % pérdida).
 2. Planilla de pernos (progresiva, costura, grado G1–G4, diámetro remanente, resultado de sondeo, foto).

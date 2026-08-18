@@ -1,126 +1,93 @@
-Los casos siguientes comprueban la transcripción, las unidades y la
-evaluación aritmética de relaciones publicadas. Cada caso conserva el dominio
-y las convenciones de su fuente. Las coincidencias obtenidas no constituyen
-una calibración del modelo ni sustituyen las acciones adoptadas para el
-revestimiento analizado.
+Este apéndice compara, para el mismo caso de proyecto, las resultantes que
+producen las formulaciones empleadas como referencia en la memoria. La
+comparación conserva las acciones de servicio, las propiedades del terreno y
+la geometría definidas en @sec-calculation-model. Las tres secciones son la
+chapa corrugada con espesor remanente, el revestimiento de hormigón proyectado
+de 100 mm y el revestimiento de hormigón proyectado de 150 mm.
 
-## USACE EM 1110-2-2902: ejemplo D4
+## Base común de comparación
 
-El ejemplo D4 evalúa la relación de la @eq-calculation-prism-thrust para un
-conducto corrugado de aluminio de 36 in de diámetro exterior, una tapada de
-30 ft y un peso unitario de 120 lb/ft³; la carga móvil se omite
-[@USACE2020, ap. D4, pp. 332--333].
+La @tbl-calculation-classical-inputs reúne la base de acciones. La tensión
+vertical efectiva se evalúa a la profundidad del eje y la tensión horizontal
+se obtiene con el coeficiente de empuje en reposo del caso. La
+@tbl-calculation-classical-sections presenta las rigideces que diferencian la
+respuesta de cada revestimiento.
 
-{{< include /_tbl/reference.usace.ES.qmd >}}
+{{< include /_tbl/Calculation.classical.comparison.ES.qmd >}}
 
-La tabla distingue el empuje de servicio derivado en este estudio de los
-valores publicados en D4. El ejemplo identifica por error la expresión de
-empuje como ecuación 4-24; la expresión mostrada corresponde a la ecuación
-4-20. Asimismo, el modificador 1,10 pertenece al ejemplo de aluminio, mientras
-que la ecuación 4-21 indica 1,05 para conductos metálicos corrugados. Ninguno
-de esos valores se transfiere al revestimiento de acero sin establecer la
-disposición aplicable.
-
-## FHWA-RD-98-191: presión equivalente de compactación
-
-La correlación publicada por FHWA representa el efecto lateral del equipo de
-compactación mediante
+Para la aplicación de Núñez, el parámetro de interacción se calcula como
 
 $$
-n_p=1.3P\left(1-\sin\phi\right)^3
-\left(\frac{970}{d_c-250}\right)^2,
-$$ {#eq-calculation-fhwa-compaction}
+a_N=\frac{16}{\chi_N}
+\frac{E_\ell/(1-\nu_\ell^2)}{E_g/(1-\nu_g^2)}
+\left(\frac{e_N}{D_c}\right)^3,
+$$ {#eq-calculation-nunez-project-ratio}
 
-donde $P$ es la fuerza total del equipo en kN, $\phi$ el ángulo de fricción en
-estado suelto y $d_c$ el diámetro centroidal en mm
-[@McGrathEtAl1999, ec. 5.1, pp. 176--178]. El caso siguiente comprueba su
-evaluación aritmética con las combinaciones tabuladas por la fuente. Los
-diámetros centroidales publicados se obtienen de la figura 5.4 y la tabla 5.5
-identifica sus diámetros nominales correspondientes.
-
-{{< include /_tbl/reference.fhwa.ES.qmd >}}
-
-Ocho filas coinciden con la presión publicada al redondear a 0,1 kPa. La fila
-9 conserva por separado el ángulo impreso y el ángulo alternativo coherente
-con las demás filas de piedra. La diferencia se registra como discrepancia de
-la fuente; no modifica la ecuación ni ajusta sus parámetros.
-
-## Schwartz--Einstein: ejemplo HP97
-
-El ejemplo HP97 utiliza $C^*=0,05$, $F^*=100$, $\nu_g=0,4$,
-$K_{SE}=0,5$ y $\theta_{SE}=30^\circ$. La fuente tabula las razones
+donde $D_c$ es el diámetro centroidal. En las paredes homogéneas,
+$e_N=t$. Para la chapa corrugada se utiliza el espesor homogéneo equivalente
 
 $$
-\bar T=\frac{T_{SE}}{P_{SE}R},
-\qquad
-\bar M=\frac{M_{SE}}{P_{SE}R^2}
-$$
+e_N=(12I_\ell)^{1/3},
+$$ {#eq-calculation-nunez-equivalent-thickness}
 
-para dos secuencias de carga y dos condiciones de interfaz
-[@SchwartzEinstein1980, ejemplo HP97, pp. 391--392]. En esta reproducción,
-$T_{SE}>0$ indica compresión conforme a la convención de la fuente.
+que conserva la inercia por unidad de ancho del perfil corrugado. Esta
+transformación mantiene la comparación sobre la rigidez flexional efectiva de
+la chapa.
 
-{{< include /_tbl/reference.schwartz.einstein.ES.qmd >}}
+## Distribuciones de resultantes
 
-La fuente no tabula la fuerza cortante; por tanto, el contraste se limita a
-las razones de fuerza normal y momento publicadas. Los cuatro casos pertenecen
-al continuo elástico y a las secuencias definidas por Schwartz y Einstein.
-Para este estudio se adopta la secuencia de carga externa como aproximación
-elástica preliminar del conducto rellenado; aun así, no reproduce la colocación
-por tongadas, una superficie libre somera ni la no linealidad del relleno.
+Las curvas muestran tres representaciones del mismo estado de servicio. El
+modelo híbrido empleado en el cuerpo de la memoria combina la respuesta
+uniforme de Schwartz--Einstein con la corrección equilibrada por gradiente de
+profundidad. El contraste Schwartz--Einstein uniforme conserva únicamente el
+campo medio evaluado al eje. El anillo con campo $K_0$ prescrito resuelve el
+equilibrio de la distribución biaxial sin realimentación de la rigidez del
+terreno. Cada representación se evalúa para los dos límites de transferencia
+tangencial definidos en la memoria.
 
-## Núñez (2000): ejemplos circulares
+{{< include /_fig/Calculation.classical.comparison.ES.qmd >}}
 
-Núñez desarrolla una formulación para revestimientos de túneles excavados. La
-especialización circular sin presión de agua empleada en sus ejemplos define
-[@Nunez2000, pp. 13--15]
+Las @fig-calculation-classical-steel,
+@fig-calculation-classical-shotcrete-100 y
+@fig-calculation-classical-shotcrete-150 conservan escalas cartesianas
+independientes para $N$, $M$ y $Q$. De este modo, el orden de magnitud propio de
+cada resultante permanece visible en las tres secciones. Los máximos absolutos
+y sus razones respecto de la envolvente híbrida se informan en las tablas del
+apartado anterior.
 
-$$
-a_N=\frac{16}{\chi_N}\frac{\bar E_\ell}{\bar E_g}
-\left(\frac{e}{D}\right)^3,
-\qquad
-A_N=\frac{a_N}{1+a_N},
-$$
+La diferencia entre la curva híbrida y Schwartz--Einstein uniforme mide el
+efecto de trasladar la resultante lateral mediante el gradiente equilibrado.
+La diferencia entre revestimientos refleja el cambio de rigidez que entra en
+los parámetros $C^*$ y $F^*$ de Schwartz--Einstein. El campo $K_0$ prescrito
+sirve como referencia de un anillo sometido a acciones dadas y, por ello,
+separa el efecto de la carga del efecto de interacción terreno--revestimiento.
 
-$$
-p_0=\gamma H+q,
-\qquad
-p_d=\eta_N(1-K_0)p_0,
-\qquad
-p_h=\frac{p_d}{1+a_N},
-$$
+## Resultantes puntuales y empuje normativo
 
-$$
-M_{\max}=\frac{p_dD^2}{16}A_N,
-\qquad
-N_C=\frac{D}{2}(K_0p_d+p_h),
-\qquad
-N_A=\frac{D}{2}(\eta_N\gamma H+q).
-$$ {#eq-calculation-nunez-reference}
+Las formulaciones de Núñez de 2000 y de Núñez, Sfriso y Laiún de 2014 producen
+resultantes en posiciones características y un momento máximo. En esta
+sensibilidad se emplean los valores de $\eta_N$ y $\chi_N$ declarados en la
+@tbl-calculation-classical-inputs. Su dominio original corresponde a túneles
+excavados; su incorporación en este apéndice cuantifica la sensibilidad del
+caso colocado en trinchera frente a una formulación clásica adicional. La
+@tbl-calculation-classical-nunez conserva las posiciones y magnitudes que cada
+fuente define.
 
-$N_C$ corresponde a la clave y $N_A$ al punto lateral del diámetro horizontal
-—denominado arranque en la fuente—; Núñez adopta la compresión como positiva.
-Los ejemplos utilizan $D=10\ \mathrm{m}$, profundidad al centro
-$H=15\ \mathrm{m}$, $\gamma=1,9\ \mathrm{tf/m^3}$,
-$q=1\ \mathrm{tf/m^2}$ y $K_0=0,5$.
+La relación AASHTO/USACE se aplica a la chapa corrugada y entrega un empuje
+escalar. La fila de servicio se compara con las resultantes de servicio. La
+demanda mayorada modificada se informa en una fila separada y conserva su base
+LRFD. La relación fuente define fuerza normal; por esa razón las columnas de
+momento y corte se muestran con raya. Las secciones de hormigón también se
+muestran con raya en esas filas, porque la rama normativa corresponde al
+producto de acero corrugado.
 
-{{< include /_tbl/reference.nunez.ES.qmd >}}
+El tratamiento FHWA de compactación representa una acción de construcción
+asociada al equipo, al material suelto y a la secuencia de colocación. Su
+evaluación para el proyecto requiere la fuerza del compactador, el ángulo de
+fricción del relleno suelto y la retención de esa acción al completar el
+relleno. Esos parámetros permanecen `UNKNOWN`; el estado comparado en este
+apéndice corresponde al relleno completado.
 
-Los valores no redondeados de $a_N$ son entradas de la reproducción; no se
-recalculan porque los ejemplos no suministran en forma completa las
-propiedades requeridas por su definición. A partir de esas entradas se
-recalculan $A_N$, $M_{\max}$, $N_C$ y $N_A$.
-
-El parámetro $\eta_N$ representa la relajación asociada a la excavación. Por
-consiguiente, este caso comprueba la evaluación de la formulación de Núñez
-dentro de su dominio y no constituye un modelo de acción para un conducto
-colocado y posteriormente rellenado.
-
-## Alcance conjunto
-
-USACE y FHWA comprueban relaciones de acciones dentro de sus respectivos
-dominios; Schwartz--Einstein y Núñez comprueban formulaciones de interacción
-para sus condiciones de referencia. La rama externa de Schwartz--Einstein
-determina $N_\theta$ y $M_\theta$ y permite derivar $Q_\theta$ por equilibrio
-cuando se suministran sus entradas; los demás casos no se convierten en una
-distribución angular del revestimiento analizado.
+En conjunto, la comparación permite reconocer cuánto varían las resultantes
+del proyecto al cambiar de formulación, manteniendo explícitas la base de
+acciones, la rigidez de cada sección y el dominio de cada referencia.

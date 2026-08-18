@@ -1,0 +1,17 @@
+```{r}
+#| include: false
+CAP.PM100 <- paste(
+  readLines(
+    "_captions/fig.Calculation.concrete.t100.axial.flexure.ES.md",
+    warn = FALSE
+  ),
+  collapse = "\n"
+)
+```
+
+{{< include /_fig/Calculation.concrete.t100.axial.flexure.qmd >}}
+
+```{r}
+#| include: false
+rm(CAP.PM100)
+```

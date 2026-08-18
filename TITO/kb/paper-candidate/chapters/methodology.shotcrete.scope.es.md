@@ -10,10 +10,13 @@ hormigón armado; cada rama conserva sus propias condiciones de aplicabilidad y
 sus ecuaciones resistentes.
 
 Las solicitaciones no se transfieren desde la chapa existente. Para cada
-combinación se calculan nuevamente la rigidez de la sección de hormigón, los
-parámetros de interacción suelo--revestimiento y las distribuciones angulares
-de las tres resultantes. El procedimiento se ejecuta por separado para las
-interfaces con deslizamiento libre y sin deslizamiento. Una eventual
+combinación se calculan nuevamente el radio, las razones $C^*$ y $F^*$ de la
+sección de hormigón y las distribuciones angulares de las tres resultantes.
+La carga externa de Schwartz--Einstein aporta los modos $n=0,2$ y la
+corrección equilibrada del gradiente aporta $n=1,3$. El procedimiento se
+ejecuta para deslizamiento libre y sin deslizamiento. La proyección del estado biaxial uniforme,
+la integración directa y Fourier se conservan como controles separados de
+carga prescrita. Una eventual
 acción conjunta con la chapa requeriría definir adherencia, transferencia de
 corte y secuencia constructiva, y no forma parte del modelo autónomo.
 
@@ -74,7 +77,7 @@ y de esa resolución se obtienen $N_\theta(\theta)$,
 $M_\theta(\theta)$ y $Q_\theta(\theta)$. No se aplican factores a máximos
 espaciales independientes ni se combinan valores correspondientes a ángulos
 distintos. Cada fila de comprobación conserva una única combinación, una
-prescripción de proyección y una posición $\theta$.
+condición de interfaz y una posición $\theta$.
 
 ## Estructura existente
 
@@ -95,8 +98,8 @@ resultados de testigos en una resistencia de diseño.
 1. definir la geometría, las propiedades y la rama resistente de la sección;
 2. calcular su rigidez circunferencial;
 3. formar cada combinación de acciones sobre el estado tensional del relleno;
-4. resolver la interacción para las interfaces con deslizamiento libre y sin
-   deslizamiento con la rigidez de la alternativa;
+4. resolver Schwartz--Einstein para deslizamiento libre y sin deslizamiento,
+   con el radio y las rigideces de la alternativa;
 5. transformar las resultantes concurrentes en acciones sobre una franja de
    ancho declarado;
 6. aplicar las comprobaciones de resistencia correspondientes a la rama
@@ -104,7 +107,7 @@ resultados de testigos en una resistencia de diseño.
 7. informar separadamente resistencia local, estabilidad, servicio,
    durabilidad, juntas, aberturas y requisitos constructivos.
 
-## Alcance de la implementación vigente
+## Alcance del procedimiento vigente
 
 La rama de hormigón simple implementa las comprobaciones locales de tracción,
 compresión y corte del Capítulo 14 de ACI CODE-318-25 para acciones mayoradas.

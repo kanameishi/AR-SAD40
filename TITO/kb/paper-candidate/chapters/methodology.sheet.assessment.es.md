@@ -4,7 +4,7 @@
 
 La evaluación recibe un empuje circunferencial mayorado $T_u$, las propiedades
 por unidad de ancho de la corrugación y los datos resistentes de la pared y de
-la costura. La implementación reproduce las comprobaciones identificadas para
+la costura. El cálculo reproduce las comprobaciones identificadas para
 conductos circulares corrugados de AASHTO LRFD, sección 12.7, a partir de las
 relaciones publicadas por USACE y de las referencias complementarias
 documentadas [@USACE2020; @AndersonEtAl2023].
@@ -29,7 +29,8 @@ T_u=\gamma_{DL}\frac{P_{FD}S}{2}
 $$ {#eq-methodology-aashto-thrust}
 
 El empuje es una demanda escalar de pared. No sustituye la distribución
-perimetral empleada para calcular $M_\theta$ y $Q_\theta$, ni convierte los
+perimetral de Schwartz--Einstein empleada para calcular $M_\theta$ y
+$Q_\theta$, ni convierte los
 extremos de resultantes correspondientes a ángulos distintos en una acción
 concurrente.
 

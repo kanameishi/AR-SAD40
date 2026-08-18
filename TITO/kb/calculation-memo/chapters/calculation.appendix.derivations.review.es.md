@@ -1,10 +1,13 @@
 # Apéndice A. Desarrollos empleados {#sec-calculation-appendix-derivations .unnumbered}
 
 Este apéndice desarrolla las relaciones de equilibrio, rigidez y
-compatibilidad empleadas para determinar las resultantes seccionales de una
-línea circular de referencia. Se considera un problema transversal plano, con
-pequeños desplazamientos, respuesta elástica lineal, propiedades
-circunferenciales constantes y deformación por corte despreciada.
+compatibilidad de la línea circular de referencia. Las secciones A.1--A.3
+corresponden al control de carga prescrita; la sección A.4 presenta la demanda
+de interacción Schwartz--Einstein y la sección A.5 desarrolla la corrección
+equilibrada del gradiente empleada en las verificaciones. Se considera
+un problema transversal plano, con pequeños desplazamientos, respuesta
+elástica lineal, propiedades circunferenciales constantes y deformación por
+corte despreciada.
 
 ## A.1 Equilibrio del elemento diferencial {.unnumbered}
 
@@ -110,34 +113,34 @@ secciones planas,
 $$
 \varepsilon_\theta(\xi)=\varepsilon_0+\xi\kappa_\theta,
 \qquad
-\sigma_\theta(\xi)=E_\theta
+\sigma_\theta(\xi)=E_\ell
 \left(\varepsilon_0+\xi\kappa_\theta\right).
 $$
 
 Las propiedades por unidad de ancho axial proyectado son
 
 $$
-A_\theta=\frac{1}{b}\iint_{A_b}dA,
+A_\ell=\frac{1}{b}\iint_{A_b}dA,
 \qquad
-S_\theta=\frac{1}{b}\iint_{A_b}\xi\,dA,
+S_\ell=\frac{1}{b}\iint_{A_b}\xi\,dA,
 \qquad
-I_\theta=\frac{1}{b}\iint_{A_b}\xi^2\,dA.
+I_\ell=\frac{1}{b}\iint_{A_b}\xi^2\,dA.
 $$ {#eq-calculation-appendix-section-properties}
 
 La integración de la tensión sobre la sección conduce a
 
 $$
 \begin{bmatrix}N_\theta\\M_\theta\end{bmatrix}
-=E_\theta
-\begin{bmatrix}A_\theta&S_\theta\\S_\theta&I_\theta\end{bmatrix}
+=E_\ell
+\begin{bmatrix}A_\ell&S_\ell\\S_\ell&I_\ell\end{bmatrix}
 \begin{bmatrix}\varepsilon_0\\\kappa_\theta\end{bmatrix}.
 $$ {#eq-calculation-appendix-section-law}
 
-Como $\xi$ se mide desde el baricentro, $S_\theta=0$. Los coeficientes
-diagonales son entonces las rigideces $EA_\theta$ y $EI_\theta$ empleadas en
+Como $\xi$ se mide desde el baricentro, $S_\ell=0$. Los coeficientes
+diagonales son entonces $K_N=E_\ell A_\ell$ y $K_M=E_\ell I_\ell$, como en
 la @eq-calculation-section-stiffness. La razón
-$\eta_s=I_\theta/(A_\theta R^2)$ es adimensional. Por estar normalizadas por
-$b$, $A_\theta$ e $I_\theta$ tienen dimensiones de longitud y longitud al
+$\eta_\ell=I_\ell/(A_\ell R^2)$ es adimensional. Por estar normalizadas por
+$b$, $A_\ell$ e $I_\ell$ tienen dimensiones de longitud y longitud al
 cubo, respectivamente.
 
 ## A.3 Cierre por compatibilidad {.unnumbered}
@@ -163,9 +166,9 @@ relaciones de viga curva empleadas son
 [@Baker1968, ecs. 2.3--2.6, pp. 16--17]
 
 $$
-M_\theta=\frac{EI_\theta}{R^2}(w''+w),
+M_\theta=\frac{K_M}{R^2}(w''+w),
 \qquad
-N_\theta=\frac{EA_\theta}{R}(v'+w)+\frac{M_\theta}{R}.
+N_\theta=\frac{K_N}{R}(v'+w)+\frac{M_\theta}{R}.
 $$ {#eq-calculation-appendix-displacement-relations}
 
 La periodicidad de $w$ y $w'$ implica
@@ -179,21 +182,21 @@ $$
 La media de la primera relación cinemática es
 
 $$
-\overline w=\frac{R^2}{EI_\theta}\overline M_\theta.
+\overline w=\frac{R^2}{K_M}\overline M_\theta.
 $$
 
 Como $v$ es periódico, $\overline{v'}=0$; la media de la segunda relación da
 
 $$
-\overline w=\frac{R}{EA_\theta}\overline N_\theta
--\frac{1}{EA_\theta}\overline M_\theta.
+\overline w=\frac{R}{K_N}\overline N_\theta
+-\frac{1}{K_N}\overline M_\theta.
 $$
 
 Al eliminar $\overline w$ se obtiene
 
 $$
 \overline M_\theta
-=R\frac{\eta_s}{1+\eta_s}\overline N_\theta.
+=R\frac{\eta_\ell}{1+\eta_\ell}\overline N_\theta.
 $$
 
 La sustitución de la solución periódica general en estas tres condiciones
@@ -208,7 +211,7 @@ $$
 $$
 
 $$
-\lambda_0=R\frac{\eta_s}{1+\eta_s}\,
+\lambda_0=R\frac{\eta_\ell}{1+\eta_\ell}\,
 \overline{\widetilde N}-\overline{\widetilde M},
 \qquad
 \overline f=\frac{1}{2\pi}\int_0^{2\pi}f(\theta)\,d\theta.
@@ -217,9 +220,9 @@ $$ {#eq-calculation-compatibility-constants}
 Estas constantes completan las tres resultantes seccionales sin parámetros
 libres.
 
-## A.4 Contraste de interacción elástica externa {#sec-calculation-appendix-external-interaction .unnumbered}
+## A.4 Demanda de interacción elástica externa {#sec-calculation-appendix-external-interaction .unnumbered}
 
-Schwartz--Einstein se conserva como contraste independiente y no alimenta las
+Schwartz--Einstein proporciona la demanda de interacción empleada en las
 verificaciones resistentes. Sus razones de rigidez son
 
 $$
@@ -230,7 +233,7 @@ F^*=\frac{E_gR^3(1-\nu_\ell^2)}
 {E_\ell I_\ell(1-\nu_g^2)}.
 $$ {#eq-calculation-se-stiffness}
 
-Para esta comparación se definen
+Para la carga externa se definen
 
 $$
 P_{SE}=\sigma'_v(z_{ref}),
@@ -301,5 +304,99 @@ Q_\theta(\theta)&=-2P_{SE}Rm_2\sin2\theta.
 \end{aligned}
 $$ {#eq-calculation-se-resultants}
 
-Estas curvas se guardan en productos de comparación separados. No sustituyen
-la integración directa de las acciones prescritas ni sus controles cerrados.
+Estas curvas constituyen la componente uniforme de las verificaciones
+resistentes. La componente de gradiente se desarrolla a continuación.
+
+## A.5 Gradiente geostático equilibrado {#sec-calculation-appendix-gradient .unnumbered}
+
+En un relleno homogéneo, con la coordenada angular de la memoria,
+
+$$
+z(\theta)=z_{ref}-R\cos\theta,
+$$
+
+$$
+\sigma'_v(\theta)=\sigma'_{v,ref}-\gamma_vR\cos\theta,
+\qquad
+\sigma'_h(\theta)=\sigma'_{h,ref}-\gamma_hR\cos\theta.
+$$ {#eq-calculation-appendix-gradient-stress}
+
+Para $K_0$ constante,
+$\gamma_v=\gamma'$ y $\gamma_h=K_0\gamma'$. Una sobrecarga uniforme está
+contenida en las tensiones de referencia y no modifica los gradientes. Al
+proyectar la parte incremental del tensor sobre las direcciones radial y
+tangencial se obtiene
+
+$$
+\Delta P_r=a_1^g\cos\theta+a_3^g\cos3\theta,
+\qquad
+\Delta P_t=d_1^g\sin\theta+d_3^g\sin3\theta,
+$$
+
+$$
+\begin{aligned}
+a_1^g&=\frac{R}{4}(3\gamma_v+\gamma_h),
+&d_1^g&=-\frac{R}{4}(\gamma_v-\gamma_h),\\
+a_3^g&=\frac{R}{4}(\gamma_v-\gamma_h),
+&d_3^g&=-\frac{R}{4}(\gamma_v-\gamma_h).
+\end{aligned}
+$$ {#eq-calculation-appendix-gradient-load}
+
+La @eq-calculation-appendix-global-components muestra que los modos
+$n=3$ no producen resultantes globales. Para $n=1$,
+
+$$
+F_z=\pi R(-a_1^g+d_1^g)=-\pi\gamma_vR^2.
+$$ {#eq-calculation-appendix-gradient-unbalanced-force}
+
+Se adopta contacto radial continuo alrededor de toda la circunferencia y
+rigidez tangencial nula. Una traslación vertical rígida genera una reacción
+radial proporcional a $\cos\theta$. Su amplitud se obtiene directamente de la
+condición $F_z=0$:
+
+$$
+a_1^s=d_1^g-a_1^g=-R\gamma_v,
+\qquad
+a_1=a_1^g+a_1^s=d_1^g.
+$$ {#eq-calculation-appendix-gradient-reaction}
+
+La reacción es un multiplicador de equilibrio. No se asigna un valor a
+$k_r$, no se calcula una traslación y no se introduce una rigidez tangencial.
+Con la acción ya equilibrada, las ecuaciones modales de equilibrio para un
+modo $n\geq2$ son
+
+$$
+N_n=R\frac{n d_n-a_n}{n^2-1},
+\qquad
+M_n=R^2\frac{d_n/n-a_n}{n^2-1},
+\qquad
+Q_n=R\frac{n a_n-d_n}{n^2-1}.
+$$ {#eq-calculation-appendix-modal-resultants}
+
+El modo $n=1$ equilibrado aporta
+$N_1=Ra_1=-R^2(\gamma_v-\gamma_h)/4$ y no aporta momento ni corte. Para
+$n=3$, la sustitución de $a_3^g$ y $d_3^g$ conduce a
+
+$$
+N_3=-\frac{R^2(\gamma_v-\gamma_h)}{8},
+\qquad
+M_3=-\frac{R^3(\gamma_v-\gamma_h)}{24},
+\qquad
+Q_3=\frac{R^2(\gamma_v-\gamma_h)}{8}.
+$$ {#eq-calculation-appendix-gradient-coefficients}
+
+Por consiguiente,
+
+$$
+\begin{aligned}
+N_\theta&=N_\theta^{SE}+N_1\cos\theta+N_3\cos3\theta,\\
+M_\theta&=M_\theta^{SE}+M_3\cos3\theta,\\
+Q_\theta&=Q_\theta^{SE}+Q_3\sin3\theta.
+\end{aligned}
+$$ {#eq-calculation-appendix-hybrid-resultants}
+
+La superposición conserva la realimentación de rigidez de
+Schwartz--Einstein en $n=0,2$. La corrección $n=1,3$ no contiene una ley de
+impedancia modal del suelo. Su validez exige equilibrio global, coincidencia
+entre Fourier e integración numérica y presión normal prescrita de compresión
+en todo el perímetro; esos tres controles se informan en el Apéndice C.

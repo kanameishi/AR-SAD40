@@ -88,7 +88,7 @@ Se define
 $$
 \overline f=\frac{1}{2\pi}\int_0^{2\pi}f(\theta)\,d\theta,
 \qquad
-\eta_s=\frac{EI_\theta}{EA_\theta R^2}.
+\eta_\ell=\frac{K_M}{K_NR^2}.
 $$ {#eq-section-ratio}
 
 Las relaciones cinemáticas y constitutivas de la viga curva de Baker
@@ -102,7 +102,7 @@ $$
 $$
 
 $$
-\overline M_\theta=R\frac{\eta_s}{1+\eta_s}\,\overline N_\theta.
+\overline M_\theta=R\frac{\eta_\ell}{1+\eta_\ell}\,\overline N_\theta.
 $$ {#eq-compatibility-conditions}
 
 La sustitución de la @eq-general-resultants en estas tres condiciones produce
@@ -118,11 +118,12 @@ $$
 $$
 
 $$
-\lambda_0=R\frac{\eta_s}{1+\eta_s}\,
+\lambda_0=R\frac{\eta_\ell}{1+\eta_\ell}\,
 \overline{\widetilde N}-\overline{\widetilde M}.
 $$ {#eq-compatibility-constants}
 
-La integración directa resuelve distribuciones equilibradas de $P_r(\theta)$ y
+Como control independiente, la integración directa resuelve distribuciones
+equilibradas de $P_r(\theta)$ y
 $P_t(\theta)$ para una sección uniforme, elástica lineal y de pequeñas
 deformaciones. Las cargas por sectores se integran separadamente entre sus
 ángulos de discontinuidad, manteniendo la continuidad de las tres resultantes.
@@ -185,6 +186,10 @@ las tres ecuaciones diferenciales. Para una misma representación de carga y una
 serie convergida, los coeficientes modales coinciden con la integración directa
 dentro de la tolerancia adoptada.
 
+Esta convergencia se refiere a dos formas de resolver una misma carga
+prescrita. No es una convergencia hacia Schwartz--Einstein, cuyos coeficientes
+se determinan mediante la rigidez relativa y la interfaz.
+
 La contribución uniforme satisface
 
 $$
@@ -192,12 +197,12 @@ N_0=Ra_0,
 \qquad
 Q_0=0,
 \qquad
-M_0=R\frac{\eta_s}{1+\eta_s}N_0.
+M_0=R\frac{\eta_\ell}{1+\eta_\ell}N_0.
 $$ {#eq-uniform-mode}
 
 El término de momento uniforme corresponde al modo axisimétrico de deformación
 circunferencial de Baker [@Baker1968, ec. 3.9, p. 21]. La idealización
-puramente membranal corresponde a $\eta_s=0$. Se impone $c_0=0$, porque una
+puramente membranal corresponde a $\eta_\ell=0$. Se impone $c_0=0$, porque una
 componente tangencial media representa un par externo que requiere un estado
 de reacción definido.
 
@@ -216,17 +221,17 @@ cargas por sectores. El número de términos se selecciona comprobando la
 convergencia de las cargas reconstruidas y de los extremos de
 $N_\theta$, $M_\theta$ y $Q_\theta$. Para cargas discontinuas, la integración
 directa evita que las oscilaciones de truncamiento condicionen los extremos.
+El estado biaxial uniforme contiene exactamente $n=0$ y $n=2$; para ese caso
+no se requiere aumentar el número de términos.
 
-## Solución cerrada para un estado biaxial uniforme
+## Control cerrado para un estado biaxial uniforme
 
 La sustitución de las @eq-normal-pressure y @eq-tangential-traction produce un
 término uniforme y un armónico de orden dos. El momento medio es
 
 $$
-M_m=-R^2p_m\frac{\eta_s}{1+\eta_s}.
+M_m=-R^2p_m\frac{\eta_\ell}{1+\eta_\ell}.
 $$ {#eq-mean-moment}
-
-### Proyección completa del estado biaxial
 
 Cuando se aplican ambas componentes del vector de tracción,
 
@@ -243,8 +248,6 @@ $$
 $$
 Q_\theta(\theta)=-\frac{R\Delta\sigma}{2}\sin2\theta.
 $$ {#eq-k0-full-response}
-
-### Carga exclusivamente normal
 
 Para $P_t(\theta)=0$,
 

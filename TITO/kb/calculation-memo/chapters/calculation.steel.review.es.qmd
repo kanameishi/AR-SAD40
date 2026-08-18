@@ -4,10 +4,16 @@
 
 La @tbl-calculation-section-reference reproduce la fila publicada adoptada
 para el perfil corrugado. El espesor especificado es
-$t_s=`r formatCalculationFixed(Calculation$section$specifiedThicknessMm, 0L)`$
-mm y el espesor base de diseño, que coincide con el espesor analizado, es
-$t_d=t=`r formatCalculationFixed(Calculation$section$remainingBaseThicknessMm, 0L)`$
-mm. La geometría tabulada tiene paso
+$t_s=`r formatCalculationGeneral(Calculation$section$specifiedThicknessMm)`$
+mm, el espesor base de diseño tabulado es
+$t_d=`r formatCalculationGeneral(Calculation$section$designBaseThicknessMm)`$
+mm y el espesor neto analizado es
+$t_{rem}=`r formatCalculationGeneral(Calculation$section$remainingBaseThicknessMm)`$
+mm. La pérdida neta es
+`r formatCalculationFixed(100 * (1 - Calculation$section$remainingBaseThicknessMm / Calculation$section$specifiedThicknessMm), 0L)` %
+respecto del espesor especificado y
+`r formatCalculationFixed(100 * (1 - Calculation$section$remainingBaseThicknessMm / Calculation$section$designBaseThicknessMm), 0L)` %
+respecto del espesor base de diseño tabulado. La geometría tabulada tiene paso
 `r formatCalculationFixed(Calculation$section$actualPitchMm, 0L)` mm,
 profundidad
 `r formatCalculationFixed(Calculation$section$actualDepthMm, 0L)` mm y radio de
@@ -23,74 +29,71 @@ estas dimensiones y las restantes variables geométricas tabuladas.
 Las propiedades por unidad de ancho axial proyectado son
 
 $$
-A_\theta=
-`r formatCalculationFixed(Calculation$section$areaMm2PerMm, 3L)`
+A_\ell=
+`r formatCalculationFixed(Calculation$section$areaMm2PerMm, 0L)`
 \ \mathrm{mm^2/mm},
 \qquad
-I_\theta=
-`r formatCalculationFixed(Calculation$section$inertiaMm4PerMm, 2L)`
+I_\ell=
+`r formatCalculationFixed(Calculation$section$inertiaMm4PerMm, 0L)`
 \ \mathrm{mm^4/mm},
 $$
 
 $$
-S_\theta=
-`r formatCalculationFixed(Calculation$section$sectionModulusMm3PerMm, 2L)`
+S_\ell=
+`r formatCalculationFixed(Calculation$section$sectionModulusMm3PerMm, 0L)`
 \ \mathrm{mm^3/mm}.
 $$ {#eq-calculation-application-properties}
 
 Con
-$E_\theta=`r formatCalculationGeneral(Calculation$section$circumferentialYoungModulusGPa)`$
+$E_\ell=`r formatCalculationGeneral(Calculation$section$circumferentialYoungModulusGPa)`$
 GPa y $R=`r formatCalculationGeneral(Calculation$geometry$radiusM)`$ m,
 
 $$
-EA_\theta=
+K_N=
 `r formatCalculationFixed(Calculation$section$extensionalRigidityKnPerM, 0L)`
 \ \mathrm{kN/m},
 \qquad
-EI_\theta=
+K_M=
 `r formatCalculationFixed(Calculation$section$flexuralRigidityKnM2PerM, 0L)`
 \ \mathrm{kN\,m^2/m},
 $$
 
 $$
-\eta_s=
+\eta_\ell=
 `r formatCalculationScientificLatex(Calculation$section$sectionRatio, 8L)`.
 $$ {#eq-calculation-application-rigidities}
 
-## Integración directa y resultantes de la chapa
+## Interacción suelo--liner y resultantes de la chapa
 
 Para el estado común del escenario,
 $\sigma'_v=`r formatCalculationGeneral(Calculation$stress$effectiveVerticalStressKPa)`$
 kPa y
 $K_0=`r formatCalculationGeneral(Calculation$interaction$stressRatio[1L])`$.
-La @tbl-calculation-interaction presenta la razón seccional y las amplitudes
-calculadas por integración directa con la sección corrugada.
+La @tbl-calculation-interaction presenta las razones de rigidez, los
+coeficientes de Schwartz--Einstein y las amplitudes uniformes calculadas con
+la sección corrugada. Los extremos y diagramas siguientes agregan la
+corrección equilibrada del gradiente geostático.
 
 {{< include /_tbl/Calculation.interaction.ES.qmd >}}
 
 La @tbl-calculation-extrema reúne los extremos de las resultantes de la chapa
-para $\alpha=1$ y $\alpha=0$.
+para los límites de deslizamiento libre y sin deslizamiento.
 
 {{< include /_tbl/Calculation.extrema.ES.qmd >}}
-
-```{r}
-#| echo: false
-#| results: asis
-cat(Calculation$caseSummaryMarkdown)
-```
 
 La @fig-calculation-normal presenta $N_\theta$; la
 @fig-calculation-moment, $M_\theta$; y la @fig-calculation-shear,
 $Q_\theta$. La circunferencia gris continua es la línea circular de
-referencia. Las curvas discontinuas y sus ordenadas radiales son diagramas de
-resultantes y no representan una posición deformada.
+referencia. Las curvas y sus ordenadas radiales son diagramas de resultantes,
+no una posición deformada. Cada resultante utiliza la misma escala física que
+las figuras de las secciones de hormigón para permitir la comparación visual.
 
 {{< include /_fig/Calculation.resultants.ES.qmd >}}
 
 ## Comprobación del conducto corrugado
 
 El empuje de diseño se calcula a partir de la altura de relleno sobre la clave,
-el peso unitario adoptado para la acción permanente y la luz, con los factores
+el peso unitario, la sobrecarga permanente uniforme y la luz, con los factores
 del procedimiento identificado en la base normativa adoptada. Las razones de
 utilización son
 

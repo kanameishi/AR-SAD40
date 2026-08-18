@@ -1,59 +1,45 @@
-## Rigideces circunferenciales {#sec-calculation-stiffness}
+## Propiedades y rigideces del revestimiento {#sec-calculation-stiffness}
 
-### Perfil corrugado
-
-En el problema plano, la corrugación se representa mediante las propiedades de
-la sección por unidad de longitud proyectada sobre el eje. La ley constitutiva
-es
+Las propiedades de la sección son constantes alrededor de la circunferencia.
+Se usa el subíndice $\ell$ para identificar el revestimiento y se reserva el
+subíndice $\theta$ para las resultantes variables. La ley seccional es
 
 $$
-N_\theta=EA_\theta\varepsilon_\theta,
+N_\theta=K_N\varepsilon_\theta,
 \qquad
-M_\theta=EI_\theta\kappa_\theta,
+M_\theta=K_M\kappa_\theta,
 $$
 
 $$
-EA_\theta=E_\theta A_p,
+K_N=E_\ell A_\ell,
 \qquad
-EI_\theta=E_\theta I_p,
+K_M=E_\ell I_\ell,
 \qquad
-\eta_s=\frac{EI_\theta}{EA_\theta R^2}
-=\frac{I_p}{A_pR^2}.
+\eta_\ell=\frac{K_M}{K_NR^2}
+=\frac{I_\ell}{A_\ell R^2}.
 $$ {#eq-calculation-section-stiffness}
 
-$A_p$ e $I_p$ son, respectivamente, el área y el momento de inercia del perfil
-corrugado por unidad de longitud proyectada; deben proceder de la geometría
-real, de tablas aplicables o de una medición documentada. La tabla 2.4 del
-manual CSPI publica estas propiedades para la familia corrugada considerada y
-distingue el espesor especificado del espesor base de diseño
-[@CSPIHandbookChapter2, tabla 2.4].
+Para la chapa corrugada, $A_\ell=A_p$ e $I_\ell=I_p$ son el área y el
+momento de inercia del perfil por unidad de longitud proyectada. Deben proceder
+de la geometría real, de una tabla aplicable o de una medición documentada. La
+@tbl-calculation-section-reference presenta las propiedades utilizadas para el
+perfil CSPI de la familia 76 × 25 mm [@CSPIHandbookChapter2, tabla 2.4].
 
-La razón $\eta_s$ interviene en la compatibilidad del modo uniforme mediante la
-@eq-calculation-compatibility-constants. El modelo plano emplea exclusivamente
-las rigideces circunferenciales porque las acciones adoptadas no varían en la
-dirección longitudinal. En esta etapa, las propiedades tabuladas se emplean
-para obtener las rigideces circunferenciales del caso analítico.
-
-### Alternativas de hormigón proyectado
-
-Cada alternativa de hormigón proyectado se analiza como un revestimiento
-autónomo, sin acción compuesta con la chapa ni con la otra alternativa. Para
-una franja de ancho axial proyectado unitario y una sección rectangular
-homogénea de espesor $t_c$,
+Para una sección rectangular homogénea de hormigón proyectado y una franja
+unitaria,
 
 $$
-A_c=t_c,
+A_\ell=t_c,
 \qquad
-I_c=\frac{t_c^3}{12},
+I_\ell=\frac{t_c^3}{12},
 \qquad
-EA_c=E_cA_c,
+K_N=E_ct_c,
 \qquad
-EI_c=E_cI_c.
+K_M=E_c\frac{t_c^3}{12}.
 $$ {#eq-calculation-shotcrete-stiffness}
 
-Estas rigideces corresponden a la sección bruta, no fisurada y de corto plazo.
-Se emplean exclusivamente para recalcular la interacción con el relleno y las
-resultantes de cada alternativa; no constituyen una capacidad resistente. Las
-alternativas simple y armada conservan sus propios espesores y propiedades
-seccionales, por lo que sus rigideces se calculan por separado. Sus productos y
-comprobaciones resistentes también permanecen separados.
+Las rigideces del hormigón corresponden a la sección bruta, no fisurada y de
+corto plazo. Se utilizan para recalcular $C^*$, $F^*$ y las resultantes de
+Schwartz--Einstein de cada espesor; no constituyen una resistencia. La cuantía
+del estudio $P$--$M$ no modifica estas rigideces elásticas, de modo que, para
+un mismo espesor, las demandas son comunes a todas las curvas resistentes.

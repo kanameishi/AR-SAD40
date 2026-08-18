@@ -19,13 +19,19 @@ buildCalculationSectionReferenceTable <- function(pathReference, pathSection) {
       !("propertyModelID" %in% names(Section)) || nrow(Section) != 1L) {
     stop("The section-property products have an invalid schema.", call. = FALSE)
   }
-  if (Section$propertyModelID == "published-exact-row") {
+  if (Section$propertyModelID %in% c(
+    "published-exact-row", "uniform-thinning-fixed-midline"
+  )) {
     RequiredReference <- c(
       "specifiedThicknessMm", "designBaseThicknessMm",
       "sectionModulusMm3PerMm"
     )
+    RequiredSection <- c(
+      "referenceRowID", "remainingBaseThicknessMm", "areaMm2PerMm",
+      "inertiaMm4PerMm", "sectionModulusMm3PerMm"
+    )
     if (length(setdiff(RequiredReference, names(Reference))) > 0L ||
-        !("referenceRowID" %in% names(Section))) {
+        length(setdiff(RequiredSection, names(Section))) > 0L) {
       stop("The exact section-property products have an invalid schema.", call. = FALSE)
     }
     Row <- Reference[
@@ -39,17 +45,18 @@ buildCalculationSectionReferenceTable <- function(pathReference, pathSection) {
     Output <- data.frame(
       ThicknessSpecified = Row$specifiedThicknessMm,
       ThicknessDesign = Row$designBaseThicknessMm,
-      Area = Row$areaMm2PerMm,
-      Inertia = Row$inertiaMm4PerMm,
-      SectionModulus = Row$sectionModulusMm3PerMm,
+      ThicknessRemaining = Section$remainingBaseThicknessMm,
+      Area = Section$areaMm2PerMm,
+      Inertia = Section$inertiaMm4PerMm,
+      SectionModulus = Section$sectionModulusMm3PerMm,
       check.names = FALSE,
       stringsAsFactors = FALSE
     )
     return(knitr::kable(
       Output,
-      digits = c(0, 0, 3, 2, 2),
-      col.names = c("$t_s$", "$t_d$", "$A_p$", "$I_p$", "$S_p$"),
-      align = rep("r", 5),
+      digits = c(1, 2, 1, 0, 0, 0),
+      col.names = c("$t_s$", "$t_d$", "$t_{rem}$", "$A_p$", "$I_p$", "$S_p$"),
+      align = rep("r", 6),
       escape = FALSE
     ))
   }

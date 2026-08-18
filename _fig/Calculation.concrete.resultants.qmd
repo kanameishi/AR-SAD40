@@ -12,7 +12,8 @@ PLOT.N <- buildCalculationResultantsInteractive(
     Calculation$shotcrete$display$graphicAmplification,
   raysPerCircle = Calculation$shotcrete$display$raysPerCircle,
   resultant = "N",
-  liningID = "shotcrete"
+  liningID = "shotcrete",
+  scaleMode = "local-by-lining-and-resultant"
 )
 PLOT.M <- buildCalculationResultantsInteractive(
   pathCurves = PATH.curves,
@@ -22,7 +23,8 @@ PLOT.M <- buildCalculationResultantsInteractive(
     Calculation$shotcrete$display$graphicAmplification,
   raysPerCircle = Calculation$shotcrete$display$raysPerCircle,
   resultant = "M",
-  liningID = "shotcrete"
+  liningID = "shotcrete",
+  scaleMode = "local-by-lining-and-resultant"
 )
 PLOT.Q <- buildCalculationResultantsInteractive(
   pathCurves = PATH.curves,
@@ -32,7 +34,8 @@ PLOT.Q <- buildCalculationResultantsInteractive(
     Calculation$shotcrete$display$graphicAmplification,
   raysPerCircle = Calculation$shotcrete$display$raysPerCircle,
   resultant = "Q",
-  liningID = "shotcrete"
+  liningID = "shotcrete",
+  scaleMode = "local-by-lining-and-resultant"
 )
 ```
 
