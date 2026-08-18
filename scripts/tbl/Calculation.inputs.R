@@ -80,14 +80,32 @@ buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
   }
   if (CoverModel) {
     Output <- do.call(rbind, list(
-      row("Altura de relleno sobre la clave", formatGeneral(Stress$coverCrownM), "$\\mathrm{m}$"),
+      row("Altura del relleno inferior sobre la clave", formatGeneral(Stress$coverCrownM), "$\\mathrm{m}$"),
       row("Distancia de la clave al centro", formatGeneral(Stress$crownToAxisM), "$\\mathrm{m}$"),
       row(
-        "Peso unitario efectivo",
+        "Peso unitario efectivo del relleno inferior",
         formatGeneral(Stress$effectiveUnitWeightKnPerM3),
         "$\\mathrm{kN/m^3}$"
       ),
-      row("Sobrecarga efectiva", formatGeneral(Stress$effectiveSurchargeKPa), "$\\mathrm{kPa}$"),
+      if (all(c(
+        "upperLayerHeightM", "upperLayerUnitWeightKnPerM3"
+      ) %in% names(Stress))) {
+        row(
+          "Altura de la capa superior de lodo",
+          formatGeneral(Stress$upperLayerHeightM),
+          "$\\mathrm{m}$"
+        )
+      } else NULL,
+      if (all(c(
+        "upperLayerHeightM", "upperLayerUnitWeightKnPerM3"
+      ) %in% names(Stress))) {
+        row(
+          "Peso unitario de la capa superior de lodo",
+          formatGeneral(Stress$upperLayerUnitWeightKnPerM3),
+          "$\\mathrm{kN/m^3}$"
+        )
+      } else NULL,
+      row("Presión permanente de la capa superior", formatGeneral(Stress$effectiveSurchargeKPa), "$\\mathrm{kPa}$"),
       if (is.finite(Stress$frictionAngleDeg)) {
         row(
           "Ángulo de fricción efectiva",

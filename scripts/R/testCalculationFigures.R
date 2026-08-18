@@ -287,40 +287,35 @@ stopifnot(
       "rho=1.00% · As=15.0 cm2/m",
       "rho=2.00% · As=30.0 cm2/m",
       "rho=3.00% · As=45.0 cm2/m",
-      paste0(
-        "Deslizamiento libre · Permanente vertical ×1,4 · ",
-        "Empuje lateral ×1,6"
-      ),
-      paste0(
-        "Deslizamiento libre · Permanente vertical ×1,4 · ",
-        "Empuje lateral ×0,9"
-      ),
-      paste0(
-        "Sin deslizamiento · Permanente vertical ×1,4 · ",
-        "Empuje lateral ×1,6"
-      ),
-      paste0(
-        "Sin deslizamiento · Permanente vertical ×1,4 · ",
-        "Empuje lateral ×0,9"
-      )
+      "Chapa existente + Ø8/150 interior",
+      "Referencia inferior · rho=0.18% · As=2.7 cm2/m",
+      "rho=1.00% · As=15.0 cm2/m",
+      "rho=2.00% · As=30.0 cm2/m",
+      "rho=3.00% · As=45.0 cm2/m",
+      "Chapa existente + Ø8/150 interior"
     )
   ),
   identical(
     vapply(
-      AxialFlexureSeries[seq_len(4L)],
+      AxialFlexureSeries[seq_len(5L)],
       function(x) length(x[["data"]]),
       integer(1)
     ),
-    rep(807L, 4L)
+    c(rep(1207L, 4L), 1211L)
   ),
   identical(
     vapply(
-      AxialFlexureSeries[-seq_len(4L)],
+      AxialFlexureSeries[-seq_len(5L)],
       function(x) length(x[["data"]]),
       integer(1)
     ),
-    rep(1L, 4L)
-  )
+    rep(2L, 5L)
+  ),
+  all(!vapply(
+    AxialFlexureSeries[-seq_len(5L)],
+    function(x) isTRUE(x$showInLegend),
+    logical(1)
+  ))
 )
 ReinforcementSweepTable <- buildCalculationConcreteReinforcementSweepTable(
   "data/calculation/shotcrete.axial.flexure.reinforcement.sweep.csv",

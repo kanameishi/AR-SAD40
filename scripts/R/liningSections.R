@@ -128,8 +128,19 @@ calculateConcreteRingSection <- function(
     stop("stiffnessBasisID must be one non-empty string.", call. = FALSE)
   }
 
+  StiffnessModels <- c(
+    `gross-uncracked-short-term` = 1,
+    `aci-318-25-cracked-wall-0p35-ig` = 0.35
+  )
+  InertiaReductionFactor <- unname(StiffnessModels[stiffnessBasisID])
+  if (length(InertiaReductionFactor) != 1L ||
+      is.na(InertiaReductionFactor)) {
+    stop("stiffnessBasisID is not recognized.", call. = FALSE)
+  }
+
   Area <- analysisThicknessM
-  Inertia <- analysisThicknessM^3 / 12
+  GrossInertia <- analysisThicknessM^3 / 12
+  Inertia <- InertiaReductionFactor * GrossInertia
   Rigidity <- calculateRingSection(
     youngModulus = analysisModulusKPa,
     area = Area,
@@ -141,9 +152,121 @@ calculateConcreteRingSection <- function(
     analysisModulusKPa = analysisModulusKPa,
     centroidalRadiusM = centroidalRadiusM,
     stiffnessBasisID = stiffnessBasisID,
+    inertiaReductionFactor = InertiaReductionFactor,
     areaM2PerM = Area,
+    grossInertiaM4PerM = GrossInertia,
     inertiaM4PerM = Inertia,
-    propertyModelID = "homogeneous-rectangular-strip",
+    propertyModelID = if (InertiaReductionFactor == 1) {
+      "homogeneous-rectangular-strip-gross"
+    } else {
+      "homogeneous-rectangular-strip-cracked-wall"
+    },
+    rigidity = Rigidity
+  )
+}
+
+# Effective elastic section for the explicit full-composite sensitivity:
+# cracked concrete, the existing corrugated sheet at the exterior face and
+# one or more circumferential reinforcing layers. Coordinates are measured
+# from the concrete mid-depth and are positive toward the exterior.
+calculateCompositeConcreteSteelRingSection <- function(
+  concreteSection,
+  sheetSection,
+  sheetYoungModulusKPa,
+  sheetCoordinateM,
+  reinforcement,
+  concreteCentroidalRadiusM
+) {
+  if (!is.list(concreteSection) || !is.list(concreteSection$rigidity) ||
+      !is.list(sheetSection) || !is.list(sheetSection$rigidity)) {
+    stop(
+      "concreteSection and sheetSection must be calculated sections.",
+      call. = FALSE
+    )
+  }
+  .assertFiniteScalar(
+    sheetYoungModulusKPa,
+    "sheetYoungModulusKPa",
+    minimum = 0,
+    strict = TRUE
+  )
+  .assertFiniteScalar(
+    sheetCoordinateM,
+    "sheetCoordinateM"
+  )
+  .assertFiniteScalar(
+    concreteCentroidalRadiusM,
+    "concreteCentroidalRadiusM",
+    minimum = 0,
+    strict = TRUE
+  )
+  Required <- c("areaMm2", "coordinateMm", "modulusMPa")
+  if (!is.data.frame(reinforcement) || nrow(reinforcement) == 0L ||
+      any(!Required %in% names(reinforcement)) ||
+      any(!is.finite(as.matrix(reinforcement[Required]))) ||
+      any(reinforcement$areaMm2 <= 0) ||
+      any(reinforcement$modulusMPa <= 0)) {
+    stop("reinforcement is invalid for the composite section.", call. = FALSE)
+  }
+
+  ConcreteE <- concreteSection$rigidity$youngModulus
+  ConcreteA <- concreteSection$rigidity$area
+  ConcreteI <- concreteSection$rigidity$inertia
+  SheetA <- sheetSection$rigidity$area
+  SheetI <- sheetSection$rigidity$inertia
+  BarA <- reinforcement$areaMm2 * 1e-6
+  BarY <- reinforcement$coordinateMm * 1e-3
+  BarE <- reinforcement$modulusMPa * 1000
+
+  EAComponents <- c(
+    concrete = ConcreteE * ConcreteA,
+    sheet = sheetYoungModulusKPa * SheetA,
+    stats::setNames(BarE * BarA, reinforcement$layerID)
+  )
+  YComponents <- c(
+    concrete = 0,
+    sheet = sheetCoordinateM,
+    stats::setNames(BarY, reinforcement$layerID)
+  )
+  EA <- sum(EAComponents)
+  ElasticCentroid <- sum(EAComponents * YComponents) / EA
+  EIComponents <- c(
+    concrete = ConcreteE *
+      (ConcreteI + ConcreteA * ElasticCentroid^2),
+    sheet = sheetYoungModulusKPa *
+      (SheetI + SheetA * (sheetCoordinateM - ElasticCentroid)^2),
+    stats::setNames(
+      BarE * BarA * (BarY - ElasticCentroid)^2,
+      reinforcement$layerID
+    )
+  )
+  EI <- sum(EIComponents)
+  Radius <- concreteCentroidalRadiusM + ElasticCentroid
+  EquivalentArea <- EA / ConcreteE
+  EquivalentInertia <- EI / ConcreteE
+  Rigidity <- calculateRingSection(
+    youngModulus = ConcreteE,
+    area = EquivalentArea,
+    inertia = EquivalentInertia,
+    radius = Radius
+  )
+  list(
+    analysisThicknessM = concreteSection$analysisThicknessM,
+    analysisModulusKPa = ConcreteE,
+    centroidalRadiusM = Radius,
+    concreteCentroidalRadiusM = concreteCentroidalRadiusM,
+    elasticCentroidCoordinateM = ElasticCentroid,
+    momentReferenceCoordinateMm = 1000 * ElasticCentroid,
+    stiffnessBasisID = paste(
+      concreteSection$stiffnessBasisID,
+      "full-composite-sheet-and-interior-reinforcement",
+      sep = "+"
+    ),
+    areaM2PerM = EquivalentArea,
+    inertiaM4PerM = EquivalentInertia,
+    propertyModelID = "full-composite-transformed-elastic-section",
+    componentExtensionalRigidityKnPerM = EAComponents,
+    componentFlexuralRigidityKnM2PerM = EIComponents,
     rigidity = Rigidity
   )
 }

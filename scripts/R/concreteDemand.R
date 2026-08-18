@@ -58,20 +58,45 @@
   Fields.numeric <- c(
     "areaMm2", "coordinateMm", "yieldStrengthMPa", "modulusMPa"
   )
+  if (!("displacesConcrete" %in% names(reinforcement))) {
+    reinforcement$displacesConcrete <- TRUE
+  }
+  if (!is.logical(reinforcement$displacesConcrete) ||
+      anyNA(reinforcement$displacesConcrete)) {
+    stop("reinforcement.displacesConcrete must be logical.", call. = FALSE)
+  }
   if (any(!vapply(reinforcement[Fields.numeric], is.numeric, logical(1))) ||
       any(!is.finite(as.matrix(reinforcement[Fields.numeric]))) ||
       any(reinforcement$areaMm2 <= 0) ||
       any(reinforcement$yieldStrengthMPa <= 0) ||
       any(reinforcement$modulusMPa <= 0) ||
-      any(abs(reinforcement$coordinateMm) >= thicknessMm / 2)) {
+      any(
+        reinforcement$displacesConcrete &
+          abs(reinforcement$coordinateMm) >= thicknessMm / 2
+      )) {
     stop("The reinforcement geometry and properties are invalid.", call. = FALSE)
   }
   reinforcement
 }
 
-.concreteReductionFactor <- function(rule, netTensileStrain) {
+.concreteReductionFactor <- function(
+  rule,
+  netTensileStrain,
+  steelStrain = NULL,
+  reinforcement = NULL
+) {
   Factor <- if (is.function(rule)) {
-    rule(netTensileStrain)
+    FormalNames <- names(formals(rule))
+    if ("..." %in% FormalNames ||
+        all(c("steelStrain", "reinforcement") %in% FormalNames)) {
+      rule(
+        netTensileStrain = netTensileStrain,
+        steelStrain = steelStrain,
+        reinforcement = reinforcement
+      )
+    } else {
+      rule(netTensileStrain)
+    }
   } else {
     rule
   }
@@ -92,6 +117,9 @@
 }
 
 .concreteReinforcementSignature <- function(reinforcement) {
+  if (!("displacesConcrete" %in% names(reinforcement))) {
+    reinforcement$displacesConcrete <- TRUE
+  }
   Ordered <- reinforcement[order(reinforcement$layerID), , drop = FALSE]
   paste(vapply(seq_len(nrow(Ordered)), function(i) {
     paste(
@@ -100,6 +128,7 @@
       .concreteNumberText(Ordered$coordinateMm[i]),
       .concreteNumberText(Ordered$yieldStrengthMPa[i]),
       .concreteNumberText(Ordered$modulusMPa[i]),
+      if (Ordered$displacesConcrete[i]) "embedded" else "external",
       sep = ":"
     )
   }, character(1)), collapse = "|")
@@ -118,7 +147,8 @@ buildConcreteSectionDomain <- function(
   provisionID,
   sourceLocator,
   designBasisID = "sectional-strain-compatibility",
-  strengthReductionRuleID = NULL
+  strengthReductionRuleID = NULL,
+  momentReferenceCoordinateMm = 0
 ) {
   Thickness <- .concretePositiveScalar(thicknessMm, "thicknessMm")
   Width <- .concretePositiveScalar(stripWidthMm, "stripWidthMm")
@@ -126,6 +156,15 @@ buildConcreteSectionDomain <- function(
     compressiveStrengthMPa,
     "compressiveStrengthMPa"
   )
+  if (!is.numeric(momentReferenceCoordinateMm) ||
+      length(momentReferenceCoordinateMm) != 1L ||
+      !is.finite(momentReferenceCoordinateMm)) {
+    stop(
+      "momentReferenceCoordinateMm must be one finite number.",
+      call. = FALSE
+    )
+  }
+  MomentReference <- as.numeric(momentReferenceCoordinateMm)
   MaximumStrain <- .concretePositiveScalar(
     concreteMaximumStrain,
     "concreteMaximumStrain"
@@ -186,7 +225,7 @@ buildConcreteSectionDomain <- function(
   PrimitiveID <- paste(
     .concreteNumberText(c(
       Thickness, Width, ConcreteStrength, MaximumStrain,
-      StressFactor, Beta
+      StressFactor, Beta, MomentReference
     )),
     ReinforcementSignature,
     ReductionSignature,
@@ -212,13 +251,21 @@ buildConcreteSectionDomain <- function(
     SteelForce <- Reinforcement$areaMm2 *
       (SteelStress - ConcreteDisplacement)
     NominalAxial <- ConcreteForce + sum(SteelForce)
-    NominalMoment <- ConcreteForce * ConcreteCoordinate +
-      sum(SteelForce * Reinforcement$coordinateMm)
+    NominalMoment <- ConcreteForce *
+      (ConcreteCoordinate - MomentReference) +
+      sum(SteelForce *
+        (Reinforcement$coordinateMm - MomentReference))
     NetTensileStrain <- max(0, -min(SteelStrain))
+    ControllingTensionIndex <- which.min(SteelStrain)[1L]
+    ControllingYieldStrain <-
+      Reinforcement$yieldStrengthMPa[ControllingTensionIndex] /
+      Reinforcement$modulusMPa[ControllingTensionIndex]
     Phi <- if (is.null(reductionFactorOverride)) {
       .concreteReductionFactor(
         rule = strengthReductionFactor,
-        netTensileStrain = NetTensileStrain
+        netTensileStrain = NetTensileStrain,
+        steelStrain = SteelStrain,
+        reinforcement = Reinforcement
       )
     } else {
       .concreteReductionFactor(
@@ -233,6 +280,9 @@ buildConcreteSectionDomain <- function(
       concreteBlockDepthMm = BlockDepth,
       minimumSteelStrain = min(SteelStrain),
       netTensileStrain = NetTensileStrain,
+      controllingTensionLayerID =
+        Reinforcement$layerID[ControllingTensionIndex],
+      controllingYieldStrain = ControllingYieldStrain,
       nominalAxialStrengthN = NominalAxial,
       nominalBendingStrengthNmm = NominalMoment,
       axialStrengthN = Phi * NominalAxial,
@@ -246,6 +296,7 @@ buildConcreteSectionDomain <- function(
       concreteStressFactor = StressFactor,
       beta1 = Beta,
       coordinateConventionID = "middepth-positive-exterior",
+      momentReferenceCoordinateMm = MomentReference,
       reinforcementAreaBasisID = "declared-layer-area-for-strip",
       reinforcementSignature = ReinforcementSignature,
       strengthReductionRuleID = strengthReductionRuleID,
@@ -278,7 +329,7 @@ buildConcreteSectionDomain <- function(
       LayerDepth <= BlockDepth,
       StressFactor * ConcreteStrength,
       0
-    )
+    ) * as.numeric(Reinforcement$displacesConcrete)
     assemblePoint(
       StateID = "compatibility",
       CompressionFace = CompressionFace,
@@ -311,7 +362,7 @@ buildConcreteSectionDomain <- function(
       ConcreteDisplacement <- rep(
         StressFactor * ConcreteStrength,
         nrow(Reinforcement)
-      )
+      ) * as.numeric(Reinforcement$displacesConcrete)
     }
     assemblePoint(
       StateID = StateID,

@@ -43,13 +43,13 @@ FormatStrengthFactor <- function(value) {
   gsub(".", ",", formatCalculationGeneral(value), fixed = TRUE)
 }
 StrengthCasePairs <- paste0(
-  "carga permanente vertical ×",
+  "EV ×",
   vapply(
     StrengthCases$verticalStressFactor,
     FormatStrengthFactor,
     character(1)
   ),
-  " y empuje lateral ×",
+  " y EH ×",
   vapply(
     StrengthCases$horizontalStressFactor,
     FormatStrengthFactor,

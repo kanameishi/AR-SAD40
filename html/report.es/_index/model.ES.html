@@ -308,32 +308,36 @@ Q_\theta(\theta)
 \end{aligned}
 \tag{4.1}\]</span></span></p>
 <p>El origen de <span class="math inline">\(\xi\)</span> satisface <span class="math inline">\(\iint_{A_b}\xi\,dA=0\)</span>. Cada integral se evalúa sobre la sección resistente en una posición angular determinada; la variación alrededor del túnel se obtiene repitiendo la evaluación para todo <span class="math inline">\(\theta\)</span>.</p>
-<p>El estado de cálculo se define mediante las tensiones efectivas del relleno en la cota del centro del túnel, antes de introducir el revestimiento. Si <span class="math inline">\(H_0\)</span> es la altura de relleno sobre la clave y <span class="math inline">\(R\)</span> la distancia desde la clave hasta el centro de la sección, la profundidad de referencia es</p>
+<p>El estado de cálculo se define mediante las tensiones efectivas en la cota del centro del túnel, antes de introducir el revestimiento. <span class="math inline">\(H_0\)</span> es la altura del relleno compactado comprendido entre la clave y la base de la capa superior de lodo; <span class="math inline">\(H_1\)</span> y <span class="math inline">\(\gamma_1\)</span> son la altura y el peso unitario de esa capa superior. Su peso produce la presión permanente uniforme</p>
+<p><span id="eq-calculation-upper-layer-pressure"><span class="math display">\[
+q_D=\gamma_1H_1.
+\tag{4.2}\]</span></span></p>
+<p>Si <span class="math inline">\(R\)</span> es la distancia desde la clave hasta el centro de la sección, la profundidad de referencia dentro del relleno inferior es</p>
 <p><span id="eq-calculation-reference-depth"><span class="math display">\[
 z_{ref}=H_0+R.
-\tag{4.2}\]</span></span></p>
-<p>Para el relleno homogéneo adoptado, la tensión vertical efectiva se calcula como</p>
-<p><span id="eq-calculation-vertical-effective-stress"><span class="math display">\[
-\sigma'_v(z_{ref})=q'+\gamma' z_{ref},
 \tag{4.3}\]</span></span></p>
-<p>donde <span class="math inline">\(q'\)</span> es la sobrecarga efectiva y <span class="math inline">\(\gamma'\)</span> el peso unitario efectivo. La presión hidráulica neta adoptada es 0.0 kPa y la tensión horizontal residual de compactación se adopta igual a cero; ambas magnitudes se actualizarán cuando la investigación del relleno y la condición de agua las cuantifique.</p>
+<p>La tensión vertical efectiva se calcula como</p>
+<p><span id="eq-calculation-vertical-effective-stress"><span class="math display">\[
+\sigma'_v(z_{ref})=q_D+\gamma'_0 z_{ref},
+\tag{4.4}\]</span></span></p>
+<p>La capa de lodo y el relleno inferior son acciones permanentes; no se introduce una carga viva. La presión hidráulica neta adoptada es 0.0 kPa y la tensión horizontal residual de compactación se adopta igual a cero; ambas magnitudes se actualizarán cuando la investigación del relleno y la condición de agua las cuantifique.</p>
 <p>El coeficiente de presión en reposo relaciona las tensiones efectivas horizontal y vertical:</p>
 <p><span id="eq-calculation-k0"><span class="math display">\[
 K_0=\frac{\sigma'_h}{\sigma'_v},
 \qquad
 \sigma'_h=K_0\sigma'_v.
-\tag{4.4}\]</span></span></p>
+\tag{4.5}\]</span></span></p>
 <p>La relación empleada vincula <span class="math inline">\(K_0\)</span> con el ángulo de fricción efectiva y la relación de sobreconsolidación <span class="citation" data-cites="MayneKulhawy1982">(<a href="references.ES.html#ref-MayneKulhawy1982" role="doc-biblioref">Mayne y Kulhawy 1982</a>)</span>:</p>
 <p><span id="eq-calculation-k0-application"><span class="math display">\[
 K_0=(1-\sin\phi')\,\mathrm{OCR}^{\sin\phi'}.
-\tag{4.5}\]</span></span></p>
+\tag{4.6}\]</span></span></p>
 <p>Para <span class="math inline">\(\mathrm{OCR}=1\)</span>, la expresión se reduce a la relación de Jáky. Con <span class="math inline">\(\phi'=30^\circ\)</span> y <span class="math inline">\(\mathrm{OCR}=1\)</span>, se obtiene <span class="math inline">\(K_0=0.5\)</span>. Las expresiones aplicables a otras trayectorias tensionales y las acciones de compactación se presentan en <a href="k0.appendix.ES.html" class="quarto-xref"><span>Apéndice E</span></a>.</p>
 <p>En la cota de referencia se define el estado de campo libre utilizado por Schwartz–Einstein:</p>
 <p><span id="eq-calculation-se-action-state"><span class="math display">\[
 P_{SE}=\sigma'_{v,A},
 \qquad
 K_{SE}=\frac{\sigma'_{h,A}}{\sigma'_{v,A}}.
-\tag{4.6}\]</span></span></p>
+\tag{4.7}\]</span></span></p>
 <p>La solución de carga externa transforma este estado en resultantes del anillo mediante las razones de rigidez <span class="math inline">\(C^*\)</span> y <span class="math inline">\(F^*\)</span> de cada revestimiento y las condiciones de interfaz con deslizamiento libre y sin deslizamiento. La presión hidráulica neta uniforme se superpone a la componente media de fuerza circunferencial. Las expresiones completas se presentan en la metodología ampliada.</p>
 <p>Para verificar independientemente el equilibrio, el mismo estado biaxial se proyecta como una carga prescrita sobre un plano tangente a la pared. Esa proyección produce una presión normal <span class="math inline">\(p'_n\)</span> y una componente paralela <span class="math inline">\(p_t^*\)</span>:</p>
 <p><span id="eq-calculation-stress-projection"><span class="math display">\[
@@ -344,14 +348,14 @@ p_t^*(\theta)&amp;=(\sigma'_{v,A}-\sigma'_{h,A})
   \sin\theta\cos\theta,\\
 p_n(\theta)&amp;=p'_n(\theta)+\Delta u_A.
 \end{aligned}
-\tag{4.7}\]</span></span></p>
+\tag{4.8}\]</span></span></p>
 <p>Las acciones estructurales se escriben como</p>
 <p><span id="eq-calculation-tangential-multiplier"><span class="math display">\[
 P_r(\theta)=-p_n(\theta),
 \qquad
 P_t(\theta)=\alpha p_t^*(\theta),
 \qquad 0\leq\alpha\leq1.
-\tag{4.8}\]</span></span></p>
+\tag{4.9}\]</span></span></p>
 <p>En esta comprobación de carga prescrita, <span class="math inline">\(\alpha=1\)</span> representa el vector proyectado completo y <span class="math inline">\(\alpha=0\)</span> representa su componente normal. La solución Schwartz–Einstein caracteriza el contacto mediante sus propios coeficientes para deslizamiento libre y ausencia de deslizamiento.</p>
 <p>Definiendo</p>
 <p><span class="math display">\[
@@ -364,8 +368,8 @@ p_m=\Delta u_A+\frac{\sigma'_{v,A}+\sigma'_{h,A}}{2},
 P_r(\theta)=-p_m-\frac{\Delta\sigma}{2}\cos2\theta,
 \qquad
 P_t(\theta)=\alpha\frac{\Delta\sigma}{2}\sin2\theta.
-\tag{4.9}\]</span></span></p>
-<p><span class="math inline">\(\sigma'_{v,A}\)</span> y <span class="math inline">\(\sigma'_{h,A}\)</span> son las tensiones principales del campo libre en el eje. Su proyección sobre el contorno circular produce la dependencia angular de la <a href="#eq-calculation-biaxial-load" class="quarto-xref">ec.&nbsp;<span>4.9</span></a> y los modos de Fourier <span class="math inline">\(n=0,2\)</span>.</p>
+\tag{4.10}\]</span></span></p>
+<p><span class="math inline">\(\sigma'_{v,A}\)</span> y <span class="math inline">\(\sigma'_{h,A}\)</span> son las tensiones principales del campo libre en el eje. Su proyección sobre el contorno circular produce la dependencia angular de la <a href="#eq-calculation-biaxial-load" class="quarto-xref">ec.&nbsp;<span>4.10</span></a> y los modos de Fourier <span class="math inline">\(n=0,2\)</span>.</p>
 <p>La profundidad local y las tensiones efectivas alrededor del contorno se definen mediante</p>
 <p><span class="math display">\[
 z(\theta)=z_{ref}-R\cos\theta,
@@ -374,8 +378,8 @@ z(\theta)=z_{ref}-R\cos\theta,
 \sigma'_v(\theta)=\sigma'_{v,A}-\gamma_vR\cos\theta,
 \qquad
 \sigma'_h(\theta)=\sigma'_{h,A}-\gamma_hR\cos\theta.
-\tag{4.10}\]</span></span></p>
-<p>Para el relleno homogéneo con <span class="math inline">\(K_0\)</span> constante, <span class="math inline">\(\gamma_v=\gamma'\)</span> y <span class="math inline">\(\gamma_h=K_0\gamma'\)</span>. La diferencia respecto del estado uniforme del eje se proyecta como</p>
+\tag{4.11}\]</span></span></p>
+<p>Para el relleno inferior homogéneo con <span class="math inline">\(K_0\)</span> constante, <span class="math inline">\(\gamma_v=\gamma'_0\)</span> y <span class="math inline">\(\gamma_h=K_0\gamma'_0\)</span>. La diferencia respecto del estado uniforme del eje se proyecta como</p>
 <p><span class="math display">\[
 \Delta P_r(\theta)=a_1^g\cos\theta+a_3^g\cos3\theta,
 \qquad
@@ -388,7 +392,7 @@ a_1^g&amp;=\frac{R}{4}(3\gamma_v+\gamma_h),
 a_3^g&amp;=\frac{R}{4}(\gamma_v-\gamma_h),
 &amp;d_3^g&amp;=-\frac{R}{4}(\gamma_v-\gamma_h).
 \end{aligned}
-\tag{4.11}\]</span></span></p>
+\tag{4.12}\]</span></span></p>
 <p>La resultante gravitatoria del modo <span class="math inline">\(n=1\)</span> se equilibra con una reacción radial distribuida de coeficiente <span class="math inline">\(a_1^s=-R\gamma_v\)</span>. Con <span class="math inline">\(\Delta\gamma=\gamma_v-\gamma_h\)</span>, la corrección resultante es</p>
 <p><span class="math display">\[
 \Delta N_\theta(\theta)=
@@ -401,7 +405,7 @@ a_3^g&amp;=\frac{R}{4}(\gamma_v-\gamma_h),
 \qquad
 \Delta Q_\theta(\theta)=
 \frac{R^2\Delta\gamma}{8}\sin3\theta.
-\tag{4.12}\]</span></span></p>
+\tag{4.13}\]</span></span></p>
 <p>La chapa corrugada se representa mediante el área <span class="math inline">\(A_p\)</span> y el momento de inercia <span class="math inline">\(I_p\)</span> por unidad de longitud proyectada sobre el eje del túnel. Su ley seccional circunferencial es</p>
 <p><span class="math display">\[
 N_\theta=EA_\theta\varepsilon_\theta,
@@ -415,19 +419,19 @@ EI_\theta=E_\theta I_p,
 \qquad
 \eta_s=\frac{EI_\theta}{EA_\theta R^2}
 =\frac{I_p}{A_pR^2}.
-\tag{4.13}\]</span></span></p>
+\tag{4.14}\]</span></span></p>
 <p>Las propiedades de la chapa proceden de la fila aplicable de la tabla 2.4 del manual CSPI, que distingue el espesor especificado del espesor base de diseño <span class="citation" data-cites="CSPIHandbookChapter2">(<a href="references.ES.html#ref-CSPIHandbookChapter2" role="doc-biblioref">Corrugated Steel Pipe Institute, s.&nbsp;f.</a>)</span>. La inspección deberá confirmar la geometría y el espesor remanente para sustituir estas propiedades tabuladas. La razón <span class="math inline">\(\eta_s\)</span> participa en la compatibilidad del modo uniforme del anillo. Como las acciones adoptadas son constantes a lo largo del túnel, el modelo utiliza las rigideces circunferenciales.</p>
 <p>Cada alternativa de hormigón proyectado se calcula como un revestimiento independiente de la chapa. Para una franja de ancho axial unitario y una pared rectangular homogénea de espesor <span class="math inline">\(t_c\)</span>,</p>
 <p><span id="eq-calculation-shotcrete-stiffness"><span class="math display">\[
 A_c=t_c,
 \qquad
-I_c=\frac{t_c^3}{12},
+I_g=\frac{t_c^3}{12},
 \qquad
 EA_c=E_cA_c,
 \qquad
-EI_c=E_cI_c.
-\tag{4.14}\]</span></span></p>
-<p>Estas rigideces corresponden a la sección bruta de un material elástico homogéneo en respuesta de corto plazo. Con ellas y con el radio propio de cada espesor se recalculan <span class="math inline">\(C^*\)</span> y <span class="math inline">\(F^*\)</span> en Schwartz–Einstein. La interacción produce una distribución de fuerza y momento propia de cada alternativa. En la comprobación de carga prescrita, la rigidez interviene en la compatibilidad del modo uniforme; los armónicos <span class="math inline">\(n\geq2\)</span> quedan definidos por las acciones y el equilibrio. La resistencia se evalúa con las propiedades de cada sección. Para el hormigón armado se comparan varias cuantías circunferenciales y la selección constructiva corresponde a la etapa posterior de diseño.</p>
+EI_c=0.35E_cI_g.
+\tag{4.15}\]</span></span></p>
+<p>El área axial se conserva completa y la rigidez flexional utiliza <span class="math inline">\(I_e=0.35I_g\)</span>, correspondiente a muro fisurado en el análisis elástico a nivel de cargas mayoradas de ACI 318-25, Tabla 6.6.3.1.1(a) <span class="citation" data-cites="ACI31825">(<a href="references.ES.html#ref-ACI31825" role="doc-biblioref">ACI Committee 318 2025</a>)</span>. Con esta rigidez y con el radio propio de cada espesor se recalculan <span class="math inline">\(C^*\)</span> y <span class="math inline">\(F^*\)</span> en Schwartz–Einstein. La interacción produce una distribución de fuerza y momento propia de cada alternativa. En la comprobación de carga prescrita, la rigidez interviene en la compatibilidad del modo uniforme; los armónicos <span class="math inline">\(n\geq2\)</span> quedan definidos por las acciones y el equilibrio. La resistencia se evalúa con las propiedades de cada sección. Para las cuatro cuantías simétricas de cada espesor, el acero modifica la resistencia seccional pero no la rigidez usada para obtener las acciones. El caso adicional compuesto incorpora la chapa exterior y una malla interior a la rigidez transformada; sus acciones se recalculan con el centroide elástico y las rigideces <span class="math inline">\(EA\)</span> y <span class="math inline">\(EI\)</span> propias de esa sección.</p>
 <p>El cálculo comienza con la profundidad del centro del túnel y las tensiones efectivas vertical y horizontal en esa cota. La chapa, el hormigón proyectado simple y las secciones armadas comparten ese estado de campo libre. Para cada revestimiento se definen por separado su radio baricéntrico, módulo elástico, coeficiente de Poisson, área y momento de inercia.</p>
 <p>La demanda transversal se obtiene con la secuencia de carga externa de Schwartz–Einstein. Las razones de compresibilidad y flexibilidad son</p>
 <p><span id="eq-calculation-procedure-se-stiffness"><span class="math display">\[
@@ -436,7 +440,7 @@ C^*=\frac{E_gR(1-\nu_\ell^2)}
 \qquad
 F^*=\frac{E_gR^3(1-\nu_\ell^2)}
 {E_\ell I_\ell(1-\nu_g^2)}.
-\tag{4.15}\]</span></span></p>
+\tag{4.16}\]</span></span></p>
 <p>Con <span class="math inline">\(P_{SE}=\sigma'_v\)</span> y <span class="math inline">\(K_{SE}=\sigma'_h/\sigma'_v\)</span>, la respuesta tiene la forma</p>
 <p><span id="eq-calculation-procedure-se-resultants"><span class="math display">\[
 \begin{aligned}
@@ -444,16 +448,16 @@ N_\theta(\theta)&amp;=-P_{SE}Rt_0+P_{SE}Rt_2\cos2\theta,\\
 M_\theta(\theta)&amp;=P_{SE}R^2m_2\cos2\theta,\\
 Q_\theta(\theta)&amp;=-2P_{SE}Rm_2\sin2\theta.
 \end{aligned}
-\tag{4.16}\]</span></span></p>
+\tag{4.17}\]</span></span></p>
 <p>Los coeficientes <span class="math inline">\(t_0\)</span>, <span class="math inline">\(t_2\)</span> y <span class="math inline">\(m_2\)</span> se calculan con <span class="math inline">\(C^*\)</span>, <span class="math inline">\(F^*\)</span>, <span class="math inline">\(\nu_g\)</span>, <span class="math inline">\(K_{SE}\)</span> y la condición de interfaz. Su deducción y sus expresiones completas se presentan en la metodología ampliada. Para representar la incertidumbre del contacto se evalúan los límites con deslizamiento libre y sin deslizamiento. La presión hidráulica neta uniforme se superpone a la componente media de <span class="math inline">\(N_\theta\)</span>. Las combinaciones resistentes modifican las tensiones vertical, horizontal e hidráulica según sus factores y vuelven a calcular la interacción, de modo que <span class="math inline">\(N_\theta\)</span>, <span class="math inline">\(M_\theta\)</span> y <span class="math inline">\(Q_\theta\)</span> pertenecen a una misma combinación y posición angular.</p>
-<p>La componente uniforme incorpora la redistribución elástica debida a la rigidez relativa. La variación lineal de las tensiones entre clave y solera se incorpora mediante la <a href="#eq-calculation-balanced-gradient-resultants" class="quarto-xref">ec.&nbsp;<span>4.12</span></a>. Para cada revestimiento, la demanda utilizada en las comprobaciones es</p>
+<p>La componente uniforme incorpora la redistribución elástica debida a la rigidez relativa. La variación lineal de las tensiones entre clave y solera se incorpora mediante la <a href="#eq-calculation-balanced-gradient-resultants" class="quarto-xref">ec.&nbsp;<span>4.13</span></a>. Para cada revestimiento, la demanda utilizada en las comprobaciones es</p>
 <p><span id="eq-calculation-hybrid-resultants"><span class="math display">\[
 \begin{aligned}
 N_\theta^{d}(\theta)&amp;=N_\theta^{SE}(\theta)+\Delta N_\theta(\theta),\\
 M_\theta^{d}(\theta)&amp;=M_\theta^{SE}(\theta)+\Delta M_\theta(\theta),\\
 Q_\theta^{d}(\theta)&amp;=Q_\theta^{SE}(\theta)+\Delta Q_\theta(\theta).
 \end{aligned}
-\tag{4.17}\]</span></span></p>
+\tag{4.18}\]</span></span></p>
 <p>El dominio del modelo corresponde a un relleno elástico homogéneo, un contacto circunferencial continuo y la etapa de relleno completado. Los límites de deslizamiento libre y ausencia de deslizamiento acotan la condición de interfaz.</p>
 <p>La comprobación independiente de carga prescrita utiliza las ecuaciones de equilibrio de un anillo sometido a componentes perimetrales <span class="math inline">\(P_r\)</span> y <span class="math inline">\(P_t\)</span>:</p>
 <p><span id="eq-calculation-ring-system"><span class="math display">\[
@@ -467,7 +471,7 @@ Q_\theta-RP_t\\
 RP_r-N_\theta\\
 RQ_\theta
 \end{bmatrix}.
-\tag{4.18}\]</span></span></p>
+\tag{4.19}\]</span></span></p>
 <p>La solución numérica integra este sistema mediante Runge–Kutta de cuarto orden y determina las tres constantes de cierre mediante periodicidad de desplazamientos y giro. La ley seccional, las condiciones de compatibilidad y las constantes resultantes se desarrollan en la metodología ampliada. Esta vía resuelve el equilibrio del anillo para una carga perimetral prescrita; Schwartz–Einstein obtiene la componente interactiva a partir de <span class="math inline">\(C^*\)</span>, <span class="math inline">\(F^*\)</span> y la interfaz.</p>
 <p>La misma carga prescrita puede resolverse mediante series de Fourier. Para una distribución general,</p>
 <p><span id="eq-calculation-load-fourier"><span class="math display">\[
@@ -477,7 +481,7 @@ P_r(\theta)&amp;=a_0+\sum_{n=1}^{\infty}
 P_t(\theta)&amp;=c_0+\sum_{n=1}^{\infty}
 \left(c_n\cos n\theta+d_n\sin n\theta\right).
 \end{aligned}
-\tag{4.19}\]</span></span></p>
+\tag{4.20}\]</span></span></p>
 <p>Para el tensor biaxial uniforme, los coeficientes <span class="math inline">\(a_0\)</span>, <span class="math inline">\(a_2\)</span> y <span class="math inline">\(d_2\)</span> completan la representación en <span class="math inline">\(n=2\)</span>. El gradiente lineal equilibrado agrega los coeficientes de los modos <span class="math inline">\(n=1,3\)</span>. La serie de Fourier es la suma de estas componentes armónicas; <span class="math inline">\(n\)</span> identifica el orden espacial de cada componente. La integración Runge–Kutta se compara punto por punto con la reconstrucción modal y se verifica mediante las resultantes globales. Los controles de cargas discontinuas y de convergencia se documentan en la metodología ampliada.</p>
 <p>Fourier descompone una acción perimetral prescrita y Schwartz–Einstein calcula la respuesta interactiva uniforme a partir de la rigidez relativa y de la interfaz. La comparación entre ambas vías controla el equilibrio y la reconstrucción armónica de las componentes superpuestas.</p>
 <p>La comprobación AASHTO/USACE calcula el empuje circunferencial escalar mayorado y lo compara con pared, pandeo, costura, flexibilidad y tapada conforme a la base de referencia identificada. Sus resultados se presentan junto con la distribución angular del modelo híbrido como dos comprobaciones de alcance diferenciado. FHWA aporta la relación documentada para una acción constructiva de compactación y Núñez aporta casos publicados de revestimientos de túneles excavados.</p>
@@ -487,6 +491,9 @@ P_t(\theta)&amp;=c_0+\sum_{n=1}^{\infty}
 
 <div class="page-footer column-body"><div class="page-footer__inner"><div class="page-footer__content"><div class="page-footer__title">Memoria de cálculo del revestimiento circular</div><div class="page-footer__meta">SRK Consulting © 2026</div></div></div></div>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-ACI31825" class="csl-entry" role="listitem">
+ACI Committee 318. 2025. <em>Building Code for Structural Concrete—Code Requirements and Commentary</em>. ACI CODE-318-25. American Concrete Institute. <a href="https://www.concrete.org/store/productdetail?ItemID=318U25&amp;Language=English">https://www.concrete.org/store/productdetail?ItemID=318U25&amp;Language=English</a>.
+</div>
 <div id="ref-CSPIHandbookChapter2" class="csl-entry" role="listitem">
 Corrugated Steel Pipe Institute. s.&nbsp;f. <em>Handbook of Steel Drainage and Highway Construction Products: Product Details and Fabrication</em>. Accedido 13 de agosto de 2026. <a href="https://cspi.ca/wp-content/uploads/2021/04/handbook_chapter02.pdf">https://cspi.ca/wp-content/uploads/2021/04/handbook_chapter02.pdf</a>.
 </div>

@@ -290,7 +290,7 @@ window.Quarto = {
 
 <p>Esta memoria evalúa la respuesta transversal del revestimiento circular del túnel espesador San Francisco bajo el peso del relleno existente. El análisis comprende la chapa de acero corrugada, una capa de hormigón proyectado simple y una capa de hormigón proyectado armado. Para cada revestimiento se calculan la fuerza circunferencial, el momento flector y la fuerza de corte por metro de túnel; las comprobaciones resistentes emplean las propiedades de la sección correspondiente.</p>
 <p>El alcance comprende la definición de las acciones permanentes, la interacción elástica suelo–revestimiento, las resultantes <span class="math inline">\(N\)</span>–<span class="math inline">\(M\)</span>–<span class="math inline">\(Q\)</span>, la comprobación de referencia del liner corrugado, la evaluación local del hormigón simple y los dominios <span class="math inline">\(P\)</span>–<span class="math inline">\(M\)</span> de varias cuantías para espesores de 100 y 150 mm. Quedan fuera del alcance la selección de una armadura definitiva, el detalle constructivo, la acreditación de la edición contractual de las normas y la asignación de propiedades a la chapa y a sus uniones sin respaldo de la inspección. Esas actividades corresponden a la etapa de diseño e inspección posterior.</p>
-<p>La <a href="#tbl-model-inputs" class="quarto-xref">tabla&nbsp;<span>3.1</span></a> resume el escenario analizado. La altura de relleno se mide desde la clave y la tensión del terreno se evalúa a la cota del centro del túnel. El peso unitario efectivo y la sobrecarga definen la tensión vertical; la presión hidráulica neta se incorpora como una acción separada. La tensión horizontal se obtiene mediante el coeficiente de presión en reposo <span class="math inline">\(K_0\)</span>, definido como la razón entre las tensiones efectivas horizontal y vertical.</p>
+<p>La <a href="#tbl-model-inputs" class="quarto-xref">tabla&nbsp;<span>3.1</span></a> resume el escenario analizado. La altura del relleno inferior se mide desde la clave y la tensión del terreno se evalúa a la cota del centro del túnel. El peso del relleno inferior y el de la capa superior de lodo definen la tensión vertical; la presión hidráulica neta se incorpora como una acción separada. La tensión horizontal se obtiene mediante el coeficiente de presión en reposo <span class="math inline">\(K_0\)</span>, definido como la razón entre las tensiones efectivas horizontal y vertical.</p>
 <div class="cell">
 <div id="tbl-model-inputs" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
@@ -300,6 +300,11 @@ Tabla&nbsp;3.1: Hipótesis geotécnicas y estado de tensiones empleado en el cá
 <div aria-describedby="tbl-model-inputs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
 <table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 61%">
+<col style="width: 11%">
+<col style="width: 26%">
+</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Magnitud</th>
@@ -309,8 +314,8 @@ Tabla&nbsp;3.1: Hipótesis geotécnicas y estado de tensiones empleado en el cá
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Altura de relleno sobre la clave</td>
-<td style="text-align: right;">4</td>
+<td style="text-align: left;">Altura del relleno inferior sobre la clave</td>
+<td style="text-align: right;">5.7</td>
 <td style="text-align: center;"><span class="math inline">\(\mathrm{m}\)</span></td>
 </tr>
 <tr class="even">
@@ -319,13 +324,23 @@ Tabla&nbsp;3.1: Hipótesis geotécnicas y estado de tensiones empleado en el cá
 <td style="text-align: center;"><span class="math inline">\(\mathrm{m}\)</span></td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Peso unitario efectivo</td>
+<td style="text-align: left;">Peso unitario efectivo del relleno inferior</td>
 <td style="text-align: right;">19.6133</td>
 <td style="text-align: center;"><span class="math inline">\(\mathrm{kN/m^3}\)</span></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Sobrecarga efectiva</td>
-<td style="text-align: right;">88.2598</td>
+<td style="text-align: left;">Altura de la capa superior de lodo</td>
+<td style="text-align: right;">5.7</td>
+<td style="text-align: center;"><span class="math inline">\(\mathrm{m}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Peso unitario de la capa superior de lodo</td>
+<td style="text-align: right;">14.71</td>
+<td style="text-align: center;"><span class="math inline">\(\mathrm{kN/m^3}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Presión permanente de la capa superior</td>
+<td style="text-align: right;">83.8469</td>
 <td style="text-align: center;"><span class="math inline">\(\mathrm{kPa}\)</span></td>
 </tr>
 <tr class="odd">
@@ -345,12 +360,12 @@ Tabla&nbsp;3.1: Hipótesis geotécnicas y estado de tensiones empleado en el cá
 </tr>
 <tr class="even">
 <td style="text-align: left;">Tensión vertical efectiva en el centro</td>
-<td style="text-align: right;">192.505</td>
+<td style="text-align: right;">221.434</td>
 <td style="text-align: center;"><span class="math inline">\(\mathrm{kPa}\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Tensión horizontal efectiva en el centro</td>
-<td style="text-align: right;">96.2523</td>
+<td style="text-align: right;">110.717</td>
 <td style="text-align: center;"><span class="math inline">\(\mathrm{kPa}\)</span></td>
 </tr>
 <tr class="even">
@@ -377,7 +392,7 @@ Tabla&nbsp;3.1: Hipótesis geotécnicas y estado de tensiones empleado en el cá
 </div>
 <p>La caracterización geotécnica pendiente definirá el valor representativo de <span class="math inline">\(\phi'\)</span>. Para este cálculo se adoptan provisionalmente <span class="math inline">\(\phi'=30^\circ\)</span> y <span class="math inline">\(\mathrm{OCR}=1\)</span>. La presión hidráulica neta adoptada es 0.0 kPa. La relación utilizada para <span class="math inline">\(K_0\)</span> produce <span class="math inline">\(K_0=0.5\)</span> <span class="citation" data-cites="MayneKulhawy1982">(<a href="references.ES.html#ref-MayneKulhawy1982" role="doc-biblioref">Mayne y Kulhawy 1982</a>)</span>. Estas hipótesis se reemplazarán por los parámetros del relleno y la condición de agua cuando estén disponibles.</p>
 <p>La interacción entre el relleno y cada revestimiento se representa mediante la solución de carga externa de Schwartz–Einstein. Se calculan dos límites de interfaz: deslizamiento libre y ausencia de deslizamiento. Ambos parten de la misma tapada y del mismo estado geotécnico, pero utilizan el radio y las rigideces propias de la chapa o de cada alternativa de hormigón. La comparación muestra la sensibilidad de las resultantes a la rigidez relativa y al contacto.</p>
-<p>La chapa se comprueba con una comparación de referencia basada en las expresiones documentadas por USACE, los parámetros AASHTO reproducidos por Anderson et al.&nbsp;y las propiedades publicadas por CSPI <span class="citation" data-cites="USACE2020 AndersonEtAl2023 CSPIHandbookChapter2 CSPIHandbookChapter6">(<a href="references.ES.html#ref-USACE2020" role="doc-biblioref">U.S. Army Corps of Engineers 2020</a>; <a href="references.ES.html#ref-AndersonEtAl2023" role="doc-biblioref">Anderson et&nbsp;al. 2023</a>; <a href="references.ES.html#ref-CSPIHandbookChapter2" role="doc-biblioref">Corrugated Steel Pipe Institute, s.&nbsp;f.-a</a>, <a href="references.ES.html#ref-CSPIHandbookChapter6" role="doc-biblioref">s.&nbsp;f.-b</a>)</span>. El hormigón se evalúa con ACI 318-25 y la armadura mínima se conserva como referencia histórica de ACI 318.2-14 <span class="citation" data-cites="ACI31825 ACI318214">(<a href="references.ES.html#ref-ACI31825" role="doc-biblioref">ACI Committee 318 2025</a>, <a href="references.ES.html#ref-ACI318214" role="doc-biblioref">2014</a>)</span>. La memoria compara varias cuantías en dominios fuerza–momento para los dos espesores estudiados. La especificación de inspección establece las mediciones de espesor, geometría y uniones necesarias para actualizar las propiedades del revestimiento existente.</p>
+<p>La chapa se comprueba con una comparación de referencia basada en las expresiones documentadas por USACE, los parámetros AASHTO reproducidos por Anderson et al.&nbsp;y las propiedades publicadas por CSPI <span class="citation" data-cites="USACE2020 AndersonEtAl2023 CSPIHandbookChapter2 CSPIHandbookChapter6">(<a href="references.ES.html#ref-USACE2020" role="doc-biblioref">U.S. Army Corps of Engineers 2020</a>; <a href="references.ES.html#ref-AndersonEtAl2023" role="doc-biblioref">Anderson et&nbsp;al. 2023</a>; <a href="references.ES.html#ref-CSPIHandbookChapter2" role="doc-biblioref">Corrugated Steel Pipe Institute, s.&nbsp;f.-a</a>, <a href="references.ES.html#ref-CSPIHandbookChapter6" role="doc-biblioref">s.&nbsp;f.-b</a>)</span>. Las acciones resistentes del revestimiento enterrado se mayoran con los factores <span class="math inline">\(EV/EH\)</span> de AASHTO/CIRSOC; el hormigón se evalúa con ACI 318-25 y la armadura mínima se conserva como referencia histórica de ACI 318.2-14 <span class="citation" data-cites="ACI31825 ACI318214">(<a href="references.ES.html#ref-ACI31825" role="doc-biblioref">ACI Committee 318 2025</a>, <a href="references.ES.html#ref-ACI318214" role="doc-biblioref">2014</a>)</span>. La memoria compara varias cuantías en dominios fuerza–momento para los dos espesores estudiados. La especificación de inspección establece las mediciones de espesor, geometría y uniones necesarias para actualizar las propiedades del revestimiento existente.</p>
 
 
 

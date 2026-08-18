@@ -32,19 +32,24 @@ rectangular homogénea de espesor $t_c$,
 $$
 A_c=t_c,
 \qquad
-I_c=\frac{t_c^3}{12},
+I_g=\frac{t_c^3}{12},
 \qquad
 EA_c=E_cA_c,
 \qquad
-EI_c=E_cI_c.
+EI_c=0.35E_cI_g.
 $$ {#eq-calculation-shotcrete-stiffness}
 
-Estas rigideces corresponden a la sección bruta de un material elástico
-homogéneo en respuesta de corto plazo. Con ellas y con el radio propio de cada
+El área axial se conserva completa y la rigidez flexional utiliza
+$I_e=0.35I_g$, correspondiente a muro fisurado en el análisis elástico a nivel
+de cargas mayoradas de ACI 318-25, Tabla 6.6.3.1.1(a) [@ACI31825]. Con esta
+rigidez y con el radio propio de cada
 espesor se recalculan $C^*$ y $F^*$ en Schwartz--Einstein. La interacción
 produce una distribución de fuerza y momento propia de cada alternativa. En
 la comprobación de carga prescrita, la rigidez interviene en la compatibilidad
 del modo uniforme; los armónicos $n\geq2$ quedan definidos por las acciones y
 el equilibrio. La resistencia se evalúa con las propiedades de cada sección.
-Para el hormigón armado se comparan varias cuantías circunferenciales y la
-selección constructiva corresponde a la etapa posterior de diseño.
+Para las cuatro cuantías simétricas de cada espesor, el acero modifica la
+resistencia seccional pero no la rigidez usada para obtener las acciones. El
+caso adicional compuesto incorpora la chapa exterior y una malla interior a
+la rigidez transformada; sus acciones se recalculan con el centroide elástico
+y las rigideces $EA$ y $EI$ propias de esa sección.

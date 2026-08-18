@@ -39,13 +39,25 @@ ExecutiveSeam <- ReportAashtoCheck("seam")
 ExecutiveAashtoPass <- all(
   Calculation$aashto$checks$checkStatus == "satisfied"
 )
+ExecutivePMThreshold <- function(liningID) {
+  Data <- Calculation[[liningID]]$reinforcementSweep$summary
+  Passing <- Data[
+    Data$isParametricCase & Data$overallLocalStatus == "satisfied",
+    ,
+    drop = FALSE
+  ]
+  if (nrow(Passing) == 0L) return(NULL)
+  Passing[which.min(Passing$reinforcementRatio), , drop = FALSE]
+}
+ExecutivePM100 <- ExecutivePMThreshold("shotcrete")
+ExecutivePM150 <- ExecutivePMThreshold("reinforcedConcrete")
 ```
 
 # Resumen ejecutivo {#sec-executive}
 
 Esta memoria calcula el liner corrugado existente y dos secciones de
-rehabilitación bajo la acción permanente del relleno y de la sobrecarga de
-lodo. Las cinco comparaciones aritméticas de
+rehabilitación bajo el peso permanente del relleno compactado y de una capa
+superior de lodo. Las cinco comparaciones aritméticas de
 referencia para la chapa —pared, pandeo, costura, flexibilidad y tapada—
 `r if (ExecutiveAashtoPass) "quedan dentro de sus límites" else "incluyen resultados fuera de sus límites"`.
 El cierre de la evaluación del liner existente requiere confirmar el espesor
@@ -65,10 +77,13 @@ El cálculo adopta provisionalmente un peso unitario efectivo de
 kN/m³, un ángulo de fricción efectiva de
 `r formatCalculationFixed(ExecutiveStress$frictionAngleDeg, 0L)`° y una
 relación de sobreconsolidación de
-`r formatCalculationGeneral(ExecutiveStress$ocr)`. La sobrecarga es
-`r formatCalculationFixed(ExecutiveStress$effectiveSurchargeKPa, 1L)` kPa y la
-representa 6 m de lodo con peso unitario de 1,5 t/m³; se incluye junto con el
-relleno como acción permanente. La
+`r formatCalculationGeneral(ExecutiveStress$ocr)`. La capa superior tiene
+`r formatCalculationFixed(ExecutiveStress$upperLayerHeightM, 1L)` m de altura y
+un peso unitario de
+`r formatCalculationFixed(ExecutiveStress$upperLayerUnitWeightKnPerM3, 1L)`
+kN/m³. Su peso equivale a una presión uniforme permanente de
+`r formatCalculationFixed(ExecutiveStress$effectiveSurchargeKPa, 1L)` kPa
+sobre el relleno inferior. La
 presión hidráulica neta es
 `r formatCalculationFixed(Calculation$config$action$waterPressureDifferenceKPa, 1L)`
 kPa.
@@ -116,5 +131,6 @@ el espesor remanente y establecer la resistencia de la unión existente antes de
 cerrar la evaluación de la chapa.
 
 Las dos familias de hormigón se muestran en diagramas separados para distinguir
-el efecto del espesor del efecto de la cuantía. Las verificaciones y el alcance
-de cada familia se desarrollan en el capítulo correspondiente.
+el efecto del espesor del efecto de la cuantía. En la grilla discreta evaluada,
+`r if (is.null(ExecutivePM100)) "ninguna cuantía satisface conjuntamente P–M, corte y tracción radial en la sección de 100 mm" else paste0("la primera cuantía que satisface conjuntamente P–M, corte y tracción radial en la sección de 100 mm es ", formatCalculationFixed(100 * ExecutivePM100$reinforcementRatio, 0L), " %, equivalente a ", formatCalculationFixed(ExecutivePM100$circumferentialAreaTotalMm2PerM / 100, 0L), " cm²/m totales entre ambas caras")`, y
+`r if (is.null(ExecutivePM150)) "ninguna cuantía satisface conjuntamente P–M, corte y tracción radial en la sección de 150 mm" else paste0("para 150 mm es ", formatCalculationFixed(100 * ExecutivePM150$reinforcementRatio, 0L), " %, equivalente a ", formatCalculationFixed(ExecutivePM150$circumferentialAreaTotalMm2PerM / 100, 0L), " cm²/m totales entre ambas caras")`. Estos valores son resultados de la grilla y no una armadura adoptada. El control de tracción radial se informa por analogía con CIRSOC 804-4. El caso adicional de chapa exterior más Ø8/150 interior, calculado con acción compuesta total, no satisface los controles locales en ninguno de los dos espesores. Las verificaciones y el alcance de cada familia se desarrollan en el capítulo correspondiente.

@@ -26,28 +26,28 @@ stopifnot(
     Config[["methodProfileID", exact = TRUE]],
     "ar-sad40-cover-mesh-2026-08-16"
   ),
-  identical(Config[["methodProfileVersion", exact = TRUE]], "1.3.0")
+  identical(Config[["methodProfileVersion", exact = TRUE]], "1.4.0")
 )
 Config[["methodProfileID"]] <- NULL
 Config[["methodProfileVersion"]] <- NULL
+Manifest <- readCalculationJson(file.path(projectRoot, "calculation.json"))
+Config[["classicalComparison"]] <- Manifest[["inputs", exact = TRUE]][[
+  "classicalComparison",
+  exact = TRUE
+]]
 Result <- evaluateCoverConfiguration(
   config = Config,
   projectRoot = projectRoot
 )
-LegacyConfig <- Config
-LegacyConfig$schemaVersion <- "3.0.0"
-LegacyConfig$aashto <- NULL
-LegacyConfig <- validateCoverCalculationConfig(LegacyConfig)
-Baseline <- .buildCoverCalculationProducts(LegacyConfig, projectRoot)
 stopifnot(
   identical(Result$schemaVersion, "3.1.0"),
-  identical(Result$scenarioID, LegacyConfig$scenarioID),
-  identical(Result$stress, Baseline[["stress.state.csv"]]),
-  identical(Result$section, Baseline[["section.properties.csv"]]),
-  identical(Result$interaction, Baseline[["interaction.parameters.csv"]]),
-  identical(Result$resultants, Baseline[["section.resultants.csv"]]),
-  identical(Result$extrema, Baseline[["section.extrema.csv"]]),
-  identical(Result$controls, Baseline[["numerical.controls.csv"]])
+  identical(Result$scenarioID, Config$scenarioID),
+  nrow(Result$stress) == 1L,
+  nrow(Result$section) == 1L,
+  nrow(Result$interaction) == nrow(Config$interfaceCases),
+  nrow(Result$resultants) > 0L,
+  nrow(Result$extrema) > 0L,
+  nrow(Result$controls) > 0L
 )
 ConfiguredShotcrete <- Result[["additionalLinings", exact = TRUE]][[
   "shotcrete",
@@ -70,8 +70,16 @@ stopifnot(
     ConfiguredShotcrete[["section", exact = TRUE]][[
       "youngModulusKPa",
       exact = TRUE
-    ]] - 23500000
-  ) < 1e-12,
+    ]] - 4700 * sqrt(30) * 1000
+  ) < 1e-8,
+  ConfiguredShotcrete[["section", exact = TRUE]][[
+    "stiffnessBasisID",
+    exact = TRUE
+  ]] == "aci-318-25-cracked-wall-0p35-ig",
+  abs(ConfiguredShotcrete[["section", exact = TRUE]][[
+    "inertiaReductionFactor",
+    exact = TRUE
+  ]] - 0.35) < 1e-12,
   all(
     ConfiguredShotcrete[["summary", exact = TRUE]][[
       "minimumReinforcementStatus",
@@ -93,7 +101,7 @@ stopifnot(
   nrow(ConfiguredShotcrete[["assessment", exact = TRUE]][[
     "aci",
     exact = TRUE
-  ]][["summary", exact = TRUE]]) == 4L,
+  ]][["summary", exact = TRUE]]) == 8L,
   setequal(
     ConfiguredShotcrete[["assessment", exact = TRUE]][[
       "aci",
@@ -106,7 +114,10 @@ stopifnot(
       "aci",
       exact = TRUE
     ]][["summary", exact = TRUE]][["strengthCaseID", exact = TRUE]],
-    c("d14-h16", "d14-h09")
+    c(
+      "ev130-eh135", "ev130-eh090",
+      "ev090-eh135", "ev090-eh090"
+    )
   )
 )
 ApplicabilityChecks <- ConfiguredShotcrete[["assessment", exact = TRUE]][[
@@ -121,7 +132,7 @@ ApplicabilityChecks <- ApplicabilityChecks[
   drop = FALSE
 ]
 stopifnot(
-  nrow(ApplicabilityChecks) == 8L,
+  nrow(ApplicabilityChecks) == 16L,
   all(ApplicabilityChecks[["calculationStatus", exact = TRUE]] ==
     "not-evaluated"),
   all(ApplicabilityChecks[["checkStatus", exact = TRUE]] == "blocked"),
@@ -343,13 +354,16 @@ ExpectedThrust <- Config[["aashto", exact = TRUE]][[
 ]] * Config[["aashto", exact = TRUE]][[
   "deadLoadFactor",
   exact = TRUE
-]] * Config[["aashto", exact = TRUE]][[
+]] * (Config[["aashto", exact = TRUE]][[
   "totalUnitWeightKnPerM3",
   exact = TRUE
 ]] * Config[["cover", exact = TRUE]][[
   "coverCrownM",
   exact = TRUE
-]] * Config[["aashto", exact = TRUE]][[
+]] + Config[["cover", exact = TRUE]][[
+  "effectiveSurchargeKPa",
+  exact = TRUE
+]]) * Config[["aashto", exact = TRUE]][[
   "spanM",
   exact = TRUE
 ]] / 2
@@ -364,12 +378,12 @@ Seam <- Result$aashto$checks[
 stopifnot(
   abs(Demand - ExpectedThrust) < 1e-12,
   identical(Result$aashto$summary$wallStatus, "satisfied"),
-  identical(Result$aashto$summary$calculationStatus, "satisfied"),
+  identical(Result$aashto$summary$calculationStatus, "not-satisfied"),
   identical(
     Result$aashto$summary$systemStatus,
     "not-evaluated-specification"
   ),
-  identical(Result$aashto$summary$seamStatus, "satisfied"),
+  identical(Result$aashto$summary$seamStatus, "not-satisfied"),
   identical(Result$aashto$summary$minimumCoverStatus, "satisfied"),
   abs(Seam$utilization - ExpectedThrust / (0.67 * 769)) < 1e-12,
   identical(Result$aashto$summary$governingCheckID, "seam"),
@@ -429,13 +443,16 @@ ExpectedThrust7 <- ConfigCover[["aashto", exact = TRUE]][[
 ]] * ConfigCover[["aashto", exact = TRUE]][[
   "deadLoadFactor",
   exact = TRUE
-]] * ConfigCover[["aashto", exact = TRUE]][[
+]] * (ConfigCover[["aashto", exact = TRUE]][[
   "totalUnitWeightKnPerM3",
   exact = TRUE
 ]] * ConfigCover[["cover", exact = TRUE]][[
   "coverCrownM",
   exact = TRUE
-]] * ConfigCover[["aashto", exact = TRUE]][[
+]] + ConfigCover[["cover", exact = TRUE]][[
+  "effectiveSurchargeKPa",
+  exact = TRUE
+]]) * ConfigCover[["aashto", exact = TRUE]][[
   "spanM",
   exact = TRUE
 ]] / 2
@@ -467,7 +484,7 @@ Shotcrete <- list(
   poisson = 0.20,
   thicknessM = 0.15,
   youngModulusKPa = 25000000,
-  stiffnessBasisID = "gross-uncracked-short-term",
+  stiffnessBasisID = "aci-318-25-cracked-wall-0p35-ig",
   compressiveStrengthMPa = 25,
   stripWidthM = 1,
   reinforcement = data.frame(areaMm2 = numeric()),

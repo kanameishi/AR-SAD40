@@ -202,6 +202,7 @@ runCoverCalculationDataTests <- function() {
     "shotcrete.axial.flexure.reinforcement.domains.csv",
     "shotcrete.axial.flexure.reinforcement.sweep.csv",
     "shotcrete.axial.flexure.reinforcement.governing.demands.csv",
+    "shotcrete.axial.flexure.reinforcement.limit.checks.csv",
     "classical.comparison.inputs.csv", "classical.comparison.sections.csv",
     "classical.comparison.curves.csv", "classical.comparison.points.csv",
     "classical.comparison.summary.csv"
@@ -246,6 +247,10 @@ runCoverCalculationDataTests <- function() {
   ReinforcementGoverningDemands <- readProduct(
     AashtoVariant,
     "shotcrete.axial.flexure.reinforcement.governing.demands.csv"
+  )
+  ReinforcementLimitChecks <- readProduct(
+    AashtoVariant,
+    "shotcrete.axial.flexure.reinforcement.limit.checks.csv"
   )
   ClassicalInputs <- readProduct(
     AashtoVariant, "classical.comparison.inputs.csv"
@@ -338,7 +343,7 @@ runCoverCalculationDataTests <- function() {
     nrow(AashtoSummary) == 1L,
     nrow(AashtoCalculation) == 1L,
     AashtoSummary$wallStatus == "satisfied",
-    AashtoSummary$seamStatus == "satisfied",
+    AashtoSummary$seamStatus == "not-satisfied",
     AashtoSummary$flexibilityStatus == "satisfied",
     AashtoSummary$minimumCoverStatus == "satisfied",
     AashtoSummary$systemStatus == "not-evaluated-specification",
@@ -357,8 +362,11 @@ runCoverCalculationDataTests <- function() {
     ReinforcedSection$thicknessM == 0.15,
     PlainSection$centroidalRadiusM == 1.265,
     ReinforcedSection$centroidalRadiusM == 1.24,
-    abs(PlainSection$youngModulusKPa - 23500000) < 1e-12,
-    abs(ReinforcedSection$youngModulusKPa - 23500000) < 1e-12,
+    abs(PlainSection$youngModulusKPa - 4700 * sqrt(30) * 1000) < 1e-8,
+    abs(ReinforcedSection$youngModulusKPa - 4700 * sqrt(30) * 1000) < 1e-8,
+    all(ShotcreteSection$stiffnessBasisID ==
+      "aci-318-25-cracked-wall-0p35-ig"),
+    all(abs(ShotcreteSection$inertiaReductionFactor - 0.35) < 1e-12),
     nrow(ShotcreteScales) == 6L,
     nrow(PlainScales) == 3L,
     nrow(ReinforcedScales) == 3L,
@@ -375,7 +383,7 @@ runCoverCalculationDataTests <- function() {
       ReinforcedScales$referenceRadiusM ==
         ReinforcedSection$centroidalRadiusM
     ),
-    nrow(ShotcreteChecks) == 96L,
+    nrow(ShotcreteChecks) == 192L,
     !any(grepl("reinforcement", PlainChecks$checkID, fixed = TRUE)),
     nrow(PlainChecks[
       PlainChecks$calculationStatus == "calculated" &
@@ -384,13 +392,13 @@ runCoverCalculationDataTests <- function() {
         ),
       ,
       drop = FALSE
-    ]) == 8L,
+    ]) == 16L,
     nrow(ReinforcedChecks[
       ReinforcedChecks$calculationStatus == "calculated" &
         ReinforcedChecks$checkID == "axial-flexure",
       ,
       drop = FALSE
-    ]) == 4L,
+    ]) == 8L,
     nrow(ShotcreteSummary) == 4L,
     all(PlainSummary$concreteTypeID == "plain-concrete"),
     all(PlainSummary$shotcreteMechanicalStatus == "not-applicable"),
@@ -398,10 +406,13 @@ runCoverCalculationDataTests <- function() {
     all(PlainSummary$shotcreteLocalStrengthUtilization > 1),
     all(PlainSummary$shotcreteLocalStrengthStatus == "not-satisfied"),
     all(PlainSummary$shotcreteNormativeStatus == "not-evaluated"),
-    nrow(PlainApplicabilityChecks) == 8L,
+    nrow(PlainApplicabilityChecks) == 16L,
     all(PlainApplicabilityChecks$calculationStatus == "not-evaluated"),
     all(PlainApplicabilityChecks$checkStatus == "blocked"),
-    all(PlainSummary$shotcreteGoverningStrengthCaseID == "d14-h09"),
+    all(PlainSummary$shotcreteGoverningStrengthCaseID %in% c(
+      "ev130-eh135", "ev130-eh090",
+      "ev090-eh135", "ev090-eh090"
+    )),
     all(PlainSummary$shotcreteGoverningCheckID == "tension-face"),
     all(ReinforcedSummary$concreteTypeID == "reinforced-concrete"),
     all(ReinforcedSummary$shotcreteMechanicalStatus == "not-applicable"),
@@ -427,7 +438,7 @@ runCoverCalculationDataTests <- function() {
       )]),
       tolerance = 1e-12
     )),
-    nrow(AxialFlexureDemands) == 2L * 2L * 720L,
+    nrow(AxialFlexureDemands) == 2L * 4L * 720L,
     all(table(
       AxialFlexureDemands$interfaceID,
       AxialFlexureDemands$strengthCaseID
@@ -436,20 +447,33 @@ runCoverCalculationDataTests <- function() {
       AxialFlexureDemands$interfaceID,
       c("full-slip", "no-slip")
     ),
-    setequal(AxialFlexureDemands$strengthCaseID, c("d14-h16", "d14-h09")),
-    nrow(ReinforcementSweep) == 8L,
-    nrow(ReinforcementGoverningDemands) == 8L,
-    all(table(ReinforcementSweep$liningID) == 4L),
-    all(table(ReinforcementGoverningDemands$liningID) == 4L),
+    setequal(AxialFlexureDemands$strengthCaseID, c(
+      "ev130-eh135", "ev130-eh090",
+      "ev090-eh135", "ev090-eh090"
+    )),
+    nrow(ReinforcementSweep) == 10L,
+    nrow(ReinforcementGoverningDemands) == 20L,
+    nrow(ReinforcementLimitChecks) == 20L,
+    all(table(ReinforcementSweep$liningID) == 5L),
+    all(table(ReinforcementGoverningDemands$liningID) == 10L),
+    all(table(ReinforcementLimitChecks$liningID) == 10L),
+    all(table(
+      ReinforcementGoverningDemands$liningID,
+      ReinforcementGoverningDemands$reinforcementCaseID
+    )[table(
+      ReinforcementGoverningDemands$liningID,
+      ReinforcementGoverningDemands$reinforcementCaseID
+    ) > 0L] == 2L),
     all(table(
       ReinforcementDomains$liningID,
       ReinforcementDomains$reinforcementCaseID
     )[table(
       ReinforcementDomains$liningID,
       ReinforcementDomains$reinforcementCaseID
-    ) > 0L] == 807L),
+    ) > 0L] %in% c(1207L, 1211L)),
     sum(ReinforcementSweep$isLowerReferenceCase) == 2L,
-    all(ReinforcementSweep$isParametricCase),
+    sum(ReinforcementSweep$isParametricCase) == 8L,
+    sum(!ReinforcementSweep$isParametricCase) == 2L,
     identical(
       LoaderEnvironment$Calculation$reinforcedConcrete$axialFlexureDomain,
       AxialFlexureDomain
@@ -481,6 +505,15 @@ runCoverCalculationDataTests <- function() {
         reinforcementSweep$governingDemands,
       ReinforcementGoverningDemands[
         ReinforcementGoverningDemands$liningID == "reinforcedConcrete",
+        ,
+        drop = FALSE
+      ]
+    ),
+    identical(
+      LoaderEnvironment$Calculation$reinforcedConcrete$
+        reinforcementSweep$limitChecks,
+      ReinforcementLimitChecks[
+        ReinforcementLimitChecks$liningID == "reinforcedConcrete",
         ,
         drop = FALSE
       ]

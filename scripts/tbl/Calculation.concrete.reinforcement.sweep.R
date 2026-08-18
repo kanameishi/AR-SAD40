@@ -18,6 +18,9 @@ buildCalculationConcreteReinforcementSweepTable <- function(path, liningID) {
     "liningID", "reinforcementCaseOrder",
     "circumferentialAreaTotalMm2PerM", "reinforcementRatio",
     "maximumRadialUtilization", "localPMStatus",
+    "maximumShearUtilization", "shearStatus",
+    "radialTensionUtilization", "radialTensionStatus",
+    "overallLocalStatus",
     "governingInterfaceID", "governingVerticalStressFactor",
     "governingHorizontalStressFactor", "governingThetaDeg",
     "isLowerReferenceCase", "isParametricCase", "calculationStatus"
@@ -34,11 +37,13 @@ buildCalculationConcreteReinforcementSweepTable <- function(path, liningID) {
   if (nrow(Data) < 3L || nrow(Data) > 6L ||
       any(Data$calculationStatus != "calculated") ||
       sum(Data$isLowerReferenceCase) != 1L ||
-      any(!Data$isParametricCase)) {
+      sum(!Data$isParametricCase) > 1L) {
     stop("The reinforcement P-M family is incomplete.", call. = FALSE)
   }
   Role <- vapply(seq_len(nrow(Data)), function(i) {
-    if (Data$isLowerReferenceCase[i]) {
+    if (!Data$isParametricCase[i]) {
+      "Chapa existente + Ø8/150 interior"
+    } else if (Data$isLowerReferenceCase[i]) {
       "Cuantía mínima de referencia"
     } else {
       "Cuantía evaluada"
@@ -51,6 +56,10 @@ buildCalculationConcreteReinforcementSweepTable <- function(path, liningID) {
   StatusLabels <- c(
     satisfied = "Dentro del dominio",
     `not-satisfied` = "Excede el dominio"
+  )
+  CheckStatusLabels <- c(
+    satisfied = "Satisface",
+    `not-satisfied` = "No satisface"
   )
   Output <- data.frame(
     Role = Role,
@@ -70,6 +79,19 @@ buildCalculationConcreteReinforcementSweepTable <- function(path, liningID) {
       digits = 2L
     ),
     Status = unname(StatusLabels[Data$localPMStatus]),
+    Shear = formatC(
+      Data$maximumShearUtilization,
+      format = "f",
+      digits = 2L
+    ),
+    ShearStatus = unname(CheckStatusLabels[Data$shearStatus]),
+    Radial = formatC(
+      Data$radialTensionUtilization,
+      format = "f",
+      digits = 2L
+    ),
+    RadialStatus = unname(CheckStatusLabels[Data$radialTensionStatus]),
+    Overall = unname(CheckStatusLabels[Data$overallLocalStatus]),
     check.names = FALSE,
     stringsAsFactors = FALSE
   )
@@ -80,9 +102,10 @@ buildCalculationConcreteReinforcementSweepTable <- function(path, liningID) {
     Output,
     col.names = c(
       "Caso", "Área circunferencial total [cm²/m]", "Cuantía [%]",
-      "Demanda/capacidad P–M", "Resultado P–M"
+      "U P–M", "P–M", "U corte", "Corte", "U tracción radial",
+      "Tracción radial", "Resultado local"
     ),
-    align = c("l", "r", "r", "r", "l"),
+    align = c("l", "r", "r", "r", "l", "r", "l", "r", "l", "l"),
     escape = FALSE
   )
 }

@@ -1,1 +1,1 @@
-Sensibilidad de la interacción fuerza--momento al área circunferencial total de acero en ambas caras. Todos los casos conservan el espesor, los materiales y el recubrimiento; el resultado indica si la demanda queda dentro de la envolvente resistente correspondiente.
+Comprobaciones locales de las configuraciones circunferenciales analizadas. Las cuatro cuantías simétricas conservan el espesor, los materiales y el recubrimiento; el caso adicional combina la chapa exterior remanente con Ø8/150 interior y recalcula las acciones bajo la hipótesis de acción compuesta total.

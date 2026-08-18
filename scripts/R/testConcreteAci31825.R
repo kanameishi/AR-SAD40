@@ -128,6 +128,23 @@ Domains <- buildAci31825ReinforcedSectionDomains(
   compressiveStrengthMPa = 25,
   reinforcement = Circumferential
 )
+UniformTension <- Domains$refined[
+  Domains$refined$stateID == "uniform-tension",
+  ,
+  drop = FALSE
+][1L, , drop = FALSE]
+UniformCompression <- Domains$refined[
+  Domains$refined$stateID == "uniform-compression",
+  ,
+  drop = FALSE
+]
+ExpectedNominalTension <- -sum(
+  Circumferential$areaMm2 * Circumferential$yieldStrengthMPa
+)
+ExpectedPureAxialCompression <-
+  0.85 * 25 * (100 * 1000 - sum(Circumferential$areaMm2)) +
+  sum(Circumferential$areaMm2 * Circumferential$yieldStrengthMPa)
+ExpectedNominalCompression <- 0.80 * ExpectedPureAxialCompression
 stopifnot(
   identical(
     unique(Domains$base$domainPrimitiveID),
@@ -141,7 +158,20 @@ stopifnot(
       drop = FALSE
     ]
     min(abs(Rows$netTensileStrain - YieldStrain)) <= 1e-10
-  }, logical(1)))
+  }, logical(1))),
+  abs(UniformTension$nominalAxialStrengthN -
+    ExpectedNominalTension) < 1e-9,
+  abs(UniformTension$nominalBendingStrengthNmm) < 1e-9,
+  UniformTension$strengthReductionFactor == 0.90,
+  nrow(UniformCompression) == 1L,
+  abs(UniformCompression$nominalAxialStrengthN -
+    ExpectedNominalCompression) < 1e-9,
+  abs(UniformCompression$pureAxialNominalStrengthN -
+    ExpectedPureAxialCompression) < 1e-9,
+  abs(UniformCompression$maximumDesignAxialStrengthN -
+    0.65 * ExpectedNominalCompression) < 1e-9,
+  abs(UniformCompression$nominalBendingStrengthNmm) < 1e-9,
+  UniformCompression$strengthReductionFactor == 0.65
 )
 
 Demand <- evaluateAci31825ReinforcedSectionDemand(

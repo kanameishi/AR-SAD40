@@ -47,7 +47,7 @@ buildCalculationClassicalInputsTable <- function(data) {
   Output <- data.frame(
     Magnitud = c(
       "Tapada sobre clave", "Profundidad al eje", "Peso unitario efectivo",
-      "Sobrecarga efectiva", "Tensión vertical al eje",
+      "Presión permanente de la capa superior", "Tensión vertical al eje",
       "Tensión horizontal al eje", "$K_0$", "Módulo del terreno",
       "Coeficiente de Poisson", "$\\eta_N$", "$\\chi_N$"
     ),

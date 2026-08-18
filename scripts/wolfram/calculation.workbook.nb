@@ -10,15 +10,16 @@ independent lining solutions.", "Text", ExpressionUUID ->
          ExpressionUUID -> "c359f8db-96ec-d4f3-d173-9b5d63bcf522"], 
         Cell[CellGroupData[{Cell["1.1 How to use this workbook", "Section", 
             ExpressionUUID -> "0d5684a1-9d57-627b-6d9e-05297f8779c4"], 
-           Cell["1. Start with a fresh Wolfram kernel.\n2. Edit only the six \
+           Cell["1. Start with a fresh Wolfram kernel.\n2. Edit only the seven \
 pale-yellow engineering-input cells. They use the same field names as \
 calculation.json. Editing the notebook recalculates the workbook but does not \
 rewrite calculation.json; to regenerate the HTML report, copy the accepted \
 values to calculation.json and run the report workflow.\n3. Section 2.1 \
-controls cover. Section 2.2 / GroundInputs controls unit weight, surcharge, \
-ground stiffness, the K0 model, friction angle, OCR, and net water pressure; \
-K0 is derived and is not typed as a constant. Unit weight defines the linear \
-gradient over the liner height; surcharge is uniform. R combines the uniform \
+controls the lower compacted-fill height. Section 2.2 / GroundInputs controls \
+the unit weights and heights of the two permanent layers, ground stiffness, \
+the K0 model, friction angle, OCR, and net water pressure; K0 and the pressure \
+from the upper layer are derived and are not typed as constants. The lower-fill \
+unit weight defines the linear gradient over the liner height. R combines the uniform \
 Schwartz-Einstein interaction with the balanced n=1,n=3 gradient correction; \
 no radial spring stiffness is an input. Section 2.3 / SteelInputs \
 controls the corrugated profile, remaining base thickness \
@@ -28,11 +29,13 @@ concrete strength (compressiveStrengthMPa). Section 2.6 / \
 ReinforcedConcreteInputs controls reinforced-shotcrete thickness and concrete \
 strength, reinforcement grade, bar diameter, reference spacing, clear-cover \
 ratio, steel modulus, and the reinforcement-ratio grid plotted in both P-M \
-families. Diameter and clear-cover ratio define the layer \
+families. compositeCase controls the additional existing-sheet + Ø8/150 \
+interior sensitivity. Diameter and clear-cover ratio define the layer \
 coordinates. Spacing remains part of the input contract but does not select a \
 curve or an adopted reinforcement. Edit reinforcementRatioGrid to choose the \
 total reinforcement ratios compared by R; do not type a derived steel area \
-directly.\n4. Calculation-method constants are read-only and are returned with the \
+directly. Section 2.7 contains the two parameters used only by the classical \
+Nunez comparison.\n4. Calculation-method constants are read-only and are returned with the \
 results.\n5. For a first run, evaluate the complete notebook from a fresh kernel. The \
 workbook loads the setup once and calls R once.\n6. After changing inputs, \
 reevaluate the edited input cell, Section 3.2 (EngineeringInputs), Section 3.3 \
@@ -56,15 +59,16 @@ initial diameter, and relative diameter loss.\nPlain-concrete lining \
 condition.\nSecond shotcrete section and P-M study inputs \[LongDash] \
 independent outer radius, thickness, concrete material, reinforcement grade, \
 bar diameter, reference spacing, clear-cover ratio, reinforcement modulus, and \
-the reinforcement-ratio grid; R derives the layer coordinates and evaluates the configured reinforcement-ratio \
-family for both shotcrete thicknesses. No bar spacing or steel area is adopted.\nThe crown-to-axis distance, steel centroidal \
+the reinforcement-ratio grid and the composite case; R derives the layer coordinates and evaluates the configured reinforcement-ratio \
+family for both shotcrete thicknesses. No symmetric-family bar spacing or steel area is adopted.\nThe crown-to-axis distance, steel centroidal \
 radius, plain-concrete outer radius, and reinforced-concrete outer radius are \
-four separate inputs even when their defaults are equal.", "Text", 
+four separate inputs even when their defaults are equal.\nClassical comparison \
+\[LongDash] Nunez relaxation and contact parameters used only in the benchmark view.", "Text",
             ExpressionUUID -> "47e1ac61-872d-1664-76ea-4e3cd26838f3"]}, 
           Open]]}, Open]], Cell[CellGroupData[
        {Cell["2. Engineering inputs", "Chapter", ExpressionUUID -> 
           "b4b8dfd2-6f36-b56a-6444-5fb45b0bd091"], Cell["Edit the project \
-values in these six groups. Calculation-method constants are read-only and \
+values in these seven groups. Calculation-method constants are read-only and \
 are presented with the resolved results.", "Text", ExpressionUUID -> 
           "d3fd45cf-2f41-b35b-8e4e-a1ff4823dbfb"], 
         Cell[CellGroupData[{Cell["2.1 Cover geometry", "Section", 
@@ -87,8 +91,8 @@ lining radius.", "Text", ExpressionUUID ->
                    "\"Engineering meaning\"", GrayLevel[1], Bold, 
                    StripOnInput -> False], Background -> RGBColor[0.14, 0.2, 
                     0.28], StripOnInput -> False]}, 
-                {"\"Fill height above crown\"", "\"H\"", "\"m\"", 
-                 "\"4.000\"", "\"Fill depth and vertical fill action\""}, 
+                {"\"Lower compacted-fill height above crown\"", "\"H_0\"", "\"m\"",
+                 "\"5.700\"", "\"Lower-layer contribution to the permanent geostatic field\""},
                 {"\"Crown-to-axis distance\"", "\"z_c\"", "\"m\"", 
                  "\"1.315\"", 
                  "\"Depth of the free-field reference point\""}}, 
@@ -104,14 +108,14 @@ lining radius.", "Text", ExpressionUUID ->
              "70851047-bfa5-dc14-be3a-b10468c9729e"], 
            Cell[BoxData[RowBox[{"CoverInputs", " ", "=", " ", RowBox[
                     {"<|", "\n", "  ", RowBox[{RowBox[{"\"coverCrownM\"", " ", 
-                     "->", " ", "4.`"}], RowBox[{",", "\n", "  "}], 
+                     "->", " ", "5.7`"}], RowBox[{",", "\n", "  "}],
                    RowBox[{"\"crownToAxisM\"", " ", "->", " ", "1.315`"}]}], 
                  "\n", "|>"}], ";"}]], "Input", CellLabelAutoDelete -> True, 
             Background -> RGBColor[1, 0.96, 0.78], ExpressionUUID -> 
              "5a724574-3ddf-4cb5-9499-a69341911889"]}, Open]], 
         Cell[CellGroupData[{Cell["2.2 Fill and ground state", "Section", 
             ExpressionUUID -> "93c3f2db-d6a5-440c-985d-7583e24cc8f6"], 
-           Cell["Eight project inputs define the effective fill action, the \
+           Cell["Nine project inputs define the two permanent soil layers, the \
 K0 branch and its primitive variables, net water pressure, and the ground \
 properties used by the E-S plus balanced-gradient interaction. K0 is derived.", "Text", ExpressionUUID -> 
              "4c1d478d-8ca8-0ef4-a0b7-30359112abd3"], 
@@ -129,10 +133,12 @@ properties used by the E-S plus balanced-gradient interaction. K0 is derived.", 
                    "\"Engineering meaning\"", GrayLevel[1], Bold, 
                    StripOnInput -> False], Background -> RGBColor[0.14, 0.2, 
                     0.28], StripOnInput -> False]}, 
-                {"\"Effective unit weight\"", "\"gamma_eff\"", "\"kN/m^3\"", 
-                 "\"19.613\"", "\"Permanent fill: 2.0 t/m^3; defines the gradient over the liner height\""}, {"\"Effective surcharge\"", 
-                 "\"q_eff\"", "\"kPa\"", "\"88.260\"", 
-                 "\"Permanent uniform surcharge: 6 m of mud at 1.5 t/m^3\""}, 
+                {"\"Lower compacted-fill unit weight\"", "\"gamma_0\"", "\"kN/m^3\"",
+                 "\"19.613\"", "\"Permanent lower layer; defines the gradient over the liner height\""},
+                {"\"Upper mud-layer height\"", "\"H_1\"", "\"m\"", "\"5.700\"",
+                 "\"Height of the permanent upper layer\""},
+                {"\"Upper mud-layer unit weight\"", "\"gamma_1\"", "\"kN/m^3\"", "\"14.710\"",
+                 "\"R derives the permanent pressure q_D = gamma_1 H_1\""},
                 {"\"Ground Young's modulus\"", "\"E_g\"", "\"kPa\"", 
                  "\"30000\"", "\"Uniform Schwartz-Einstein interaction component\""}, 
                 {"\"Ground Poisson's ratio\"", "\"nu_g\"", "\"-\"", 
@@ -159,7 +165,9 @@ properties used by the E-S plus balanced-gradient interaction. K0 is derived.", 
                 {"<|", "\n", "  ", RowBox[{RowBox[
                     {"\"effectiveUnitWeightKnPerM3\"", " ", "->", " ", 
                      "19.6133`"}], RowBox[{",", "\n", "  "}], RowBox[
-                    {"\"effectiveSurchargeKPa\"", " ", "->", " ", "88.25985`"}], 
+                    {"\"upperLayerHeightM\"", " ", "->", " ", "5.7`"}],
+                   RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"upperLayerUnitWeightKnPerM3\"", " ", "->", " ", "14.709975`"}],
                    RowBox[{",", "\n", "  "}], RowBox[{"\"modulusKPa\"", " ", 
                      "->", " ", "30000.`"}], RowBox[{",", "\n", "  "}], 
                    RowBox[{"\"poisson\"", " ", "->", " ", "0.3`"}], 
@@ -318,7 +326,7 @@ thickness is used because it is applied to the existing liner.", "Text", Express
                 {"\"Concrete Poisson's ratio\"", "\"nu_cp\"", "\"-\"", 
                  "\"0.20\"", "\"Uniform Schwartz-Einstein interaction component\""}, 
                 {"\"Specified compressive strength\"", "\"f'_c\"", "\"MPa\"", 
-                 "\"25.0\"", "\"Concrete modulus and capacities\""}}, 
+                 "\"30.0\"", "\"Concrete modulus and capacities\""}},
                GridBoxAlignment -> {"Columns" -> {Left, Center, Center, 
                    Right, Left}, "Rows" -> {{Center}}}, AutoDelete -> False, 
                GridBoxBackground -> {"Columns" -> {{None}}, "Rows" -> 
@@ -336,7 +344,7 @@ thickness is used because it is applied to the existing liner.", "Text", Express
                    RowBox[{",", "\n", "  "}], RowBox[{"\"poisson\"", " ", 
                      "->", " ", "0.2`"}], RowBox[{",", "\n", "  "}], 
                    RowBox[{"\"compressiveStrengthMPa\"", " ", "->", " ", 
-                     "25.`"}]}], 
+                     "30.`"}]}],
                  "\n", "|>"}], ";"}]], "Input", CellLabelAutoDelete -> True, 
             Background -> RGBColor[1, 0.96, 0.78], ExpressionUUID -> 
              "1aae8cde-4a46-46a0-8a21-96b7de235e39"]}, Open]], 
@@ -344,10 +352,11 @@ thickness is used because it is applied to the existing liner.", "Text", Express
           {Cell["2.6 Second shotcrete section and P-M study inputs", 
             "Section", ExpressionUUID -> 
              "68969ff3-6ec3-420e-b118-0db6e1286d6a"], Cell["This alternative \
-uses ten geometry, material, and study input fields. Diameter and clear-cover \
+uses the geometry, material, study, and composite-case input fields. Diameter and clear-cover \
 ratio define the layer position. Spacing is retained as a reference field in \
 the input contract but does not select a curve. reinforcementRatioGrid selects \
-the total steel ratios shown as separate curves. R evaluates the complete P-M \
+the total steel ratios shown as separate curves. compositeCase defines the \
+additional existing-sheet + Ø8/150 interior curve. R evaluates the complete P-M \
 interaction family for both shotcrete thicknesses. The workbook does not \
 select a final reinforcement.", "Text", ExpressionUUID -> 
              "01110577-e335-d45a-7d96-2a80c6e93f46"], 
@@ -372,7 +381,7 @@ select a final reinforcement.", "Text", ExpressionUUID ->
                 {"\"Concrete Poisson's ratio\"", "\"nu_cr\"", "\"-\"", 
                  "\"0.20\"", "\"Uniform Schwartz-Einstein interaction component\""}, 
                 {"\"Specified compressive strength\"", "\"f'_c\"", "\"MPa\"", 
-                 "\"25.0\"", "\"Concrete modulus and P-M domain\""}, 
+                 "\"30.0\"", "\"Concrete modulus and P-M domain\""},
                 {"\"Reinforcement grade\"", "\"-\"", "\"catalog selection\"", 
                  "\"Grade-60\"", "\"Yield strength resolved by R\""}, 
                 {"\"Bar diameter\"", "\"d_b\"", "\"mm\"", "\"6\"", 
@@ -403,7 +412,7 @@ select a final reinforcement.", "Text", ExpressionUUID ->
                    RowBox[{",", "\n", "  "}], RowBox[{"\"poisson\"", " ", 
                      "->", " ", "0.2`"}], RowBox[{",", "\n", "  "}], 
                    RowBox[{"\"compressiveStrengthMPa\"", " ", "->", " ", 
-                     "25.`"}], RowBox[{",", "\n", "  "}], RowBox[
+                     "30.`"}], RowBox[{",", "\n", "  "}], RowBox[
                     {"\"reinforcementGradeID\"", " ", "->", " ", 
                      "\"Grade-60\""}], RowBox[{",", "\n", "  "}], RowBox[
                     {"\"barDiameterMm\"", " ", "->", " ", "6.`"}], 
@@ -416,11 +425,30 @@ select a final reinforcement.", "Text", ExpressionUUID ->
                      "200000.`"}], RowBox[{",", "\n", "  "}], RowBox[
                     {"\"reinforcementRatioGrid\"", " ", "->", " ", 
                      RowBox[{"{", RowBox[{"0.0018`", ",", "0.01`", ",", 
-                          "0.02`", ",", "0.03`"}], "}"}]}]}], "\n", 
+                          "0.02`", ",", "0.03`"}], "}"}]}], RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"compositeCase\"", " ", "->", " ", RowBox[{"<|", RowBox[
+                         {RowBox[{"\"enabled\"", " ", "->", " ", "True"}], RowBox[{",", " "}],
+                          RowBox[{"\"interiorBarDiameterMm\"", " ", "->", " ", "8.`"}], RowBox[{",", " "}],
+                          RowBox[{"\"interiorBarSpacingMm\"", " ", "->", " ", "150.`"}], RowBox[{",", " "}],
+                          RowBox[{"\"interiorClearCoverMm\"", " ", "->", " ", "15.`"}], RowBox[{",", " "}],
+                          RowBox[{"\"fullCompositeAction\"", " ", "->", " ", "True"}]}], "|>"}]}]}], "\n",
                 "|>"}], ";"}]], "Input", 
             CellLabelAutoDelete -> True, Background -> RGBColor[1, 0.96, 
               0.78], ExpressionUUID -> 
-             "c898e83b-bd8f-407a-86c9-3b56d87608a7"]}, Open]]}, Open]], 
+             "c898e83b-bd8f-407a-86c9-3b56d87608a7"]}, Open]],
+        Cell[CellGroupData[
+          {Cell["2.7 Classical-comparison parameters", "Section",
+            ExpressionUUID -> "b037384d-d8e8-4fab-89ac-e2f6ba77c824"],
+           Cell["These two dimensionless parameters affect only the Nunez benchmark. They do not change the primary Schwartz-Einstein plus balanced-gradient solution.",
+            "Text", ExpressionUUID -> "f298dd26-b9af-4100-9995-f254eeb0278d"],
+           Cell[BoxData[RowBox[{"ClassicalComparisonInputs", " ", "=", " ",
+               RowBox[{"<|", "\n", "  ", RowBox[{RowBox[
+                    {"\"nunezRelaxationFactor\"", " ", "->", " ", "1.`"}],
+                   RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"nunezContactFactor\"", " ", "->", " ", "2.`"}]}],
+                "\n", "|>"}], ";"}]], "Input", CellLabelAutoDelete -> True,
+            Background -> RGBColor[1, 0.96, 0.78], ExpressionUUID ->
+             "60702e59-d1de-469d-9f5f-4e90040c435f"]}, Open]]}, Open]],
      Cell[CellGroupData[{Cell["3. Run calculation", "Chapter", 
          ExpressionUUID -> "de720582-c5e5-7e9d-0731-57806ab9e2e8"], 
         Cell[CellGroupData[{Cell["3.1 Load calculation functions", "Section", 
@@ -434,7 +462,7 @@ presentation functions located beside the notebook.", "Text",
              "a7fc3562-3708-4226-b7eb-046d49479c30"]}, Open]], 
         Cell[CellGroupData[{Cell["3.2 Calculation input set", "Section", 
             ExpressionUUID -> "8ac635e6-bd96-b038-60c6-9ca6a645c9ce"], 
-           Cell["This neutral cell combines the six engineering input groups \
+           Cell["This neutral cell combines the seven engineering input groups \
 into one calculation input object.", "Text", ExpressionUUID -> 
              "2d1a26de-edcb-a9c1-5bcc-d4ad55eeea07"], 
            Cell[BoxData[RowBox[{"EngineeringInputs", " ", "=", " ", RowBox[
@@ -444,7 +472,10 @@ into one calculation input object.", "Text", ExpressionUUID ->
                    RowBox[{",", "\n", "  "}], RowBox[{"\"steel\"", " ", "->", 
                      " ", "SteelInputs"}], RowBox[{",", "\n", "  "}], 
                    RowBox[{"\"seam\"", " ", "->", " ", "SeamInputs"}], 
-                   RowBox[{",", "\n", "  "}], RowBox[{"\"plainConcrete\"", 
+                   RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"classicalComparison\"", " ", "->", " ",
+                     "ClassicalComparisonInputs"}], RowBox[{",", "\n", "  "}],
+                   RowBox[{"\"plainConcrete\"",
                      " ", "->", " ", "PlainConcreteInputs"}], RowBox[
                     {",", "\n", "  "}], RowBox[{"\"reinforcedConcrete\"", 
                      " ", "->", " ", "ReinforcedConcreteInputs"}]}], "\n", 

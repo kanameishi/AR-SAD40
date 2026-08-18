@@ -67,7 +67,7 @@ calculateAci31825StrengthReductionFactor <- function(
 .applyAci31825AxialPhiLimit <- function(
   domain,
   compressiveStrengthMPa,
-  reinforcementYieldStrain
+  reinforcementYieldStrain = NULL
 ) {
   ConcreteStrength <- .concretePositiveScalar(
     compressiveStrengthMPa,
@@ -83,10 +83,21 @@ calculateAci31825StrengthReductionFactor <- function(
       length(setdiff(Required, names(domain))) > 0L) {
     stop("domain must be returned by buildConcreteSectionDomain().", call. = FALSE)
   }
-  YieldStrain <- .concretePositiveScalar(
-    reinforcementYieldStrain,
-    "reinforcementYieldStrain"
-  )
+  YieldStrain <- if (is.null(reinforcementYieldStrain)) {
+    if (!("controllingYieldStrain" %in% names(domain)) ||
+        any(!is.finite(domain$controllingYieldStrain)) ||
+        any(domain$controllingYieldStrain <= 0)) {
+      stop("The mixed-layer yield-strain field is unavailable.",
+        call. = FALSE
+      )
+    }
+    NULL
+  } else {
+    .concretePositiveScalar(
+      reinforcementYieldStrain,
+      "reinforcementYieldStrain"
+    )
+  }
   GrossArea <- unique(domain$thicknessMm * domain$stripWidthMm)
   if (length(GrossArea) != 1L) {
     stop("The reinforced domain must use one gross area.", call. = FALSE)
@@ -99,11 +110,22 @@ calculateAci31825StrengthReductionFactor <- function(
         domain$stateID == "compatibility"
     )
     if (length(FaceRows) == 0L) next
-    BalanceIndex <- FaceRows[which.min(abs(
-      domain$netTensileStrain[FaceRows] - YieldStrain
-    ))]
+    TargetYield <- if (is.null(YieldStrain)) {
+      domain$controllingYieldStrain[FaceRows]
+    } else {
+      rep(YieldStrain, length(FaceRows))
+    }
+    BalanceDifference <- abs(
+      domain$netTensileStrain[FaceRows] - TargetYield
+    )
+    BalanceIndex <- FaceRows[which.min(BalanceDifference)]
     if (abs(
-      domain$netTensileStrain[BalanceIndex] - YieldStrain
+      domain$netTensileStrain[BalanceIndex] -
+        if (is.null(YieldStrain)) {
+          domain$controllingYieldStrain[BalanceIndex]
+        } else {
+          YieldStrain
+        }
     ) > 1e-10) {
       stop(
         "The reinforced domain does not contain the balanced point.",
@@ -129,6 +151,53 @@ calculateAci31825StrengthReductionFactor <- function(
   domain$domainPrimitiveID <- paste0(
     domain$domainPrimitiveID,
     "||ACI-318-25-21.2.2.3"
+  )
+  domain
+}
+
+.applyAci31825AxialStrengthLimit <- function(
+  domain,
+  compressiveStrengthMPa,
+  reinforcement,
+  maximumNominalRatio = 0.80,
+  compressionControlledPhi = 0.65
+) {
+  ConcreteStrength <- .concretePositiveScalar(
+    compressiveStrengthMPa,
+    "compressiveStrengthMPa"
+  )
+  Thickness <- unique(domain$thicknessMm)
+  Width <- unique(domain$stripWidthMm)
+  if (length(Thickness) != 1L || length(Width) != 1L) {
+    stop("The ACI domain geometry is not unique.", call. = FALSE)
+  }
+  Reinforcement <- .validateConcreteReinforcement(
+    reinforcement,
+    Thickness
+  )
+  DisplacedArea <- sum(
+    Reinforcement$areaMm2[Reinforcement$displacesConcrete]
+  )
+  ConcreteArea <- Thickness * Width - DisplacedArea
+  if (ConcreteArea <= 0) {
+    stop("The displaced concrete area is invalid.", call. = FALSE)
+  }
+  PureAxial <- 0.85 * ConcreteStrength * ConcreteArea +
+    sum(Reinforcement$yieldStrengthMPa * Reinforcement$areaMm2)
+  MaximumNominal <- maximumNominalRatio * PureAxial
+  MaximumDesign <- compressionControlledPhi * MaximumNominal
+  domain$nominalAxialStrengthN <- pmin(
+    domain$nominalAxialStrengthN,
+    MaximumNominal
+  )
+  domain$axialStrengthN <- pmin(domain$axialStrengthN, MaximumDesign)
+  domain$pureAxialNominalStrengthN <- PureAxial
+  domain$maximumNominalAxialStrengthN <- MaximumNominal
+  domain$maximumDesignAxialStrengthN <- MaximumDesign
+  domain$axialStrengthLimitStatus <- "applied"
+  domain$domainPrimitiveID <- paste0(
+    domain$domainPrimitiveID,
+    "||ACI-318-25-22.4.2.1"
   )
   domain
 }
@@ -219,10 +288,15 @@ buildAci31825ReinforcedSectionDomains <- function(
         "22.2.1 and 22.2.2"
       )
     )
-    .applyAci31825AxialPhiLimit(
+    Domain <- .applyAci31825AxialPhiLimit(
       domain = Domain,
       compressiveStrengthMPa = ConcreteStrength,
       reinforcementYieldStrain = YieldStrain
+    )
+    .applyAci31825AxialStrengthLimit(
+      domain = Domain,
+      compressiveStrengthMPa = ConcreteStrength,
+      reinforcement = Reinforcement
     )
   }
   DomainBase <- buildDomain(basePointCount)
@@ -240,6 +314,131 @@ buildAci31825ReinforcedSectionDomains <- function(
     scopeID = "local-reinforced-shell-strip-P-M",
     currentShellCodeStatus = "not-evaluated-aci-318.2-25",
     shearStatus = "not-evaluated"
+  )
+}
+
+.aci31825MixedNeutralAxisDepths <- function(
+  thicknessMm,
+  reinforcement,
+  pointCount
+) {
+  Thickness <- .concretePositiveScalar(thicknessMm, "thicknessMm")
+  if (!is.numeric(pointCount) || length(pointCount) != 1L ||
+      !is.finite(pointCount) || pointCount != as.integer(pointCount) ||
+      pointCount < 101L) {
+    stop("pointCount must be one integer of at least 101.", call. = FALSE)
+  }
+  Reinforcement <- .validateConcreteReinforcement(
+    reinforcement,
+    Thickness
+  )
+  YieldStrains <- Reinforcement$yieldStrengthMPa /
+    Reinforcement$modulusMPa
+  ExteriorLayerDepth <- Thickness / 2 - Reinforcement$coordinateMm
+  InteriorLayerDepth <- Thickness / 2 + Reinforcement$coordinateMm
+  BalancedDepths <- c(
+    ExteriorLayerDepth / (1 + YieldStrains / 0.003),
+    InteriorLayerDepth / (1 + YieldStrains / 0.003)
+  )
+  BalancedDepths <- BalancedDepths[
+    is.finite(BalancedDepths) & BalancedDepths > 0
+  ]
+  sort(unique(c(
+    Thickness * exp(seq(
+      log(1e-6),
+      log(1e3),
+      length.out = as.integer(pointCount)
+    )),
+    BalancedDepths
+  )))
+}
+
+buildAci31825MixedReinforcedSectionDomains <- function(
+  thicknessMm,
+  stripWidthMm,
+  compressiveStrengthMPa,
+  reinforcement,
+  momentReferenceCoordinateMm,
+  basePointCount = 201L,
+  refinedPointCount = 401L
+) {
+  DomainInput <- .aci31825DomainInput(
+    thicknessMm = thicknessMm,
+    stripWidthMm = stripWidthMm,
+    compressiveStrengthMPa = compressiveStrengthMPa,
+    reinforcement = reinforcement
+  )
+  Reinforcement <- DomainInput[["reinforcement", exact = TRUE]]
+  Thickness <- DomainInput[["thicknessMm", exact = TRUE]]
+  Width <- DomainInput[["stripWidthMm", exact = TRUE]]
+  ConcreteStrength <- DomainInput[["compressiveStrengthMPa", exact = TRUE]]
+  if (refinedPointCount <= basePointCount) {
+    stop("refinedPointCount must exceed basePointCount.", call. = FALSE)
+  }
+  Reduction <- function(netTensileStrain, steelStrain, reinforcement) {
+    TensionIndex <- which.min(steelStrain)[1L]
+    calculateAci31825StrengthReductionFactor(
+      netTensileStrain = netTensileStrain,
+      reinforcementYieldStrain =
+        reinforcement$yieldStrengthMPa[TensionIndex] /
+        reinforcement$modulusMPa[TensionIndex]
+    )
+  }
+  Beta <- calculateAci31825Beta1(ConcreteStrength)
+  buildDomain <- function(pointCount) {
+    Domain <- buildConcreteSectionDomain(
+      thicknessMm = Thickness,
+      stripWidthMm = Width,
+      compressiveStrengthMPa = ConcreteStrength,
+      reinforcement = Reinforcement,
+      concreteMaximumStrain = 0.003,
+      concreteStressFactor = 0.85,
+      beta1 = Beta,
+      strengthReductionFactor = Reduction,
+      neutralAxisDepthsMm = .aci31825MixedNeutralAxisDepths(
+        thicknessMm = Thickness,
+        reinforcement = Reinforcement,
+        pointCount = pointCount
+      ),
+      provisionID = "ACI-318-25-mixed-steel-P-M",
+      designBasisID =
+        "conditional-full-composite-sectional-strain-compatibility",
+      strengthReductionRuleID =
+        "ACI-318-25-21.2.2-mixed-controlling-tension-layer",
+      sourceLocator = paste(
+        "ACI CODE-318-25 SI, Table 21.2.2, 21.2.2.3,",
+        "22.2.1, 22.2.2 and 22.4.2"
+      ),
+      momentReferenceCoordinateMm = momentReferenceCoordinateMm
+    )
+    Domain <- .applyAci31825AxialPhiLimit(
+      domain = Domain,
+      compressiveStrengthMPa = ConcreteStrength,
+      reinforcementYieldStrain = NULL
+    )
+    .applyAci31825AxialStrengthLimit(
+      domain = Domain,
+      compressiveStrengthMPa = ConcreteStrength,
+      reinforcement = Reinforcement
+    )
+  }
+  DomainBase <- buildDomain(basePointCount)
+  DomainRefined <- buildDomain(refinedPointCount)
+  list(
+    base = DomainBase,
+    refined = DomainRefined,
+    baseGeometry = .prepareConcreteDomainGeometry(DomainBase),
+    refinedGeometry = .prepareConcreteDomainGeometry(DomainRefined),
+    domainInput = c(
+      DomainInput,
+      list(momentReferenceCoordinateMm = momentReferenceCoordinateMm)
+    ),
+    beta1 = Beta,
+    standardID = "ACI-318-25",
+    supplementID = "conditional-full-composite-action",
+    scopeID = "conditional-full-composite-local-P-M",
+    currentShellCodeStatus = "not-evaluated-aci-318.2-25",
+    shearStatus = "evaluated-separately"
   )
 }
 

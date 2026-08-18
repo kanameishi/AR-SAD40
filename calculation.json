@@ -3,12 +3,13 @@
   "methodID": "ar-sad40-cover-current",
   "inputs": {
     "cover": {
-      "coverCrownM": 4.0,
+      "coverCrownM": 5.70,
       "crownToAxisM": 1.315
     },
     "ground": {
       "effectiveUnitWeightKnPerM3": 19.6133,
-      "effectiveSurchargeKPa": 88.25985,
+      "upperLayerHeightM": 5.70,
+      "upperLayerUnitWeightKnPerM3": 14.709975,
       "modulusKPa": 30000.0,
       "poisson": 0.30,
       "k0ModelID": "mayne-kulhawy-unloading",
@@ -38,13 +39,13 @@
       "outerRadiusM": 1.315,
       "thicknessM": 0.10,
       "poisson": 0.20,
-      "compressiveStrengthMPa": 25.0
+      "compressiveStrengthMPa": 30.0
     },
     "reinforcedConcrete": {
       "outerRadiusM": 1.315,
       "thicknessM": 0.15,
       "poisson": 0.20,
-      "compressiveStrengthMPa": 25.0,
+      "compressiveStrengthMPa": 30.0,
       "reinforcementGradeID": "Grade-60",
       "barDiameterMm": 6.0,
       "barSpacingMm": 150.0,
@@ -55,7 +56,14 @@
         0.01,
         0.02,
         0.03
-      ]
+      ],
+      "compositeCase": {
+        "enabled": true,
+        "interiorBarDiameterMm": 8.0,
+        "interiorBarSpacingMm": 150.0,
+        "interiorClearCoverMm": 15.0,
+        "fullCompositeAction": true
+      }
     }
   }
 }

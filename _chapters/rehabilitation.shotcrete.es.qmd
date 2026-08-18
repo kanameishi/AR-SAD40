@@ -15,7 +15,8 @@ E_c=4700\sqrt{f'_c}
 \nu_c=`r formatCalculationGeneral(Calculation$shotcrete$section$poisson)`.
 $$ {#eq-calculation-shotcrete-modulus}
 
-La sección bruta produce las rigideces
+La sección conserva el área axial bruta y adopta $I_e=0.35I_g$ para la
+flexión. Las rigideces resultantes son
 
 $$
 EA_c=
@@ -59,10 +60,13 @@ resultante.
 
 Las combinaciones resistentes vuelven a calcular las resultantes concurrentes
 en cada posición angular. Los pares de factores adoptados son
-`r StrengthCaseSentence`, conforme a las combinaciones identificadas en la
-tabla de resultados. La carga permanente vertical comprende el relleno y la
-sobrecarga de lodo; el empuje lateral corresponde a la presión del terreno.
-Los factores se aplican a esas dos acciones y la interacción
+`r StrengthCaseSentence`. $EV$ corresponde a la presión vertical del relleno
+permanente y $EH$ a la presión horizontal del terreno en reposo. Se evalúan
+los valores máximo y mínimo de la Tabla 3.4.1-2 de AASHTO para obtener la
+envolvente de efectos, de acuerdo con CIRSOC 804-4, artículos 12.5.4 y 12.6.1
+[@CIRSOC8044]. El peso de la capa superior de lodo está incluido en el mismo
+estado geostático permanente y no se trata como carga viva. Los factores se
+aplican a las dos componentes del estado de tensiones y la interacción
 suelo--revestimiento recalcula concurrentemente $N$, $M$ y $Q$. Para una
 franja de ancho $b$ se utilizan
 
@@ -154,7 +158,8 @@ La armadura mínima se conserva como referencia histórica de ACI 318.2-14
 la fuerza circunferencial y el momento se comprueba por separado para cada
 cuantía mediante su diagrama de interacción.
 
-La rigidez del análisis se calcula con la sección bruta de hormigón:
+La rigidez del análisis conserva $EA=E_cA_g$ y adopta
+$EI=0.35E_cI_g$:
 
 $$
 EA_r=
@@ -244,8 +249,9 @@ $$
 \end{cases}
 $$ {#eq-calculation-reinforced-strength-reduction}
 
-con el límite axial adicional del artículo 21.2.2.3 de ACI 318-25
-[@ACI31825, tabla 21.2.2 y arts. 21.2.2.3, 22.2.1 y 22.2.2]. La utilización
+con el límite del factor de resistencia del artículo 21.2.2.3 y el límite de
+resistencia axial $P_{n,\max}=0.80P_o$ del artículo 22.4.2.1 de ACI 318-25
+[@ACI31825, tabla 21.2.2 y arts. 21.2.2.3, 22.2.1, 22.2.2 y 22.4.2]. La utilización
 se determina con el multiplicador radial $\lambda_*$ que satisface
 
 $$
@@ -260,8 +266,17 @@ El dominio se calcula con discretizaciones de
 puntos y se acepta
 cuando la diferencia relativa de utilización no supera
 `r formatCalculationGeneral(ReinforcementStudy$convergenceTolerance)`.
-Las mismas cuatro demandas gobernantes se comparan con todas las envolventes,
-de modo que cada cuantía se evalúa frente a un conjunto común de acciones.
+Las acciones perimetrales son comunes a las cuatro cuantías simétricas de
+cada espesor porque todas emplean la misma rigidez fisurada del hormigón. Para cada curva se
+selecciona, en cada límite de interfaz, el par $(P_u,M_u)$ que maximiza su
+utilización radial entre todas las posiciones angulares y combinaciones
+$EV/EH$. Por ello cada cuantía presenta dos marcadores y la posición
+gobernante puede cambiar al modificarse el dominio resistente. El quinto caso
+representa la chapa exterior remanente trabajando en acción compuesta total
+con una malla circunferencial Ø8/150 en la cara interior. Para ese caso se
+calcula el centroide elástico de la sección asimétrica y se vuelven a obtener
+las acciones con su propia rigidez; no se reutilizan los puntos de demanda de
+las cuantías simétricas.
 
 La sensibilidad conserva el espesor, el hormigón, el acero y la posición
 relativa de las capas, y varía el área circunferencial total de ambas caras. La
@@ -282,10 +297,31 @@ La sección de 150 mm se presenta en la
 {{< include /_fig/Calculation.concrete.reinforced.axial.flexure.ES.qmd >}}
 
 Cada curva es una envolvente resistente formada por estados compatibles de
-deformación de la sección. El estudio compara cuatro cuantías discretas para
-cada espesor frente a las mismas demandas perimetrales. La etapa de selección
-de armadura comprende el corte unidireccional de la sección armada, la acción
-longitudinal, la estabilidad del revestimiento, la fisuración y deformación en
-servicio, las clases de exposición y durabilidad, y el detallado de
-recubrimiento, separación, desarrollo y anclaje conforme al articulado
-contractual aplicable.
+deformación de la sección. Además de $P$--$M$, la tabla informa el corte
+unidireccional según ACI 318-25. Para una sección sin armadura transversal se
+emplea
+
+$$
+V_c=\left[0.66\lambda_s\rho_w^{1/3}\sqrt{f'_c}
++\frac{N_u}{6A_g}\right]b_wd,
+\qquad
+\phi V_c=0.75V_c,
+$$ {#eq-calculation-reinforced-shear}
+
+con los límites de los artículos 22.5.5.1.1 a 22.5.5.1.3. La tracción radial
+es el esfuerzo que una barra circunferencial curva transmite hacia el
+recubrimiento al trabajar a tracción. El control limita el área de la capa
+interior que puede disponerse sin estribos radiales:
+
+$$
+A_{s,\max}=
+\frac{110720\,r_sF_{rp}\sqrt{f'_c}\,R_\phi F_{rt}}{f_y}.
+$$ {#eq-calculation-reinforced-radial-tension}
+
+La expresión corresponde al artículo 12.10.4.2.4c de CIRSOC 804-4
+[@CIRSOC8044]. Se informa como comprobación condicional por analogía, porque
+ese artículo está formulado para tubos enterrados de hormigón armado y no
+nombra al hormigón proyectado ejecutado dentro de una chapa existente. La
+acción compuesta del quinto caso presupone transferencia completa en la
+interfaz para la carga total; su uso como solución final exige justificar esa
+transferencia y el estado previo de la chapa.

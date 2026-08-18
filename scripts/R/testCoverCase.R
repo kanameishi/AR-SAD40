@@ -33,7 +33,7 @@ readCoverCaseMethodProfile <- function(projectRoot) {
       OUT[["methodProfileID", exact = TRUE]],
       "ar-sad40-cover-mesh-2026-08-16"
     ),
-    identical(OUT[["methodProfileVersion", exact = TRUE]], "1.3.0")
+    identical(OUT[["methodProfileVersion", exact = TRUE]], "1.4.0")
   )
   OUT[["methodProfileID"]] <- NULL
   OUT[["methodProfileVersion"]] <- NULL
@@ -48,7 +48,7 @@ stopifnot(
     Manifest[["methodID", exact = TRUE]],
     "ar-sad40-cover-current"
   ),
-  countCoverCaseLeaves(Inputs) == 39L,
+  countCoverCaseLeaves(Inputs) == 45L,
   identical(
     names(Inputs),
     c(
@@ -80,7 +80,7 @@ stopifnot(
       "methodProfileVersion",
       exact = TRUE
     ]],
-    "1.3.0"
+    "1.4.0"
   ),
   abs(Resolution[["derived", exact = TRUE]][[
     "reinforcedAreaMm2PerFaceAndDirection",
@@ -141,12 +141,12 @@ stopifnot(
   ) %in% names(Observed[["schwartzEinsteinComparison", exact = TRUE]])),
   identical(
     names(Observed[["reinforcementStudy", exact = TRUE]]),
-    c("domains", "summary", "governingDemands")
+    c("domains", "summary", "governingDemands", "limitChecks")
   ),
   nrow(Observed[["reinforcementStudy", exact = TRUE]][[
     "summary",
     exact = TRUE
-  ]]) == 8L
+  ]]) == 10L
 )
 Study <- Observed[["reinforcementStudy", exact = TRUE]]
 stopifnot(
@@ -164,6 +164,11 @@ stopifnot(
     "thetaDeg", "axialDemandKnPerM", "bendingDemandKnMPerM",
     "radialUtilization"
   ) %in% names(Study[["governingDemands", exact = TRUE]])),
+  all(c(
+    "liningID", "reinforcementCaseID", "checkID", "utilization",
+    "checkStatus"
+  ) %in% names(Study[["limitChecks", exact = TRUE]])),
+  nrow(Study[["limitChecks", exact = TRUE]]) == 20L,
   identical(sort(unique(Study[["summary"]][["liningID"]])), c(
     "reinforcedConcrete", "shotcrete"
   ))
@@ -265,7 +270,8 @@ Mutations <- list(
   list(path = c("cover", "coverCrownM"), value = 8.1),
   list(path = c("cover", "crownToAxisM"), value = 1.325),
   list(path = c("ground", "effectiveUnitWeightKnPerM3"), value = 19.1),
-  list(path = c("ground", "effectiveSurchargeKPa"), value = 1),
+  list(path = c("ground", "upperLayerHeightM"), value = 5.8),
+  list(path = c("ground", "upperLayerUnitWeightKnPerM3"), value = 14.8),
   list(path = c("ground", "modulusKPa"), value = 31000),
   list(path = c("ground", "poisson"), value = 0.31),
   list(path = c("ground", "k0ModelID"), value = "jaky-nc"),
@@ -309,7 +315,7 @@ Mutations <- list(
     value = list(0.0018, 0.008, 0.016, 0.024)
   )
 )
-stopifnot(length(Mutations) == 31L)
+stopifnot(length(Mutations) == 32L)
 for (i in seq_along(Mutations)) {
   AUX <- Mutations[[i]]
   Variant <- mutateCoverCaseInput(

@@ -481,9 +481,10 @@ if (any(!vapply(
         call. = FALSE
       )
     }
-    if (StiffnessBasisID != "gross-uncracked-short-term") {
+    if (StiffnessBasisID != "aci-318-25-cracked-wall-0p35-ig") {
       stop(
-        Path, ".stiffnessBasisID must be gross-uncracked-short-term.",
+        Path,
+        ".stiffnessBasisID must be aci-318-25-cracked-wall-0p35-ig.",
         call. = FALSE
       )
     }
@@ -863,15 +864,26 @@ validateCoverCalculationConfig <- function(config) {
   }
 
   Cover <- config[["cover", exact = TRUE]]
+  UpperLayerFields <- c(
+    "upperLayerHeightM", "upperLayerUnitWeightKnPerM3"
+  )
   .requireFields(
     Cover,
     c(
       "coverCrownM", "crownToAxisM", "effectiveUnitWeightKnPerM3",
       "effectiveSurchargeKPa", "referencePositionID"
     ),
+    optional = UpperLayerFields,
     path = "cover"
   )
   ReferencePositionID <- .readText(Cover, "referencePositionID", "cover")
+  HasUpperLayer <- all(UpperLayerFields %in% names(Cover))
+  if (SchemaVersion == "3.1.0" && !HasUpperLayer) {
+    stop(
+      "Schema 3.1.0 requires the permanent upper-layer geometry and unit weight.",
+      call. = FALSE
+    )
+  }
   if (!(ReferencePositionID %in% c("crown", "axis", "invert"))) {
     stop(
       "cover.referencePositionID must be crown, axis or invert.",
@@ -979,7 +991,7 @@ validateCoverCalculationConfig <- function(config) {
     schemaVersion = SchemaVersion,
     analysisModelID = AnalysisModelID,
     scenarioID = .readText(config, "scenarioID", "calculation.json"),
-    cover = list(
+    cover = c(list(
       coverCrownM = .readNumber(Cover, "coverCrownM", "cover", minimum = 0),
       crownToAxisM = .readNumber(
         Cover,
@@ -1002,7 +1014,30 @@ validateCoverCalculationConfig <- function(config) {
         minimum = 0
       ),
       referencePositionID = ReferencePositionID
-    ),
+    ), if (HasUpperLayer) {
+      UpperHeight <- .readNumber(
+        Cover, "upperLayerHeightM", "cover", minimum = 0
+      )
+      UpperUnitWeight <- .readNumber(
+        Cover, "upperLayerUnitWeightKnPerM3", "cover", minimum = 0
+      )
+      UpperPressure <- .readNumber(
+        Cover, "effectiveSurchargeKPa", "cover", minimum = 0
+      )
+      if (abs(UpperPressure - UpperHeight * UpperUnitWeight) >
+          1e-9 * max(1, UpperPressure)) {
+        stop(
+          "cover.effectiveSurchargeKPa must equal the upper-layer weight.",
+          call. = FALSE
+        )
+      }
+      list(
+        upperLayerHeightM = UpperHeight,
+        upperLayerUnitWeightKnPerM3 = UpperUnitWeight
+      )
+    } else {
+      list()
+    }),
     ground = list(
       modulusKPa = .readNumber(
         Ground,
@@ -1284,7 +1319,17 @@ validateCoverCalculationConfig <- function(config) {
     .inputRow(ScenarioID, NA, "cover", "cover-at-crown", "H", Cover[["coverCrownM", exact = TRUE]], unit = "m", evidenceLevel = "HA", conditionCode = "scenario-input"),
     .inputRow(ScenarioID, NA, "cover", "crown-to-axis", "R_c", Cover[["crownToAxisM", exact = TRUE]], unit = "m", evidenceLevel = "HA", conditionCode = "scenario-input"),
     .inputRow(ScenarioID, NA, "cover", "effective-unit-weight", "gamma'", Cover[["effectiveUnitWeightKnPerM3", exact = TRUE]], unit = "kN/m3", evidenceLevel = "HA", conditionCode = "scenario-input"),
-    .inputRow(ScenarioID, NA, "cover", "effective-surcharge", "q'", Cover[["effectiveSurchargeKPa", exact = TRUE]], unit = "kPa", evidenceLevel = "HA", conditionCode = "scenario-input"),
+    if (all(c(
+      "upperLayerHeightM", "upperLayerUnitWeightKnPerM3"
+    ) %in% names(Cover))) {
+      .inputRow(ScenarioID, NA, "cover", "upper-layer-height", "H_1", Cover[["upperLayerHeightM", exact = TRUE]], unit = "m", evidenceLevel = "HA", conditionCode = "scenario-input")
+    } else NULL,
+    if (all(c(
+      "upperLayerHeightM", "upperLayerUnitWeightKnPerM3"
+    ) %in% names(Cover))) {
+      .inputRow(ScenarioID, NA, "cover", "upper-layer-unit-weight", "gamma_1", Cover[["upperLayerUnitWeightKnPerM3", exact = TRUE]], unit = "kN/m3", evidenceLevel = "HA", conditionCode = "scenario-input")
+    } else NULL,
+    .inputRow(ScenarioID, NA, "cover", "effective-surcharge", "q_D", Cover[["effectiveSurchargeKPa", exact = TRUE]], unit = "kPa", evidenceLevel = "HA", conditionCode = "derived-permanent-upper-layer-pressure"),
     .inputRow(ScenarioID, NA, "cover", "reference-position", "position", textValue = Cover[["referencePositionID", exact = TRUE]], evidenceLevel = "HA", conditionCode = "selected-reference"),
     .inputRow(ScenarioID, NA, "ground", "modulus", "E_g", Ground[["modulusKPa", exact = TRUE]], unit = "kPa", evidenceLevel = "HA", conditionCode = "scenario-input"),
     .inputRow(ScenarioID, NA, "ground", "poisson-ratio", "nu_g", Ground[["poisson", exact = TRUE]], evidenceLevel = "HA", conditionCode = "scenario-input"),
@@ -1451,7 +1496,7 @@ validateCoverCalculationConfig <- function(config) {
   ScenarioID <- config[["scenarioID", exact = TRUE]]
   Stress <- result[["freeFieldStress", exact = TRUE]]
   K0State <- .adaptCalculationK0State(result[["k0State", exact = TRUE]])
-  data.frame(
+  OUT <- data.frame(
     scenarioID = ScenarioID,
     stressStateID = paste0(ScenarioID, "-free-field"),
     stressModelID = Stress[["stressModelID", exact = TRUE]],
@@ -1478,6 +1523,17 @@ validateCoverCalculationConfig <- function(config) {
     sourceLocator = K0State[["sourceLocator", exact = TRUE]],
     stringsAsFactors = FALSE
   )
+  Cover <- config[["cover", exact = TRUE]]
+  if (all(c(
+    "upperLayerHeightM", "upperLayerUnitWeightKnPerM3"
+  ) %in% names(Cover))) {
+    OUT$upperLayerHeightM <- Cover[["upperLayerHeightM", exact = TRUE]]
+    OUT$upperLayerUnitWeightKnPerM3 <- Cover[[
+      "upperLayerUnitWeightKnPerM3",
+      exact = TRUE
+    ]]
+  }
+  OUT
 }
 
 .buildCoverSectionTable <- function(config, reference, result) {
@@ -2060,7 +2116,8 @@ validateCoverCalculationConfig <- function(config) {
   LiningIDs <- names(Linings)
   ReinforcementStudy <- .evaluateCoverReinforcementStudy(
     config = config,
-    additionalLinings = Linings
+    additionalLinings = Linings,
+    steelSection = evaluation[["section", exact = TRUE]]
   )
   StudyProducts <- if (is.null(ReinforcementStudy)) {
     list()
@@ -2071,7 +2128,9 @@ validateCoverCalculationConfig <- function(config) {
       "shotcrete.axial.flexure.reinforcement.sweep.csv" =
         ReinforcementStudy[["summary", exact = TRUE]],
       "shotcrete.axial.flexure.reinforcement.governing.demands.csv" =
-        ReinforcementStudy[["governingDemands", exact = TRUE]]
+        ReinforcementStudy[["governingDemands", exact = TRUE]],
+      "shotcrete.axial.flexure.reinforcement.limit.checks.csv" =
+        ReinforcementStudy[["limitChecks", exact = TRUE]]
     )
   }
   bindProduct <- function(name) {

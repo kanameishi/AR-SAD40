@@ -472,11 +472,12 @@
     TRUE
   )
   .coverText(Lining$stiffnessBasisID, "lining.stiffnessBasisID")
-  if (Lining$stiffnessBasisID != "gross-uncracked-short-term") {
+  if (Lining$stiffnessBasisID !=
+      "aci-318-25-cracked-wall-0p35-ig") {
     stop(
       paste(
         "lining.stiffnessBasisID must be",
-        "gross-uncracked-short-term for this section helper."
+        "aci-318-25-cracked-wall-0p35-ig for this section helper."
       ),
       call. = FALSE
     )

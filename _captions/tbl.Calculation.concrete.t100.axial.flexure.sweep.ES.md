@@ -1,1 +1,1 @@
-Sección de 100 mm: comprobación local $P$--$M$ para cada cuantía circunferencial. $A_{s,\theta}$ suma ambas caras y $\rho_\theta=A_{s,\theta}/(b t_c)$. El resultado indica si el dominio contiene todas las demandas calculadas en las 720 posiciones del perímetro.
+Sección de 100 mm: comprobaciones locales $P$--$M$, corte y tracción radial para cuatro cuantías simétricas y para la hipótesis compuesta de chapa exterior más Ø8/150 interior. En los casos simétricos, $A_{s,\theta}$ suma ambas caras y $\rho_\theta=A_{s,\theta}/(b t_c)$.

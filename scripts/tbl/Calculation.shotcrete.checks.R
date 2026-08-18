@@ -95,7 +95,7 @@ buildCalculationShotcreteChecksTable <- function(path, liningID) {
   knitr::kable(
     Output,
     col.names = c(
-      "Contacto", "Comprobación", "Carga vertical", "Empuje lateral",
+      "Contacto", "Comprobación", "$f_{EV}$", "$f_{EH}$",
       "Demanda", "Resistencia", "Unidad", "Demanda/resistencia",
       "Resultado"
     ),

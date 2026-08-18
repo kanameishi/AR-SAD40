@@ -83,7 +83,7 @@ runCoverScenarioTests <- function() {
     poisson = 0.20,
     thicknessM = 0.15,
     youngModulusKPa = 25e6,
-    stiffnessBasisID = "gross-uncracked-short-term",
+    stiffnessBasisID = "aci-318-25-cracked-wall-0p35-ig",
     compressiveStrengthMPa = 30,
     stripWidthM = 1,
     reinforcement = Reinforcement,
@@ -190,7 +190,7 @@ runCoverScenarioTests <- function() {
     abs(
       SteelThin$momentAbsoluteMaxKnMPerM -
         SteelH2$momentAbsoluteMaxKnMPerM
-    ) < 1e-10,
+    ) > 1e-8,
     abs(
       ShotcreteH2$momentAbsoluteMaxKnMPerM -
         SteelH2$momentAbsoluteMaxKnMPerM
@@ -424,7 +424,7 @@ runCoverScenarioTests <- function() {
   )
 
   InvalidStiffness <- Scenarios[[4L]]
-  InvalidStiffness$lining$stiffnessBasisID <- "secant-cracked"
+  InvalidStiffness$lining$stiffnessBasisID <- "gross-uncracked-short-term"
   InvalidStiffness.error <- tryCatch(
     evaluateCoverScenario(
       scenario = InvalidStiffness,
@@ -434,7 +434,7 @@ runCoverScenarioTests <- function() {
     error = function(e) conditionMessage(e)
   )
   stopifnot(grepl(
-    "gross-uncracked-short-term",
+    "aci-318-25-cracked-wall-0p35-ig",
     InvalidStiffness.error,
     fixed = TRUE
   ))

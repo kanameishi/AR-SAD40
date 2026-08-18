@@ -111,9 +111,9 @@
   Ground <- .coverCaseRequireFields(
     Inputs[["ground", exact = TRUE]],
     c(
-      "effectiveUnitWeightKnPerM3", "effectiveSurchargeKPa", "modulusKPa",
-      "poisson", "k0ModelID", "frictionAngleDeg", "ocr",
-      "waterPressureDifferenceKPa"
+      "effectiveUnitWeightKnPerM3", "upperLayerHeightM",
+      "upperLayerUnitWeightKnPerM3", "modulusKPa", "poisson", "k0ModelID",
+      "frictionAngleDeg", "ocr", "waterPressureDifferenceKPa"
     ),
     "inputs.ground"
   )
@@ -152,9 +152,17 @@
       "outerRadiusM", "thicknessM", "poisson", "compressiveStrengthMPa",
       "reinforcementGradeID", "barDiameterMm", "barSpacingMm",
       "clearCoverRatio", "reinforcementModulusMPa",
-      "reinforcementRatioGrid"
+      "reinforcementRatioGrid", "compositeCase"
     ),
     "inputs.reinforcedConcrete"
+  )
+  Composite <- .coverCaseRequireFields(
+    Reinforced[["compositeCase", exact = TRUE]],
+    c(
+      "enabled", "interiorBarDiameterMm", "interiorBarSpacingMm",
+      "interiorClearCoverMm", "fullCompositeAction"
+    ),
+    "inputs.reinforcedConcrete.compositeCase"
   )
 
   CoverCrown <- .coverCaseReadNumber(
@@ -167,6 +175,18 @@
   GroundPoisson <- .coverCaseReadNumber(
     Ground, "poisson", "inputs.ground", minimum = -1, maximum = 0.5,
     strictMinimum = TRUE, strictMaximum = TRUE
+  )
+  UpperLayerHeight <- .coverCaseReadNumber(
+    Ground,
+    "upperLayerHeightM",
+    "inputs.ground",
+    minimum = 0
+  )
+  UpperLayerUnitWeight <- .coverCaseReadNumber(
+    Ground,
+    "upperLayerUnitWeightKnPerM3",
+    "inputs.ground",
+    minimum = 0
   )
   K0ModelID <- .coverCaseReadID(
     Ground,
@@ -288,6 +308,37 @@
     "reinforcementRatioGrid",
     "inputs.reinforcedConcrete"
   )
+  CompositeBarDiameter <- .coverCaseReadNumber(
+    Composite,
+    "interiorBarDiameterMm",
+    "inputs.reinforcedConcrete.compositeCase",
+    minimum = 0,
+    strictMinimum = TRUE
+  )
+  CompositeBarSpacing <- .coverCaseReadNumber(
+    Composite,
+    "interiorBarSpacingMm",
+    "inputs.reinforcedConcrete.compositeCase",
+    minimum = CompositeBarDiameter,
+    strictMinimum = TRUE
+  )
+  CompositeClearCover <- .coverCaseReadNumber(
+    Composite,
+    "interiorClearCoverMm",
+    "inputs.reinforcedConcrete.compositeCase",
+    minimum = 0,
+    strictMinimum = TRUE
+  )
+  if (CompositeClearCover + CompositeBarDiameter / 2 >=
+      min(PlainThickness, ReinforcedThickness) * 1000) {
+    stop(
+      paste(
+        "inputs.reinforcedConcrete.compositeCase places the interior",
+        "reinforcement outside the concrete section."
+      ),
+      call. = FALSE
+    )
+  }
   calculateSymmetricReinforcementMesh(
     thicknessM = ReinforcedThickness,
     barDiameterMm = BarDiameter,
@@ -310,12 +361,8 @@
         minimum = 0,
         strictMinimum = TRUE
       ),
-      effectiveSurchargeKPa = .coverCaseReadNumber(
-        Ground,
-        "effectiveSurchargeKPa",
-        "inputs.ground",
-        minimum = 0
-      ),
+      upperLayerHeightM = UpperLayerHeight,
+      upperLayerUnitWeightKnPerM3 = UpperLayerUnitWeight,
       modulusKPa = .coverCaseReadNumber(
         Ground, "modulusKPa", "inputs.ground", minimum = 0,
         strictMinimum = TRUE
@@ -416,7 +463,22 @@
       barSpacingMm = BarSpacing,
       clearCoverRatio = ClearCoverRatio,
       reinforcementModulusMPa = ReinforcementModulus,
-      reinforcementRatioGrid = ReinforcementRatioGrid
+      reinforcementRatioGrid = ReinforcementRatioGrid,
+      compositeCase = list(
+        enabled = .coverCaseReadFlag(
+          Composite,
+          "enabled",
+          "inputs.reinforcedConcrete.compositeCase"
+        ),
+        interiorBarDiameterMm = CompositeBarDiameter,
+        interiorBarSpacingMm = CompositeBarSpacing,
+        interiorClearCoverMm = CompositeClearCover,
+        fullCompositeAction = .coverCaseReadFlag(
+          Composite,
+          "fullCompositeAction",
+          "inputs.reinforcedConcrete.compositeCase"
+        )
+      )
     )
   )
 }
@@ -545,10 +607,18 @@
     "effectiveUnitWeightKnPerM3",
     exact = TRUE
   ]]
-  Config[["cover"]][["effectiveSurchargeKPa"]] <- Ground[[
-    "effectiveSurchargeKPa",
+  Config[["cover"]][["upperLayerHeightM"]] <- Ground[[
+    "upperLayerHeightM",
     exact = TRUE
   ]]
+  Config[["cover"]][["upperLayerUnitWeightKnPerM3"]] <- Ground[[
+    "upperLayerUnitWeightKnPerM3",
+    exact = TRUE
+  ]]
+  Config[["cover"]][["effectiveSurchargeKPa"]] <- Ground[[
+    "upperLayerHeightM",
+    exact = TRUE
+  ]] * Ground[["upperLayerUnitWeightKnPerM3", exact = TRUE]]
   Config[["ground"]][["modulusKPa"]] <- Ground[["modulusKPa", exact = TRUE]]
   Config[["ground"]][["poisson"]] <- Ground[["poisson", exact = TRUE]]
   Config[["ground"]][["k0"]] <- if (
@@ -698,6 +768,33 @@
   ReinforcedConfig[["reinforcementStudy"]][[
     "reinforcementRatioGrid"
   ]] <- as.list(Reinforced[["reinforcementRatioGrid", exact = TRUE]])
+  ReinforcedConfig[["reinforcementStudy"]][["compositeCase"]][[
+    "enabled"
+  ]] <- Reinforced[["compositeCase", exact = TRUE]][["enabled", exact = TRUE]]
+  ReinforcedConfig[["reinforcementStudy"]][["compositeCase"]][[
+    "interiorBarDiameterMm"
+  ]] <- Reinforced[["compositeCase", exact = TRUE]][[
+    "interiorBarDiameterMm",
+    exact = TRUE
+  ]]
+  ReinforcedConfig[["reinforcementStudy"]][["compositeCase"]][[
+    "interiorBarSpacingMm"
+  ]] <- Reinforced[["compositeCase", exact = TRUE]][[
+    "interiorBarSpacingMm",
+    exact = TRUE
+  ]]
+  ReinforcedConfig[["reinforcementStudy"]][["compositeCase"]][[
+    "interiorClearCoverMm"
+  ]] <- Reinforced[["compositeCase", exact = TRUE]][[
+    "interiorClearCoverMm",
+    exact = TRUE
+  ]]
+  ReinforcedConfig[["reinforcementStudy"]][["compositeCase"]][[
+    "fullCompositeAction"
+  ]] <- Reinforced[["compositeCase", exact = TRUE]][[
+    "fullCompositeAction",
+    exact = TRUE
+  ]]
   StrengthCases <- Config[["additionalLinings", exact = TRUE]][[
     "shotcrete",
     exact = TRUE
@@ -952,7 +1049,8 @@ evaluateCoverCase <- function(
       "config",
       exact = TRUE
     ]],
-    additionalLinings = Result[["additionalLinings", exact = TRUE]]
+    additionalLinings = Result[["additionalLinings", exact = TRUE]],
+    steelSection = Result[["section", exact = TRUE]]
   )
   Result
 }

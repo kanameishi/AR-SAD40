@@ -28,8 +28,10 @@ buildCalculationConcreteAxialFlexurePlot <- function(
     "isParametricCase", "calculationStatus", "demandReuseStatus"
   )
   DemandRequired <- c(
-    "liningID", "demandOrder", "selectionBasisID", "interfaceID",
-    "strengthCaseID", "axialDemandKnPerM", "bendingDemandKnMPerM",
+    "liningID", "reinforcementCaseID", "reinforcementCaseOrder",
+    "circumferentialAreaTotalMm2PerM", "reinforcementRatio",
+    "demandOrder", "selectionBasisID", "interfaceID", "strengthCaseID",
+    "axialDemandKnPerM", "bendingDemandKnMPerM",
     "verticalStressFactor", "horizontalStressFactor", "radialUtilization",
     "thetaDeg"
   )
@@ -50,9 +52,9 @@ buildCalculationConcreteAxialFlexurePlot <- function(
     caseCount = nrow(Sweep) < 3L || nrow(Sweep) > 6L,
     duplicateCase = anyDuplicated(CaseIDs) > 0L,
     domainCases = !setequal(unique(Domains$reinforcementCaseID), CaseIDs),
-    demandCount = nrow(Demands) != 4L,
+    demandCount = nrow(Demands) != 2L * nrow(Sweep),
     lowerReference = sum(Sweep$isLowerReferenceCase) != 1L,
-    parametricFlag = any(!Sweep$isParametricCase),
+    compositeCount = sum(!Sweep$isParametricCase) > 1L,
     calculationStatus = any(Sweep$calculationStatus != "calculated"),
     demandReuse = any(Sweep$demandReuseStatus != "satisfied"),
     utilization = any(!is.finite(Sweep$maximumRadialUtilization))
@@ -65,6 +67,18 @@ buildCalculationConcreteAxialFlexurePlot <- function(
       call. = FALSE
     )
   }
+  DemandGroups <- split(Demands, Demands$reinforcementCaseID)
+  if (!setequal(names(DemandGroups), CaseIDs) ||
+      any(!vapply(DemandGroups, function(x) {
+        nrow(x) == 2L &&
+          setequal(x$interfaceID, c("full-slip", "no-slip")) &&
+          length(unique(x$reinforcementCaseOrder)) == 1L &&
+          length(unique(x$reinforcementRatio)) == 1L
+      }, logical(1)))) {
+    stop("Each reinforcement domain must have one demand per interface.",
+      call. = FALSE
+    )
+  }
   DomainGroups <- split(Domains, Domains$reinforcementCaseID)
   if (any(!vapply(DomainGroups, function(x) {
     identical(x$domainPointIndex, seq_len(nrow(x)))
@@ -72,6 +86,9 @@ buildCalculationConcreteAxialFlexurePlot <- function(
     stop("A reinforcement P-M domain is not ordered.", call. = FALSE)
   }
   PublicLabel <- function(row) {
+    if (!row$isParametricCase) {
+      return("Chapa existente + Ø8/150 interior")
+    }
     Role <- if (row$isLowerReferenceCase) {
       "Referencia inferior · "
     } else {
@@ -97,7 +114,13 @@ buildCalculationConcreteAxialFlexurePlot <- function(
       ID = PublicLabel(Row),
       X = Domain$bendingStrengthKnMPerM,
       Y = Domain$axialStrengthKnPerM,
-      style = if (Row$isLowerReferenceCase) "dashed" else "solid",
+      style = if (!Row$isParametricCase) {
+        "shortdashdot"
+      } else if (Row$isLowerReferenceCase) {
+        "dashed"
+      } else {
+        "solid"
+      },
       size = 1.5
     )
   })
@@ -107,13 +130,13 @@ buildCalculationConcreteAxialFlexurePlot <- function(
     `no-slip` = "Sin deslizamiento"
   )
   StrengthLabel <- paste0(
-    "Permanente vertical ×",
+    "EV ×",
     format(
       Demands$verticalStressFactor,
       trim = TRUE,
       decimal.mark = ","
     ),
-    " · Empuje lateral ×",
+    " · EH ×",
     format(
       Demands$horizontalStressFactor,
       trim = TRUE,
@@ -122,14 +145,42 @@ buildCalculationConcreteAxialFlexurePlot <- function(
   )
   InterfaceCode <- unname(InterfaceLabels[Demands$interfaceID])
   if (anyNA(InterfaceCode) ||
-      any(Demands$selectionBasisID != "lower-reference-domain")) {
+      any(Demands$selectionBasisID !=
+        "reinforcement-domain-interface-envelope")) {
     stop("The P-M family demand labels are incomplete.", call. = FALSE)
   }
+  CaseLabel <- vapply(
+    Demands$reinforcementCaseID,
+    function(caseID) {
+      Row <- Sweep[Sweep$reinforcementCaseID == caseID]
+      if (nrow(Row) != 1L) {
+        stop("The demand does not map to one reinforcement domain.",
+          call. = FALSE
+        )
+      }
+      PublicLabel(Row)
+    },
+    character(1)
+  )
   Points <- data.table::data.table(
-    ID = paste(InterfaceCode, StrengthLabel, sep = " · "),
+    ID = CaseLabel,
     X = Demands$bendingDemandKnMPerM,
     Y = Demands$axialDemandKnPerM,
-    style = "circle"
+    style = "circle",
+    interfaceLabel = InterfaceCode,
+    strengthLabel = StrengthLabel,
+    thetaLabel = formatC(Demands$thetaDeg, format = "f", digits = 0L),
+    utilizationLabel = formatC(
+      Demands$radialUtilization,
+      format = "f",
+      digits = 2L
+    ),
+    marker = lapply(Demands$interfaceID, function(interfaceID) {
+      list(
+        symbol = if (interfaceID == "full-slip") "circle" else "diamond",
+        radius = 6
+      )
+    })
   )
   Plot <- NGR::buildPlot(
     data.lines = Lines,
@@ -160,5 +211,22 @@ buildCalculationConcreteAxialFlexurePlot <- function(
     Plot,
     labels = list(format = "{value:.0f}")
   )
+  Series <- Plot[["x"]][["hc_opts"]][["series"]]
+  PointSeries <- seq.int(nrow(Sweep) + 1L, length(Series))
+  for (i in PointSeries) {
+    Series[[i]][["showInLegend"]] <- FALSE
+    Series[[i]][["tooltip"]] <- list(
+      pointFormat = paste0(
+        "<b>{point.series.name}</b><br>",
+        "{point.interfaceLabel}<br>",
+        "{point.strengthLabel}<br>",
+        "θ = {point.thetaLabel}°<br>",
+        "M = {point.x:.0f} kN·m/m<br>",
+        "P = {point.y:.0f} kN/m<br>",
+        "Utilización P–M = {point.utilizationLabel}"
+      )
+    )
+  }
+  Plot[["x"]][["hc_opts"]][["series"]] <- Series
   highcharter::hc_tooltip(Plot, valueDecimals = 0L)
 }

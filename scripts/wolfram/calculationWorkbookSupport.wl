@@ -53,7 +53,7 @@ readRRecord[expression_String] := First @ readRRows[expression];
 readCoverProducts[] := <|
   "theta" -> readRRows["workbookProducts$theta"],
   "stress" -> readRRows[
-    "workbookProducts$stress[c('coverCrownM','depthM','effectiveUnitWeightKnPerM3','effectiveSurchargeKPa','effectiveVerticalStressKPa','effectiveHorizontalStressKPa','k0Applied')]"
+    "workbookProducts$stress[c('coverCrownM','depthM','effectiveUnitWeightKnPerM3','upperLayerHeightM','upperLayerUnitWeightKnPerM3','effectiveSurchargeKPa','effectiveVerticalStressKPa','effectiveHorizontalStressKPa','k0Applied')]"
   ],
   "section" -> readRRows["workbookProducts$section"],
   "interaction" -> readRRows["workbookProducts$interaction"],
@@ -113,6 +113,9 @@ readAdditionalLiningProducts[name_String] := (
       ],
       "governingDemands" -> readRRows[
         "workbookProducts$reinforcementStudy$governingDemands[workbookProducts$reinforcementStudy$governingDemands$liningID == workbookLiningID, , drop = FALSE]"
+      ],
+      "limitChecks" -> readRRows[
+        "workbookProducts$reinforcementStudy$limitChecks[workbookProducts$reinforcementStudy$limitChecks$liningID == workbookLiningID, , drop = FALSE]"
       ]
     |>
   |>
@@ -321,8 +324,10 @@ caseName[id_] := Lookup[
 
 strengthCaseName[id_] := Lookup[
   <|
-    "d14-h16" -> "Vertical permanent x1.4; lateral earth pressure x1.6",
-    "d14-h09" -> "Vertical permanent x1.4; lateral earth pressure x0.9"
+    "ev130-eh135" -> "Vertical earth pressure EV x1.30; horizontal earth pressure EH x1.35",
+    "ev130-eh090" -> "Vertical earth pressure EV x1.30; horizontal earth pressure EH x0.90",
+    "ev090-eh135" -> "Vertical earth pressure EV x0.90; horizontal earth pressure EH x1.35",
+    "ev090-eh090" -> "Vertical earth pressure EV x0.90; horizontal earth pressure EH x0.90"
   |>,
   id,
   id
@@ -401,10 +406,12 @@ groundStressAndSteelSectionView[products_Association] := With[
     engineeringTable[
       {"Ground-stress quantity", "Value", "Unit"},
       {
-        {"Fill height above crown", formatValue[stress["coverCrownM"]], "m"},
+        {"Lower compacted-fill height above crown", formatValue[stress["coverCrownM"]], "m"},
         {"Reference depth", formatValue[stress["depthM"]], "m"},
-        {"Effective fill unit weight", formatValue[stress["effectiveUnitWeightKnPerM3"]], "kN/m^3"},
-        {"Permanent uniform surcharge", formatValue[stress["effectiveSurchargeKPa"]], "kPa"},
+        {"Lower compacted-fill unit weight", formatValue[stress["effectiveUnitWeightKnPerM3"]], "kN/m^3"},
+        {"Upper mud-layer height", formatValue[stress["upperLayerHeightM"]], "m"},
+        {"Upper mud-layer unit weight", formatValue[stress["upperLayerUnitWeightKnPerM3"]], "kN/m^3"},
+        {"Permanent pressure from upper layer, qD", formatValue[stress["effectiveSurchargeKPa"]], "kPa"},
         {"Effective vertical stress", formatValue[stress["effectiveVerticalStressKPa"]], "kPa"},
         {"Effective horizontal stress", formatValue[stress["effectiveHorizontalStressKPa"]], "kPa"},
         {"Applied K0", formatValue[stress["k0Applied"]], "\[LongDash]"}
@@ -1009,7 +1016,7 @@ concreteLiningView[
     Spacer[10],
     Style["Conditional ACI 318-25 local-strength summary by LRFD combination", Bold],
     engineeringTable[
-      {"Projection", "LRFD combination", "fv", "fh", "Governing check", "Utilization", "Local strength", "Overall ACI assessment"},
+      {"Projection", "LRFD combination", "fEV", "fEH", "Governing check", "Utilization", "Local strength", "Overall ACI assessment"},
       ({
         caseName[#1["interfaceID"]],
         strengthCaseName[#1["strengthCaseID"]],
@@ -1070,7 +1077,7 @@ concreteLiningView[
 pmReinforcementFamilyPlot[study_Association] := Module[
   {
     orderedSummary, domains, demands, domainSeries, curveColors,
-    demandColors, curveLabels, demandPrimitives, allPoints,
+    curveColorByCase, demandColors, curveLabels, demandPrimitives, allPoints,
     xTickValues, yTickValues
   },
   orderedSummary = SortBy[
@@ -1096,12 +1103,23 @@ pmReinforcementFamilyPlot[study_Association] := Module[
     {row, orderedSummary}
   ];
   curveColors = Table[ColorData[97][index], {index, Length[domainSeries]}];
-  demandColors = Table[ColorData[112][index], {index, Length[demands]}];
-  curveLabels = ({
-    If[TrueQ[#1["isLowerReferenceCase"]], "Lower reference", "Evaluated ratio"],
-    Row[{"rho = ", NumberForm[100 #1["reinforcementRatio"], {5, 3}], "%"}],
-    Row[{"As,total = ", NumberForm[#1["circumferentialAreaTotalMm2PerM"]/100, {7, 2}], " cm^2/m"}]
-  } &) /@ orderedSummary;
+  curveColorByCase = AssociationThread[
+    (#1["reinforcementCaseID"] &) /@ orderedSummary,
+    curveColors
+  ];
+  demandColors = Lookup[
+    curveColorByCase,
+    (#1["reinforcementCaseID"] &) /@ demands
+  ];
+  curveLabels = (If[
+    TrueQ[#1["isParametricCase"]],
+    {
+      If[TrueQ[#1["isLowerReferenceCase"]], "Lower reference", "Evaluated ratio"],
+      Row[{"rho = ", NumberForm[100 #1["reinforcementRatio"], {5, 3}], "%"}],
+      Row[{"As,total = ", NumberForm[#1["circumferentialAreaTotalMm2PerM"]/100, {7, 2}], " cm^2/m"}]
+    },
+    {"Full-composite sensitivity", "Existing sheet + Ø8/150 interior"}
+  ] &) /@ orderedSummary;
   demandPrimitives = MapThread[
     {
       #2,
@@ -1152,39 +1170,54 @@ pmReinforcementFamilyPlot[study_Association] := Module[
 ];
 
 reinforcementStudyView[study_Association] := Module[
-  {summary, demands, demandColors},
+  {summary, demands, curveColors, curveColorByCase, demandColors},
   summary = SortBy[study["summary"], #1["reinforcementCaseOrder"] &];
   demands = SortBy[
     study["governingDemands"],
     #1["demandOrder"] &
   ];
-  demandColors = Table[ColorData[112][index], {index, Length[demands]}];
+  curveColors = Table[ColorData[97][index], {index, Length[summary]}];
+  curveColorByCase = AssociationThread[
+    (#1["reinforcementCaseID"] &) /@ summary,
+    curveColors
+  ];
+  demandColors = Lookup[
+    curveColorByCase,
+    (#1["reinforcementCaseID"] &) /@ demands
+  ];
   Column[{
-    Style["P-M interaction domains for several reinforcement ratios", Bold],
+    Style["P-M interaction domains for the evaluated reinforcement configurations", Bold],
     pmReinforcementFamilyPlot[study],
     Style[
-      "Each line is a resistant interaction domain for one evaluated reinforcement ratio, beginning with the lower reference ratio. The four colored markers are physical governing demands common to the whole family; they are not calculation iterations.",
+      "The four symmetric-ratio curves share the cracked-concrete stiffness. The existing-sheet + Ø8/150 curve uses its own transformed composite stiffness and therefore its own two demand points. Point color matches its resistance curve.",
       GrayLevel[0.30]
     ],
     Spacer[8],
     engineeringTable[
-      {"Role", "rho [%]", "As,total [cm^2/m]", "Maximum utilization", "Local P-M"},
+      {"Role", "rho [%]", "As,total [cm^2/m]", "U P-M", "U shear", "U radial", "Local result"},
       ({
-        If[TrueQ[#1["isLowerReferenceCase"]], "Lower reference", "Evaluated ratio"],
+        If[
+          TrueQ[#1["isParametricCase"]],
+          If[TrueQ[#1["isLowerReferenceCase"]], "Lower reference", "Evaluated ratio"],
+          "Existing sheet + Ø8/150 interior"
+        ],
         formatValue[100 #1["reinforcementRatio"], 3],
         formatValue[#1["circumferentialAreaTotalMm2PerM"]/100, 2],
         formatValue[#1["maximumRadialUtilization"]],
-        statusName[#1["localPMStatus"]]
+        formatValue[#1["maximumShearUtilization"]],
+        formatValue[#1["radialTensionUtilization"]],
+        statusName[#1["overallLocalStatus"]]
       } &) /@ summary,
-      {Left, Right, Right, Right, Center}
+      {Left, Right, Right, Right, Right, Right, Center}
     ],
     Spacer[8],
-    Style["Four governing demands common to the reinforcement family", Bold],
+    Style[Row[{Length[demands], " governing demands for the reinforcement family"}], Bold],
     engineeringTable[
-      {"Marker", "Projection", "LRFD combination", "theta [deg]", "N [kN/m]", "M [kN m/m]", "Utilization"},
+      {"Marker", "rho [%]", "Projection", "LRFD combination", "theta [deg]", "N [kN/m]", "M [kN m/m]", "Utilization"},
       MapThread[
         {
-          Style["●", #2, 16],
+          Style[If[#1["interfaceID"] === "full-slip", "\[FilledCircle]", "\[FilledDiamond]"], #2, 16],
+          formatValue[100 #1["reinforcementRatio"], 3],
           caseName[#1["interfaceID"]],
           strengthCaseName[#1["strengthCaseID"]],
           formatValue[#1["thetaDeg"], 1],
@@ -1194,10 +1227,10 @@ reinforcementStudyView[study_Association] := Module[
         } &,
         {demands, demandColors}
       ],
-      {Center, Left, Center, Right, Right, Right, Right}
+      {Center, Right, Left, Center, Right, Right, Right, Right}
     ],
     Style[
-      "This is a discrete visual comparison, not an optimizer and not a selected reinforcement design. Change reinforcementRatioGrid or the section inputs, reevaluate the single R calculation cell, and inspect the updated family.",
+      "Change reinforcementRatioGrid, concrete strength, thickness, or compositeCase in calculation.json; then reevaluate the single R calculation cell. Radial tension is the cover-splitting action generated by a curved circumferential tension bar.",
       GrayLevel[0.30]
     ]
   }, Spacings -> 1.2]
@@ -1265,7 +1298,8 @@ rObjectCatalogRows[additionalIDs_List] := Join[
     {"workbookProducts$aashto$summary", "Governing statuses"},
     {"workbookProducts$reinforcementStudy$domains", "P-M domains for the discrete reinforcement family"},
     {"workbookProducts$reinforcementStudy$summary", "Reinforcement-family utilizations and statuses"},
-    {"workbookProducts$reinforcementStudy$governingDemands", "Four governing demands per lining thickness"}
+    {"workbookProducts$reinforcementStudy$governingDemands", "Two governing demands per reinforcement configuration and lining thickness"},
+    {"workbookProducts$reinforcementStudy$limitChecks", "Governing shear and radial-tension checks for every configuration"}
   },
   Flatten[
     Table[

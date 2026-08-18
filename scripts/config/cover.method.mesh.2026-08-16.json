@@ -1,14 +1,16 @@
 {
   "methodProfileID": "ar-sad40-cover-mesh-2026-08-16",
-  "methodProfileVersion": "1.3.0",
+  "methodProfileVersion": "1.4.0",
   "schemaVersion": "3.1.0",
   "analysisModelID": "schwartz-einstein-balanced-gradient-hybrid",
-  "scenarioID": "deterministic-cover-h4",
+  "scenarioID": "deterministic-cover-h5p7",
   "cover": {
-    "coverCrownM": 4.0,
+    "coverCrownM": 5.70,
     "crownToAxisM": 1.315,
     "effectiveUnitWeightKnPerM3": 19.6133,
-    "effectiveSurchargeKPa": 88.25985,
+    "upperLayerHeightM": 5.70,
+    "upperLayerUnitWeightKnPerM3": 14.709975,
+    "effectiveSurchargeKPa": 83.8468575,
     "referencePositionID": "axis"
   },
   "ground": {
@@ -110,14 +112,14 @@
   "additionalLinings": {
     "shotcrete": {
       "liningTypeID": "shotcrete",
-      "sectionID": "shotcrete-t0.10-fc25-plain",
+      "sectionID": "shotcrete-t0.10-fc30-plain",
       "concreteTypeID": "plain-concrete",
       "outerRadiusM": 1.315,
       "thicknessM": 0.10,
       "poisson": 0.20,
-      "compressiveStrengthMPa": 25.0,
+      "compressiveStrengthMPa": 30.0,
       "modulusModelID": "ACI-318-25-normal-weight",
-      "stiffnessBasisID": "gross-uncracked-short-term",
+      "stiffnessBasisID": "aci-318-25-cracked-wall-0p35-ig",
       "stripWidthM": 1.0,
       "reinforcement": [],
       "orthogonalReinforcement": [],
@@ -136,36 +138,54 @@
         "sourceLocator": "ACI CODE-318-25 SI, Chapters 5, 14, 19 and 21",
         "strengthCases": [
           {
-            "caseID": "d14-h16",
-            "combinationID": "aci-d14-h16",
-            "verticalStressFactor": 1.4,
-            "horizontalStressFactor": 1.6,
+            "caseID": "ev130-eh135",
+            "combinationID": "aashto-strength-ev130-eh135",
+            "verticalStressFactor": 1.30,
+            "horizontalStressFactor": 1.35,
             "forceEffectStatus": "lrfd-factored",
-            "loadCombinationBasisID": "aci-5.3.1a-5.3.8a",
-            "sourceLocator": "ACI CODE-318-25 SI, Table 5.3.1(a) and 5.3.8(a), printed pp. 70 and 72/PDF pp. 71 and 73"
+            "loadCombinationBasisID": "aashto-3.4.1-rigid-buried-ev-eh-envelope",
+            "sourceLocator": "CIRSOC 804-4 Sections 12.5.4 and 12.6.1; AASHTO LRFD Table 3.4.1-2: rigid buried EV maximum and at-rest EH maximum"
           },
           {
-            "caseID": "d14-h09",
-            "combinationID": "aci-d14-h09",
-            "verticalStressFactor": 1.4,
-            "horizontalStressFactor": 0.9,
+            "caseID": "ev130-eh090",
+            "combinationID": "aashto-strength-ev130-eh090",
+            "verticalStressFactor": 1.30,
+            "horizontalStressFactor": 0.90,
             "forceEffectStatus": "lrfd-factored",
-            "loadCombinationBasisID": "aci-5.3.1a-5.3.8b",
-            "sourceLocator": "ACI CODE-318-25 SI, Table 5.3.1(a) and 5.3.8(b), printed pp. 70 and 72/PDF pp. 71 and 73"
+            "loadCombinationBasisID": "aashto-3.4.1-rigid-buried-ev-eh-envelope",
+            "sourceLocator": "CIRSOC 804-4 Sections 12.5.4 and 12.6.1; AASHTO LRFD Table 3.4.1-2: rigid buried EV maximum and at-rest EH minimum"
+          },
+          {
+            "caseID": "ev090-eh135",
+            "combinationID": "aashto-strength-ev090-eh135",
+            "verticalStressFactor": 0.90,
+            "horizontalStressFactor": 1.35,
+            "forceEffectStatus": "lrfd-factored",
+            "loadCombinationBasisID": "aashto-3.4.1-rigid-buried-ev-eh-envelope",
+            "sourceLocator": "CIRSOC 804-4 Sections 12.5.4 and 12.6.1; AASHTO LRFD Table 3.4.1-2: rigid buried EV minimum and at-rest EH maximum"
+          },
+          {
+            "caseID": "ev090-eh090",
+            "combinationID": "aashto-strength-ev090-eh090",
+            "verticalStressFactor": 0.90,
+            "horizontalStressFactor": 0.90,
+            "forceEffectStatus": "lrfd-factored",
+            "loadCombinationBasisID": "aashto-3.4.1-rigid-buried-ev-eh-envelope",
+            "sourceLocator": "CIRSOC 804-4 Sections 12.5.4 and 12.6.1; AASHTO LRFD Table 3.4.1-2: rigid buried EV minimum and at-rest EH minimum"
           }
         ]
       }
     },
     "reinforcedConcrete": {
       "liningTypeID": "shotcrete",
-      "sectionID": "shotcrete-t0.15-fc25-parametric-pm",
+      "sectionID": "shotcrete-t0.15-fc30-parametric-pm",
       "concreteTypeID": "reinforced-concrete",
       "outerRadiusM": 1.315,
       "thicknessM": 0.15,
       "poisson": 0.20,
-      "compressiveStrengthMPa": 25.0,
+      "compressiveStrengthMPa": 30.0,
       "modulusModelID": "ACI-318-25-normal-weight",
-      "stiffnessBasisID": "gross-uncracked-short-term",
+      "stiffnessBasisID": "aci-318-25-cracked-wall-0p35-ig",
       "stripWidthM": 1.0,
       "reinforcementGradeID": "Grade-60",
       "reinforcementLayout": {
@@ -214,9 +234,17 @@
           0.02,
           0.03
         ],
-        "domainBasePointCount": 201,
-        "domainRefinedPointCount": 401,
-        "convergenceTolerance": 0.015
+        "domainBasePointCount": 301,
+        "domainRefinedPointCount": 601,
+        "convergenceTolerance": 0.015,
+        "compositeCase": {
+          "caseID": "existing-sheet-plus-interior-d8-s150",
+          "enabled": true,
+          "interiorBarDiameterMm": 8.0,
+          "interiorBarSpacingMm": 150.0,
+          "interiorClearCoverMm": 15.0,
+          "fullCompositeAction": true
+        }
       },
       "aci": {
         "standardSetID": "aci-318.2-14-aci-318-25-reinforced-flexure",
@@ -233,22 +261,40 @@
         "sourceLocator": "ACI CODE-318-25 SI, Table 21.2.2 and Sections 22.2.1-22.2.2; ACI 318.2-14 Sections 6.1.3 and 6.1.9",
         "strengthCases": [
           {
-            "caseID": "d14-h16",
-            "combinationID": "aci-d14-h16",
-            "verticalStressFactor": 1.4,
-            "horizontalStressFactor": 1.6,
+            "caseID": "ev130-eh135",
+            "combinationID": "aashto-strength-ev130-eh135",
+            "verticalStressFactor": 1.30,
+            "horizontalStressFactor": 1.35,
             "forceEffectStatus": "lrfd-factored",
-            "loadCombinationBasisID": "aci-5.3.1a-5.3.8a",
-            "sourceLocator": "ACI CODE-318-25 SI, Table 5.3.1(a) and 5.3.8(a), printed pp. 70 and 72/PDF pp. 71 and 73"
+            "loadCombinationBasisID": "aashto-3.4.1-rigid-buried-ev-eh-envelope",
+            "sourceLocator": "CIRSOC 804-4 Sections 12.5.4 and 12.6.1; AASHTO LRFD Table 3.4.1-2: rigid buried EV maximum and at-rest EH maximum"
           },
           {
-            "caseID": "d14-h09",
-            "combinationID": "aci-d14-h09",
-            "verticalStressFactor": 1.4,
-            "horizontalStressFactor": 0.9,
+            "caseID": "ev130-eh090",
+            "combinationID": "aashto-strength-ev130-eh090",
+            "verticalStressFactor": 1.30,
+            "horizontalStressFactor": 0.90,
             "forceEffectStatus": "lrfd-factored",
-            "loadCombinationBasisID": "aci-5.3.1a-5.3.8b",
-            "sourceLocator": "ACI CODE-318-25 SI, Table 5.3.1(a) and 5.3.8(b), printed pp. 70 and 72/PDF pp. 71 and 73"
+            "loadCombinationBasisID": "aashto-3.4.1-rigid-buried-ev-eh-envelope",
+            "sourceLocator": "CIRSOC 804-4 Sections 12.5.4 and 12.6.1; AASHTO LRFD Table 3.4.1-2: rigid buried EV maximum and at-rest EH minimum"
+          },
+          {
+            "caseID": "ev090-eh135",
+            "combinationID": "aashto-strength-ev090-eh135",
+            "verticalStressFactor": 0.90,
+            "horizontalStressFactor": 1.35,
+            "forceEffectStatus": "lrfd-factored",
+            "loadCombinationBasisID": "aashto-3.4.1-rigid-buried-ev-eh-envelope",
+            "sourceLocator": "CIRSOC 804-4 Sections 12.5.4 and 12.6.1; AASHTO LRFD Table 3.4.1-2: rigid buried EV minimum and at-rest EH maximum"
+          },
+          {
+            "caseID": "ev090-eh090",
+            "combinationID": "aashto-strength-ev090-eh090",
+            "verticalStressFactor": 0.90,
+            "horizontalStressFactor": 0.90,
+            "forceEffectStatus": "lrfd-factored",
+            "loadCombinationBasisID": "aashto-3.4.1-rigid-buried-ev-eh-envelope",
+            "sourceLocator": "CIRSOC 804-4 Sections 12.5.4 and 12.6.1; AASHTO LRFD Table 3.4.1-2: rigid buried EV minimum and at-rest EH minimum"
           }
         ]
       }

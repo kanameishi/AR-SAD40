@@ -190,6 +190,10 @@ loadCoverCalculationResults <- function(
       Directory,
       "shotcrete.axial.flexure.reinforcement.governing.demands.csv"
     ),
+    shotcreteReinforcementLimitChecks = file.path(
+      Directory,
+      "shotcrete.axial.flexure.reinforcement.limit.checks.csv"
+    ),
     classicalComparisonInputs = file.path(
       Directory, "classical.comparison.inputs.csv"
     ),
@@ -559,20 +563,38 @@ loadCoverCalculationResults <- function(
       "governingThetaDeg", "governingAxialDemandKnPerM",
       "governingBendingDemandKnMPerM", "isLowerReferenceCase",
       "isParametricCase", "demandReuseBasisID",
-      "demandReuseStatus", "blockReason"
+      "demandReuseStatus", "blockReason", "maximumShearUtilization",
+      "shearStatus", "radialTensionUtilization",
+      "radialTensionStatus", "overallLocalStatus",
+      "compositeActionHypothesisID",
+      "interiorReinforcementAreaMm2PerM",
+      "exteriorSheetAreaMm2PerM", "elasticCentroidCoordinateMm",
+      "extensionalRigidityKnPerM", "flexuralRigidityKnM2PerM"
     )
   )
   ShotcreteReinforcementGoverningDemands <- readProduct(
     Paths$shotcreteReinforcementGoverningDemands,
     c(
       "scenarioID", "liningID", "sectionID", "concreteTypeID",
-      "studyID", "demandOrder", "selectionBasisID", "caseID",
+      "studyID", "reinforcementCaseID", "reinforcementCaseOrder",
+      "circumferentialAreaTotalMm2PerM", "reinforcementRatio",
+      "demandOrder", "selectionBasisID", "caseID",
       "interfaceID", "strengthCaseID", "combinationID",
       "verticalStressFactor", "horizontalStressFactor", "stageID",
       "forceEffectStatus", "loadCombinationBasisID", "thetaIndex",
       "thetaRad", "thetaDeg", "axialDemandKnPerM",
       "bendingDemandKnMPerM", "radialUtilization", "domainPositionID",
       "convergenceStatus", "checkStatus"
+    )
+  )
+  ShotcreteReinforcementLimitChecks <- readProduct(
+    Paths$shotcreteReinforcementLimitChecks,
+    c(
+      "scenarioID", "liningID", "sectionID", "reinforcementCaseID",
+      "checkID", "standardID", "clauseID", "applicabilityStatus",
+      "caseID", "interfaceID", "strengthCaseID", "thetaDeg",
+      "demandValue", "capacityValue", "unit", "utilization",
+      "checkStatus", "sourceLocator"
     )
   )
   AdditionalLinings <- Config[["additionalLinings", exact = TRUE]]
@@ -602,7 +624,10 @@ loadCoverCalculationResults <- function(
       nrow(ShotcreteAxialFlexureDemands) == 0L ||
       nrow(ShotcreteReinforcementDomains) == 0L ||
       nrow(ShotcreteReinforcementSweep) < 2L ||
-      nrow(ShotcreteReinforcementGoverningDemands) != 4L * LiningCount ||
+      nrow(ShotcreteReinforcementGoverningDemands) !=
+        nrow(ShotcreteReinforcementSweep) * InterfaceCount ||
+      nrow(ShotcreteReinforcementLimitChecks) !=
+        2L * nrow(ShotcreteReinforcementSweep) ||
       nrow(ClassicalComparisonInputs) != 1L ||
       nrow(ClassicalComparisonSections) != LiningCount + 1L ||
       nrow(ClassicalComparisonCurves) == 0L ||
@@ -633,7 +658,8 @@ loadCoverCalculationResults <- function(
     ShotcreteAxialFlexureDemands$scenarioID,
     ShotcreteReinforcementDomains$scenarioID,
     ShotcreteReinforcementSweep$scenarioID,
-    ShotcreteReinforcementGoverningDemands$scenarioID
+    ShotcreteReinforcementGoverningDemands$scenarioID,
+    ShotcreteReinforcementLimitChecks$scenarioID
   ))
   if (length(ScenarioIDs) != 1L || ScenarioIDs != Config$scenarioID) {
     stop("The calculation products do not share the configured scenarioID.", call. = FALSE)
@@ -658,6 +684,9 @@ loadCoverCalculationResults <- function(
     )
   }
   ExpectedStudyRatios <- ReinforcementPolicy$reinforcementRatioGrid
+  CompositePolicy <- ReinforcementPolicy$compositeCase
+  CompositeCount <- if (isTRUE(CompositePolicy$enabled)) 1L else 0L
+  ExpectedStudyCaseCount <- length(ExpectedStudyRatios) + CompositeCount
   StudyIDs <- unique(c(
     ShotcreteReinforcementDomains$studyID,
     ShotcreteReinforcementSweep$studyID,
@@ -666,7 +695,7 @@ loadCoverCalculationResults <- function(
   if (length(StudyIDs) != 1L ||
       StudyIDs != ReinforcementPolicy$studyID ||
       nrow(ShotcreteReinforcementSweep) !=
-        LiningCount * length(ExpectedStudyRatios) ||
+        LiningCount * ExpectedStudyCaseCount ||
       any(
         ShotcreteReinforcementSweep$calculationStatus != "calculated" |
           ShotcreteReinforcementSweep$demandReuseStatus != "satisfied"
@@ -716,41 +745,65 @@ loadCoverCalculationResults <- function(
           ShotcreteReinforcementGoverningDemands$liningID == liningID,
           ,
           drop = FALSE
+        ],
+        limitChecks = ShotcreteReinforcementLimitChecks[
+          ShotcreteReinforcementLimitChecks$liningID == liningID,
+          ,
+          drop = FALSE
         ]
       )
     )
     Sweep <- Products$reinforcementSweep$summary
     StudyDomains <- Products$reinforcementSweep$domains
     StudyDemands <- Products$reinforcementSweep$governingDemands
+    StudyLimitChecks <- Products$reinforcementSweep$limitChecks
     StudyCaseIDs <- Sweep$reinforcementCaseID
     DomainGroups <- split(StudyDomains, StudyDomains$reinforcementCaseID)
     ExpectedAreas <- ExpectedStudyRatios *
       1000 * (1000 * LiningConfig$thicknessM)
-    if (nrow(Sweep) != length(ExpectedStudyRatios) ||
+    Parametric <- Sweep[Sweep$isParametricCase, , drop = FALSE]
+    Composite <- Sweep[!Sweep$isParametricCase, , drop = FALSE]
+    if (nrow(Sweep) != ExpectedStudyCaseCount ||
         anyDuplicated(StudyCaseIDs) ||
-        !identical(Sweep$reinforcementCaseOrder, seq_along(ExpectedStudyRatios)) ||
+        !identical(Sweep$reinforcementCaseOrder, seq_len(ExpectedStudyCaseCount)) ||
         !isTRUE(all.equal(
-          Sweep$reinforcementRatio,
+          Parametric$reinforcementRatio,
           ExpectedStudyRatios,
           tolerance = 1e-12,
           check.attributes = FALSE
         )) ||
         !isTRUE(all.equal(
-          Sweep$circumferentialAreaTotalMm2PerM,
+          Parametric$circumferentialAreaTotalMm2PerM,
           ExpectedAreas,
           tolerance = 1e-9,
           check.attributes = FALSE
         )) ||
         sum(Sweep$isLowerReferenceCase) != 1L ||
-        any(!Sweep$isParametricCase) ||
+        nrow(Parametric) != length(ExpectedStudyRatios) ||
+        nrow(Composite) != CompositeCount ||
+        (CompositeCount == 1L &&
+          Composite$reinforcementCaseID != CompositePolicy$caseID) ||
         !setequal(unique(StudyDomains$reinforcementCaseID), StudyCaseIDs) ||
         any(!vapply(DomainGroups, function(x) {
           identical(x$domainPointIndex, seq_len(nrow(x))) &&
             length(unique(x$domainPrimitiveID)) == 1L
         }, logical(1))) ||
-        nrow(StudyDemands) != 4L ||
-        !identical(StudyDemands$demandOrder, 1:4) ||
-        any(StudyDemands$selectionBasisID != "lower-reference-domain")) {
+        nrow(StudyDemands) != ExpectedStudyCaseCount * InterfaceCount ||
+        !identical(
+          StudyDemands$demandOrder,
+          seq_len(ExpectedStudyCaseCount * InterfaceCount)
+        ) ||
+        any(StudyDemands$selectionBasisID !=
+          "reinforcement-domain-interface-envelope") ||
+        !setequal(unique(StudyDemands$reinforcementCaseID), StudyCaseIDs) ||
+        any(table(StudyDemands$reinforcementCaseID) != InterfaceCount) ||
+        any(table(StudyDemands$interfaceID) != ExpectedStudyCaseCount) ||
+        nrow(StudyLimitChecks) != 2L * ExpectedStudyCaseCount ||
+        any(table(StudyLimitChecks$reinforcementCaseID) != 2L) ||
+        !setequal(
+          unique(StudyLimitChecks$checkID),
+          c("one-way-shear", "radial-tension-without-radial-stirrups")
+        )) {
       stop("The parametric P-M family is inconsistent for liningID: ",
         liningID, ".", call. = FALSE
       )

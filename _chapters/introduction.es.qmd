@@ -16,9 +16,10 @@ asignación de propiedades a la chapa y a sus uniones sin respaldo de la
 inspección. Esas actividades corresponden a la etapa de diseño e inspección
 posterior.
 
-La @tbl-model-inputs resume el escenario analizado. La altura de relleno se
-mide desde la clave y la tensión del terreno se evalúa a la cota del centro del
-túnel. El peso unitario efectivo y la sobrecarga definen la tensión vertical;
+La @tbl-model-inputs resume el escenario analizado. La altura del relleno
+inferior se mide desde la clave y la tensión del terreno se evalúa a la cota
+del centro del túnel. El peso del relleno inferior y el de la capa superior de
+lodo definen la tensión vertical;
 la presión hidráulica neta se incorpora como una acción separada. La tensión
 horizontal se obtiene mediante el
 coeficiente de presión en reposo $K_0$, definido como la razón entre las
@@ -48,7 +49,9 @@ La chapa se comprueba con una comparación de referencia basada en las
 expresiones documentadas por USACE, los parámetros AASHTO reproducidos por
 Anderson et al. y las propiedades publicadas por CSPI
 [@USACE2020; @AndersonEtAl2023; @CSPIHandbookChapter2;
-@CSPIHandbookChapter6]. El hormigón se evalúa con ACI 318-25 y la armadura
+@CSPIHandbookChapter6]. Las acciones resistentes del revestimiento enterrado se
+mayoran con los factores $EV/EH$ de AASHTO/CIRSOC; el hormigón se evalúa con
+ACI 318-25 y la armadura
 mínima se conserva como referencia histórica de ACI 318.2-14
 [@ACI31825; @ACI318214]. La memoria compara varias cuantías en dominios
 fuerza--momento para los dos espesores estudiados. La especificación de

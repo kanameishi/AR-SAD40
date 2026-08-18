@@ -39,10 +39,12 @@ Mutations <- list(
   list(path = c("cover", "coverCrownM"), value = 8.1),
   list(path = c("cover", "crownToAxisM"), value = 1.325),
   list(path = c("ground", "effectiveUnitWeightKnPerM3"), value = 19.1),
-  list(path = c("ground", "effectiveSurchargeKPa"), value = 1),
+  list(path = c("ground", "upperLayerHeightM"), value = 5.8),
+  list(path = c("ground", "upperLayerUnitWeightKnPerM3"), value = 14.8),
   list(path = c("ground", "modulusKPa"), value = 31000),
   list(path = c("ground", "poisson"), value = 0.31),
-  list(path = c("ground", "k0"), value = 0.51),
+  list(path = c("ground", "frictionAngleDeg"), value = 31),
+  list(path = c("ground", "ocr"), value = 1.1),
   list(path = c("steel", "centroidalRadiusM"), value = 1.325),
   list(path = c("steel", "remainingBaseThicknessMm"), value = 2.60),
   list(path = c("steel", "youngModulusKPa"), value = 201000000),
@@ -77,7 +79,7 @@ Mutations <- list(
   )
 )
 
-stopifnot(length(Mutations) == 27L)
+stopifnot(length(Mutations) == 29L)
 for (i in seq_along(Mutations)) {
   AUX <- Mutations[[i]]
   Variant <- mutateCoverCaseInput(
@@ -104,4 +106,4 @@ for (i in seq_along(Mutations)) {
   }
 }
 
-cat("PASS: all 28 numerical or conditional inputs change an output.\n")
+cat("PASS: all 29 numerical or conditional inputs change an output.\n")

@@ -1,20 +1,29 @@
-El estado de cálculo se define mediante las tensiones efectivas del relleno en
-la cota del centro del túnel, antes de introducir el revestimiento. Si $H_0$ es
-la altura de relleno sobre la clave y $R$ la distancia desde la clave hasta el
-centro de la sección, la profundidad de referencia es
+El estado de cálculo se define mediante las tensiones efectivas en la cota del
+centro del túnel, antes de introducir el revestimiento. $H_0$ es la altura del
+relleno compactado comprendido entre la clave y la base de la capa superior de
+lodo; $H_1$ y $\gamma_1$ son la altura y el peso unitario de esa capa superior.
+Su peso produce la presión permanente uniforme
+
+$$
+q_D=\gamma_1H_1.
+$$ {#eq-calculation-upper-layer-pressure}
+
+Si $R$ es la distancia desde la clave hasta el centro de la sección, la
+profundidad de referencia dentro del relleno inferior es
 
 $$
 z_{ref}=H_0+R.
 $$ {#eq-calculation-reference-depth}
 
-Para el relleno homogéneo adoptado, la tensión vertical efectiva se calcula
+La tensión vertical efectiva se calcula
 como
 
 $$
-\sigma'_v(z_{ref})=q'+\gamma' z_{ref},
+\sigma'_v(z_{ref})=q_D+\gamma'_0 z_{ref},
 $$ {#eq-calculation-vertical-effective-stress}
 
-donde $q'$ es la sobrecarga efectiva y $\gamma'$ el peso unitario efectivo. La
+La capa de lodo y el relleno inferior son acciones permanentes; no se introduce
+una carga viva. La
 presión hidráulica neta adoptada es
 `r formatCalculationFixed(Calculation$config$action$waterPressureDifferenceKPa, 1L)`
 kPa y la tensión horizontal residual de compactación se adopta igual a cero;
@@ -122,8 +131,8 @@ $$
 \sigma'_h(\theta)=\sigma'_{h,A}-\gamma_hR\cos\theta.
 $$ {#eq-calculation-local-geostatic-stress}
 
-Para el relleno homogéneo con $K_0$ constante,
-$\gamma_v=\gamma'$ y $\gamma_h=K_0\gamma'$. La diferencia respecto del estado
+Para el relleno inferior homogéneo con $K_0$ constante,
+$\gamma_v=\gamma'_0$ y $\gamma_h=K_0\gamma'_0$. La diferencia respecto del estado
 uniforme del eje se proyecta como
 
 $$
