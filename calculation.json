@@ -7,13 +7,13 @@
       "crownToAxisM": 1.315
     },
     "ground": {
-      "effectiveUnitWeightKnPerM3": 19.6133,
+      "effectiveUnitWeightKnPerM3": 19.0,
       "upperLayerHeightM": 5.70,
       "upperLayerUnitWeightKnPerM3": 14.709975,
       "modulusKPa": 30000.0,
-      "poisson": 0.30,
-      "k0ModelID": "mayne-kulhawy-unloading",
-      "frictionAngleDeg": 30.0,
+      "poisson": 0.25,
+      "k0ModelID": "jaky-nc",
+      "frictionAngleDeg": 33.0,
       "ocr": 1.0,
       "waterPressureDifferenceKPa": 0.0
     },
@@ -49,13 +49,21 @@
       "reinforcementGradeID": "Grade-60",
       "barDiameterMm": 6.0,
       "barSpacingMm": 150.0,
-      "clearCoverRatio": 0.15,
+      "clearCoverMm": 15.0,
       "reinforcementModulusMPa": 200000.0,
-      "reinforcementRatioGrid": [
-        0.0018,
-        0.01,
-        0.02,
-        0.03
+      "reinforcementCases": [
+        {
+          "barDiameterMm": 8.0,
+          "barSpacingMm": 150.0
+        },
+        {
+          "barDiameterMm": 10.0,
+          "barSpacingMm": 150.0
+        },
+        {
+          "barDiameterMm": 12.0,
+          "barSpacingMm": 150.0
+        }
       ],
       "compositeCase": {
         "enabled": true,

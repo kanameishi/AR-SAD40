@@ -1,1 +1,0 @@
-Controles de la integración numérica directa mediante RK4. Para $X=N_\theta,M_\theta,Q_\theta$, $\varepsilon_X$ es la diferencia máxima absoluta respecto de la solución cerrada equivalente y conserva la unidad indicada. Para $X=F_x,F_z,M_c$, $\varepsilon_X$ es el residuo global normalizado y adimensional.

@@ -11,7 +11,6 @@ source(file.path(ProjectRoot, "scripts", "R", "ringDirect.R"))
 source(file.path(ProjectRoot, "scripts", "R", "ringLoads.R"))
 source(file.path(ProjectRoot, "scripts", "R", "ringInteraction.R"))
 source(file.path(ProjectRoot, "scripts", "R", "referenceCases.R"))
-source(file.path(ProjectRoot, "scripts", "tbl", "Calculation.reference.cases.R"))
 
 assertNear <- function(actual, expected, tolerance, label) {
   Error <- max(abs(actual - expected))
@@ -130,7 +129,7 @@ assertNear(
   1e-14,
   "Schwartz-Einstein moment ratios"
 )
-stopifnot(!any(grepl("cande|shear", names(SchwartzEinstein), ignore.case = TRUE)))
+stopifnot(!any(grepl("shear", names(SchwartzEinstein), ignore.case = TRUE)))
 
 USACEFixture <- readFixture("usace.d4.csv")
 USACEChanged <- USACEFixture
@@ -150,20 +149,4 @@ expectError(function() {
   .calculateUSACED4Reference(USACEFixture[-1L])
 }, "is missing", "USACE fixture schema")
 
-TableText <- c(
-  buildCalculationUSACEReferenceTable(
-    file.path(OutputDirectory, "usace.d4.csv")
-  ),
-  buildCalculationFHWAReferenceTable(
-    file.path(OutputDirectory, "fhwa.compaction.eq.5.1.csv")
-  ),
-  buildCalculationNunezReferenceTable(
-    file.path(OutputDirectory, "nunez.2000.circular.csv")
-  ),
-  buildCalculationSchwartzEinsteinReferenceTable(
-    file.path(OutputDirectory, "schwartz.einstein.hp97.csv")
-  )
-)
-stopifnot(length(TableText) > 0L)
-
-cat("PASS: source-specific reference cases and public tables.\n")
+cat("PASS: source-specific reference cases.\n")

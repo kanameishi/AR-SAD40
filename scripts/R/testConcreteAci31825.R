@@ -242,6 +242,48 @@ stopifnot(
   !any(Evaluation$checks$checkID == "one-way-shear")
 )
 
+FaceEquality <- Evaluation$gateChecks[
+  Evaluation$gateChecks$checkID ==
+    "equal-reinforcement-at-opposite-faces",
+  ,
+  drop = FALSE
+]
+stopifnot(
+  nrow(FaceEquality) == 1L,
+  FaceEquality$demandValue == 0,
+  FaceEquality$capacityValue == 0,
+  is.na(FaceEquality$utilization),
+  FaceEquality$checkStatus == "satisfied"
+)
+
+InsufficientEvaluation <- evaluateAci31825ReinforcedShellStrip(
+  actions = Actions,
+  thicknessMm = 100,
+  stripWidthMm = 1000,
+  compressiveStrengthMPa = 25,
+  circumferentialReinforcement = Insufficient,
+  orthogonalReinforcement = Orthogonal,
+  convergenceTolerance = 0.01,
+  shellClassificationStatus = "applicable",
+  longitudinalBoundaryConditionID = "not-characterized",
+  seismicDesignCategoryID = "not-characterized",
+  jointingStatus = "not-characterized",
+  openingStatus = "not-characterized"
+)
+InsufficientFaceEquality <- InsufficientEvaluation$gateChecks[
+  InsufficientEvaluation$gateChecks$checkID ==
+    "equal-reinforcement-at-opposite-faces",
+  ,
+  drop = FALSE
+]
+stopifnot(
+  nrow(InsufficientFaceEquality) == 1L,
+  InsufficientFaceEquality$demandValue == 1,
+  InsufficientFaceEquality$capacityValue == 0,
+  is.na(InsufficientFaceEquality$utilization),
+  InsufficientFaceEquality$checkStatus == "not-satisfied"
+)
+
 Actions$forceEffectStatus <- "unfactored"
 expectError(evaluateAci31825ReinforcedShellStrip(
   actions = Actions,

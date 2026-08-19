@@ -311,12 +311,11 @@ scopeReasonName[id_] := Lookup[
 
 caseName[id_] := Lookup[
   <|
-    "alpha-1" -> "Full slip",
-    "alpha-0" -> "No slip",
-    "full-traction" -> "[Alpha] = 1",
-    "normal-only" -> "[Alpha] = 0",
-    "full-slip" -> "Full slip",
-    "no-slip" -> "No slip"
+    "slip" -> "Slip (S)",
+    "no-slip" -> "No Slip (NS)",
+    "full-traction" -> "Tangential projection included",
+    "normal-only" -> "Normal projection only",
+    "full-slip" -> "Slip (S)"
   |>,
   id,
   id
@@ -445,7 +444,7 @@ interactionExtremaView[products_Association] := With[
   Column[{
     Style["Prescribed-load direct-integration control", Bold],
     engineeringTable[
-      {"Projection", "[Alpha]", "[Eta]s", "Mean N [kN/m]", "Cosine N [kN/m]", "Mean M [kN\[CenterDot]m/m]", "Cosine M [kN\[CenterDot]m/m]", "Sine Q [kN/m]"},
+      {"Projection", "Tangential multiplier", "[Eta]s", "Mean N [kN/m]", "Cosine N [kN/m]", "Mean M [kN\[CenterDot]m/m]", "Cosine M [kN\[CenterDot]m/m]", "Sine Q [kN/m]"},
       ({
         caseName[#1["interfaceID"]],
         formatValue[#1["tangentialMultiplier"], 0],
@@ -791,7 +790,7 @@ resultantsView[
       {
         Style[Row[{liningTitle, " \[LongDash] circular section-resultant diagrams"}], Bold],
         Style[
-          "Radial ordinates: blue is positive and orange is negative. Full-slip and no-slip E-S interfaces are distinguished by grey curve shade and dash pattern; every curve includes the balanced geostatic-gradient correction returned by R.",
+          "Radial ordinates: blue is positive and orange is negative. Slip (S) and No Slip (NS) interfaces are distinguished by grey curve shade and dash pattern; every curve includes the balanced geostatic-gradient correction returned by R.",
           GrayLevel[0.30]
         ]
       },
@@ -1078,11 +1077,16 @@ pmReinforcementFamilyPlot[study_Association] := Module[
   {
     orderedSummary, domains, demands, domainSeries, curveColors,
     curveColorByCase, demandColors, curveLabels, demandPrimitives, allPoints,
+    symmetricCaseCount,
     xTickValues, yTickValues
   },
   orderedSummary = SortBy[
     study["summary"],
     #1["reinforcementCaseOrder"] &
+  ];
+  symmetricCaseCount = Count[
+    orderedSummary,
+    row_ /; TrueQ[row["isParametricCase"]]
   ];
   domains = study["domains"];
   demands = SortBy[
@@ -1114,16 +1118,20 @@ pmReinforcementFamilyPlot[study_Association] := Module[
   curveLabels = (If[
     TrueQ[#1["isParametricCase"]],
     {
-      If[TrueQ[#1["isLowerReferenceCase"]], "Lower reference", "Evaluated ratio"],
+      Row[{"S", formatValue[#1["barDiameterMm"], 0], " · Ø", formatValue[#1["barDiameterMm"], 0], "/", formatValue[#1["barSpacingMm"], 0]}],
       Row[{"rho = ", NumberForm[100 #1["reinforcementRatio"], {5, 3}], "%"}],
       Row[{"As,total = ", NumberForm[#1["circumferentialAreaTotalMm2PerM"]/100, {7, 2}], " cm^2/m"}]
     },
-    {"Full-composite sensitivity", "Existing sheet + Ø8/150 interior"}
+    {"A8 · full-composite sensitivity", "Existing sheet + Ø8/150 interior"}
   ] &) /@ orderedSummary;
   demandPrimitives = MapThread[
     {
       #2,
-      PointSize[0.018],
+      PointSize[If[
+        #1["reinforcementCaseOrder"] <= symmetricCaseCount,
+        0.026 - 0.004 #1["reinforcementCaseOrder"],
+        0.018
+      ]],
       Tooltip[
         Point[{#1["bendingDemandKnMPerM"], #1["axialDemandKnPerM"]}],
         Row[{
@@ -1189,26 +1197,29 @@ reinforcementStudyView[study_Association] := Module[
     Style["P-M interaction domains for the evaluated reinforcement configurations", Bold],
     pmReinforcementFamilyPlot[study],
     Style[
-      "The four symmetric-ratio curves share the cracked-concrete stiffness. The existing-sheet + Ø8/150 curve uses its own transformed composite stiffness and therefore its own two demand points. Point color matches its resistance curve.",
+      "The Ø8/150, Ø10/150, and Ø12/150 symmetric curves share the cracked-concrete stiffness, so their two demand coordinates coincide; nested marker sizes keep the three colors visible. The existing-sheet + Ø8/150 curve uses its own transformed composite stiffness and therefore its own two demand points.",
       GrayLevel[0.30]
     ],
     Spacer[8],
     engineeringTable[
-      {"Role", "rho [%]", "As,total [cm^2/m]", "U P-M", "U shear", "U radial", "Local result"},
+      {"ID", "phi/s", "rho [%]", "As,total [cm^2/m]", "U_PM", "E_PM", "U_V", "E_V", "U_r*", "E_r*"},
       ({
         If[
           TrueQ[#1["isParametricCase"]],
-          If[TrueQ[#1["isLowerReferenceCase"]], "Lower reference", "Evaluated ratio"],
-          "Existing sheet + Ø8/150 interior"
+          Row[{"S", formatValue[#1["barDiameterMm"], 0]}],
+          "A8"
         ],
+        Row[{formatValue[#1["barDiameterMm"], 0], "/", formatValue[#1["barSpacingMm"], 0]}],
         formatValue[100 #1["reinforcementRatio"], 3],
         formatValue[#1["circumferentialAreaTotalMm2PerM"]/100, 2],
         formatValue[#1["maximumRadialUtilization"]],
+        If[#1["localPMStatus"] === "satisfied", "OK", "FAIL"],
         formatValue[#1["maximumShearUtilization"]],
+        If[#1["shearStatus"] === "satisfied", "OK", "FAIL"],
         formatValue[#1["radialTensionUtilization"]],
-        statusName[#1["overallLocalStatus"]]
+        If[#1["radialTensionStatus"] === "satisfied", "OK", "FAIL"]
       } &) /@ summary,
-      {Left, Right, Right, Right, Right, Right, Center}
+      {Center, Center, Right, Right, Right, Center, Right, Center, Right, Center}
     ],
     Spacer[8],
     Style[Row[{Length[demands], " governing demands for the reinforcement family"}], Bold],
@@ -1230,7 +1241,7 @@ reinforcementStudyView[study_Association] := Module[
       {Center, Right, Left, Center, Right, Right, Right, Right}
     ],
     Style[
-      "Change reinforcementRatioGrid, concrete strength, thickness, or compositeCase in calculation.json; then reevaluate the single R calculation cell. Radial tension is the cover-splitting action generated by a curved circumferential tension bar.",
+      "OK means U <= 1; FAIL means U > 1. E_PM is flexure-compression, E_V is one-way shear, and E_r* is the separate conditional cover-splitting check for curved circumferential bars. Change reinforcementCases, concrete strength, thickness, or compositeCase in calculation.json; then reevaluate the single R calculation cell.",
       GrayLevel[0.30]
     ]
   }, Spacings -> 1.2]

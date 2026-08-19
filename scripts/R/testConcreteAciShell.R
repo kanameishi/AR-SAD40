@@ -1,4 +1,4 @@
-# Verifies the partial, versioned ACI shell assessment.
+# Verifies the current ACI concrete assessment.
 
 Arguments <- commandArgs(trailingOnly = FALSE)
 FileArgument <- grep("^--file=", Arguments, value = TRUE)
@@ -36,104 +36,6 @@ runConcreteAciShellTests <- function() {
     Actions$axialForceKn[1L] == 100,
     Actions$bendingMomentKnM[2L] == -50,
     Actions$shearDemandKn[1L] == 30
-  )
-
-  Assessment <- evaluateAciShotcrete(
-    normalForceKnPerM = c(-100, -20),
-    bendingMomentKnMPerM = c(20, -50),
-    shearForceKnPerM = c(-30, 5),
-    stripWidthM = 1,
-    thetaRad = c(0, pi / 2),
-    thetaDeg = c(0, 90),
-    combinationID = "factored-test",
-    stageID = "completed-fill",
-    forceEffectStatus = "factored-strength",
-    interfaceID = "full-slip",
-    thicknessMm = 100,
-    compressiveStrengthMPa = 25,
-    concreteTypeID = "plain-concrete",
-    circumferentialAreaMm2 = 0,
-    longitudinalAreaMm2 = 0,
-    reinforcementGradeID = "Grade-60",
-    standardSetID = "aci-318-14-partial",
-    shellClassificationStatus = "applicable",
-    longitudinalBoundaryConditionID = "not-characterized",
-    castAgainstSoil = FALSE
-  )
-  Circumferential <- Assessment$checks[
-    Assessment$checks$checkID ==
-      "minimum-circumferential-reinforcement",
-    ,
-    drop = FALSE
-  ]
-  Longitudinal <- Assessment$checks[
-    Assessment$checks$checkID == "minimum-longitudinal-reinforcement",
-    ,
-    drop = FALSE
-  ]
-  Stability <- Assessment$checks[
-    Assessment$checks$checkID == "shell-stability",
-    ,
-    drop = FALSE
-  ]
-  Boundary <- Assessment$checks[
-    Assessment$checks$checkID == "longitudinal-action",
-    ,
-    drop = FALSE
-  ]
-  stopifnot(
-    nrow(Assessment$actions) == 2L,
-    Circumferential$demandValue == 180,
-    Circumferential$capacityValue == 0,
-    is.na(Circumferential$utilization),
-    Circumferential$checkStatus == "not-applicable",
-    Longitudinal$demandValue == 180,
-    Longitudinal$checkStatus == "not-applicable",
-    Stability$checkStatus == "blocked",
-    Stability$blockReason == "stability-method-not-provided",
-    Boundary$checkStatus == "blocked",
-    Assessment$summary$referenceAssessmentStatus == "not-evaluated-code-text",
-    Assessment$summary$currentCodeStatus == "not-evaluated-code-text"
-  )
-
-  Conditional <- evaluateAci318214ShellReference(
-    actions = Actions,
-    thicknessMm = 100,
-    stripWidthMm = 1000,
-    compressiveStrengthMPa = 25,
-    concreteTypeID = "reinforced-concrete",
-    circumferentialAreaMm2 = 0,
-    longitudinalAreaMm2 = 0,
-    reinforcementGradeID = "Grade-60",
-    shellClassificationStatus = "unknown",
-    longitudinalBoundaryConditionID = "not-characterized"
-  )
-  stopifnot(
-    Conditional$summary$referenceAssessmentStatus ==
-      "not-evaluated-applicability",
-    all(Conditional$checks$applicabilityStatus[
-      Conditional$checks$checkStatus != "not-applicable"
-    ] == "conditional")
-  )
-
-  FreeEnds <- evaluateAci318214ShellReference(
-    actions = Actions,
-    thicknessMm = 100,
-    stripWidthMm = 1000,
-    compressiveStrengthMPa = 25,
-    concreteTypeID = "reinforced-concrete",
-    circumferentialAreaMm2 = 180,
-    longitudinalAreaMm2 = 180,
-    reinforcementGradeID = "Grade-60",
-    shellClassificationStatus = "applicable",
-    longitudinalBoundaryConditionID = "plane-stress-free-ends"
-  )
-  stopifnot(
-    FreeEnds$checks$checkStatus[
-      FreeEnds$checks$checkID == "longitudinal-action"
-    ] == "satisfied",
-    FreeEnds$summary$referenceAssessmentStatus ==
-      "not-evaluated-code-basis"
   )
 
   Current <- evaluateAciShotcrete(
@@ -253,25 +155,28 @@ runConcreteAciShellTests <- function() {
     ] - 1
   ) < 1e-12)
 
-  AgainstSoil <- evaluateAci31825PlainConcreteStrip(
-    actions = Current$actions,
-    specifiedThicknessMm = 100,
-    stripWidthMm = 1000,
-    compressiveStrengthMPa = 25,
-    lambda = 1,
-    castAgainstSoil = TRUE,
-    compressionLengthMm = 800,
-    structuralClassificationID = "underground-member-arch-strip",
-    plainConcretePermissionBasisID = "continuously-supported",
-    seismicDesignCategoryID = "A",
-    jointingStatus = "requirements-satisfied",
-    openingStatus = "none"
+  AgainstSoilMessage <- tryCatch(
+    evaluateAci31825PlainConcreteStrip(
+      actions = Current$actions,
+      specifiedThicknessMm = 100,
+      stripWidthMm = 1000,
+      compressiveStrengthMPa = 25,
+      lambda = 1,
+      castAgainstSoil = TRUE,
+      compressionLengthMm = 800,
+      structuralClassificationID = "underground-member-arch-strip",
+      plainConcretePermissionBasisID = "continuously-supported",
+      seismicDesignCategoryID = "A",
+      jointingStatus = "requirements-satisfied",
+      openingStatus = "none"
+    ),
+    error = function(e) conditionMessage(e)
   )
-  stopifnot(
-    AgainstSoil$section$designThicknessMm == 50,
-    abs(AgainstSoil$capacities$designMomentKnM - 0.525) < 1e-12,
-    abs(AgainstSoil$capacities$designShearKn - 16.5) < 1e-12
-  )
+  stopifnot(grepl(
+    "castAgainstSoil = TRUE is outside this evaluator's scope",
+    AgainstSoilMessage,
+    fixed = TRUE
+  ))
 
   Service <- Current$actions
   Service$forceEffectStatus <- "unfactored-reference-state"

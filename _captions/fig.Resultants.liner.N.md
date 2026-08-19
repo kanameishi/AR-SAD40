@@ -1,0 +1,1 @@
+Circumferential normal-force diagram $N_\theta$ for the declared interface cases. The dashed grey circle is the reference cross-section and the origin of the ordinates. Graphical amplification changes only the displayed radial length; interactive values remain in kN/m.

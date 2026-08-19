@@ -35,51 +35,116 @@ ExecutiveThicknessLossRatio <- 1 -
 ExecutiveSpecifiedThicknessLossRatio <- 1 -
   ExecutiveSection$remainingBaseThicknessMm /
     ExecutiveSection$specifiedThicknessMm
+ExecutivePlainThicknessMm <-
+  1000 * Calculation$shotcrete$section$thicknessM
+ExecutiveReinforcedThicknessMm <-
+  1000 * Calculation$reinforcedConcrete$section$thicknessM
 ExecutiveSeam <- ReportAashtoCheck("seam")
-ExecutiveAashtoPass <- all(
-  Calculation$aashto$checks$checkStatus == "satisfied"
+ExecutivePlainChecks <- utils::read.csv(
+  Calculation$paths$shotcreteChecks,
+  check.names = FALSE,
+  stringsAsFactors = FALSE,
+  na.strings = ""
 )
-ExecutivePMThreshold <- function(liningID) {
-  Data <- Calculation[[liningID]]$reinforcementSweep$summary
-  Passing <- Data[
-    Data$isParametricCase & Data$overallLocalStatus == "satisfied",
+ExecutivePlainPass <- function(liningID) {
+  Data <- ExecutivePlainChecks[
+    ExecutivePlainChecks$liningID == liningID &
+      ExecutivePlainChecks$checkID %in% c("tension-face", "one-way-shear") &
+      ExecutivePlainChecks$calculationStatus == "calculated",
     ,
     drop = FALSE
   ]
-  if (nrow(Passing) == 0L) return(NULL)
-  Passing[which.min(Passing$reinforcementRatio), , drop = FALSE]
+  if (nrow(Data) == 0L) stop("Missing plain-concrete checks: ", liningID)
+  all(Data$checkStatus == "satisfied")
 }
-ExecutivePM100 <- ExecutivePMThreshold("shotcrete")
-ExecutivePM150 <- ExecutivePMThreshold("reinforcedConcrete")
+ExecutivePlain100Pass <- ExecutivePlainPass("shotcrete")
+ExecutivePlain150Pass <- ExecutivePlainPass("plainConcrete150")
+ExecutiveAashtoPass <- all(
+  Calculation$aashto$checks$checkStatus == "satisfied"
+)
+ExecutiveList <- function(values) {
+  Values <- as.character(values)
+  if (length(Values) == 0L) return("")
+  if (length(Values) == 1L) return(Values)
+  paste(paste(head(Values, -1L), collapse = ", "), tail(Values, 1L), sep = " y ")
+}
+ExecutiveReinforcementPolicy <- Calculation$config$additionalLinings$
+  reinforcedConcrete$reinforcementStudy
+ExecutiveMeshLabels <- vapply(
+  ExecutiveReinforcementPolicy$reinforcementCases,
+  function(Case) {
+    paste0("Ø", Case$barDiameterMm, "/", Case$barSpacingMm)
+  },
+  character(1)
+)
+ExecutiveMeshList <- ExecutiveList(ExecutiveMeshLabels)
+ExecutiveCompositeLabel <- paste0(
+  "chapa exterior más Ø",
+  ExecutiveReinforcementPolicy$compositeCase$interiorBarDiameterMm,
+  "/",
+  ExecutiveReinforcementPolicy$compositeCase$interiorBarSpacingMm,
+  " interior"
+)
+ExecutivePmStatement <- function(liningID) {
+  Data <- Calculation[[liningID]]$reinforcementSweep$summary
+  Data <- Data[order(Data$reinforcementCaseOrder), , drop = FALSE]
+  Labels <- ifelse(
+    Data$isParametricCase,
+    paste0("Ø", Data$barDiameterMm, "/", Data$barSpacingMm),
+    paste0(
+      "chapa exterior más Ø",
+      Data$barDiameterMm,
+      "/",
+      Data$barSpacingMm,
+      " interior"
+    )
+  )
+  Pass <- Labels[Data$localPMStatus == "satisfied"]
+  Fail <- Labels[Data$localPMStatus == "not-satisfied"]
+  if (length(Pass) == 0L) {
+    return(paste0("no verifica para ", ExecutiveList(Fail)))
+  }
+  if (length(Fail) == 0L) {
+    return(paste0("verifica para ", ExecutiveList(Pass)))
+  }
+  paste0(
+    "verifica para ",
+    ExecutiveList(Pass),
+    " y no verifica para ",
+    ExecutiveList(Fail)
+  )
+}
+ExecutivePm100 <- ExecutivePmStatement("shotcrete")
+ExecutivePm150 <- ExecutivePmStatement("reinforcedConcrete")
 ```
 
-# Resumen ejecutivo {#sec-executive}
+## Resumen ejecutivo {.unnumbered #sec-executive}
 
-Esta memoria calcula el liner corrugado existente y dos secciones de
-rehabilitación bajo el peso permanente del relleno compactado y de una capa
-superior de lodo. Las cinco comparaciones aritméticas de
-referencia para la chapa —pared, pandeo, costura, flexibilidad y tapada—
-`r if (ExecutiveAashtoPass) "quedan dentro de sus límites" else "incluyen resultados fuera de sus límites"`.
-El cierre de la evaluación del liner existente requiere confirmar el espesor
-remanente, la resistencia de la unión y la edición contractual de la norma.
-También se analizan secciones de hormigón proyectado de 100 y 150 mm. Para
-ambos espesores se presentan diagramas de interacción fuerza--momento con
-distintas cuantías circunferenciales. Estos diagramas constituyen la base para
-seleccionar la armadura y desarrollar el detalle constructivo en la etapa
-siguiente.
+Esta memoria evalúa el liner corrugado existente bajo el peso permanente del
+relleno compactado y de la capa superior de lodo. También estudia secciones
+de rehabilitación de hormigón proyectado de
+`r formatCalculationFixed(ExecutivePlainThicknessMm, 0L)` y
+`r formatCalculationFixed(ExecutiveReinforcedThicknessMm, 0L)` mm. Para ambos
+espesores se presentan diagramas de interacción fuerza--momento para
+`r ExecutiveMeshList` en ambas caras y para el caso asimétrico de
+`r ExecutiveCompositeLabel`. La armadura y el detalle constructivo se
+definirán en la etapa de diseño de la rehabilitación.
 
 El túnel tiene
 `r formatCalculationFixed(Calculation$geometry$centroidalDiameterM, 1L)` m de
-diámetro y una tapada de
-`r formatCalculationFixed(ExecutiveStress$coverCrownM, 1L)` m sobre la clave.
-El cálculo adopta provisionalmente un peso unitario efectivo de
+diámetro. Sobre la clave se consideran
+`r formatCalculationFixed(ExecutiveStress$coverCrownM, 1L)` m de relleno
+compactado y, por encima, una capa de lodo de
+`r formatCalculationFixed(ExecutiveStress$upperLayerHeightM, 1L)` m; la altura
+total de materiales es
+`r formatCalculationFixed(ExecutiveStress$coverCrownM + ExecutiveStress$upperLayerHeightM, 1L)`
+m.
+El escenario considera un peso unitario efectivo de
 `r formatCalculationFixed(ExecutiveStress$effectiveUnitWeightKnPerM3, 1L)`
-kN/m³, un ángulo de fricción efectiva de
-`r formatCalculationFixed(ExecutiveStress$frictionAngleDeg, 0L)`° y una
-relación de sobreconsolidación de
-`r formatCalculationGeneral(ExecutiveStress$ocr)`. La capa superior tiene
-`r formatCalculationFixed(ExecutiveStress$upperLayerHeightM, 1L)` m de altura y
-un peso unitario de
+kN/m³ y un ángulo de fricción efectiva de
+`r formatCalculationFixed(ExecutiveStress$frictionAngleDeg, 0L)`°. El
+coeficiente de presión en reposo se calcula mediante la relación de Jáky para
+una condición normalmente consolidada. La capa superior tiene un peso unitario de
 `r formatCalculationFixed(ExecutiveStress$upperLayerUnitWeightKnPerM3, 1L)`
 kN/m³. Su peso equivale a una presión uniforme permanente de
 `r formatCalculationFixed(ExecutiveStress$effectiveSurchargeKPa, 1L)` kPa
@@ -97,24 +162,30 @@ en dirección vertical y
 kPa en dirección horizontal. El ángulo de fricción y la condición de agua se
 actualizarán cuando se disponga de la caracterización del relleno.
 
-La componente uniforme de la demanda se calcula con Schwartz--Einstein. Esta
-solución permite que la carga se redistribuya según la rigidez del terreno y
-la del liner. A ella se suma la variación lineal de las tensiones entre clave
-y solera, equilibrada mediante una reacción radial continua. La condición de
-contacto se representa mediante los límites con deslizamiento libre y sin
-deslizamiento. Para la chapa,
-el límite con deslizamiento libre produce máximos absolutos de
-`r formatCalculationFixed(ReportExtreme("alpha-1", "N"), 1L)` kN/m de fuerza
+La demanda se obtiene con un modelo híbrido. Schwartz--Einstein calcula la
+componente uniforme y la ovalización, incorporando la rigidez propia de cada
+revestimiento y la del terreno. La variación lineal de las tensiones entre
+clave y solera se agrega mediante una corrección equilibrada por una reacción
+radial continua. La integración directa y la representación de Fourier
+comprueban el equilibrio de las componentes superpuestas. Se calculan los
+límites de contacto con deslizamiento libre y sin deslizamiento.
+
+Para la chapa,
+el límite Slip (S) produce máximos absolutos de
+`r formatCalculationFixed(ReportExtreme("slip", "N"), 1L)` kN/m de fuerza
 circunferencial,
-`r formatCalculationFixed(ReportExtreme("alpha-1", "M"), 1L)` kN·m/m de
+`r formatCalculationFixed(ReportExtreme("slip", "M"), 1L)` kN·m/m de
 momento y
-`r formatCalculationFixed(ReportExtreme("alpha-1", "Q"), 1L)` kN/m de corte.
-Sin deslizamiento, los máximos respectivos son
-`r formatCalculationFixed(ReportExtreme("alpha-0", "N"), 1L)` kN/m,
-`r formatCalculationFixed(ReportExtreme("alpha-0", "M"), 1L)` kN·m/m y
-`r formatCalculationFixed(ReportExtreme("alpha-0", "Q"), 1L)` kN/m. El
-dominio físico corresponde a un medio elástico homogéneo con gradiente
-geostático lineal sobre la altura y reacción radial equilibrante.
+`r formatCalculationFixed(ReportExtreme("slip", "Q"), 1L)` kN/m de corte.
+Para No Slip (NS), los máximos respectivos son
+`r formatCalculationFixed(ReportExtreme("no-slip", "N"), 1L)` kN/m,
+`r formatCalculationFixed(ReportExtreme("no-slip", "M"), 1L)` kN·m/m y
+`r formatCalculationFixed(ReportExtreme("no-slip", "Q"), 1L)` kN/m. El
+apéndice de comparación presenta, para la chapa y para las dos secciones de
+hormigón, las diferencias respecto de Schwartz--Einstein uniforme, el anillo
+con campo $K_0$ prescrito y las formulaciones de Núñez. La relación
+AASHTO/USACE se informa por separado porque sólo entrega el empuje
+circunferencial de la chapa.
 
 La evaluación de la chapa adopta un espesor base remanente de
 `r formatCalculationGeneral(ExecutiveSection$remainingBaseThicknessMm)` mm,
@@ -124,13 +195,27 @@ calculada es
 resistencia publicada de referencia es
 `r formatCalculationFixed(ExecutiveSeam$limitValue, 1L)` kN/m, de modo que la
 demanda alcanza el
-`r formatCalculationFixed(100 * ExecutiveSeam$utilization, 0L)` % de esa
-resistencia. Esta comprobación AASHTO/USACE es un control escalar separado de
-las resultantes angulares del modelo híbrido. La inspección debe confirmar
-el espesor remanente y establecer la resistencia de la unión existente antes de
-cerrar la evaluación de la chapa.
+`r formatCalculationFixed(100 * ExecutiveSeam$utilization, 1L)` % de esa
+resistencia y, por lo tanto,
+`r if (ExecutiveSeam$checkStatus == "satisfied") "verifica" else "no verifica"`.
+Esta comprobación AASHTO/USACE es un control escalar separado de
+las resultantes angulares del modelo híbrido. La evaluación de la unión
+requiere el espesor remanente y la configuración de costura obtenidos de la
+inspección.
 
-Las dos familias de hormigón se muestran en diagramas separados para distinguir
-el efecto del espesor del efecto de la cuantía. En la grilla discreta evaluada,
-`r if (is.null(ExecutivePM100)) "ninguna cuantía satisface conjuntamente P–M, corte y tracción radial en la sección de 100 mm" else paste0("la primera cuantía que satisface conjuntamente P–M, corte y tracción radial en la sección de 100 mm es ", formatCalculationFixed(100 * ExecutivePM100$reinforcementRatio, 0L), " %, equivalente a ", formatCalculationFixed(ExecutivePM100$circumferentialAreaTotalMm2PerM / 100, 0L), " cm²/m totales entre ambas caras")`, y
-`r if (is.null(ExecutivePM150)) "ninguna cuantía satisface conjuntamente P–M, corte y tracción radial en la sección de 150 mm" else paste0("para 150 mm es ", formatCalculationFixed(100 * ExecutivePM150$reinforcementRatio, 0L), " %, equivalente a ", formatCalculationFixed(ExecutivePM150$circumferentialAreaTotalMm2PerM / 100, 0L), " cm²/m totales entre ambas caras")`. Estos valores son resultados de la grilla y no una armadura adoptada. El control de tracción radial se informa por analogía con CIRSOC 804-4. El caso adicional de chapa exterior más Ø8/150 interior, calculado con acción compuesta total, no satisface los controles locales en ninguno de los dos espesores. Las verificaciones y el alcance de cada familia se desarrollan en el capítulo correspondiente.
+Las comprobaciones de pared, pandeo, flexibilidad y tapada de la chapa
+`r if (all(Calculation$aashto$checks$checkStatus[Calculation$aashto$checks$checkID != "seam"] == "satisfied")) "verifican" else "no verifican en todos los casos"`; la costura de referencia
+`r if (ExecutiveSeam$checkStatus == "satisfied") "verifica" else "no verifica"`.
+En las comprobaciones evaluadas de tracción y corte, el hormigón proyectado
+simple de
+`r formatCalculationFixed(ExecutivePlainThicknessMm, 0L)` mm
+`r if (ExecutivePlain100Pass) "verifica" else "no verifica"` y el de
+`r formatCalculationFixed(ExecutiveReinforcedThicknessMm, 0L)` mm
+`r if (ExecutivePlain150Pass) "verifica" else "no verifica"`.
+En flexocompresión $P$--$M$ con armadura, la sección de
+`r formatCalculationFixed(ExecutivePlainThicknessMm, 0L)` mm `r ExecutivePm100`;
+la sección de `r formatCalculationFixed(ExecutiveReinforcedThicknessMm, 0L)` mm
+`r ExecutivePm150`. El corte y el control de desprendimiento radial se
+dictaminan en columnas separadas. La selección de la alternativa de
+rehabilitación se basará en la inspección del liner existente y en las
+verificaciones estructurales correspondientes.

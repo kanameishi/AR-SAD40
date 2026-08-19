@@ -231,7 +231,7 @@ loadCoverCalculationResults <- function(
     Data
   }
 
-  Config <- validateCalculationConfig(readCalculationJson(Paths$config))
+  Config <- validateCoverCalculationConfig(readCalculationJson(Paths$config))
   if (Config[["schemaVersion", exact = TRUE]] != "3.1.0" ||
       Config[["analysisModelID", exact = TRUE]] !=
         "schwartz-einstein-balanced-gradient-hybrid") {
@@ -554,6 +554,8 @@ loadCoverCalculationResults <- function(
     c(
       "scenarioID", "liningID", "sectionID", "concreteTypeID",
       "studyID", "reinforcementCaseID", "reinforcementCaseOrder",
+      "barDiameterMm", "barSpacingMm", "clearCoverMm",
+      "reinforcementArrangementID",
       "circumferentialAreaTotalMm2PerM", "reinforcementRatio",
       "calculationStatus",
       "maximumRadialUtilization", "localPMStatus", "governingCaseID",
@@ -561,8 +563,8 @@ loadCoverCalculationResults <- function(
       "governingCombinationID", "governingVerticalStressFactor",
       "governingHorizontalStressFactor", "governingThetaIndex",
       "governingThetaDeg", "governingAxialDemandKnPerM",
-      "governingBendingDemandKnMPerM", "isLowerReferenceCase",
-      "isParametricCase", "demandReuseBasisID",
+      "governingBendingDemandKnMPerM", "isParametricCase",
+      "demandReuseBasisID",
       "demandReuseStatus", "blockReason", "maximumShearUtilization",
       "shearStatus", "radialTensionUtilization",
       "radialTensionStatus", "overallLocalStatus",
@@ -683,10 +685,10 @@ loadCoverCalculationResults <- function(
       call. = FALSE
     )
   }
-  ExpectedStudyRatios <- ReinforcementPolicy$reinforcementRatioGrid
+  ExpectedStudyCases <- ReinforcementPolicy$reinforcementCases
   CompositePolicy <- ReinforcementPolicy$compositeCase
   CompositeCount <- if (isTRUE(CompositePolicy$enabled)) 1L else 0L
-  ExpectedStudyCaseCount <- length(ExpectedStudyRatios) + CompositeCount
+  ExpectedStudyCaseCount <- length(ExpectedStudyCases) + CompositeCount
   StudyIDs <- unique(c(
     ShotcreteReinforcementDomains$studyID,
     ShotcreteReinforcementSweep$studyID,
@@ -759,8 +761,22 @@ loadCoverCalculationResults <- function(
     StudyLimitChecks <- Products$reinforcementSweep$limitChecks
     StudyCaseIDs <- Sweep$reinforcementCaseID
     DomainGroups <- split(StudyDomains, StudyDomains$reinforcementCaseID)
-    ExpectedAreas <- ExpectedStudyRatios *
-      1000 * (1000 * LiningConfig$thicknessM)
+    ExpectedDiameters <- vapply(
+      ExpectedStudyCases,
+      `[[`,
+      numeric(1),
+      "barDiameterMm"
+    )
+    ExpectedSpacings <- vapply(
+      ExpectedStudyCases,
+      `[[`,
+      numeric(1),
+      "barSpacingMm"
+    )
+    ExpectedAreas <- 2 * pi * ExpectedDiameters^2 / 4 *
+      1000 / ExpectedSpacings
+    ExpectedStudyRatios <- ExpectedAreas /
+      (1000 * (1000 * LiningConfig$thicknessM))
     Parametric <- Sweep[Sweep$isParametricCase, , drop = FALSE]
     Composite <- Sweep[!Sweep$isParametricCase, , drop = FALSE]
     if (nrow(Sweep) != ExpectedStudyCaseCount ||
@@ -778,8 +794,20 @@ loadCoverCalculationResults <- function(
           tolerance = 1e-9,
           check.attributes = FALSE
         )) ||
-        sum(Sweep$isLowerReferenceCase) != 1L ||
-        nrow(Parametric) != length(ExpectedStudyRatios) ||
+        !isTRUE(all.equal(
+          Parametric$barDiameterMm,
+          ExpectedDiameters,
+          tolerance = 1e-12,
+          check.attributes = FALSE
+        )) ||
+        !isTRUE(all.equal(
+          Parametric$barSpacingMm,
+          ExpectedSpacings,
+          tolerance = 1e-12,
+          check.attributes = FALSE
+        )) ||
+        any(Parametric$reinforcementArrangementID != "symmetric-two-face") ||
+        nrow(Parametric) != length(ExpectedStudyCases) ||
         nrow(Composite) != CompositeCount ||
         (CompositeCount == 1L &&
           Composite$reinforcementCaseID != CompositePolicy$caseID) ||

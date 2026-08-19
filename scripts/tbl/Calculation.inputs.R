@@ -1,3 +1,7 @@
+if (!exists("buildReportTable", mode = "function", inherits = TRUE)) {
+  source(file.path("scripts", "tbl", "table.R"), local = TRUE)
+}
+
 buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
   Paths <- c(pathInputs, pathSection, pathStress)
   if (any(!file.exists(Paths))) {
@@ -147,18 +151,23 @@ buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
         "—"
       )
     ))
-    return(knitr::kable(
-      Output,
-      col.names = c("Magnitud", "Valor", "Unidad"),
-      align = c("l", "r", "c"),
-      escape = FALSE
+    return(buildReportTable(
+      data = Output,
+      headers = c("Magnitud", "Valor", "Unidad"),
+      align = c("l", "r", "c")
     ))
   }
-  AlphaValues <- Inputs$numericValue[Inputs$parameterID == "tangential-multiplier"]
-  if (length(AlphaValues) == 0L || any(!is.finite(AlphaValues))) {
+  TangentialMultipliers <- Inputs$numericValue[
+    Inputs$parameterID == "tangential-multiplier"
+  ]
+  if (length(TangentialMultipliers) == 0L ||
+      any(!is.finite(TangentialMultipliers))) {
     stop("The tangential multiplier inputs are not available.", call. = FALSE)
   }
-  AlphaText <- paste(format(sort(unique(AlphaValues)), trim = TRUE), collapse = "; ")
+  TangentialMultiplierText <- paste(
+    format(sort(unique(TangentialMultipliers)), trim = TRUE),
+    collapse = "; "
+  )
   K0ModelLabels <- c(
     "adopted-constant" = "Valor adoptado (hipótesis del caso)",
     "elastic-confined" = "Elasticidad lineal con deformación lateral impedida",
@@ -287,12 +296,11 @@ buildCalculationInputsTable <- function(pathInputs, pathSection, pathStress) {
     row("$\\sigma'_v$", formatGeneral(Stress$effectiveVerticalKPa), "$\\mathrm{kPa}$")
   ), K0Rows, list(
     row("$\\Delta u$", formatGeneral(Stress$waterPressureDifferenceKPa), "$\\mathrm{kPa}$"),
-    row("$\\alpha$", AlphaText, "—")
+    row("$\\lambda_t$", TangentialMultiplierText, "—")
   )))
-  knitr::kable(
-    Output,
-    col.names = c("$x_i$", "$v_i$", "$u_i$"),
-    align = c("c", "r", "c"),
-    escape = FALSE
+  buildReportTable(
+    data = Output,
+    headers = c("$x_i$", "$v_i$", "$u_i$"),
+    align = c("c", "r", "c")
   )
 }

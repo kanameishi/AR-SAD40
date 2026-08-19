@@ -1,27 +1,25 @@
-{{< include /TITO/kb/paper-candidate/chapters/methodology.scope.es.md >}}
+{{< include /_chapters/methodology.scope.es.md >}}
 
-{{< include /TITO/kb/paper-candidate/chapters/methodology.practice.es.md >}}
+{{< include /_chapters/methodology.practice.es.md >}}
 
-{{< include /TITO/kb/paper-candidate/chapters/methodology.k0.estimation.es.md >}}
+{{< include /_chapters/methodology.k0.estimation.es.md >}}
 
-{{< include /TITO/kb/paper-candidate/chapters/methodology.load.interaction.es.md >}}
+{{< include /_chapters/methodology.load.interaction.es.md >}}
 
-{{< include /TITO/kb/paper-candidate/chapters/methodology.corrugation.es.md >}}
+{{< include /_chapters/methodology.corrugation.es.md >}}
 
-{{< include /TITO/kb/paper-candidate/chapters/methodology.model.es.md >}}
+{{< include /_chapters/methodology.model.es.md >}}
 
-{{< include /TITO/kb/paper-candidate/chapters/methodology.sheet.assessment.es.md >}}
+{{< include /_chapters/methodology.sheet.assessment.es.md >}}
 
-{{< include /TITO/kb/paper-candidate/chapters/methodology.shotcrete.scope.es.md >}}
+{{< include /_chapters/methodology.shotcrete.scope.es.md >}}
 
-{{< include /TITO/kb/paper-candidate/chapters/methodology.shotcrete.section.es.md >}}
+{{< include /_chapters/methodology.shotcrete.section.es.md >}}
 
-{{< include /TITO/kb/paper-candidate/chapters/methodology.uncertainty.es.md >}}
+{{< include /_chapters/methodology.verification.es.md >}}
 
-{{< include /TITO/kb/paper-candidate/chapters/methodology.verification.es.md >}}
+{{< include /_chapters/methodology.limitations.es.md >}}
 
-{{< include /TITO/kb/paper-candidate/chapters/methodology.limitations.es.md >}}
+{{< include /_chapters/methodology.appendix.es.md >}}
 
-{{< include /TITO/kb/paper-candidate/chapters/methodology.appendix.es.md >}}
-
-{{< include /TITO/kb/paper-candidate/chapters/methodology.shotcrete.controls.es.md >}}
+{{< include /_chapters/methodology.shotcrete.controls.es.md >}}

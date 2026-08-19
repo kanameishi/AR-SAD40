@@ -16,17 +16,17 @@ respuesta de cada revestimiento.
 Las tablas utilizan los códigos **H** para el modelo híbrido, **SE** para
 Schwartz--Einstein uniforme, **K0** para el anillo con campo prescrito,
 **N00** y **N14** para las dos formulaciones de Núñez, y **AU** para la
-relación AASHTO/USACE. En las soluciones angulares, **D** identifica el límite
-con deslizamiento libre y **S** el límite sin deslizamiento. Para el anillo con
-campo prescrito, esos mismos códigos identifican, respectivamente, la
-proyección completa y la acción exclusivamente normal. **SER** y **LRFD**
+relación AASHTO/USACE. En las soluciones de interacción, **S** identifica el
+límite con deslizamiento libre y **NS** el límite sin deslizamiento. Para el
+anillo con campo prescrito, **PT** identifica la proyección normal y tangencial
+completa y **PN** la acción exclusivamente normal. **SER** y **LRFD**
 distinguen el empuje de servicio y la demanda mayorada AASHTO/USACE.
 
 Para $X\in\{N,M,Q\}$, la envolvente de referencia y la razón tabulada se
 definen como
 
 $$
-X_H=\max_{c\in\{D,S\}}|X|_{\max,H,c},
+X_H=\max_{c\in\{S,NS\}}|X|_{\max,H,c},
 \qquad
 r_X(m,c)=\frac{|X|_{\max,m,c}}{X_H}.
 $$ {#eq-calculation-classical-ratios}
@@ -69,15 +69,16 @@ equilibrio de la distribución biaxial sin realimentación de la rigidez del
 terreno. Cada representación se evalúa para los dos límites de transferencia
 tangencial definidos en la memoria.
 
-{{< include /_fig/Calculation.classical.comparison.ES.qmd >}}
+Cada formulación se presenta con el mismo constructor polar empleado para las
+resultantes del cuerpo de la memoria. Los tres paneles corresponden a $N$,
+$M$ y $Q$; la circunferencia de referencia representa el valor nulo y cada
+panel utiliza una escala radial propia. Las dos curvas de cada figura son los
+límites de transferencia tangencial de la formulación correspondiente.
 
-Las @fig-calculation-classical-steel,
-@fig-calculation-classical-shotcrete-100 y
-@fig-calculation-classical-shotcrete-150 conservan escalas cartesianas
-independientes para $N$, $M$ y $Q$. De este modo, el orden de magnitud propio de
-cada resultante permanece visible en las tres secciones. Los máximos absolutos
-y sus razones respecto de la envolvente híbrida se informan en las tablas del
-apartado anterior.
+{{< include /_fig/Comparison.ES.qmd >}}
+
+Los máximos absolutos y sus razones respecto de la envolvente híbrida se
+informan en las tablas del apartado anterior.
 
 La diferencia entre la curva híbrida y Schwartz--Einstein uniforme mide el
 efecto de trasladar la resultante lateral mediante el gradiente equilibrado.
@@ -98,7 +99,7 @@ caso colocado en trinchera frente a una formulación clásica adicional. La
 fuente define.
 
 La relación AASHTO/USACE desarrollada en
-@sec-calculation-appendix-thrust se aplica a la chapa corrugada y entrega un
+@sec-calculation-steel se aplica a la chapa corrugada y entrega un
 empuje escalar. La fila **SER** informa el valor de servicio y la fila
 **LRFD** conserva la demanda mayorada. La relación fuente define fuerza
 normal; por esa razón las columnas de momento y corte se muestran con raya.
@@ -109,7 +110,7 @@ El tratamiento FHWA de compactación representa una acción de construcción
 asociada al equipo, al material suelto y a la secuencia de colocación. Su
 evaluación para el proyecto requiere la fuerza del compactador, el ángulo de
 fricción del relleno suelto y la retención de esa acción al completar el
-relleno. Esos parámetros permanecen `UNKNOWN`; el estado comparado en este
+relleno. No se dispone de esos parámetros; el estado comparado en este
 apéndice corresponde al relleno completado.
 
 En conjunto, la comparación permite reconocer cuánto varían las resultantes

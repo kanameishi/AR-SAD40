@@ -4,6 +4,13 @@ root <- normalizePath(".", mustWork = TRUE)
 source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
 ```
 
-# Especificación Técnica de Inspección — Túnel Espesador San Francisco {#sec-specifications}
+# Especificación técnica de inspección {#sec-specifications}
+
+Este capítulo define la inspección necesaria para sustituir las propiedades
+supuestas del liner existente por datos representativos de terreno. Establece
+el alcance, el equipamiento, el muestreo y los registros para medir el espesor
+remanente de la chapa, evaluar las uniones apernadas, confirmar la geometría
+del perfil y cuantificar la ovalización. Su objetivo es producir la evidencia
+dimensional y de condición que requiere la evaluación estructural definitiva.
 
 {{< include /_chapters/specifications.inspection.es.md >}}

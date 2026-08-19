@@ -62,5 +62,5 @@ El estado permanente de esta memoria utiliza la relación de Jáky y una
 tensión horizontal residual de compactación igual a cero. La evaluación de
 una etapa constructiva con la relación FHWA requiere identificar el equipo,
 la fuerza aplicada, el ángulo de fricción del relleno suelto y la secuencia de
-colocación. Esos datos permanecen `UNKNOWN`; por ello $n_p$ no se suma al
+colocación. No se dispone de esos datos; por ello $n_p$ no se suma al
 estado permanente ni se transforma en un incremento de $K_0$.

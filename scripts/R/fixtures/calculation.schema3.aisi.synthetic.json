@@ -26,13 +26,13 @@
   },
   "interfaceCases": [
     {
-      "caseID": "alpha-1",
+      "caseID": "slip",
       "interfaceID": "full-traction",
       "tangentialMultiplier": 1.0,
       "comparisonInterfaceID": "full-slip"
     },
     {
-      "caseID": "alpha-0",
+      "caseID": "no-slip",
       "interfaceID": "normal-only",
       "tangentialMultiplier": 0.0,
       "comparisonInterfaceID": "no-slip"

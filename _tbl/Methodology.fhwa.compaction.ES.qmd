@@ -21,10 +21,6 @@ buildMethodologyFHWACompactionTable(
 rm(
   CAP,
   buildMethodologyFHWACompactionTable,
-  buildCalculationFHWAReferenceTable,
-  buildCalculationNunezReferenceTable,
-  buildCalculationSchwartzEinsteinReferenceTable,
-  buildCalculationUSACEReferenceTable,
   .readReferenceCaseProduct
 )
 ```

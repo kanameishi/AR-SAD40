@@ -6,6 +6,15 @@ source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
 
 # Modelo de cálculo {#sec-calculation-model}
 
+Este capítulo establece la base común para calcular la respuesta transversal
+del túnel. Define las acciones permanentes, las convenciones de signo y las
+rigideces de cada revestimiento; combina la interacción suelo--estructura de
+Schwartz--Einstein con el gradiente geostático equilibrado; y controla las
+resultantes mediante integración Runge--Kutta y reconstrucción de Fourier. Su
+objetivo es obtener distribuciones coherentes de fuerza circunferencial,
+momento y corte para la chapa y para cada espesor de shotcrete, considerando
+los límites de interfaz con deslizamiento libre y sin deslizamiento.
+
 {{< include /_chapters/model.basis.es.qmd >}}
 
 {{< include /_chapters/model.actions.es.qmd >}}

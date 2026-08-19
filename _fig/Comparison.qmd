@@ -1,0 +1,134 @@
+```{r}
+#| include: false
+source("scripts/fig/Comparison.R")
+PLOT.STEEL.H <- buildCalculationClassicalComparisonFigure(
+  Calculation$classicalComparison$curves,
+  "steel",
+  "official-hybrid"
+)
+PLOT.STEEL.SE <- buildCalculationClassicalComparisonFigure(
+  Calculation$classicalComparison$curves,
+  "steel",
+  "schwartz-einstein-uniform"
+)
+PLOT.STEEL.K0 <- buildCalculationClassicalComparisonFigure(
+  Calculation$classicalComparison$curves,
+  "steel",
+  "prescribed-k0-ring"
+)
+PLOT.SC100.H <- buildCalculationClassicalComparisonFigure(
+  Calculation$classicalComparison$curves,
+  "shotcrete",
+  "official-hybrid"
+)
+PLOT.SC100.SE <- buildCalculationClassicalComparisonFigure(
+  Calculation$classicalComparison$curves,
+  "shotcrete",
+  "schwartz-einstein-uniform"
+)
+PLOT.SC100.K0 <- buildCalculationClassicalComparisonFigure(
+  Calculation$classicalComparison$curves,
+  "shotcrete",
+  "prescribed-k0-ring"
+)
+PLOT.SC150.H <- buildCalculationClassicalComparisonFigure(
+  Calculation$classicalComparison$curves,
+  "reinforcedConcrete",
+  "official-hybrid"
+)
+PLOT.SC150.SE <- buildCalculationClassicalComparisonFigure(
+  Calculation$classicalComparison$curves,
+  "reinforcedConcrete",
+  "schwartz-einstein-uniform"
+)
+PLOT.SC150.K0 <- buildCalculationClassicalComparisonFigure(
+  Calculation$classicalComparison$curves,
+  "reinforcedConcrete",
+  "prescribed-k0-ring"
+)
+```
+
+```{r}
+#| label: fig-comparison-liner-hybrid
+#| fig-cap: !expr CAP.STEEL.H
+#| echo: false
+#| out-width: 100%
+PLOT.STEEL.H
+```
+
+```{r}
+#| label: fig-comparison-liner-einstein
+#| fig-cap: !expr CAP.STEEL.SE
+#| echo: false
+#| out-width: 100%
+PLOT.STEEL.SE
+```
+
+```{r}
+#| label: fig-comparison-liner-k0
+#| fig-cap: !expr CAP.STEEL.K0
+#| echo: false
+#| out-width: 100%
+PLOT.STEEL.K0
+```
+
+```{r}
+#| label: fig-comparison-shotcrete100-hybrid
+#| fig-cap: !expr CAP.SC100.H
+#| echo: false
+#| out-width: 100%
+PLOT.SC100.H
+```
+
+```{r}
+#| label: fig-comparison-shotcrete100-einstein
+#| fig-cap: !expr CAP.SC100.SE
+#| echo: false
+#| out-width: 100%
+PLOT.SC100.SE
+```
+
+```{r}
+#| label: fig-comparison-shotcrete100-k0
+#| fig-cap: !expr CAP.SC100.K0
+#| echo: false
+#| out-width: 100%
+PLOT.SC100.K0
+```
+
+```{r}
+#| label: fig-comparison-shotcrete150-hybrid
+#| fig-cap: !expr CAP.SC150.H
+#| echo: false
+#| out-width: 100%
+PLOT.SC150.H
+```
+
+```{r}
+#| label: fig-comparison-shotcrete150-einstein
+#| fig-cap: !expr CAP.SC150.SE
+#| echo: false
+#| out-width: 100%
+PLOT.SC150.SE
+```
+
+```{r}
+#| label: fig-comparison-shotcrete150-k0
+#| fig-cap: !expr CAP.SC150.K0
+#| echo: false
+#| out-width: 100%
+PLOT.SC150.K0
+```
+
+```{r}
+#| include: false
+rm(
+  CAP.STEEL.H, CAP.STEEL.SE, CAP.STEEL.K0,
+  CAP.SC100.H, CAP.SC100.SE, CAP.SC100.K0,
+  CAP.SC150.H, CAP.SC150.SE, CAP.SC150.K0,
+  PLOT.STEEL.H, PLOT.STEEL.SE, PLOT.STEEL.K0,
+  PLOT.SC100.H, PLOT.SC100.SE, PLOT.SC100.K0,
+  PLOT.SC150.H, PLOT.SC150.SE, PLOT.SC150.K0,
+  buildCalculationClassicalComparisonFigure
+)
+```

@@ -1,6 +1,3 @@
-Proyecto: SRK UY SAD40 — Revisión Estructural Túnel Espesador San Francisco
-Revisión: 0 — 24-jul-2026
-
 La inspección comprende el ensayo de espesores, la revisión de los pernos de
 conexión y la confirmación de la sección de chapa corrugada. El procedimiento
 de terreno tiene los siguientes objetivos:
@@ -12,7 +9,7 @@ de terreno tiene los siguientes objetivos:
 
 Aplica a la totalidad del desarrollo del túnel de descarga bajo el espesador de la planta San Francisco, con énfasis en los tramos identificados con mayor deterioro visual (costuras apernadas, encuentro con el radier, zonas de escurrimiento de agua). Los antecedentes que orientan el levantamiento son:
 
-- Perfil de chapa identificado por croquis: paso 76 mm, profundidad 25 mm, espesor nominal 3 mm, compatible con el perfil comercial estándar 76×25 mm ("3″×1″") de estructura de acero corrugado (AASHTO M36 / ASTM A760).
+- Perfil de chapa identificado por croquis: paso 76 mm, profundidad 25 mm y espesor especificado de catálogo de 3.5 mm, compatible con el perfil comercial estándar 76×25 mm ("3″×1″") de estructura de acero corrugado (AASHTO M36 / ASTM A760).
 - Diámetro interior medido: ≈2.63 m.
 - Evaluación visual preliminar de fotografías: el deterioro superficial dominante en el campo de chapa corresponde a desprendimiento de un sistema de pintura (no necesariamente pérdida de sección); la corrosión real del acero parece estar concentrada en costuras apernadas y pernos/tuercas.
 
@@ -30,9 +27,9 @@ son:
 Para el registro y la interpretación de resultados se adoptan las siguientes
 definiciones:
 
-- Espesor especificado (nominal): espesor de fabricación de catálogo (en este caso, 3.0 mm supuestos).
-- Espesor de diseño: espesor especificado reducido según convención AISI/AASHTO (incorpora pérdida típica de recubrimiento).
-- Espesor remanente: espesor medido en terreno en el estado actual, neto de corrosión.
+- Espesor especificado: espesor de fabricación de catálogo; la memoria adopta 3.5 mm.
+- Espesor base de diseño: espesor tabulado sin el aporte del recubrimiento metálico; la memoria adopta 3.35 mm.
+- Espesor remanente: espesor neto de corrosión; el escenario de cálculo adopta 3.0 mm y la inspección debe confirmarlo.
 - Pérdida de sección: (espesor de diseño − espesor remanente) / espesor de diseño, expresada en %.
 - Punto de medición (PM): ubicación física individual, georreferenciada por progresiva (estación) y posición angular (corona, riñón, hastial, solera).
 
@@ -104,3 +101,9 @@ El registro de campo y los entregables comprenderán:
 4. Registro fotográfico con escala, indexado por progresiva y vinculado a la planilla.
 5. Plano de desarrollo del túnel con mapeo de resultados por color (semáforo: verde G1/pérdida<5%, amarillo G2/5–10%, rojo G3-G4/>10%).
 6. Informe de resultados de laboratorio de pernos extraídos (si aplica).
+
+En síntesis, queda definido un levantamiento trazable de espesores, pernos,
+geometría y ovalización, con ubicación y registro fotográfico de cada dato.
+Sus entregables permitirán actualizar la sección resistente, la pérdida de
+espesor, la condición de las costuras y la geometría real del túnel antes de
+emitir la evaluación estructural definitiva.

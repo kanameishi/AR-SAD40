@@ -1,3 +1,7 @@
+if (!exists("buildReportTable", mode = "function", inherits = TRUE)) {
+  source(file.path("scripts", "tbl", "table.R"), local = TRUE)
+}
+
 buildCalculationExtremaTable <- function(
   pathResultants,
   pathExtrema,
@@ -41,14 +45,14 @@ buildCalculationExtremaTable <- function(
   }
   if ("interfaceID" %in% names(Extrema)) {
     InterfaceCodes <- c(
-      fullTraction = "1",
-      `full-traction` = "1",
-      normalOnly = "0",
-      `normal-only` = "0",
-      fullSlip = "Deslizamiento libre",
-      `full-slip` = "Deslizamiento libre",
-      noSlip = "Sin deslizamiento",
-      `no-slip` = "Sin deslizamiento"
+      fullTraction = "PT",
+      `full-traction` = "PT",
+      normalOnly = "PN",
+      `normal-only` = "PN",
+      fullSlip = "S",
+      `full-slip` = "S",
+      noSlip = "NS",
+      `no-slip` = "NS"
     )
     ResultantLabels <- c(
       N = "$N_\\theta$",
@@ -103,22 +107,25 @@ buildCalculationExtremaTable <- function(
     if (anyNA(Output$Interface) || anyNA(Output$Resultant)) {
       stop("The public interface or resultant mapping is incomplete.", call. = FALSE)
     }
-    return(knitr::kable(
-      Output,
-      digits = c(0, 0, 0, 1, 0, 1, 0, 1, 0),
-      col.names = c(
-        "Interfaz", "$X$", "$X_{\\min}$", "$\\theta_{\\min}$",
+    return(buildReportTable(
+      data = Output,
+      headers = c(
+        "$I$", "$X$", "$X_{\\min}$", "$\\theta_{\\min}$",
         "$X_{\\max}$", "$\\theta_{\\max}$",
         "$\\lvert X\\rvert_{\\max}$", "$\\theta_*$", "$u_X$"
       ),
       align = c("c", "c", "r", "r", "r", "r", "r", "r", "c"),
-      escape = FALSE
+      digits = c(0, 0, 0, 1, 0, 1, 0, 1, 0)
     ))
   }
-  if (!("alpha" %in% names(Resultants)) || !("alpha" %in% names(Extrema))) {
-    stop("The biaxial-control products lack alpha.", call. = FALSE)
+  if (!("tangentialMultiplier" %in% names(Resultants)) ||
+      !("tangentialMultiplier" %in% names(Extrema))) {
+    stop(
+      "The biaxial-control products lack the tangential multiplier.",
+      call. = FALSE
+    )
   }
-  Cases <- unique(Resultants[, c("caseID", "alpha")])
+  Cases <- unique(Resultants[, c("caseID", "tangentialMultiplier")])
   valueAt <- function(caseID, resultantID, angle) {
     Data <- Resultants[
       Resultants$caseID == caseID & Resultants$resultantID == resultantID,
@@ -140,9 +147,9 @@ buildCalculationExtremaTable <- function(
   }
   Output <- do.call(rbind, lapply(seq_len(nrow(Cases)), function(i) {
     CaseID <- Cases$caseID[i]
-    Alpha <- Cases$alpha[i]
+    TangentialMultiplier <- Cases$tangentialMultiplier[i]
     data.frame(
-      Alpha = Alpha,
+      TangentialMultiplier = TangentialMultiplier,
       NormalA = valueAt(CaseID, "N", 0),
       NormalB = valueAt(CaseID, "N", pi / 2),
       MomentA = valueAt(CaseID, "M", 0),
@@ -152,15 +159,18 @@ buildCalculationExtremaTable <- function(
       stringsAsFactors = FALSE
     )
   }))
-  Output <- Output[order(Output$Alpha, decreasing = TRUE), , drop = FALSE]
-  knitr::kable(
-    Output,
-    digits = c(0, 0, 0, 0, 0, 0),
-    col.names = c(
-      "$\\alpha$", "$N_A$", "$N_B$", "$M_A$", "$M_B$",
+  Output <- Output[
+    order(Output$TangentialMultiplier, decreasing = TRUE),
+    ,
+    drop = FALSE
+  ]
+  buildReportTable(
+    data = Output,
+    headers = c(
+      "$\\lambda_t$", "$N_A$", "$N_B$", "$M_A$", "$M_B$",
       "$\\lvert Q_\\theta\\rvert_{\\max}$"
     ),
     align = rep("r", 6),
-    escape = FALSE
+    digits = c(0, 0, 0, 0, 0, 0)
   )
 }

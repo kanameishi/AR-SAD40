@@ -1,1 +1,0 @@
-Ejemplos circulares de Núñez (2000) [@Nunez2000, pp. 13--15]. $r_i=P$ corresponde al revestimiento primario y $r_i=F$ al permanente; $x_i$ identifica la magnitud; $v_{p,i}$ es el valor publicado y $u_i$ la unidad. Para $a_N$, $v_{c,i}$ es la entrada no redondeada adoptada; para $A_N$, $M_{\max}$, $N_C$ y $N_A$, es el resultado recalculado.

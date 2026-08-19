@@ -364,23 +364,6 @@ if (any(!vapply(
     Lining[["reinforcement"]] <- Reinforcement
     Lining[["orthogonalReinforcement"]] <- OrthogonalReinforcement
     Aci <- Lining[["aci", exact = TRUE]]
-    UsesLegacyDomain <- nrow(Reinforcement) > 0L &&
-      (is.null(Aci) || identical(
-        Aci[["standardSetID", exact = TRUE]],
-        "aci-318.2-14-partial"
-      ))
-    if (UsesLegacyDomain) {
-      attr(Lining, ".shotcreteDomains") <-
-        buildAciE702421ReinforcedSectionDomains(
-          thicknessMm = 1000 * Lining[["thicknessM", exact = TRUE]],
-          stripWidthMm = 1000 * Lining[["stripWidthM", exact = TRUE]],
-          compressiveStrengthMPa = Lining[[
-            "compressiveStrengthMPa",
-            exact = TRUE
-          ]],
-          reinforcement = Reinforcement
-        )
-    }
     UsesAci31825Domain <- nrow(Reinforcement) > 0L &&
       !is.null(Aci) && identical(
         Aci[["standardSetID", exact = TRUE]],

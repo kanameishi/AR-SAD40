@@ -22,7 +22,7 @@ buildCoverReport <- function(params) {
   )
   ConsultantBlock <- paste0(
     '<section class="srk-cover__block">',
-    '<h2 class="srk-cover__block-title">Preparado por:</h2>',
+    '<div class="srk-cover__block-title">Preparado por:</div>',
     '<div class="srk-cover__block-body">',
     '<p>', h(params$consultant$name), '</p>',
     ConsultantAddress,
@@ -35,7 +35,7 @@ buildCoverReport <- function(params) {
   if (nzchar(h(params$client$name))) {
     ClientBlock <- paste0(
       '<section class="srk-cover__block">',
-      '<h2 class="srk-cover__block-title">Preparado para:</h2>',
+      '<div class="srk-cover__block-title">Preparado para:</div>',
       '<div class="srk-cover__block-body"><p>', h(params$client$name),
       '</p></div></section>'
     )

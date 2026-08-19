@@ -1,9 +1,0 @@
-```{r}
-#| include: false
-root <- normalizePath(".", mustWork = TRUE)
-source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
-```
-
-# Fluencia y pandeo de la pared corrugada {#sec-calculation-appendix-buckling}
-
-{{< include /_chapters/buckling.appendix.es.md >}}

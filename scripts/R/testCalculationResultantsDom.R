@@ -128,16 +128,16 @@ if (!requireNamespace("chromote", quietly = TRUE)) {
 
 Checks <- list(
   list(
-    path = "html/report.es/_index/liner.ES.html",
-    selector = "#fig-calculation-normal"
+    path = "html/report/_index/liner.ES.html",
+    selector = "#fig-resultants-liner-normal"
   ),
   list(
-    path = "html/report.es/_index/liner.ES.html",
-    selector = "#fig-calculation-moment"
+    path = "html/report/_index/liner.ES.html",
+    selector = "#fig-resultants-liner-moment"
   ),
   list(
-    path = "html/report.es/_index/liner.ES.html",
-    selector = "#fig-calculation-shear"
+    path = "html/report/_index/liner.ES.html",
+    selector = "#fig-resultants-liner-shear"
   )
 )
 for (Check in Checks) {

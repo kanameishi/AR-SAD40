@@ -48,7 +48,7 @@ produce una distribución de fuerza y momento propia de cada alternativa. En
 la comprobación de carga prescrita, la rigidez interviene en la compatibilidad
 del modo uniforme; los armónicos $n\geq2$ quedan definidos por las acciones y
 el equilibrio. La resistencia se evalúa con las propiedades de cada sección.
-Para las cuatro cuantías simétricas de cada espesor, el acero modifica la
+Para las tres mallas simétricas de cada espesor, el acero modifica la
 resistencia seccional pero no la rigidez usada para obtener las acciones. El
 caso adicional compuesto incorpora la chapa exterior y una malla interior a
 la rigidez transformada; sus acciones se recalculan con el centroide elástico

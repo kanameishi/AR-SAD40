@@ -39,17 +39,16 @@ K_0=\frac{\sigma'_h}{\sigma'_v},
 \sigma'_h=K_0\sigma'_v.
 $$ {#eq-calculation-k0}
 
-La relación empleada vincula $K_0$ con el ángulo de fricción efectiva y la
-relación de sobreconsolidación [@MayneKulhawy1982]:
+La rama empleada corresponde a la relación de Jáky para una condición
+normalmente consolidada [@Michalowski2005; @ChristopherEtAl2006]:
 
 $$
-K_0=(1-\sin\phi')\,\mathrm{OCR}^{\sin\phi'}.
+K_0=1-\sin\phi'.
 $$ {#eq-calculation-k0-application}
 
-Para $\mathrm{OCR}=1$, la expresión se reduce a la relación de Jáky. Con
-$\phi'=`r formatCalculationFixed(Calculation$stress$frictionAngleDeg, 0L)`^\circ$
-y $\mathrm{OCR}=`r formatCalculationGeneral(Calculation$stress$ocr)`$, se
-obtiene $K_0=`r formatCalculationGeneral(Calculation$stress$k0Applied)`$.
+Con
+$\phi'=`r formatCalculationFixed(Calculation$stress$frictionAngleDeg, 0L)`^\circ$,
+se obtiene $K_0=`r formatCalculationGeneral(Calculation$stress$k0Applied)`$.
 Las expresiones aplicables a otras trayectorias tensionales y las acciones
 de compactación se presentan en @sec-calculation-appendix-k0.
 
@@ -89,12 +88,12 @@ Las acciones estructurales se escriben como
 $$
 P_r(\theta)=-p_n(\theta),
 \qquad
-P_t(\theta)=\alpha p_t^*(\theta),
-\qquad 0\leq\alpha\leq1.
+P_t(\theta)=\lambda_t p_t^*(\theta),
+\qquad 0\leq\lambda_t\leq1.
 $$ {#eq-calculation-tangential-multiplier}
 
-En esta comprobación de carga prescrita, $\alpha=1$ representa el vector
-proyectado completo y $\alpha=0$ representa su componente normal. La solución
+En esta comprobación de carga prescrita, $\lambda_t=1$ representa el vector
+proyectado completo y $\lambda_t=0$ representa su componente normal. La solución
 Schwartz--Einstein caracteriza el contacto mediante sus propios coeficientes
 para deslizamiento libre y ausencia de deslizamiento.
 
@@ -111,7 +110,7 @@ las acciones quedan
 $$
 P_r(\theta)=-p_m-\frac{\Delta\sigma}{2}\cos2\theta,
 \qquad
-P_t(\theta)=\alpha\frac{\Delta\sigma}{2}\sin2\theta.
+P_t(\theta)=\lambda_t\frac{\Delta\sigma}{2}\sin2\theta.
 $$ {#eq-calculation-biaxial-load}
 
 $\sigma'_{v,A}$ y $\sigma'_{h,A}$ son las tensiones principales del campo libre

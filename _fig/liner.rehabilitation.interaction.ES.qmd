@@ -1,6 +1,0 @@
-```{r}
-#| include: false
-CAP <- readCaption("fig.liner.rehabilitation.interaction.ES")
-```
-
-{{< include /_fig/liner.rehabilitation.interaction.qmd >}}

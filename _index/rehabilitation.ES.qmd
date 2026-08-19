@@ -16,10 +16,55 @@ ReportConcreteCase <- function(liningID, caseID) {
   }
   Row
 }
-PlainPass <- all(c(
-  ReportConcreteCase("shotcrete", "alpha-1")$shotcreteLocalStrengthStatus,
-  ReportConcreteCase("shotcrete", "alpha-0")$shotcreteLocalStrengthStatus
-) == "satisfied")
+PlainChecks <- utils::read.csv(
+  Calculation$paths$shotcreteChecks,
+  check.names = FALSE,
+  stringsAsFactors = FALSE,
+  na.strings = ""
+)
+PlainChecks <- PlainChecks[
+  PlainChecks$liningID %in% c("shotcrete", "plainConcrete150") &
+    PlainChecks$calculationStatus == "calculated",
+  ,
+  drop = FALSE
+]
+PlainCheckPass <- function(liningID, checkID) {
+  Data <- PlainChecks[
+    PlainChecks$liningID == liningID & PlainChecks$checkID == checkID,
+    ,
+    drop = FALSE
+  ]
+  if (nrow(Data) == 0L) {
+    stop("Missing calculated plain-concrete check: ", checkID)
+  }
+  all(Data$checkStatus == "satisfied")
+}
+PlainAlternativePass <- function(liningID) {
+  PlainCheckPass(liningID, "tension-face") &&
+    PlainCheckPass(liningID, "one-way-shear")
+}
+Plain100Pass <- PlainAlternativePass("shotcrete")
+Plain150Pass <- PlainAlternativePass("plainConcrete150")
+PlainPass <- Plain100Pass && Plain150Pass
+PlainCheckConclusion <- paste0(
+  "En las comprobaciones evaluadas, la sección simple de 100 mm ",
+  if (Plain100Pass) "verifica" else "no verifica",
+  " y la sección simple de 150 mm ",
+  if (Plain150Pass) "verifica." else "no verifica."
+)
+PlainGoverningUtilization <- function(liningID, interfaceID) {
+  Data <- PlainChecks[
+    PlainChecks$liningID == liningID &
+      PlainChecks$interfaceID == interfaceID &
+      PlainChecks$checkID %in% c("tension-face", "one-way-shear"),
+    ,
+    drop = FALSE
+  ]
+  if (nrow(Data) == 0L || any(!is.finite(Data$utilization))) {
+    stop("Missing plain-concrete utilization: ", liningID, ".", interfaceID)
+  }
+  max(Data$utilization)
+}
 ReinforcedConcreteStrength <- Calculation$config$additionalLinings$
   reinforcedConcrete$compressiveStrengthMPa
 ReinforcedBeta1 <- calculateAci31825Beta1(ReinforcedConcreteStrength)
@@ -67,8 +112,119 @@ StrengthCaseSentence <- if (length(StrengthCasePairs) == 1L) {
 }
 ReinforcementStudy <- Calculation$config$additionalLinings$
   reinforcedConcrete$reinforcementStudy
+ReinforcementMeshLabels <- vapply(
+  ReinforcementStudy$reinforcementCases,
+  function(Case) paste0("Ø", Case$barDiameterMm, "/", Case$barSpacingMm),
+  character(1)
+)
+ReinforcementMeshSentence <- if (length(ReinforcementMeshLabels) == 1L) {
+  ReinforcementMeshLabels
+} else {
+  paste(
+    paste(head(ReinforcementMeshLabels, -1L), collapse = ", "),
+    tail(ReinforcementMeshLabels, 1L),
+    sep = " y "
+  )
+}
+CompositeMeshLabel <- paste0(
+  "Ø",
+  ReinforcementStudy$compositeCase$interiorBarDiameterMm,
+  "/",
+  ReinforcementStudy$compositeCase$interiorBarSpacingMm
+)
+FormatSpanishList <- function(Values) {
+  Values <- unique(Values)
+  if (length(Values) == 0L) {
+    return("")
+  }
+  if (length(Values) == 1L) {
+    return(Values)
+  }
+  paste(
+    paste(head(Values, -1L), collapse = ", "),
+    tail(Values, 1L),
+    sep = " y "
+  )
+}
+ReinforcementCaseLabels <- function(Data) {
+  vapply(
+    seq_len(nrow(Data)),
+    function(RowIndex) {
+      Row <- Data[RowIndex, , drop = FALSE]
+      Mesh <- paste0("Ø", Row$barDiameterMm, "/", Row$barSpacingMm)
+      if (Row$reinforcementArrangementID == "symmetric-two-face") {
+        return(paste(Mesh, "en ambas caras"))
+      }
+      if (Row$reinforcementArrangementID ==
+          "existing-sheet-plus-interior-mesh") {
+        return(paste("chapa exterior con", Mesh, "en la cara interior"))
+      }
+      stop("Unsupported reinforcement arrangement in the report.")
+    },
+    character(1)
+  )
+}
+ReinforcementConclusion <- function(liningID) {
+  Data <- Calculation[[liningID]]$reinforcementSweep$summary
+  Labels <- ReinforcementCaseLabels(Data)
+  CheckLabels <- c(
+    localPMStatus = "flexocompresión P–M",
+    shearStatus = "corte unidireccional"
+  )
+  Pass <- vapply(
+    seq_len(nrow(Data)),
+    function(RowIndex) {
+      all(Data[RowIndex, names(CheckLabels), drop = TRUE] == "satisfied")
+    },
+    logical(1)
+  )
+  Thickness <- formatCalculationFixed(
+    1000 * Calculation[[liningID]]$section$thicknessM,
+    0L
+  )
+  PassingClause <- if (any(Pass)) {
+    paste0(
+      FormatSpanishList(Labels[Pass]),
+      if (sum(Pass) == 1L) " satisface" else " satisfacen",
+      " ambas comprobaciones"
+    )
+  } else {
+    "ninguna configuración satisface ambas comprobaciones"
+  }
+  FailureDetails <- vapply(
+    which(!Pass),
+    function(RowIndex) {
+      Failed <- CheckLabels[
+        Data[RowIndex, names(CheckLabels), drop = TRUE] != "satisfied"
+      ]
+      paste0(
+        Labels[RowIndex],
+        " no satisface ",
+        FormatSpanishList(unname(Failed))
+      )
+    },
+    character(1)
+  )
+  FailureClause <- if (length(FailureDetails) == 0L) {
+    ""
+  } else {
+    paste0("; ", paste(FailureDetails, collapse = "; "))
+  }
+  paste0(
+    "Para la sección de ", Thickness, " mm, ",
+    PassingClause, FailureClause, "."
+  )
+}
 ```
 
-# Rehabilitación del liner con hormigón proyectado {#sec-calculation-concrete}
+# Verificación del liner de shotcrete {#sec-calculation-concrete}
+
+Este capítulo evalúa el shotcrete como revestimiento estructural independiente
+de la chapa. Para las secciones de 100 y 150 mm comprueba la respuesta del
+hormigón simple y compara familias resistentes P–M
+con mallas Ø8/150, Ø10/150 y Ø12/150 en ambas caras, además del caso compuesto
+con chapa exterior y malla interior. El objetivo es determinar, sin adoptar
+una armadura final, qué configuraciones satisfacen por separado la
+flexocompresión, el corte unidireccional y el desprendimiento radial.
 
 {{< include /_chapters/rehabilitation.shotcrete.es.qmd >}}

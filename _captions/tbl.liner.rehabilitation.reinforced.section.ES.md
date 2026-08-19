@@ -1,1 +1,1 @@
-Geometría y materiales comunes a la familia paramétrica de secciones de hormigón proyectado armado. Las coordenadas idealizadas de las capas se miden desde el plano medio de la pared. La cuantía circunferencial varía entre los casos indicados en las tablas de comprobación $P$--$M$.
+Geometría y materiales comunes a las mallas simétricas analizadas para la sección de hormigón proyectado de 150 mm. La posición y el área de cada capa se calculan con el diámetro y el espaciamiento de cada caso.

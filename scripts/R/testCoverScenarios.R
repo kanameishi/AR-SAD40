@@ -195,7 +195,8 @@ runCoverScenarioTests <- function() {
       ShotcreteH2$momentAbsoluteMaxKnMPerM -
         SteelH2$momentAbsoluteMaxKnMPerM
     ) > 1e-8,
-    is.finite(ShotcreteH2$shotcreteMechanicalUtilization),
+    ShotcreteH2$shotcreteMechanicalStatus == "not-applicable",
+    is.na(ShotcreteH2$shotcreteMechanicalUtilization),
     ShotcreteH2$shotcreteNormativeStatus ==
       "not-evaluated-code-basis",
     PlainH2$shotcreteMechanicalStatus == "not-applicable",

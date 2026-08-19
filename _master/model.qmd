@@ -1,0 +1,31 @@
+---
+lang: es
+bibliography:
+  - bib/references.bib
+format:
+  html:
+    body-classes: cover-page
+    title-block-banner: false
+number-sections: false
+footer-title: "Metodología integrada para el análisis de revestimientos circulares"
+---
+
+```{r}
+#| include: true
+#| results: asis
+#| echo: false
+root <- normalizePath(".", mustWork = TRUE)
+source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
+source(file.path(root, "scripts", "setup", "cover.R"), local = TRUE)
+
+ModelParams <- params
+ModelParams$title <- "Metodología integrada para el análisis de revestimientos circulares"
+cat("```{=html}\n", buildCoverReport(ModelParams), "\n```\n", sep = "")
+```
+
+{{< include /_index/methodology.review.ES.qmd >}}
+
+# Referencias {.unnumbered}
+
+::: {#refs .references}
+:::

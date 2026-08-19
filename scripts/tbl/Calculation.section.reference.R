@@ -1,3 +1,7 @@
+if (!exists("buildReportTable", mode = "function", inherits = TRUE)) {
+  source(file.path("scripts", "tbl", "table.R"), local = TRUE)
+}
+
 buildCalculationSectionReferenceTable <- function(pathReference, pathSection) {
   if (!file.exists(pathReference) || !file.exists(pathSection)) {
     stop("The section-property products are not available.", call. = FALSE)
@@ -52,12 +56,11 @@ buildCalculationSectionReferenceTable <- function(pathReference, pathSection) {
       check.names = FALSE,
       stringsAsFactors = FALSE
     )
-    return(knitr::kable(
-      Output,
-      digits = c(1, 2, 1, 0, 0, 0),
-      col.names = c("$t_s$", "$t_d$", "$t_{rem}$", "$A_p$", "$I_p$", "$S_p$"),
+    return(buildReportTable(
+      data = Output,
+      headers = c("$t_s$", "$t_d$", "$t_{rem}$", "$A_p$", "$I_p$", "$S_p$"),
       align = rep("r", 6),
-      escape = FALSE
+      digits = c(1, 2, 1, 0, 0, 0)
     ))
   }
   RequiredReference <- "baseThicknessMm"
@@ -79,11 +82,10 @@ buildCalculationSectionReferenceTable <- function(pathReference, pathSection) {
     check.names = FALSE,
     stringsAsFactors = FALSE
   )
-  knitr::kable(
-    Output,
-    digits = c(0, 5, 8, 7),
-    col.names = c("$i$", "$t_i$", "$A_i$", "$I_i$"),
+  buildReportTable(
+    data = Output,
+    headers = c("$i$", "$t_i$", "$A_i$", "$I_i$"),
     align = rep("r", 4),
-    escape = FALSE
+    digits = c(0, 5, 8, 7)
   )
 }

@@ -1,1 +1,0 @@
-Circumferential bending-moment diagram $M_\theta$ for the declared values of multiplier $\alpha$. The dashed grey circle is the reference cross-section and the origin of the ordinates. Graphical amplification changes only the displayed radial length; interactive values remain in kN·m/m.

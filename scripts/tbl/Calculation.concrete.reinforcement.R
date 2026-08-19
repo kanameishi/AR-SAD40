@@ -1,3 +1,7 @@
+if (!exists("buildReportTable", mode = "function", inherits = TRUE)) {
+  source(file.path("scripts", "tbl", "table.R"), local = TRUE)
+}
+
 buildCalculationConcreteReinforcementTable <- function(path, liningID) {
   if (!file.exists(path)) {
     stop("The calculation-input product is not available.", call. = FALSE)
@@ -41,12 +45,10 @@ buildCalculationConcreteReinforcementTable <- function(path, liningID) {
     }
     Values
   }
-  CircumferentialGroupID <- "shotcrete-reinforcement-circumferential"
   LayoutGroupID <- "shotcrete-reinforcement-layout"
   Output <- data.frame(
     Symbol = c(
-      "$t_c$", "$f'_c$", "$b$", "$c/t_c$", "$c$",
-      "$z_i$", "$z_e$", "$f_y$", "$E_s$"
+      "$t_c$", "$f'_c$", "$b$", "$c/t_c$", "$c$", "$f_y$", "$E_s$"
     ),
     Value = c(
       inputValue("shotcrete", "thickness"),
@@ -55,26 +57,17 @@ buildCalculationConcreteReinforcementTable <- function(path, liningID) {
       inputValue(LayoutGroupID, "clear-cover-ratio"),
       inputValue(LayoutGroupID, "clear-cover") / 10,
       inputValue(
-        CircumferentialGroupID,
-        "coordinate-circumferential-interior"
-      ),
-      inputValue(
-        CircumferentialGroupID,
-        "coordinate-circumferential-exterior"
-      ),
-      inputValue(
-        CircumferentialGroupID,
+        "shotcrete-reinforcement-circumferential",
         "yield-strength-circumferential-interior"
       ),
       inputValue(
-        CircumferentialGroupID,
+        "shotcrete-reinforcement-circumferential",
         "modulus-circumferential-interior"
       )
     ),
     Unit = c(
       "$\\mathrm{mm}$", "$\\mathrm{MPa}$", "$\\mathrm{mm}$",
       "$-$", "$\\mathrm{cm}$",
-      rep("$\\mathrm{mm}$", 2L),
       rep("$\\mathrm{MPa}$", 2L)
     ),
     check.names = FALSE,
@@ -86,10 +79,9 @@ buildCalculationConcreteReinforcementTable <- function(path, liningID) {
     }
     format(Output$Value[i], trim = TRUE, scientific = FALSE)
   }, character(1))
-  knitr::kable(
-    Output,
-    col.names = c("Magnitud", "Valor", "Unidad"),
-    align = c("l", "r", "c"),
-    escape = FALSE
+  buildReportTable(
+    data = Output,
+    headers = c("Magnitud", "Valor", "Unidad"),
+    align = c("l", "r", "c")
   )
 }

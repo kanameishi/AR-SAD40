@@ -44,13 +44,13 @@ runCoverCalculationDataTests <- function() {
     ),
     interfaceCases = list(
       list(
-        caseID = "alpha-1",
+        caseID = "slip",
         interfaceID = "full-traction",
         tangentialMultiplier = 1,
         comparisonInterfaceID = "full-slip"
       ),
       list(
-        caseID = "alpha-0",
+        caseID = "no-slip",
         interfaceID = "normal-only",
         tangentialMultiplier = 0,
         comparisonInterfaceID = "no-slip"
@@ -301,6 +301,11 @@ runCoverCalculationDataTests <- function() {
     ,
     drop = FALSE
   ]
+  Plain150Checks <- ShotcreteChecks[
+    ShotcreteChecks$liningID == "plainConcrete150",
+    ,
+    drop = FALSE
+  ]
   PlainSummary <- ShotcreteSummary[
     ShotcreteSummary$liningID == "shotcrete",
     ,
@@ -383,7 +388,7 @@ runCoverCalculationDataTests <- function() {
       ReinforcedScales$referenceRadiusM ==
         ReinforcedSection$centroidalRadiusM
     ),
-    nrow(ShotcreteChecks) == 192L,
+    nrow(ShotcreteChecks) == 216L,
     !any(grepl("reinforcement", PlainChecks$checkID, fixed = TRUE)),
     nrow(PlainChecks[
       PlainChecks$calculationStatus == "calculated" &
@@ -393,6 +398,16 @@ runCoverCalculationDataTests <- function() {
       ,
       drop = FALSE
     ]) == 16L,
+    nrow(Plain150Checks) == 24L,
+    nrow(Plain150Checks[
+      Plain150Checks$calculationStatus == "calculated" &
+        Plain150Checks$checkID %in% c("tension-face", "one-way-shear"),
+      ,
+      drop = FALSE
+    ]) == 16L,
+    all(Plain150Checks$calculationStatus[
+      Plain150Checks$checkID == "compression-face"
+    ] == "not-evaluated"),
     nrow(ReinforcedChecks[
       ReinforcedChecks$calculationStatus == "calculated" &
         ReinforcedChecks$checkID == "axial-flexure",
@@ -451,12 +466,12 @@ runCoverCalculationDataTests <- function() {
       "ev130-eh135", "ev130-eh090",
       "ev090-eh135", "ev090-eh090"
     )),
-    nrow(ReinforcementSweep) == 10L,
-    nrow(ReinforcementGoverningDemands) == 20L,
-    nrow(ReinforcementLimitChecks) == 20L,
-    all(table(ReinforcementSweep$liningID) == 5L),
-    all(table(ReinforcementGoverningDemands$liningID) == 10L),
-    all(table(ReinforcementLimitChecks$liningID) == 10L),
+    nrow(ReinforcementSweep) == 8L,
+    nrow(ReinforcementGoverningDemands) == 16L,
+    nrow(ReinforcementLimitChecks) == 16L,
+    all(table(ReinforcementSweep$liningID) == 4L),
+    all(table(ReinforcementGoverningDemands$liningID) == 8L),
+    all(table(ReinforcementLimitChecks$liningID) == 8L),
     all(table(
       ReinforcementGoverningDemands$liningID,
       ReinforcementGoverningDemands$reinforcementCaseID
@@ -471,8 +486,7 @@ runCoverCalculationDataTests <- function() {
       ReinforcementDomains$liningID,
       ReinforcementDomains$reinforcementCaseID
     ) > 0L] %in% c(1207L, 1211L)),
-    sum(ReinforcementSweep$isLowerReferenceCase) == 2L,
-    sum(ReinforcementSweep$isParametricCase) == 8L,
+    sum(ReinforcementSweep$isParametricCase) == 6L,
     sum(!ReinforcementSweep$isParametricCase) == 2L,
     identical(
       LoaderEnvironment$Calculation$reinforcedConcrete$axialFlexureDomain,
@@ -546,16 +560,10 @@ runCoverCalculationDataTests <- function() {
   Invalid <- unserialize(serialize(Config, NULL))
   Invalid$interfaceCases[[1L]]$interfaceID <- "full-slip"
   InvalidMessage <- tryCatch(
-    validateCalculationConfig(Invalid),
+    validateCoverCalculationConfig(Invalid),
     error = function(e) conditionMessage(e)
   )
   stopifnot(grepl("full-traction or normal-only", InvalidMessage, fixed = TRUE))
-
-  Legacy <- validateCalculationConfig(readCalculationJson(file.path(
-    projectRoot,
-    "scripts", "R", "fixtures", "calculation.schema.json"
-  )))
-  stopifnot(Legacy$schemaVersion %in% c("2.1.0", "2.2.0"))
   invisible(TRUE)
 }
 

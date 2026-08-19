@@ -714,6 +714,16 @@ evaluateAci31825ReinforcedShellStrip <- function(
     Minimum$circumferentialTotalStatus,
     Minimum$orthogonalTotalStatus
   )
+  MaximumOppositeFaceDifference <- max(
+    abs(
+      Minimum$circumferentialInteriorAreaMm2 -
+        Minimum$circumferentialExteriorAreaMm2
+    ),
+    abs(
+      Minimum$orthogonalInteriorAreaMm2 -
+        Minimum$orthogonalExteriorAreaMm2
+    )
+  )
   GateChecks <- data.frame(
     checkID = c(
       MinimumIDs,
@@ -762,29 +772,20 @@ evaluateAci31825ReinforcedShellStrip <- function(
     ),
     demandValue = c(
       rep(Minimum$requiredAreaPerDirectionMm2, 2L),
-      0,
+      MaximumOppositeFaceDifference,
       3000 * 0.006894757293168,
       rep(NA_real_, 7L)
     ),
     capacityValue = c(
       MinimumProvided,
-      max(
-        abs(
-          Minimum$circumferentialInteriorAreaMm2 -
-            Minimum$circumferentialExteriorAreaMm2
-        ),
-        abs(
-          Minimum$orthogonalInteriorAreaMm2 -
-            Minimum$orthogonalExteriorAreaMm2
-        )
-      ),
+      0,
       compressiveStrengthMPa,
       rep(NA_real_, 7L)
     ),
     unit = c(rep("mm2/m", 3L), "MPa", rep("-", 7L)),
     utilization = c(
       Minimum$requiredAreaPerDirectionMm2 / MinimumProvided,
-      0,
+      NA_real_,
       (3000 * 0.006894757293168) / compressiveStrengthMPa,
       rep(NA_real_, 7L)
     ),
@@ -815,10 +816,6 @@ evaluateAci31825ReinforcedShellStrip <- function(
     ),
     stringsAsFactors = FALSE
   )
-  if (shellClassificationStatus != "applicable") {
-    GateChecks$checkStatus[GateChecks$checkID == "current-shell-code"] <-
-      "blocked"
-  }
   if (longitudinalBoundaryConditionID == "plane-stress-free-ends") {
     Index <- GateChecks$checkID == "longitudinal-action"
     GateChecks$calculationStatus[Index] <- "calculated"

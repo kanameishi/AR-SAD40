@@ -309,7 +309,7 @@ ReinforcedVariationMesh <- calculateSymmetricReinforcementMesh(
   thicknessM = 0.13,
   barDiameterMm = 6,
   barSpacingMm = 150,
-  clearCoverRatio = 0.15,
+  clearCoverRatio = 0.1,
   reinforcementGradeID = "Grade-60",
   reinforcementModulusMPa = 200000
 )
@@ -554,16 +554,17 @@ ReinforcedResult <- evaluateCoverConfiguration(
 stopifnot(
   !("sectionDomains" %in% names(Reinforced)),
   nrow(ReinforcedResult$assessment$mechanical) == 2L,
-  all(is.finite(
+  all(is.na(
     ReinforcedResult$assessment$mechanical$mechanicalUtilization
   )),
   all(
-    ReinforcedResult$assessment$mechanical$normativeStatus ==
-      "not-evaluated-code-basis"
+    ReinforcedResult$assessment$mechanical$mechanicalStatus ==
+      "not-applicable"
   ),
-  all(is.na(
-    ReinforcedResult$assessment$mechanical$localStrengthUtilization
-  ))
+  all(
+    ReinforcedResult$assessment$mechanical$normativeStatus ==
+      "not-applicable"
+  )
 )
 
 ReinforcedRecords <- Reinforced

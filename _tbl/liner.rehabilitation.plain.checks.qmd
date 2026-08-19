@@ -9,7 +9,12 @@ if (!exists("CAP", inherits = FALSE)) {
 source("scripts/tbl/Calculation.shotcrete.checks.R")
 TBL <- buildCalculationShotcreteChecksTable(
   path = Calculation$paths$shotcreteChecks,
-  liningID = "shotcrete"
+  liningID = c("shotcrete", "plainConcrete150"),
+  thicknessMm = c(
+    shotcrete = 1000 * Calculation$shotcrete$section$thicknessM,
+    plainConcrete150 =
+      1000 * Calculation$reinforcedConcrete$section$thicknessM
+  )
 )
 ```
 

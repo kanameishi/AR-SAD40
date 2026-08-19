@@ -31,6 +31,14 @@ RemainingThicknessLossRatio <- 1 -
     Calculation$section$designBaseThicknessMm
 ```
 
-# Verificación del liner existente {#sec-calculation-steel}
+# Verificación del liner de acero {#sec-calculation-steel}
+
+Este capítulo verifica el liner de acero existente con el perfil corrugado y
+el espesor remanente del escenario de cálculo. Determina sus propiedades y
+rigideces, obtiene las distribuciones de fuerza circunferencial, momento y
+corte para ambos límites de interfaz, y contrasta el empuje circunferencial
+con los controles de pared, pandeo, costura, flexibilidad y tapada. El objetivo
+es identificar los estados que gobiernan y los datos de inspección que deben
+confirmarse para la evaluación definitiva de la estructura existente.
 
 {{< include /_chapters/liner.existing.es.qmd >}}

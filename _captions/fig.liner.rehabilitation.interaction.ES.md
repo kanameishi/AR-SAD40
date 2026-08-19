@@ -1,1 +1,0 @@
-Envolventes de interacción fuerza--momento para distintas áreas circunferenciales totales de acero en ambas caras. Cada curva representa la capacidad de una sección mediante estados compatibles de deformación y cada símbolo aislado representa una demanda gobernante común a toda la familia. La figura permite reconocer qué cuantías evaluadas contienen las demandas.

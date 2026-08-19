@@ -3,6 +3,7 @@ title: "Portada"
 format:
   html:
     body-classes: cover-page
+    title-block-banner: false
 bibliography:
   - bib/references.bib
 ---
@@ -12,22 +13,10 @@ bibliography:
 #| results: asis
 #| echo: false
 root <- normalizePath(".", mustWork = TRUE)
-projectRoot <- root
-source(file.path(root, "scripts", "setup", "calculationFunctions.R"), local = TRUE)
-invisible(buildCalculationData(
-  configPath = file.path(root, "calculation.json"),
-  outputDirectory = file.path(root, "data", "calculation"),
-  projectRoot = root
-))
-source(file.path(root, "scripts", "R", "ringInteraction.R"), local = TRUE)
-source(file.path(root, "scripts", "R", "referenceCases.R"), local = TRUE)
-invisible(buildReferenceCaseData(
-  referenceDirectory = file.path(root, "data", "reference"),
-  outputDirectory = file.path(root, "data", "benchmarks")
-))
 source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
 source(file.path(root, "scripts", "setup", "cover.R"), local = TRUE)
 
-cat(sprintf("# %s {.unnumbered}\n\n", params$title))
 cat("```{=html}\n", buildCoverReport(params), "\n```\n", sep = "")
 ```
+
+{{< include /_index/executive.ES.qmd >}}

@@ -111,10 +111,17 @@ diferenciado. FHWA aporta la relación documentada para una acción constructiva
 de compactación y Núñez aporta casos publicados de revestimientos de túneles
 excavados.
 
-Los apéndices reúnen las relaciones efectivamente aplicadas al caso:
-@sec-calculation-appendix-thrust desarrolla su demanda circunferencial;
-@sec-calculation-appendix-buckling, @sec-calculation-appendix-seam y
-@sec-calculation-appendix-flexibility desarrollan sus comprobaciones;
-@sec-calculation-appendix-k0 documenta el coeficiente de empuje y la acción de
-compactación; y @sec-calculation-appendix-references compara las resultantes
-del proyecto con las formulaciones de referencia.
+La demanda circunferencial y las comprobaciones de pared, costura,
+flexibilidad y tapada se desarrollan junto con sus resultados en
+@sec-calculation-steel. Los apéndices documentan el coeficiente de empuje y la
+acción de compactación en @sec-calculation-appendix-k0, y comparan las
+resultantes del proyecto con las formulaciones de referencia en
+@sec-calculation-appendix-references.
+
+En síntesis, el modelo obtiene una demanda propia para cada revestimiento a
+partir de su radio y de sus rigideces axial y flexional. La componente uniforme
+de Schwartz--Einstein incorpora la interacción con el terreno, mientras que
+la corrección geostática equilibrada representa la variación de tensiones
+entre clave y solera. Los dos límites de interfaz acotan la respuesta y las
+comprobaciones numéricas confirman el equilibrio de las resultantes que se
+utilizan en las verificaciones de los capítulos siguientes.

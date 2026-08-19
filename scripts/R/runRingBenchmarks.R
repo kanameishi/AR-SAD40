@@ -1,6 +1,6 @@
 # Rebuilds the auditable benchmark tables used by the ring methodology.
 #
-# Outputs are written only to TITO/kb/benchmarks. Existing files with the
+# Outputs are written only to data/benchmarks/ring. Existing files with the
 # declared names are overwritten. The corrugated-section table includes one
 # explicitly labelled preliminary geometry for numerical evaluation; it is not
 # a project demand or an as-built property. Run from any directory with:
@@ -14,7 +14,7 @@ if (length(FileArgument) != 1L) {
 }
 ScriptPath <- normalizePath(sub("^--file=", "", FileArgument))
 ProjectRoot <- normalizePath(file.path(dirname(ScriptPath), "..", ".."))
-OutputDirectory <- file.path(ProjectRoot, "TITO", "kb", "benchmarks")
+OutputDirectory <- file.path(ProjectRoot, "data", "benchmarks", "ring")
 if (!dir.exists(OutputDirectory)) {
   dir.create(OutputDirectory, recursive = TRUE)
 }
@@ -360,7 +360,7 @@ Nunez2014Table <- data.frame(
 )
 
 # ---------------------------------------------------------------------------
-# 5. Closed elastic interaction: Schwartz-Einstein and CANDE Level 1.
+# 5. Closed elastic interaction: Schwartz-Einstein.
 # ---------------------------------------------------------------------------
 
 SchwartzCases <- data.frame(
@@ -398,28 +398,6 @@ SchwartzRows <- lapply(seq_len(nrow(SchwartzCases)), function(Index) {
   )
 })
 SchwartzTable <- do.call(rbind, SchwartzRows)
-
-CandeAngles <- c(0, pi / 4, pi / 2)
-CandeRows <- lapply(c("bonded", "frictionless"), function(Interface) {
-  Result <- candeLevel1Response(
-    theta = CandeAngles,
-    overburdenPressure = 100,
-    radius = 1,
-    groundShearModulus = 20000,
-    groundPoisson = 1 / 3,
-    alpha = 0.2,
-    beta = 0.01,
-    interface = Interface
-  )
-  data.frame(
-    interface = Interface,
-    Result$response,
-    evidence = "derived numerical evaluation of published table formulas",
-    sourceLocation = "CANDE-2025 Table 1.1.1-1, printed p. 1-2/PDF p. 10",
-    stringsAsFactors = FALSE
-  )
-})
-CandeTable <- do.call(rbind, CandeRows)
 
 # ---------------------------------------------------------------------------
 # 6. Corrugated section: published properties and preliminary evaluation.
@@ -571,7 +549,6 @@ Outputs <- list(
   "nunez-version-difference.csv" = NunezVersionTable,
   "nunez-2014-analytical-fem.csv" = Nunez2014Table,
   "schwartz-einstein-hp97.csv" = SchwartzTable,
-  "cande-level1-formula.csv" = CandeTable,
   "corrugated-section.csv" = SectionTable,
   "corrugated-k0-extrema.csv" = SectionExtrema
 )

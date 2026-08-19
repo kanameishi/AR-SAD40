@@ -9,34 +9,77 @@ correspondiente.
 El alcance comprende la definición de las acciones permanentes, la interacción
 elástica suelo--revestimiento, las resultantes $N$--$M$--$Q$, la comprobación
 de referencia del liner corrugado, la evaluación local del hormigón simple y
-los dominios $P$--$M$ de varias cuantías para espesores de 100 y 150 mm.
+los dominios $P$--$M$ de las mallas `r IntroductionMeshList` para espesores
+de 100 y 150 mm, junto con el caso asimétrico de
+`r IntroductionCompositeLabel`.
 Quedan fuera del alcance la selección de una armadura definitiva, el detalle
 constructivo, la acreditación de la edición contractual de las normas y la
 asignación de propiedades a la chapa y a sus uniones sin respaldo de la
 inspección. Esas actividades corresponden a la etapa de diseño e inspección
 posterior.
 
-La @tbl-model-inputs resume el escenario analizado. La altura del relleno
-inferior se mide desde la clave y la tensión del terreno se evalúa a la cota
-del centro del túnel. El peso del relleno inferior y el de la capa superior de
-lodo definen la tensión vertical;
-la presión hidráulica neta se incorpora como una acción separada. La tensión
-horizontal se obtiene mediante el
-coeficiente de presión en reposo $K_0$, definido como la razón entre las
-tensiones efectivas horizontal y vertical.
+El perfil longitudinal de la @fig-cover-section muestra la variación de las
+alturas sobre la clave. En el extremo izquierdo de la figura se superponen
+`r formatCalculationFixed(1000 * IntroductionSectionGeometry$leftUpperHeightM, 0L)`
+mm de lodo y
+`r formatCalculationFixed(1000 * IntroductionSectionGeometry$leftLowerHeightM, 0L)`
+mm de relleno, con una altura total de
+`r formatCalculationFixed(1000 * (IntroductionSectionGeometry$leftUpperHeightM + IntroductionSectionGeometry$leftLowerHeightM), 0L)`
+mm. Hacia el extremo derecho, las alturas respectivas son
+`r formatCalculationFixed(1000 * IntroductionSectionGeometry$rightUpperHeightM, 0L)`
+y
+`r formatCalculationFixed(1000 * IntroductionSectionGeometry$rightLowerHeightM, 0L)`
+mm, con un total de
+`r formatCalculationFixed(1000 * (IntroductionSectionGeometry$rightUpperHeightM + IntroductionSectionGeometry$rightLowerHeightM), 0L)`
+mm.
+
+{{< include /_fig/Section.ES.qmd >}}
+
+El escenario analizado adopta
+`r formatCalculationFixed(Calculation$stress$upperLayerHeightM, 1L)` m de lodo
+y
+`r formatCalculationFixed(Calculation$stress$coverCrownM, 1L)` m de relleno
+sobre la clave. Esta idealización produce una presión vertical permanente en
+la clave de
+`r formatCalculationFixed(IntroductionSectionPressureKPa$adopted, 1L)` kPa;
+con los mismos pesos unitarios, los dos extremos representados producen
+`r formatCalculationFixed(IntroductionSectionPressureKPa$left, 1L)` y
+`r formatCalculationFixed(IntroductionSectionPressureKPa$right, 1L)` kPa,
+respectivamente. Por lo tanto, la acción adoptada envuelve la presión vertical
+obtenida de las dos configuraciones del perfil. La @tbl-model-inputs resume
+este escenario. La altura del relleno inferior se mide desde la clave y la
+tensión del terreno se evalúa a la cota del centro del túnel. La presión
+hidráulica neta se incorpora como una acción separada. La tensión horizontal
+se obtiene mediante el coeficiente de presión en reposo $K_0$, definido como
+la razón entre las tensiones efectivas horizontal y vertical.
 
 {{< include /_tbl/model.inputs.ES.qmd >}}
 
-La caracterización geotécnica pendiente definirá el valor representativo de
-$\phi'$. Para este cálculo se adoptan provisionalmente
+El informe geotécnico del sector identifica tres unidades y, conforme a la
+posición del túnel, el terreno circundante corresponde a la segunda: el
+depósito aluvial-coluvial, compuesto por gravas arenosas con finos de baja
+plasticidad, clasificadas entre SC y GP-GC. Para esta unidad, la Tabla 3-13
+adopta un peso unitario de $19\ \mathrm{kN/m^3}$, un ángulo de fricción
+efectiva $\phi'=33^\circ$, cohesión efectiva nula, coeficiente de Poisson
+$\nu=0{,}25$ y módulo secante de referencia
+$E_s^{ref}=140\ \mathrm{MPa}$; las campañas de exploración no detectaron nivel
+freático [@SRKArgentina2026EISF].
+
+El escenario analizado adopta de esta caracterización el peso unitario y el
+ángulo de fricción efectiva. Utiliza
 $\phi'=`r formatCalculationFixed(Calculation$stress$frictionAngleDeg, 0L)`^\circ$
-y $\mathrm{OCR}=`r formatCalculationGeneral(Calculation$stress$ocr)`$. La
+y la relación de Jáky para una condición normalmente consolidada. La
 presión hidráulica neta adoptada es
 `r formatCalculationFixed(Calculation$config$action$waterPressureDifferenceKPa, 1L)`
 kPa. La relación utilizada para $K_0$ produce
 $K_0=`r formatCalculationGeneral(Calculation$stress$k0Applied)`$
-[@MayneKulhawy1982]. Estas hipótesis se reemplazarán por los parámetros del
-relleno y la condición de agua cuando estén disponibles.
+[@Michalowski2005; @ChristopherEtAl2006]. Para la interacción
+suelo--revestimiento se adopta un módulo elástico constante de
+`r formatCalculationFixed(Calculation$config$ground$modulusKPa / 1000, 0L)`
+MPa. Este valor es una hipótesis específica del análisis y no una conversión
+del módulo secante de referencia de 140 MPa, cuya aplicación depende del nivel
+de tensiones y del modelo constitutivo. El módulo adoptado deberá confirmarse
+con la caracterización geotécnica de diseño.
 
 La interacción entre el relleno y cada revestimiento se representa mediante la
 solución de carga externa de Schwartz--Einstein. Se calculan dos límites de
@@ -50,10 +93,10 @@ expresiones documentadas por USACE, los parámetros AASHTO reproducidos por
 Anderson et al. y las propiedades publicadas por CSPI
 [@USACE2020; @AndersonEtAl2023; @CSPIHandbookChapter2;
 @CSPIHandbookChapter6]. Las acciones resistentes del revestimiento enterrado se
-mayoran con los factores $EV/EH$ de AASHTO/CIRSOC; el hormigón se evalúa con
-ACI 318-25 y la armadura
-mínima se conserva como referencia histórica de ACI 318.2-14
-[@ACI31825; @ACI318214]. La memoria compara varias cuantías en dominios
-fuerza--momento para los dos espesores estudiados. La especificación de
+mayoran con los factores $EV/EH$ de AASHTO/CIRSOC y el hormigón se evalúa con
+ACI 318-25 [@ACI31825]. La memoria compara
+`r length(IntroductionMeshLabels)` mallas físicas en dominios
+fuerza--momento para los dos espesores estudiados, sin adoptar una armadura
+final. La especificación de
 inspección establece las mediciones de espesor, geometría y uniones necesarias
 para actualizar las propiedades del revestimiento existente.

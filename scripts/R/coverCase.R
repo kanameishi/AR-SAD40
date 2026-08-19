@@ -82,16 +82,62 @@
   as.numeric(Grid)
 }
 
+.coverCaseReadReinforcementCases <- function(value, name, path) {
+  Cases <- value[[name, exact = TRUE]]
+  if (!is.list(Cases) || length(Cases) < 2L) {
+    stop(
+      path, ".", name,
+      " must contain at least two reinforcement layouts.",
+      call. = FALSE
+    )
+  }
+  Result <- lapply(seq_along(Cases), function(i) {
+    CasePath <- paste0(path, ".", name, "[[", i, "]]" )
+    Case <- .coverCaseRequireFields(
+      Cases[[i]],
+      c("barDiameterMm", "barSpacingMm"),
+      CasePath
+    )
+    Diameter <- .coverCaseReadNumber(
+      Case,
+      "barDiameterMm",
+      CasePath,
+      minimum = 0,
+      strictMinimum = TRUE
+    )
+    Spacing <- .coverCaseReadNumber(
+      Case,
+      "barSpacingMm",
+      CasePath,
+      minimum = Diameter,
+      strictMinimum = TRUE
+    )
+    list(
+      barDiameterMm = Diameter,
+      barSpacingMm = Spacing
+    )
+  })
+  Areas <- vapply(Result, function(Case) {
+    pi * Case$barDiameterMm^2 / 4 * 1000 / Case$barSpacingMm
+  }, numeric(1))
+  IDs <- vapply(Result, function(Case) {
+    paste(Case$barDiameterMm, Case$barSpacingMm, sep = "/")
+  }, character(1))
+  if (anyDuplicated(IDs) || is.unsorted(Areas, strictly = TRUE)) {
+    stop(
+      path, ".", name,
+      " must contain unique layouts ordered by increasing steel area.",
+      call. = FALSE
+    )
+  }
+  Result
+}
+
 .coverCaseNumberToken <- function(value) {
   Text <- format(value, scientific = FALSE, trim = TRUE, digits = 12)
   Text <- sub("[.]0+$", "", Text)
   Text <- sub("([.][0-9]*?)0+$", "\\1", Text)
   gsub("[.]", "p", Text)
-}
-
-.coverCaseTextToken <- function(value) {
-  Text <- tolower(gsub("[^A-Za-z0-9]+", "-", value))
-  gsub("(^-+|-+$)", "", Text)
 }
 
 .normaliseCoverCaseInputs <- function(inputs) {
@@ -151,8 +197,8 @@
     c(
       "outerRadiusM", "thicknessM", "poisson", "compressiveStrengthMPa",
       "reinforcementGradeID", "barDiameterMm", "barSpacingMm",
-      "clearCoverRatio", "reinforcementModulusMPa",
-      "reinforcementRatioGrid", "compositeCase"
+      "clearCoverMm", "reinforcementModulusMPa",
+      "reinforcementCases", "compositeCase"
     ),
     "inputs.reinforcedConcrete"
   )
@@ -287,15 +333,22 @@
     minimum = 0,
     strictMinimum = TRUE
   )
-  ClearCoverRatio <- .coverCaseReadNumber(
+  ClearCoverMm <- .coverCaseReadNumber(
     Reinforced,
-    "clearCoverRatio",
+    "clearCoverMm",
     "inputs.reinforcedConcrete",
     minimum = 0,
-    maximum = 0.5,
-    strictMinimum = TRUE,
-    strictMaximum = TRUE
+    strictMinimum = TRUE
   )
+  if (ClearCoverMm + BarDiameter / 2 >= 1000 * ReinforcedThickness / 2) {
+    stop(
+      paste(
+        "inputs.reinforcedConcrete.clearCoverMm and barDiameterMm",
+        "place the reinforcement outside the concrete section."
+      ),
+      call. = FALSE
+    )
+  }
   ReinforcementModulus <- .coverCaseReadNumber(
     Reinforced,
     "reinforcementModulusMPa",
@@ -303,9 +356,9 @@
     minimum = 0,
     strictMinimum = TRUE
   )
-  ReinforcementRatioGrid <- .coverCaseReadIncreasingGrid(
+  ReinforcementCases <- .coverCaseReadReinforcementCases(
     Reinforced,
-    "reinforcementRatioGrid",
+    "reinforcementCases",
     "inputs.reinforcedConcrete"
   )
   CompositeBarDiameter <- .coverCaseReadNumber(
@@ -343,7 +396,7 @@
     thicknessM = ReinforcedThickness,
     barDiameterMm = BarDiameter,
     barSpacingMm = BarSpacing,
-    clearCoverRatio = ClearCoverRatio,
+    clearCoverRatio = ClearCoverMm / (1000 * ReinforcedThickness),
     reinforcementGradeID = ReinforcementGradeID,
     reinforcementModulusMPa = ReinforcementModulus
   )
@@ -461,9 +514,9 @@
       reinforcementGradeID = ReinforcementGradeID,
       barDiameterMm = BarDiameter,
       barSpacingMm = BarSpacing,
-      clearCoverRatio = ClearCoverRatio,
+      clearCoverMm = ClearCoverMm,
       reinforcementModulusMPa = ReinforcementModulus,
-      reinforcementRatioGrid = ReinforcementRatioGrid,
+      reinforcementCases = ReinforcementCases,
       compositeCase = list(
         enabled = .coverCaseReadFlag(
           Composite,
@@ -721,7 +774,8 @@
     thicknessM = Reinforced[["thicknessM", exact = TRUE]],
     barDiameterMm = Reinforced[["barDiameterMm", exact = TRUE]],
     barSpacingMm = Reinforced[["barSpacingMm", exact = TRUE]],
-    clearCoverRatio = Reinforced[["clearCoverRatio", exact = TRUE]],
+    clearCoverRatio = Reinforced[["clearCoverMm", exact = TRUE]] /
+      (1000 * Reinforced[["thicknessM", exact = TRUE]]),
     reinforcementGradeID = Reinforced[["reinforcementGradeID", exact = TRUE]],
     reinforcementModulusMPa = Reinforced[[
       "reinforcementModulusMPa",
@@ -763,11 +817,12 @@
   ReinforcedConfig[["reinforcementLayout"]] <- list(
     barDiameterMm = Reinforced[["barDiameterMm", exact = TRUE]],
     barSpacingMm = Reinforced[["barSpacingMm", exact = TRUE]],
-    clearCoverRatio = Reinforced[["clearCoverRatio", exact = TRUE]]
+    clearCoverRatio = Reinforced[["clearCoverMm", exact = TRUE]] /
+      (1000 * Reinforced[["thicknessM", exact = TRUE]])
   )
   ReinforcedConfig[["reinforcementStudy"]][[
-    "reinforcementRatioGrid"
-  ]] <- as.list(Reinforced[["reinforcementRatioGrid", exact = TRUE]])
+    "reinforcementCases"
+  ]] <- Reinforced[["reinforcementCases", exact = TRUE]]
   ReinforcedConfig[["reinforcementStudy"]][["compositeCase"]][[
     "enabled"
   ]] <- Reinforced[["compositeCase", exact = TRUE]][["enabled", exact = TRUE]]

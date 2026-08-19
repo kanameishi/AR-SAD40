@@ -1,0 +1,8 @@
+```{r}
+#| include: false
+CAP.N <- readCaption("fig.Resultants.liner.N.ES")
+CAP.M <- readCaption("fig.Resultants.liner.M.ES")
+CAP.Q <- readCaption("fig.Resultants.liner.Q.ES")
+```
+
+{{< include /_fig/Resultants.liner.qmd >}}

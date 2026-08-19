@@ -1,0 +1,78 @@
+```{r}
+#| include: false
+source("scripts/fig/Resultants.R")
+PATH.curves <- Calculation$paths$shotcreteResultants
+PATH.scales <- Calculation$paths$shotcreteScales
+RADIUS <- Calculation$reinforcedConcrete$section$centroidalRadiusM
+PLOT.N <- buildCalculationResultantsInteractive(
+  pathCurves = PATH.curves,
+  pathScales = PATH.scales,
+  radius = RADIUS,
+  graphicAmplification =
+    Calculation$reinforcedConcrete$display$graphicAmplification,
+  raysPerCircle = Calculation$reinforcedConcrete$display$raysPerCircle,
+  resultant = "N",
+  liningID = "reinforcedConcrete",
+  scaleMode = "local-by-lining-and-resultant"
+)
+PLOT.M <- buildCalculationResultantsInteractive(
+  pathCurves = PATH.curves,
+  pathScales = PATH.scales,
+  radius = RADIUS,
+  graphicAmplification =
+    Calculation$reinforcedConcrete$display$graphicAmplification,
+  raysPerCircle = Calculation$reinforcedConcrete$display$raysPerCircle,
+  resultant = "M",
+  liningID = "reinforcedConcrete",
+  scaleMode = "local-by-lining-and-resultant"
+)
+PLOT.Q <- buildCalculationResultantsInteractive(
+  pathCurves = PATH.curves,
+  pathScales = PATH.scales,
+  radius = RADIUS,
+  graphicAmplification =
+    Calculation$reinforcedConcrete$display$graphicAmplification,
+  raysPerCircle = Calculation$reinforcedConcrete$display$raysPerCircle,
+  resultant = "Q",
+  liningID = "reinforcedConcrete",
+  scaleMode = "local-by-lining-and-resultant"
+)
+```
+
+```{r}
+#| label: fig-resultants-shotcrete150-normal
+#| fig-cap: !expr CAP.N
+#| echo: false
+#| out-width: 100%
+#| fig-align: center
+PLOT.N
+```
+
+```{r}
+#| label: fig-resultants-shotcrete150-moment
+#| fig-cap: !expr CAP.M
+#| echo: false
+#| out-width: 100%
+#| fig-align: center
+PLOT.M
+```
+
+```{r}
+#| label: fig-resultants-shotcrete150-shear
+#| fig-cap: !expr CAP.Q
+#| echo: false
+#| out-width: 100%
+#| fig-align: center
+PLOT.Q
+```
+
+
+```{r}
+#| include: false
+rm(
+  CAP.N, CAP.M, CAP.Q,
+  PATH.curves, PATH.scales, RADIUS,
+  PLOT.N, PLOT.M, PLOT.Q,
+  buildCalculationResultantsInteractive
+)
+```
