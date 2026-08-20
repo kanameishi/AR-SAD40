@@ -67,8 +67,8 @@ kN·m/m y
 kN/m, respectivamente.
 
 Las distribuciones completas de fuerza circunferencial, momento y corte se
-presentan para ambos espesores, con una escala radial propia para cada
-resultante.
+presentan para ambos espesores en figuras de tres paneles, con una escala
+radial propia para cada resultante.
 
 {{< include /_fig/Resultants.shotcrete100.ES.qmd >}}
 
@@ -132,13 +132,11 @@ $$ {#eq-calculation-shotcrete-compression}
 
 Estas expresiones proceden de ACI 318-25, Capítulo 14
 [@ACI31825, tabla 14.5.4.1 y arts. 14.5.3.1 y 14.5.5.1(a)]. La utilización
-$U_{NM,c}$ requiere la longitud de compresión $\ell_c$, que no está
-caracterizada en esta etapa; por lo tanto, la comprobación de compresión
-combinada no se evalúa y la verificación del hormigón simple queda limitada a
-la tracción en la fibra extrema y al corte unidireccional. La
-@tbl-liner-rehabilitation-plain-checks presenta esas dos comprobaciones
-evaluadas, con la flexión compuesta gobernada por la fibra traccionada, para
-ambos espesores.
+$U_{NM,c}$ requiere la longitud de compresión $\ell_c$, que corresponde al
+diseño de detalle de la rehabilitación. La verificación de esta memoria
+comprende la tracción en la fibra extrema y el corte unidireccional; la
+@tbl-liner-rehabilitation-plain-checks presenta ambas comprobaciones, con la
+flexión compuesta gobernada por la fibra traccionada, para los dos espesores.
 
 {{< include /_tbl/liner.rehabilitation.plain.checks.ES.qmd >}}
 
@@ -329,8 +327,8 @@ V_c=\left[0.66\lambda_s\rho_w^{1/3}\sqrt{f'_c}
 $$ {#eq-calculation-reinforced-shear}
 
 con los límites de los artículos 22.5.5.1.1 a 22.5.5.1.3. Las columnas
-$E_r^{*}$ no son una segunda verificación de flexocompresión. Corresponden a
-un control separado del desprendimiento radial del recubrimiento: una barra
+$E_r^{*}$ presentan el control separado del desprendimiento radial del
+recubrimiento: una barra
 circunferencial curva, cuando trabaja a tracción, transmite una acción radial
 hacia el hormigón. El control limita el área de la capa interior que puede
 disponerse sin estribos radiales:
@@ -345,12 +343,11 @@ La expresión corresponde al artículo 12.10.4.2.4c de CIRSOC 804-4
 completa en la interfaz para la carga total; la resistencia de esa interfaz y
 el estado previo de la chapa deben establecerse para el diseño de detalle.
 
-En síntesis, en las comprobaciones evaluadas de tracción y corte, el hormigón
-simple de 100 mm
+En síntesis, en las comprobaciones de tracción y corte, el hormigón simple de
+100 mm
 `r if (Plain100Pass) "satisface" else "no satisface"` y el hormigón simple de
 150 mm
-`r if (Plain150Pass) "satisface" else "no satisface"`; la comprobación de
-compresión combinada $N$--$M$ permanece sin evaluar hasta definir $\ell_c$.
+`r if (Plain150Pass) "satisface" else "no satisface"`.
 `r ReinforcementConclusion("shotcrete")`
 `r ReinforcementConclusion("reinforcedConcrete")`
 La selección de espesor y armadura deberá considerar conjuntamente la

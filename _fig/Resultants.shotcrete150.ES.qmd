@@ -1,8 +1,6 @@
 ```{r}
 #| include: false
-CAP.N <- readCaption("fig.Resultants.shotcrete150.N.ES")
-CAP.M <- readCaption("fig.Resultants.shotcrete150.M.ES")
-CAP.Q <- readCaption("fig.Resultants.shotcrete150.Q.ES")
+CAP <- readCaption("fig.Resultants.shotcrete150.ES")
 ```
 
 {{< include /_fig/Resultants.shotcrete150.qmd >}}

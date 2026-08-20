@@ -206,7 +206,7 @@ inspección.
 Las comprobaciones de pared, pandeo, flexibilidad y tapada de la chapa
 `r if (all(Calculation$aashto$checks$checkStatus[Calculation$aashto$checks$checkID != "seam"] == "satisfied")) "verifican" else "no verifican en todos los casos"`; la costura de referencia
 `r if (ExecutiveSeam$checkStatus == "satisfied") "verifica" else "no verifica"`.
-En las comprobaciones evaluadas de tracción y corte, el hormigón proyectado
+En las comprobaciones de tracción y corte, el hormigón proyectado
 simple de
 `r formatCalculationFixed(ExecutivePlainThicknessMm, 0L)` mm
 `r if (ExecutivePlain100Pass) "verifica" else "no verifica"` y el de

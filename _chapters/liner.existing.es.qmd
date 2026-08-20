@@ -81,8 +81,9 @@ Schwartz--Einstein y la corrección equilibrada del gradiente geostático; la
 componente uniforme se calcula con las rigideces propias de la chapa.
 
 Las distribuciones completas de fuerza circunferencial, momento y corte se
-presentan a continuación. Cada figura ajusta la escala radial a su resultante
-para que también sean visibles las magnitudes menores de la chapa.
+presentan a continuación en una figura de tres paneles. Cada panel ajusta la
+escala radial a su resultante para que también sean visibles las magnitudes
+menores de la chapa.
 
 {{< include /_fig/Resultants.liner.ES.qmd >}}
 

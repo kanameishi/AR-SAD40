@@ -47,7 +47,7 @@ Plain100Pass <- PlainAlternativePass("shotcrete")
 Plain150Pass <- PlainAlternativePass("plainConcrete150")
 PlainPass <- Plain100Pass && Plain150Pass
 PlainCheckConclusion <- paste0(
-  "En las comprobaciones evaluadas, la sección simple de 100 mm ",
+  "En las comprobaciones de tracción y corte, la sección simple de 100 mm ",
   if (Plain100Pass) "verifica" else "no verifica",
   " y la sección simple de 150 mm ",
   if (Plain150Pass) "verifica." else "no verifica."
