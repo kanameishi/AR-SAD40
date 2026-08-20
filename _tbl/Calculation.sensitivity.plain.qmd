@@ -1,0 +1,19 @@
+```{r}
+#| include: false
+source("scripts/tbl/Calculation.sensitivity.R")
+TBL.SENS.PLAIN <- buildCalculationSensitivityPlainTable(
+  path = Calculation$paths$sensitivityPlainChecks
+)
+```
+
+```{r}
+#| label: tbl-calculation-sensitivity-plain
+#| tbl-cap: !expr CAP.SENS.PLAIN
+#| echo: false
+TBL.SENS.PLAIN
+```
+
+```{r}
+#| include: false
+rm(TBL.SENS.PLAIN)
+```

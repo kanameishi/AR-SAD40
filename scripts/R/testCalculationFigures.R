@@ -342,4 +342,93 @@ stopifnot(
     )) == 2L
   }, logical(1)))
 )
+source("scripts/tbl/Calculation.sensitivity.R")
+SensitivitySteel <- utils::read.csv(
+  "data/calculation/sensitivity.steel.extrema.csv",
+  check.names = FALSE
+)
+SensitivityAashto <- utils::read.csv(
+  "data/calculation/sensitivity.aashto.checks.csv",
+  check.names = FALSE
+)
+SensitivityPlain <- utils::read.csv(
+  "data/calculation/sensitivity.plain.checks.csv",
+  check.names = FALSE
+)
+SensitivitySweep <- utils::read.csv(
+  "data/calculation/sensitivity.pm.sweep.csv",
+  check.names = FALSE
+)
+SensitivityDemands <- utils::read.csv(
+  "data/calculation/sensitivity.pm.demands.csv",
+  check.names = FALSE
+)
+SensitivityModuli <- sort(unique(SensitivitySteel$modulusMPa))
+stopifnot(
+  length(SensitivityModuli) >= 2L,
+  nrow(SensitivitySteel) == 6L * length(SensitivityModuli),
+  nrow(SensitivityAashto) == 5L * length(SensitivityModuli),
+  nrow(SensitivityPlain) == 4L * length(SensitivityModuli),
+  nrow(SensitivitySweep) == 8L * length(SensitivityModuli),
+  nrow(SensitivityDemands) == 16L * length(SensitivityModuli),
+  identical(
+    sort(unique(SensitivityAashto$modulusMPa)),
+    SensitivityModuli
+  ),
+  identical(
+    sort(unique(SensitivityDemands$modulusMPa)),
+    SensitivityModuli
+  ),
+  setequal(
+    unique(SensitivityPlain$liningID),
+    c("shotcrete", "plainConcrete150")
+  ),
+  all(is.finite(SensitivitySweep$maximumRadialUtilization))
+)
+SensitivityTables <- list(
+  buildCalculationSensitivitySteelTable(
+    "data/calculation/sensitivity.steel.extrema.csv"
+  ),
+  buildCalculationSensitivityPlainTable(
+    "data/calculation/sensitivity.plain.checks.csv"
+  ),
+  buildCalculationSensitivityPmTable(
+    "data/calculation/sensitivity.pm.sweep.csv",
+    "shotcrete"
+  ),
+  buildCalculationSensitivityPmTable(
+    "data/calculation/sensitivity.pm.sweep.csv",
+    "reinforcedConcrete"
+  )
+)
+stopifnot(all(vapply(
+  SensitivityTables,
+  inherits,
+  logical(1),
+  "flextable"
+)))
+for (SensitivityLiningID in c("shotcrete", "reinforcedConcrete")) {
+  SensitivityPlot <- buildCalculationConcreteAxialFlexureSensitivityPlot(
+    "data/calculation/shotcrete.axial.flexure.reinforcement.domains.csv",
+    "data/calculation/shotcrete.axial.flexure.reinforcement.sweep.csv",
+    "data/calculation/sensitivity.pm.demands.csv",
+    liningID = SensitivityLiningID
+  )
+  SensitivitySeries <- SensitivityPlot$x$hc_opts$series
+  SensitivityMarked <- vapply(
+    SensitivitySeries,
+    function(Series) isTRUE(Series$marker$enabled),
+    logical(1)
+  )
+  stopifnot(
+    inherits(SensitivityPlot, "highchart"),
+    length(SensitivitySeries) == 8L,
+    sum(SensitivityMarked) == 4L,
+    all(vapply(
+      SensitivitySeries[SensitivityMarked],
+      function(Series) length(Series$data) == length(SensitivityModuli),
+      logical(1)
+    ))
+  )
+}
 cat("PASS: calculation figure builders.\n")

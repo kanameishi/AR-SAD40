@@ -1,10 +1,36 @@
-buildCalculationConcreteAxialFlexurePlot <- function(
-  domainsPath,
-  sweepPath,
-  governingDemandsPath,
-  liningID = "reinforcedConcrete"
-) {
-  Paths <- c(domainsPath, sweepPath, governingDemandsPath)
+.pmFamilyLabel <- function(row) {
+  if (!row$isParametricCase) {
+    return(paste0(
+      "A",
+      trimws(formatC(row$barDiameterMm, format = "fg", digits = 6L)),
+      " · chapa + Ø",
+      trimws(formatC(row$barDiameterMm, format = "fg", digits = 6L)),
+      "/",
+      trimws(formatC(row$barSpacingMm, format = "fg", digits = 6L)),
+      " interior"
+    ))
+  }
+  paste0(
+    "S",
+    trimws(formatC(row$barDiameterMm, format = "fg", digits = 6L)),
+    " · Ø",
+    trimws(formatC(row$barDiameterMm, format = "fg", digits = 6L)),
+    "/",
+    trimws(formatC(row$barSpacingMm, format = "fg", digits = 6L)),
+    " · rho=",
+    formatC(100 * row$reinforcementRatio, format = "f", digits = 2L),
+    "% · As=",
+    formatC(
+      row$circumferentialAreaTotalMm2PerM / 100,
+      format = "f",
+      digits = 1L
+    ),
+    " cm2/m"
+  )
+}
+
+.readPmFamily <- function(domainsPath, sweepPath, liningID) {
+  Paths <- c(domainsPath, sweepPath)
   if (any(!file.exists(Paths))) {
     stop("The reinforcement P-M family products are not available.",
       call. = FALSE
@@ -16,7 +42,6 @@ buildCalculationConcreteAxialFlexurePlot <- function(
   }
   Domains <- data.table::fread(domainsPath)
   Sweep <- data.table::fread(sweepPath)
-  Demands <- data.table::fread(governingDemandsPath)
   DomainRequired <- c(
     "liningID", "reinforcementCaseID", "domainPointIndex",
     "axialStrengthKnPerM", "bendingStrengthKnMPerM"
@@ -28,32 +53,20 @@ buildCalculationConcreteAxialFlexurePlot <- function(
     "maximumRadialUtilization", "localPMStatus",
     "isParametricCase", "calculationStatus", "demandReuseStatus"
   )
-  DemandRequired <- c(
-    "liningID", "reinforcementCaseID", "reinforcementCaseOrder",
-    "circumferentialAreaTotalMm2PerM", "reinforcementRatio",
-    "demandOrder", "selectionBasisID", "interfaceID", "strengthCaseID",
-    "axialDemandKnPerM", "bendingDemandKnMPerM",
-    "verticalStressFactor", "horizontalStressFactor", "radialUtilization",
-    "thetaDeg"
-  )
   if (length(setdiff(DomainRequired, names(Domains))) > 0L ||
-      length(setdiff(SweepRequired, names(Sweep))) > 0L ||
-      length(setdiff(DemandRequired, names(Demands))) > 0L) {
+      length(setdiff(SweepRequired, names(Sweep))) > 0L) {
     stop("The reinforcement P-M family has an invalid schema.", call. = FALSE)
   }
   TargetLiningID <- liningID
   Domains <- Domains[Domains[["liningID"]] == TargetLiningID]
   Sweep <- Sweep[Sweep[["liningID"]] == TargetLiningID]
-  Demands <- Demands[Demands[["liningID"]] == TargetLiningID]
   data.table::setorder(Sweep, reinforcementCaseOrder)
   data.table::setorder(Domains, reinforcementCaseID, domainPointIndex)
-  data.table::setorder(Demands, demandOrder)
   CaseIDs <- Sweep[["reinforcementCaseID"]]
   Invalid <- c(
     caseCount = nrow(Sweep) != 4L,
     duplicateCase = anyDuplicated(CaseIDs) > 0L,
     domainCases = !setequal(unique(Domains$reinforcementCaseID), CaseIDs),
-    demandCount = nrow(Demands) != 2L * nrow(Sweep),
     symmetricCount = sum(Sweep$isParametricCase) != 3L,
     compositeCount = sum(!Sweep$isParametricCase) != 1L,
     arrangement =
@@ -73,6 +86,50 @@ buildCalculationConcreteAxialFlexurePlot <- function(
       call. = FALSE
     )
   }
+  DomainGroups <- split(Domains, Domains$reinforcementCaseID)
+  if (any(!vapply(DomainGroups, function(x) {
+    identical(x$domainPointIndex, seq_len(nrow(x)))
+  }, logical(1)))) {
+    stop("A reinforcement P-M domain is not ordered.", call. = FALSE)
+  }
+  list(sweep = Sweep, domains = DomainGroups)
+}
+
+buildCalculationConcreteAxialFlexurePlot <- function(
+  domainsPath,
+  sweepPath,
+  governingDemandsPath,
+  liningID = "reinforcedConcrete"
+) {
+  if (!file.exists(governingDemandsPath)) {
+    stop("The reinforcement P-M family products are not available.",
+      call. = FALSE
+    )
+  }
+  Family <- .readPmFamily(domainsPath, sweepPath, liningID)
+  Sweep <- Family[["sweep", exact = TRUE]]
+  Demands <- data.table::fread(governingDemandsPath)
+  DemandRequired <- c(
+    "liningID", "reinforcementCaseID", "reinforcementCaseOrder",
+    "circumferentialAreaTotalMm2PerM", "reinforcementRatio",
+    "demandOrder", "selectionBasisID", "interfaceID", "strengthCaseID",
+    "axialDemandKnPerM", "bendingDemandKnMPerM",
+    "verticalStressFactor", "horizontalStressFactor", "radialUtilization",
+    "thetaDeg"
+  )
+  if (length(setdiff(DemandRequired, names(Demands))) > 0L) {
+    stop("The reinforcement P-M family has an invalid schema.", call. = FALSE)
+  }
+  TargetLiningID <- liningID
+  Demands <- Demands[Demands[["liningID"]] == TargetLiningID]
+  data.table::setorder(Demands, demandOrder)
+  CaseIDs <- Sweep[["reinforcementCaseID"]]
+  if (nrow(Demands) != 2L * nrow(Sweep)) {
+    stop(
+      "The reinforcement P-M family is incomplete: demandCount.",
+      call. = FALSE
+    )
+  }
   DemandGroups <- split(Demands, Demands$reinforcementCaseID)
   if (!setequal(names(DemandGroups), CaseIDs) ||
       any(!vapply(DemandGroups, function(x) {
@@ -85,13 +142,7 @@ buildCalculationConcreteAxialFlexurePlot <- function(
       call. = FALSE
     )
   }
-  DomainGroups <- split(Domains, Domains$reinforcementCaseID)
-  if (any(!vapply(DomainGroups, function(x) {
-    identical(x$domainPointIndex, seq_len(nrow(x)))
-  }, logical(1)))) {
-    stop("A reinforcement P-M domain is not ordered.", call. = FALSE)
-  }
-  DomainGroups <- lapply(DomainGroups, function(Domain) {
+  DomainGroups <- lapply(Family[["domains", exact = TRUE]], function(Domain) {
     Quarter <- Domain[
       Domain$axialStrengthKnPerM >= 0 &
         Domain$bendingStrengthKnMPerM >= 0
@@ -102,41 +153,11 @@ buildCalculationConcreteAxialFlexurePlot <- function(
     }
     Quarter
   })
-  PublicLabel <- function(row) {
-    if (!row$isParametricCase) {
-      return(paste0(
-        "A",
-        trimws(formatC(row$barDiameterMm, format = "fg", digits = 6L)),
-        " · chapa + Ø",
-        trimws(formatC(row$barDiameterMm, format = "fg", digits = 6L)),
-        "/",
-        trimws(formatC(row$barSpacingMm, format = "fg", digits = 6L)),
-        " interior"
-      ))
-    }
-    paste0(
-      "S",
-      trimws(formatC(row$barDiameterMm, format = "fg", digits = 6L)),
-      " · Ø",
-      trimws(formatC(row$barDiameterMm, format = "fg", digits = 6L)),
-      "/",
-      trimws(formatC(row$barSpacingMm, format = "fg", digits = 6L)),
-      " · rho=",
-      formatC(100 * row$reinforcementRatio, format = "f", digits = 2L),
-      "% · As=",
-      formatC(
-        row$circumferentialAreaTotalMm2PerM / 100,
-        format = "f",
-        digits = 1L
-      ),
-      " cm2/m"
-    )
-  }
   LineRows <- lapply(seq_len(nrow(Sweep)), function(i) {
     Row <- Sweep[i]
     Domain <- DomainGroups[[Row$reinforcementCaseID]]
     data.table::data.table(
-      ID = PublicLabel(Row),
+      ID = .pmFamilyLabel(Row),
       X = Domain$bendingStrengthKnMPerM,
       Y = Domain$axialStrengthKnPerM,
       style = if (!Row$isParametricCase) {
@@ -181,7 +202,7 @@ buildCalculationConcreteAxialFlexurePlot <- function(
           call. = FALSE
         )
       }
-      PublicLabel(Row)
+      .pmFamilyLabel(Row)
     },
     character(1)
   )
@@ -262,4 +283,198 @@ buildCalculationConcreteAxialFlexurePlot <- function(
   }
   Plot[["x"]][["hc_opts"]][["series"]] <- Series
   highcharter::hc_tooltip(Plot, valueDecimals = 0L)
+}
+
+buildCalculationConcreteAxialFlexureSensitivityPlot <- function(
+  domainsPath,
+  sweepPath,
+  sensitivityDemandsPath,
+  liningID = "reinforcedConcrete"
+) {
+  if (!file.exists(sensitivityDemandsPath)) {
+    stop("The P-M sensitivity demands are not available.", call. = FALSE)
+  }
+  Family <- .readPmFamily(domainsPath, sweepPath, liningID)
+  Sweep <- Family[["sweep", exact = TRUE]]
+  Demands <- data.table::fread(sensitivityDemandsPath)
+  Required <- c(
+    "modulusMPa", "liningID", "reinforcementCaseID", "interfaceID",
+    "thetaDeg", "axialDemandKnPerM", "bendingDemandKnMPerM",
+    "radialUtilization"
+  )
+  if (length(setdiff(Required, names(Demands))) > 0L) {
+    stop("The P-M sensitivity demands have an invalid schema.", call. = FALSE)
+  }
+  TargetLiningID <- liningID
+  Demands <- Demands[Demands[["liningID"]] == TargetLiningID]
+  Moduli <- sort(unique(Demands$modulusMPa))
+  if (length(Moduli) < 2L || any(!is.finite(Moduli))) {
+    stop("The P-M sensitivity moduli are unavailable.", call. = FALSE)
+  }
+  # The governing demand pair depends on each mesh's own domain, so the
+  # trajectories name one representative symmetric mesh and the composite
+  # case instead of claiming one family-wide path.
+  SymmetricRow <- Sweep[Sweep$isParametricCase][1L]
+  CompositeRow <- Sweep[!Sweep$isParametricCase]
+  # The positive-thrust half of a closed domain may wrap around the point
+  # index origin; rotate it so the polyline stays continuous.
+  DomainGroups <- lapply(Family[["domains", exact = TRUE]], function(Domain) {
+    Half <- Domain[Domain$axialStrengthKnPerM >= 0]
+    if (nrow(Half) < 2L) {
+      stop("The positive-thrust half domain is unavailable.", call. = FALSE)
+    }
+    Gaps <- which(diff(Half$domainPointIndex) != 1L)
+    if (length(Gaps) > 1L) {
+      stop("The positive-thrust half domain is not contiguous.", call. = FALSE)
+    }
+    if (length(Gaps) == 1L) {
+      Half <- rbind(
+        Half[seq.int(Gaps + 1L, nrow(Half))],
+        Half[seq_len(Gaps)]
+      )
+    }
+    Half
+  })
+  InterfaceLabels <- c(
+    `full-slip` = "Slip (S)",
+    `no-slip` = "No Slip (NS)"
+  )
+  SymmetricCode <- paste0(
+    "S",
+    trimws(formatC(SymmetricRow$barDiameterMm, format = "fg", digits = 6L))
+  )
+  CompositeCode <- paste0(
+    "A",
+    trimws(formatC(CompositeRow$barDiameterMm, format = "fg", digits = 6L))
+  )
+  Groups <- list(
+    list(
+      id = paste0("Demanda ", SymmetricCode, " · ", InterfaceLabels[["full-slip"]]),
+      caseID = SymmetricRow[["reinforcementCaseID"]],
+      interfaceID = "full-slip",
+      symbol = "circle"
+    ),
+    list(
+      id = paste0("Demanda ", SymmetricCode, " · ", InterfaceLabels[["no-slip"]]),
+      caseID = SymmetricRow[["reinforcementCaseID"]],
+      interfaceID = "no-slip",
+      symbol = "diamond"
+    ),
+    list(
+      id = paste0("Demanda ", CompositeCode, " · ", InterfaceLabels[["full-slip"]]),
+      caseID = CompositeRow[["reinforcementCaseID"]],
+      interfaceID = "full-slip",
+      symbol = "circle"
+    ),
+    list(
+      id = paste0("Demanda ", CompositeCode, " · ", InterfaceLabels[["no-slip"]]),
+      caseID = CompositeRow[["reinforcementCaseID"]],
+      interfaceID = "no-slip",
+      symbol = "diamond"
+    )
+  )
+  TrajectoryRows <- lapply(Groups, function(Group) {
+    AUX <- Demands[
+      Demands$reinforcementCaseID == Group$caseID &
+        Demands$interfaceID == Group$interfaceID
+    ]
+    data.table::setorder(AUX, modulusMPa)
+    if (!identical(AUX$modulusMPa, Moduli)) {
+      stop("A demand trajectory is missing one modulus.", call. = FALSE)
+    }
+    AUX
+  })
+  DomainLineRows <- lapply(seq_len(nrow(Sweep)), function(i) {
+    Row <- Sweep[i]
+    Domain <- DomainGroups[[Row$reinforcementCaseID]]
+    data.table::data.table(
+      ID = .pmFamilyLabel(Row),
+      X = Domain$bendingStrengthKnMPerM,
+      Y = Domain$axialStrengthKnPerM,
+      style = if (!Row$isParametricCase) "shortdashdot" else "solid",
+      size = 1.5
+    )
+  })
+  TrajectoryLineRows <- lapply(seq_along(Groups), function(i) {
+    AUX <- TrajectoryRows[[i]]
+    data.table::data.table(
+      ID = Groups[[i]]$id,
+      X = AUX$bendingDemandKnMPerM,
+      Y = AUX$axialDemandKnPerM,
+      style = "shortdash",
+      size = 1
+    )
+  })
+  Lines <- data.table::rbindlist(c(DomainLineRows, TrajectoryLineRows))
+  Plot <- NGR::buildPlot(
+    data.lines = Lines,
+    line.type = "line",
+    plot.theme = NGR::hc_theme_538_gridlines(),
+    plot.height = 750,
+    xAxis.legend = "Momento flector, M [kN·m/m]",
+    yAxis.legend = "Fuerza axial, P [kN/m]",
+    group.legend = "Dominios y trayectorias de demanda",
+    color.palette = "Dark 3",
+    line.size = 2,
+    legend.layout = "horizontal",
+    legend.align = "center",
+    legend.valign = "bottom",
+    print.max.abs = FALSE,
+    point.dataLabels = FALSE
+  )
+  Plot <- highcharter::hc_plotOptions(
+    Plot,
+    series = list(requireSorting = FALSE)
+  )
+  Plot <- highcharter::hc_xAxis(
+    Plot,
+    labels = list(format = "{value:.0f}")
+  )
+  Plot <- highcharter::hc_yAxis(
+    Plot,
+    labels = list(format = "{value:.0f}")
+  )
+  Series <- Plot[["x"]][["hc_opts"]][["series"]]
+  GroupIDs <- vapply(Groups, `[[`, character(1), "id")
+  for (i in seq_along(Series)) {
+    Index <- match(Series[[i]][["name"]], GroupIDs)
+    if (is.na(Index)) next
+    AUX <- TrajectoryRows[[Index]]
+    Series[[i]][["marker"]] <- list(
+      enabled = TRUE,
+      symbol = Groups[[Index]]$symbol,
+      radius = 5,
+      fillColor = "rgba(255,255,255,0)",
+      lineWidth = 2,
+      lineColor = Series[[i]][["color"]]
+    )
+    Series[[i]][["data"]] <- lapply(seq_len(nrow(AUX)), function(j) {
+      list(
+        x = AUX$bendingDemandKnMPerM[j],
+        y = AUX$axialDemandKnPerM[j],
+        custom = list(
+          e = formatC(AUX$modulusMPa[j], format = "fg"),
+          u = formatC(AUX$radialUtilization[j], format = "f", digits = 2L),
+          theta = formatC(AUX$thetaDeg[j], format = "f", digits = 0L)
+        )
+      )
+    })
+    Series[[i]][["dataLabels"]] <- list(
+      enabled = TRUE,
+      format = "{point.custom.e}",
+      allowOverlap = TRUE
+    )
+    Series[[i]][["tooltip"]] <- list(
+      pointFormat = paste0(
+        "<b>{series.name}</b><br>",
+        "E<sub>g</sub> = {point.custom.e} MPa<br>",
+        "θ = {point.custom.theta}°<br>",
+        "M = {point.x:.1f} kN·m/m<br>",
+        "P = {point.y:.0f} kN/m<br>",
+        "Utilización P–M = {point.custom.u}"
+      )
+    )
+  }
+  Plot[["x"]][["hc_opts"]][["series"]] <- Series
+  highcharter::hc_tooltip(Plot, useHTML = TRUE, valueDecimals = 0L)
 }

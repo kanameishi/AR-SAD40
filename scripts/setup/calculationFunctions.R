@@ -28,3 +28,4 @@ source(file.path(projectRoot, "scripts", "R", "calculationClassicalComparison.R"
 source(file.path(projectRoot, "scripts", "R", "coverCalculationData.R"))
 source(file.path(projectRoot, "scripts", "R", "coverConfiguration.R"))
 source(file.path(projectRoot, "scripts", "R", "coverCase.R"))
+source(file.path(projectRoot, "scripts", "R", "coverSensitivity.R"))

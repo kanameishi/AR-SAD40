@@ -79,7 +79,9 @@ suelo--revestimiento se adopta un módulo elástico constante de
 MPa. Este valor es una hipótesis específica del análisis y no una conversión
 del módulo secante de referencia de 140 MPa, cuya aplicación depende del nivel
 de tensiones y del modelo constitutivo. El módulo adoptado deberá confirmarse
-con la caracterización geotécnica de diseño.
+con la caracterización geotécnica de diseño; la
+@sec-calculation-sensitivity cuantifica el efecto de esta hipótesis sobre las
+verificaciones de los revestimientos.
 
 La interacción entre el relleno y cada revestimiento se representa mediante la
 solución de carga externa de Schwartz--Einstein. Se calculan dos límites de

@@ -17,6 +17,13 @@ invisible(buildCalculationData(
   outputDirectory = file.path(projectRoot, "data", "calculation"),
   projectRoot = projectRoot
 ))
+MODULI <- c(30, 60, 90, 120)
+invisible(buildCoverSensitivityData(
+  configPath = file.path(projectRoot, "calculation.json"),
+  outputDirectory = file.path(projectRoot, "data", "calculation"),
+  projectRoot = projectRoot,
+  moduliMPa = MODULI
+))
 source(file.path(projectRoot, "scripts", "R", "ringInteraction.R"))
 source(file.path(projectRoot, "scripts", "R", "referenceCases.R"))
 invisible(buildReferenceCaseData(

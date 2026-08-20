@@ -1,0 +1,1 @@
+Sensibilidad de las comprobaciones evaluadas del hormigón proyectado simple al módulo del terreno. Las columnas numeradas indican $E_g$ en MPa y $h$ el espesor. $U_{N-M,\max}$ es la utilización máxima de flexión compuesta con compresión axial, gobernada por la fibra traccionada, y $U_{V,\max}$ la de corte unidireccional; $U>1$ no verifica.

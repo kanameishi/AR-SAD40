@@ -1,0 +1,1 @@
+Sensibilidad de los máximos absolutos de las resultantes del liner de chapa al módulo del terreno. Las columnas numeradas indican $E_g$ en MPa. En la interfaz $I$, `S` significa Slip y `NS`, No Slip; $u_X$ es la unidad de cada resultante. Los valores corresponden al estado no mayorado del modelo híbrido, recalculado completo para cada módulo.

@@ -1,0 +1,139 @@
+```{r}
+#| include: false
+root <- normalizePath(".", mustWork = TRUE)
+source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
+SensitivityRead <- function(path) {
+  utils::read.csv(
+    path,
+    check.names = FALSE,
+    stringsAsFactors = FALSE,
+    na.strings = ""
+  )
+}
+SensitivitySteel <- SensitivityRead(Calculation$paths$sensitivitySteelExtrema)
+SensitivityAashto <- SensitivityRead(Calculation$paths$sensitivityAashtoChecks)
+SensitivityPlain <- SensitivityRead(Calculation$paths$sensitivityPlainChecks)
+SensitivitySweep <- SensitivityRead(Calculation$paths$sensitivityPmSweep)
+SensitivityModuli <- sort(unique(SensitivitySteel$modulusMPa))
+if (length(SensitivityModuli) < 2L) {
+  stop("The sensitivity products require at least two moduli.")
+}
+SensitivityFirst <- SensitivityModuli[1L]
+SensitivityLast <- SensitivityModuli[length(SensitivityModuli)]
+SensitivityList <- function(values) {
+  Values <- as.character(values)
+  if (length(Values) == 1L) return(Values)
+  paste(
+    paste(head(Values, -1L), collapse = ", "),
+    tail(Values, 1L),
+    sep = " y "
+  )
+}
+SensitivitySteelValue <- function(caseID, resultantID, modulus) {
+  Value <- SensitivitySteel$value[
+    SensitivitySteel$caseID == caseID &
+      SensitivitySteel$resultantID == resultantID &
+      SensitivitySteel$modulusMPa == modulus
+  ]
+  if (length(Value) != 1L || !is.finite(Value)) {
+    stop("Missing steel sensitivity value: ", caseID, ".", resultantID)
+  }
+  Value
+}
+SensitivitySteelReductionPct <- function(caseID, resultantID) {
+  100 * (1 -
+    SensitivitySteelValue(caseID, resultantID, SensitivityLast) /
+      SensitivitySteelValue(caseID, resultantID, SensitivityFirst))
+}
+SensitivityAashtoRanges <- tapply(
+  SensitivityAashto$utilization,
+  SensitivityAashto$checkID,
+  function(x) diff(range(x))
+)
+SensitivityAashtoConstant <- all(SensitivityAashtoRanges < 1e-9)
+SensitivitySeamU <- unique(formatCalculationFixed(
+  SensitivityAashto$utilization[SensitivityAashto$checkID == "seam"],
+  3L
+))
+SensitivityPlainU <- function(liningID, checkID, modulus) {
+  Value <- SensitivityPlain$utilization[
+    SensitivityPlain$liningID == liningID &
+      SensitivityPlain$checkID == checkID &
+      SensitivityPlain$modulusMPa == modulus
+  ]
+  if (length(Value) != 1L || !is.finite(Value)) {
+    stop("Missing plain sensitivity value: ", liningID, ".", checkID)
+  }
+  Value
+}
+SensitivityPlainTensionRobust <- all(
+  SensitivityPlain$utilization[
+    SensitivityPlain$checkID == "tension-face"
+  ] > 1
+)
+SensitivitySweep$configurationID <- ifelse(
+  SensitivitySweep$reinforcementArrangementID == "symmetric-two-face",
+  paste0("S", SensitivitySweep$barDiameterMm),
+  paste0("A", SensitivitySweep$barDiameterMm)
+)
+SensitivityPmStatus <- function(liningID, configurationID, modulus) {
+  Value <- SensitivitySweep$localPMStatus[
+    SensitivitySweep$liningID == liningID &
+      SensitivitySweep$configurationID == configurationID &
+      SensitivitySweep$modulusMPa == modulus
+  ]
+  if (length(Value) != 1L) {
+    stop("Missing P-M sensitivity status: ", liningID, ".", configurationID)
+  }
+  Value
+}
+SensitivityConfigIDs <- function(liningID) {
+  AUX <- SensitivitySweep[
+    SensitivitySweep$liningID == liningID &
+      SensitivitySweep$modulusMPa == SensitivityFirst,
+    ,
+    drop = FALSE
+  ]
+  AUX$configurationID[order(AUX$reinforcementCaseOrder)]
+}
+SensitivityFlips <- function(liningID) {
+  IDs <- SensitivityConfigIDs(liningID)
+  IDs[vapply(IDs, function(s) {
+    SensitivityPmStatus(liningID, s, SensitivityFirst) !=
+      SensitivityPmStatus(liningID, s, SensitivityLast)
+  }, logical(1))]
+}
+SensitivityPassing <- function(liningID, modulus) {
+  IDs <- SensitivityConfigIDs(liningID)
+  IDs[vapply(IDs, function(s) {
+    identical(SensitivityPmStatus(liningID, s, modulus), "satisfied")
+  }, logical(1))]
+}
+SensitivityStatusSentence <- function(ids) {
+  if (length(ids) == 0L) return("ninguna configuración")
+  SensitivityList(ids)
+}
+SensitivityPassSentence <- function(liningID, modulus, object = FALSE) {
+  IDs <- SensitivityPassing(liningID, modulus)
+  Object <- if (object) " la flexocompresión " else " "
+  if (length(IDs) == 0L) {
+    return(paste0("ninguna configuración satisface", Object))
+  }
+  paste0(
+    if (length(IDs) == 1L) "satisface" else "satisfacen",
+    Object,
+    SensitivityList(IDs)
+  )
+}
+```
+
+# Sensibilidad al módulo del terreno {#sec-calculation-sensitivity}
+
+Este capítulo cuantifica el efecto del módulo de deformación del terreno
+sobre las verificaciones de los tres revestimientos. El caso completo se
+recalcula para $E_g$ igual a
+`r SensitivityList(SensitivityModuli)` MPa, manteniendo fijas todas las
+demás entradas del escenario adoptado; cada módulo utiliza el mismo motor y
+el mismo camino de productos que el cuerpo de la memoria.
+
+{{< include /_chapters/sensitivity.es.qmd >}}

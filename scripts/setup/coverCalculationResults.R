@@ -194,6 +194,23 @@ loadCoverCalculationResults <- function(
       Directory,
       "shotcrete.axial.flexure.reinforcement.limit.checks.csv"
     ),
+    sensitivitySteelExtrema = file.path(
+      Directory,
+      "sensitivity.steel.extrema.csv"
+    ),
+    sensitivityAashtoChecks = file.path(
+      Directory,
+      "sensitivity.aashto.checks.csv"
+    ),
+    sensitivityPlainChecks = file.path(
+      Directory,
+      "sensitivity.plain.checks.csv"
+    ),
+    sensitivityPmSweep = file.path(Directory, "sensitivity.pm.sweep.csv"),
+    sensitivityPmDemands = file.path(
+      Directory,
+      "sensitivity.pm.demands.csv"
+    ),
     classicalComparisonInputs = file.path(
       Directory, "classical.comparison.inputs.csv"
     ),

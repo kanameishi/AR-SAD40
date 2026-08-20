@@ -1,6 +1,6 @@
 # Estado vigente — metodología, memoria de cálculo y Wolfram
 
-Fecha de corte: 2026-08-18.
+Fecha de corte: 2026-08-20.
 
 Este archivo contiene sólo el estado necesario para continuar después de una
 compactación. No reconstruir handoffs, planes históricos ni auditorías.
@@ -55,13 +55,14 @@ metodología pública.
 Entradas en `calculation.json`:
 
 - tapada sobre clave: 5,7 m;
-- peso unitario efectivo: 19,6133 kN/m³, equivalente a 2,0 tf/m³;
-- sobrecarga permanente: 83,84686 kPa, equivalente a 5,7 m de lodo de
-  1,5 tf/m³; no se desagrega una combinación de carga viva;
-- $E_g=30000$ kPa y $\nu_g=0,30$;
-- $\phi'=30^\circ$, OCR = 1 y presión hidráulica neta nula;
-- $K_0$ se deriva con la rama Mayne--Kulhawy y resulta 0,50; no está fijado de
-  manera independiente del suelo;
+- peso unitario efectivo del relleno inferior: 19,0 kN/m³;
+- capa superior de lodo: 5,7 m de 14,71 kN/m³ (83,85 kPa permanentes); no se
+  desagrega una combinación de carga viva;
+- $E_g=30000$ kPa y $\nu_g=0,25$; recubrimiento libre fijo de 15 mm
+  (`clearCoverMm`);
+- $\phi'=33^\circ$, OCR = 1 y presión hidráulica neta nula;
+- $K_0$ se deriva con la relación de Jáky (`jaky-nc`, que exige OCR = 1) y
+  resulta 0,455361; no está fijado de manera independiente del suelo;
 - chapa CSPI 76 × 25, espesor especificado 3,5 mm y espesor remanente analizado
   3,0 mm;
 - shotcrete de 100 y 150 mm, $f'_c=30$ MPa;
@@ -78,13 +79,13 @@ Para la chapa, los máximos absolutos del estado no mayorado son:
 
 | Interfaz | $|N|$ [kN/m] | $|M|$ [kN·m/m] | $|Q|$ [kN/m] |
 |---|---:|---:|---:|
-| Slip (`S`) | 300 | 1,88 | 3,42 |
-| No Slip (`NS`) | 379 | 1,73 | 3,20 |
+| Slip (`S`) | 306 | 2,03 | 3,67 |
+| No Slip (`NS`) | 392 | 1,82 | 3,38 |
 
 La reproducción de comprobaciones AASHTO/USACE de ediciones previas satisface
 fluencia, pandeo, flexibilidad y tapada mínima. La demanda de costura es
-526,8 kN/m frente a una resistencia publicada de referencia de 515,2 kN/m y no
-satisface ese control. Esto no acredita una verificación normativa de la
+517,3 kN/m frente a una resistencia publicada de referencia de 515,2 kN/m
+($U=1{,}004$) y no satisface ese control. Esto no acredita una verificación normativa de la
 edición contractual vigente. La costura publicada de referencia tampoco está
 demostrada como equivalente a la unión existente.
 
@@ -92,24 +93,24 @@ Para shotcrete, los máximos absolutos del estado no mayorado son:
 
 | Espesor | Interfaz | $|N|$ [kN/m] | $|M|$ [kN·m/m] | $|Q|$ [kN/m] |
 |---:|---|---:|---:|---:|
-| 100 mm | Slip (`S`) | 299 | 11,56 | 18,46 |
-| 100 mm | No Slip (`NS`) | 376 | 9,86 | 15,79 |
-| 150 mm | Slip (`S`) | 308 | 28,00 | 45,28 |
-| 150 mm | No Slip (`NS`) | 376 | 24,00 | 38,84 |
+| 100 mm | Slip (`S`) | 306 | 12,60 | 20,11 |
+| 100 mm | No Slip (`NS`) | 389 | 10,38 | 16,63 |
+| 150 mm | Slip (`S`) | 315 | 30,22 | 48,86 |
+| 150 mm | No Slip (`NS`) | 387 | 25,14 | 40,68 |
 
 La sección simple de 100 mm no satisface la comprobación local de tracción. La
 familia P--M no adopta una armadura. Sus resultados discretos son:
 
 | Espesor | ID | Armadura | $\rho_\theta$ | $U_{PM,\max}$ | $E_{PM}$ | $U_{V,\max}$ | $E_V$ | $U_{r,\max}^{*}$ | $E_r^{*}$ | $E$ |
 |---:|---|---|---:|---:|---|---:|---|---:|---|---|
-| 100 mm | S8 | Ø8/150, ambas caras | 0,67 % | 0,94 | OK | 0,45 | OK | 0,23 | OK | OK |
-| 100 mm | S10 | Ø10/150, ambas caras | 1,05 % | 0,72 | OK | 0,42 | OK | 0,36 | OK | OK |
-| 100 mm | S12 | Ø12/150, ambas caras | 1,51 % | 0,63 | OK | 0,40 | OK | 0,52 | OK | OK |
-| 100 mm | A8 | chapa + Ø8/150 interior | 4,07 % | 6,01 | FAIL | 1,04 | FAIL | 0,23 | OK | FAIL |
-| 150 mm | S8 | Ø8/150, ambas caras | 0,45 % | 1,79 | FAIL | 0,96 | OK | 0,23 | OK | FAIL |
-| 150 mm | S10 | Ø10/150, ambas caras | 0,70 % | 1,28 | FAIL | 0,88 | OK | 0,37 | OK | FAIL |
-| 150 mm | S12 | Ø12/150, ambas caras | 1,01 % | 0,97 | OK | 0,82 | OK | 0,53 | OK | OK |
-| 150 mm | A8 | chapa + Ø8/150 interior | 2,71 % | 5,91 | FAIL | 1,46 | FAIL | 0,24 | OK | FAIL |
+| 100 mm | S8 | Ø8/150, ambas caras | 0,67 % | 0,96 | OK | 0,47 | OK | 0,23 | OK | OK |
+| 100 mm | S10 | Ø10/150, ambas caras | 1,05 % | 0,75 | OK | 0,44 | OK | 0,36 | OK | OK |
+| 100 mm | S12 | Ø12/150, ambas caras | 1,51 % | 0,66 | OK | 0,41 | OK | 0,52 | OK | OK |
+| 100 mm | A8 | chapa + Ø8/150 interior | 4,07 % | 6,23 | FAIL | 1,07 | FAIL | 0,23 | OK | FAIL |
+| 150 mm | S8 | Ø8/150, ambas caras | 0,45 % | 1,85 | FAIL | 0,94 | OK | 0,24 | OK | FAIL |
+| 150 mm | S10 | Ø10/150, ambas caras | 0,70 % | 1,28 | FAIL | 0,86 | OK | 0,37 | OK | FAIL |
+| 150 mm | S12 | Ø12/150, ambas caras | 1,01 % | 0,95 | OK | 0,80 | OK | 0,53 | OK | OK |
+| 150 mm | A8 | chapa + Ø8/150 interior | 2,71 % | 6,07 | FAIL | 1,48 | FAIL | 0,24 | OK | FAIL |
 
 `OK` corresponde a $U\leq1$ y `FAIL` a $U>1$. $E_{PM}$,
 $E_V$ y $E_r^{*}$ son dictámenes separados; $E$ combina flexocompresión y
@@ -127,9 +128,18 @@ dos coordenadas porque recalcula las acciones con su propia rigidez.
 ## Contenido restaurado
 
 El resumen ejecutivo integra la portada como sección no numerada. La memoria
-se organiza luego en cinco capítulos sin prefijos numéricos —introducción,
+se organiza luego en seis capítulos sin prefijos numéricos —introducción,
 modelo de cálculo, verificación del liner de acero, verificación del liner de
-shotcrete y especificación técnica de inspección— seguidos por los apéndices.
+shotcrete, sensibilidad al módulo del terreno y especificación técnica de
+inspección— seguidos por los apéndices. El capítulo de sensibilidad recalcula
+el caso completo con $E_g$ = 30, 60, 90 y 120 MPa (constante `MODULI` de
+`runCalculationMemo.R`), publica los productos `sensitivity.*.csv` mediante
+`buildCoverSensitivityData()` y presenta tablas de utilizaciones y figuras
+$P$--$M$ con trayectorias de la demanda gobernante (S8 y A8 por interfaz).
+Las comprobaciones AASHTO/USACE de la chapa son independientes de $E_g$
+(rama prismática); las secciones simples se rechazan en todo el rango y los
+dictámenes P--M de 150 mm cambian con el módulo (S8 y S10 verifican desde
+60 MPa).
 Conserva:
 
 - definición de $z(\theta)$, tensiones efectivas, $K_0$, presiones normales y
@@ -168,23 +178,29 @@ celdas de forma interactiva.
 
 ## Verificación y render del cierre
 
-- `Rscript scripts/R/testRingMethod.R`: PASS el 2026-08-19.
-- `Rscript scripts/R/testCoverCalculationData.R`: PASS el 2026-08-19.
-- `Rscript scripts/R/runCalculationMemo.R`: PASS el 2026-08-19.
-- `Rscript scripts/R/testCalculationFigures.R`: PASS el 2026-08-19.
-- Los máximos de $N$, $M$ y $Q$ son idénticos antes y después de renombrar los
-  casos y retirar los fósiles metodológicos.
-- Por instrucción del usuario no se ejecutó QRT. `html/report/` y `html/model/`
-  deben considerarse obsoletos respecto de las fuentes hasta el próximo render.
+- Suite completa `scripts/R/test*.R`: PASS el 2026-08-19/20 (incluye la
+  migración a `clearCoverMm`, el escenario `plainConcrete150` y los productos
+  de sensibilidad).
+- `Rscript scripts/R/runCalculationMemo.R`: PASS el 2026-08-20 (incluye el
+  barrido de sensibilidad; unos minutos más de corrida).
+- Renders QRT vigentes: `html/report/` (book) y `html/model/` (html);
+  Word en `docx/report.docx`; zips en `deliv/`. Report y model publicados en
+  producción el 2026-08-19 (`arsad40-report.srk.ar`, `arsad40-model.srk.ar`);
+  la sección de sensibilidad es posterior a esa publicación.
 
 ## Regeneración mínima
 
 Cuando se acepte un cambio de `calculation.json`:
 
-1. ejecutar una vez `Rscript scripts/R/runCalculationMemo.R`;
-2. renderizar una vez
+1. ejecutar una vez `Rscript scripts/R/runCalculationMemo.R` (regenera
+   `data/calculation`, incluidos los `sensitivity.*.csv`, y
+   `data/benchmarks`);
+2. si cambió la superficie del anillo o del estudio de interacción, ejecutar
+   `runRingBenchmarks.R` y `runInteractionMethodStudy.R` (alimentan
+   `data/benchmarks/ring/`, que consume la metodología);
+3. renderizar una vez
    `qrt render _master/report.qmd --profile book`;
-3. evaluar Wolfram interactivamente sólo si se desea comparar el escenario.
+4. evaluar Wolfram interactivamente sólo si se desea comparar el escenario.
 
 No repetir pruebas o renders si no cambió su superficie relevante. No generar
 PDF, preparar cambios, crear commits ni publicar sin una instrucción explícita.

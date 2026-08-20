@@ -1,0 +1,11 @@
+```{r}
+#| include: false
+CAP.SENS.PM150 <- readCaption("tbl.Calculation.sensitivity.pm150.ES")
+```
+
+{{< include /_tbl/Calculation.sensitivity.pm150.qmd >}}
+
+```{r}
+#| include: false
+rm(CAP.SENS.PM150)
+```
