@@ -73,7 +73,7 @@ SensitivityAashtoConstant <- all(tapply(
 ) < 1e-9)
 SensitivitySeamU <- unique(formatCalculationFixed(
   SensitivityAashto$utilization[SensitivityAashto$checkID == "seam"],
-  3L
+  2L
 ))
 ```
 

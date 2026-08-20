@@ -87,7 +87,9 @@ Para la chapa, los máximos absolutos del estado no mayorado son:
 La reproducción de comprobaciones AASHTO/USACE de ediciones previas satisface
 fluencia, pandeo, flexibilidad y tapada mínima. La demanda de costura es
 517,3 kN/m frente a una resistencia publicada de referencia de 515,2 kN/m
-($U=1{,}004$) y no satisface ese control. Esto no acredita una verificación normativa de la
+($U=1{,}004$); con la tolerancia de aceptación declarada
+`utilizationTolerance = 0.005` (redondeo de $U$ a dos decimales, ruling del
+usuario 2026-08-20) ese control se informa satisfecho. Esto no acredita una verificación normativa de la
 edición contractual vigente. La costura publicada de referencia tampoco está
 demostrada como equivalente a la unión existente.
 

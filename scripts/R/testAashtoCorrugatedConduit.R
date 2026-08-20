@@ -63,6 +63,7 @@ Specification <- list(
   wallSourceKey = "USACE2020;AndersonEtAl2023",
   wallSourceLocator = "USACE Eq. 4-22; Anderson et al. p. 164",
   seamResistanceFactor = 0.67,
+  utilizationTolerance = 0.005,
   seamFactorSourceKey = "USACE2020",
   seamFactorSourceLocator = "Section 4.12.3.3",
   soilStiffnessFactor = 0.22,

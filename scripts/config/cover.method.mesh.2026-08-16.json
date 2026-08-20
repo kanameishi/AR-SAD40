@@ -89,6 +89,7 @@
     "wallSourceKey": "USACE2020",
     "wallSourceLocator": "Equation 4-22, printed page 87/PDF page 101",
     "seamResistanceFactor": 0.67,
+    "utilizationTolerance": 0.005,
     "seamFactorSourceKey": "AndersonEtAl2023",
     "seamFactorSourceLocator": "AASHTO LRFD 9e Table 12.5.5-1 reproduced by Anderson et al. (2023), printed page 164/PDF page 177",
     "soilStiffnessFactor": 0.22,

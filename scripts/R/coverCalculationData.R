@@ -44,7 +44,8 @@ if (any(!vapply(
     "flexibilityLimitMmPerN"
   )
   NonnegativeFields <- c(
-    "liveLoadFactor", "liveCrownPressureKPa", "liveLoadedWidthM"
+    "liveLoadFactor", "liveCrownPressureKPa", "liveLoadedWidthM",
+    "utilizationTolerance"
   )
   .requireFields(
     Aashto,

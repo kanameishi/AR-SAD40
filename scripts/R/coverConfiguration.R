@@ -109,6 +109,7 @@ if (any(!vapply(
     wallSourceKey = Aashto[["wallSourceKey", exact = TRUE]],
     wallSourceLocator = Aashto[["wallSourceLocator", exact = TRUE]],
     seamResistanceFactor = Aashto[["seamResistanceFactor", exact = TRUE]],
+    utilizationTolerance = Aashto[["utilizationTolerance", exact = TRUE]],
     seamFactorSourceKey = Aashto[["seamFactorSourceKey", exact = TRUE]],
     seamFactorSourceLocator = Aashto[[
       "seamFactorSourceLocator",

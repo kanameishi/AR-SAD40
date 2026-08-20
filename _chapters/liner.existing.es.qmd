@@ -193,7 +193,10 @@ se obtiene en mm/N [@USACE2020, secs. 4.12.4--4.12.5;
 @AndersonEtAl2023, p. 133]. La
 @tbl-liner-aashto-checks presenta la demanda, la resistencia o límite y la
 relación entre ambas [@USACE2020, secs. 4.12.3--4.12.5;
-@AndersonEtAl2023, pp. 133, 164].
+@AndersonEtAl2023, pp. 133, 164]. El estado satisfecho admite la tolerancia
+de utilización declarada de
+`r formatCalculationGeneral(Calculation$config$aashto$utilizationTolerance)`,
+equivalente a redondear $U$ a dos decimales.
 
 {{< include /_tbl/liner.aashto.checks.ES.qmd >}}
 
@@ -204,7 +207,7 @@ kN/m. Para la costura se obtiene esa demanda frente a una resistencia de
 referencia factorizada de
 `r formatCalculationFixed(ReportAashtoCheck("seam")$limitValue, 1L)` kN/m y
 una utilización de
-`r formatCalculationFixed(ReportAashtoCheck("seam")$utilization, 3L)`. Con
+`r formatCalculationFixed(ReportAashtoCheck("seam")$utilization, 2L)`. Con
 pérdida nula de diámetro, la igualdad entre demanda y resistencia se alcanzaría
 alrededor de una pérdida de
 `r formatCalculationFixed(100 * Calculation$aashto$calculation$criticalFastenerDiameterLossRatio, 0L)` %.

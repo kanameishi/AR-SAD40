@@ -177,7 +177,7 @@ calculada es
 resistencia publicada de referencia es
 `r formatCalculationFixed(ExecutiveSeam$limitValue, 1L)` kN/m, de modo que la
 demanda alcanza el
-`r formatCalculationFixed(100 * ExecutiveSeam$utilization, 1L)` % de esa
+`r formatCalculationFixed(100 * ExecutiveSeam$utilization, 0L)` % de esa
 resistencia y, por lo tanto,
 `r if (ExecutiveSeam$checkStatus == "satisfied") "verifica" else "no verifica"`.
 Esta comprobación AASHTO/USACE es un control escalar separado de

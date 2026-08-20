@@ -45,7 +45,7 @@ buildCalculationAashtoChecksTable <- function(path) {
     Check = unname(CheckCodes[Data[["checkID", exact = TRUE]]]),
     Demand = mapply(Format, Data[["observedValue", exact = TRUE]], ValueDigits),
     Resistance = mapply(Format, Data[["limitValue", exact = TRUE]], ValueDigits),
-    Utilization = Format(Data[["utilization", exact = TRUE]], 3L),
+    Utilization = Format(Data[["utilization", exact = TRUE]], 2L),
     Unit = Data[["unit", exact = TRUE]],
     Status = unname(StatusCodes[Data[["checkStatus", exact = TRUE]]]),
     check.names = FALSE,

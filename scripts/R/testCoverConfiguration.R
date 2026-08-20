@@ -378,12 +378,12 @@ Seam <- Result$aashto$checks[
 stopifnot(
   abs(Demand - ExpectedThrust) < 1e-12,
   identical(Result$aashto$summary$wallStatus, "satisfied"),
-  identical(Result$aashto$summary$calculationStatus, "not-satisfied"),
+  identical(Result$aashto$summary$calculationStatus, "satisfied"),
   identical(
     Result$aashto$summary$systemStatus,
     "not-evaluated-specification"
   ),
-  identical(Result$aashto$summary$seamStatus, "not-satisfied"),
+  identical(Result$aashto$summary$seamStatus, "satisfied"),
   identical(Result$aashto$summary$minimumCoverStatus, "satisfied"),
   abs(Seam$utilization - ExpectedThrust / (0.67 * 769)) < 1e-12,
   identical(Result$aashto$summary$governingCheckID, "seam"),

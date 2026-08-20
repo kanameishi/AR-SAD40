@@ -348,7 +348,7 @@ runCoverCalculationDataTests <- function() {
     nrow(AashtoSummary) == 1L,
     nrow(AashtoCalculation) == 1L,
     AashtoSummary$wallStatus == "satisfied",
-    AashtoSummary$seamStatus == "not-satisfied",
+    AashtoSummary$seamStatus == "satisfied",
     AashtoSummary$flexibilityStatus == "satisfied",
     AashtoSummary$minimumCoverStatus == "satisfied",
     AashtoSummary$systemStatus == "not-evaluated-specification",

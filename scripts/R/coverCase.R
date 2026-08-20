@@ -882,7 +882,8 @@
     "deadLoadFactor", "liveLoadFactor", "demandModifier",
     "liveCrownPressureKPa", "liveLoadedWidthM", "wallResistanceFactor",
     "wallSourceKey", "wallSourceLocator", "seamResistanceFactor",
-    "seamFactorSourceKey", "seamFactorSourceLocator", "soilStiffnessFactor",
+    "seamFactorSourceKey", "seamFactorSourceLocator", "utilizationTolerance",
+    "soilStiffnessFactor",
     "soilSourceKey", "soilSourceLocator", "flexibilityLimitMmPerN",
     "flexibilitySourceKey", "flexibilitySourceLocator",
     "minimumCoverSourceKey", "minimumCoverSourceLocator"
