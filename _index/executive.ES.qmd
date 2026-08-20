@@ -78,27 +78,10 @@ ExecutiveMeshLabels <- vapply(
   character(1)
 )
 ExecutiveMeshList <- ExecutiveList(ExecutiveMeshLabels)
-ExecutiveCompositeLabel <- paste0(
-  "chapa exterior más Ø",
-  ExecutiveReinforcementPolicy$compositeCase$interiorBarDiameterMm,
-  "/",
-  ExecutiveReinforcementPolicy$compositeCase$interiorBarSpacingMm,
-  " interior"
-)
 ExecutivePmStatement <- function(liningID) {
   Data <- Calculation[[liningID]]$reinforcementSweep$summary
   Data <- Data[order(Data$reinforcementCaseOrder), , drop = FALSE]
-  Labels <- ifelse(
-    Data$isParametricCase,
-    paste0("Ø", Data$barDiameterMm, "/", Data$barSpacingMm),
-    paste0(
-      "chapa exterior más Ø",
-      Data$barDiameterMm,
-      "/",
-      Data$barSpacingMm,
-      " interior"
-    )
-  )
+  Labels <- paste0("Ø", Data$barDiameterMm, "/", Data$barSpacingMm)
   Pass <- Labels[Data$localPMStatus == "satisfied"]
   Fail <- Labels[Data$localPMStatus == "not-satisfied"]
   if (length(Pass) == 0L) {
@@ -126,8 +109,7 @@ de rehabilitación de hormigón proyectado de
 `r formatCalculationFixed(ExecutivePlainThicknessMm, 0L)` y
 `r formatCalculationFixed(ExecutiveReinforcedThicknessMm, 0L)` mm. Para ambos
 espesores se presentan diagramas de interacción fuerza--momento para
-`r ExecutiveMeshList` en ambas caras y para el caso asimétrico de
-`r ExecutiveCompositeLabel`. La armadura y el detalle constructivo se
+`r ExecutiveMeshList` en ambas caras. La armadura y el detalle constructivo se
 definirán en la etapa de diseño de la rehabilitación.
 
 El túnel tiene

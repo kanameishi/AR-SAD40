@@ -252,36 +252,34 @@ stopifnot(
       "S8 · Ø8/150 · rho=0.45% · As=6.7 cm2/m",
       "S10 · Ø10/150 · rho=0.70% · As=10.5 cm2/m",
       "S12 · Ø12/150 · rho=1.01% · As=15.1 cm2/m",
-      "A8 · chapa + Ø8/150 interior",
       "S8 · Ø8/150 · rho=0.45% · As=6.7 cm2/m",
       "S10 · Ø10/150 · rho=0.70% · As=10.5 cm2/m",
-      "S12 · Ø12/150 · rho=1.01% · As=15.1 cm2/m",
-      "A8 · chapa + Ø8/150 interior"
+      "S12 · Ø12/150 · rho=1.01% · As=15.1 cm2/m"
     )
   ),
   identical(
     vapply(
-      AxialFlexureSeries[seq_len(4L)],
+      AxialFlexureSeries[seq_len(3L)],
       function(x) length(x[["data"]]),
       integer(1)
     ),
-    c(447L, 440L, 435L, 793L)
+    c(447L, 440L, 435L)
   ),
   identical(
     vapply(
-      AxialFlexureSeries[-seq_len(4L)],
+      AxialFlexureSeries[-seq_len(3L)],
       function(x) length(x[["data"]]),
       integer(1)
     ),
-    rep(2L, 4L)
+    rep(2L, 3L)
   ),
   identical(
     vapply(
-      AxialFlexureSeries[-seq_len(4L)],
+      AxialFlexureSeries[-seq_len(3L)],
       function(x) x[["data"]][[1L]][["marker"]][["radius"]],
       numeric(1)
     ),
-    c(6, 8, 10, 7)
+    c(6, 8, 10)
   ),
   all(vapply(
     AxialFlexureSeries[-seq_len(4L)],
@@ -369,8 +367,8 @@ stopifnot(
   nrow(SensitivitySteel) == 6L * length(SensitivityModuli),
   nrow(SensitivityAashto) == 5L * length(SensitivityModuli),
   nrow(SensitivityPlain) == 4L * length(SensitivityModuli),
-  nrow(SensitivitySweep) == 8L * length(SensitivityModuli),
-  nrow(SensitivityDemands) == 16L * length(SensitivityModuli),
+  nrow(SensitivitySweep) == 6L * length(SensitivityModuli),
+  nrow(SensitivityDemands) == 12L * length(SensitivityModuli),
   identical(
     sort(unique(SensitivityAashto$modulusMPa)),
     SensitivityModuli
@@ -422,8 +420,8 @@ for (SensitivityLiningID in c("shotcrete", "reinforcedConcrete")) {
   )
   stopifnot(
     inherits(SensitivityPlot, "highchart"),
-    length(SensitivitySeries) == 8L,
-    sum(SensitivityMarked) == 4L,
+    length(SensitivitySeries) == 5L,
+    sum(SensitivityMarked) == 2L,
     all(vapply(
       SensitivitySeries[SensitivityMarked],
       function(Series) length(Series$data) == length(SensitivityModuli),

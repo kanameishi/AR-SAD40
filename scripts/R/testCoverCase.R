@@ -146,7 +146,7 @@ stopifnot(
   nrow(Observed[["reinforcementStudy", exact = TRUE]][[
     "summary",
     exact = TRUE
-  ]]) == 8L
+  ]]) == 6L
 )
 Study <- Observed[["reinforcementStudy", exact = TRUE]]
 stopifnot(
@@ -169,7 +169,7 @@ stopifnot(
     "liningID", "reinforcementCaseID", "checkID", "utilization",
     "checkStatus"
   ) %in% names(Study[["limitChecks", exact = TRUE]])),
-  nrow(Study[["limitChecks", exact = TRUE]]) == 16L,
+  nrow(Study[["limitChecks", exact = TRUE]]) == 12L,
   identical(sort(unique(Study[["summary"]][["liningID"]])), c(
     "reinforcedConcrete", "shotcrete"
   ))

@@ -29,6 +29,52 @@ ReportAashtoCheck <- function(checkID) {
 RemainingThicknessLossRatio <- 1 -
   Calculation$section$remainingBaseThicknessMm /
     Calculation$section$designBaseThicknessMm
+SensitivitySteel <- utils::read.csv(
+  Calculation$paths$sensitivitySteelExtrema,
+  check.names = FALSE,
+  stringsAsFactors = FALSE
+)
+SensitivityAashto <- utils::read.csv(
+  Calculation$paths$sensitivityAashtoChecks,
+  check.names = FALSE,
+  stringsAsFactors = FALSE
+)
+SensitivityModuli <- sort(unique(SensitivitySteel$modulusMPa))
+if (length(SensitivityModuli) < 2L) {
+  stop("The sensitivity products require at least two moduli.")
+}
+SensitivityFirst <- SensitivityModuli[1L]
+SensitivityLast <- SensitivityModuli[length(SensitivityModuli)]
+SensitivityModuliSentence <- paste(
+  paste(head(SensitivityModuli, -1L), collapse = ", "),
+  tail(SensitivityModuli, 1L),
+  sep = " y "
+)
+SensitivitySteelValue <- function(caseID, resultantID, modulus) {
+  Value <- SensitivitySteel$value[
+    SensitivitySteel$caseID == caseID &
+      SensitivitySteel$resultantID == resultantID &
+      SensitivitySteel$modulusMPa == modulus
+  ]
+  if (length(Value) != 1L || !is.finite(Value)) {
+    stop("Missing steel sensitivity value: ", caseID, ".", resultantID)
+  }
+  Value
+}
+SensitivitySteelReductionPct <- function(caseID, resultantID) {
+  100 * (1 -
+    SensitivitySteelValue(caseID, resultantID, SensitivityLast) /
+      SensitivitySteelValue(caseID, resultantID, SensitivityFirst))
+}
+SensitivityAashtoConstant <- all(tapply(
+  SensitivityAashto$utilization,
+  SensitivityAashto$checkID,
+  function(x) diff(range(x))
+) < 1e-9)
+SensitivitySeamU <- unique(formatCalculationFixed(
+  SensitivityAashto$utilization[SensitivityAashto$checkID == "seam"],
+  3L
+))
 ```
 
 # Verificación del liner de acero {#sec-calculation-steel}

@@ -30,8 +30,8 @@ ReinforcedConcreteInputs controls reinforced-shotcrete thickness and concrete \
 strength, reinforcement grade, fixed clear cover, steel modulus, and the \
 physical reinforcementCases plotted in both P-M families. Each case gives a \
 bar diameter and spacing; R derives its steel area, ratio, and layer \
-coordinates. compositeCase controls the additional existing-sheet + Ø8/150 \
-interior sensitivity. Section 2.7 contains the two parameters used only by the classical \
+coordinates. compositeCase remains disabled: the memoir compares the \
+symmetric meshes only. Section 2.7 contains the two parameters used only by the classical \
 Nunez comparison.\n4. Calculation-method constants are read-only and are returned with the \
 results.\n5. For a first run, evaluate the complete notebook from a fresh kernel. The \
 workbook loads the setup once and calls R once.\n6. After changing inputs, \
@@ -55,7 +55,7 @@ initial diameter, and relative diameter loss.\nPlain-concrete lining \
 condition.\nSecond shotcrete section and P-M study inputs \[LongDash] \
 independent outer radius, thickness, concrete material, reinforcement grade, \
 bar diameter, reference spacing, fixed clear cover, reinforcement modulus, and \
-the physical reinforcementCases and the composite case; R derives the layer coordinates and evaluates the configured reinforcement \
+the physical reinforcementCases; R derives the layer coordinates and evaluates the configured reinforcement \
 family for both shotcrete thicknesses. No symmetric-family bar spacing or steel area is adopted.\nThe crown-to-axis distance, steel centroidal \
 radius, plain-concrete outer radius, and reinforced-concrete outer radius are \
 four separate inputs even when their defaults are equal.\nClassical comparison \
@@ -350,8 +350,8 @@ thickness is used because it is applied to the existing liner.", "Text", Express
              "68969ff3-6ec3-420e-b118-0db6e1286d6a"], Cell["This alternative \
 uses the geometry, material, study, and composite-case input fields. \
 reinforcementCases defines each physical diameter and spacing; R derives its \
-steel area, ratio, and layer position using the fixed clearCoverMm. compositeCase defines the \
-additional existing-sheet + Ø8/150 interior curve. R evaluates the complete P-M \
+steel area, ratio, and layer position using the fixed clearCoverMm. compositeCase \
+remains disabled. R evaluates the complete P-M \
 interaction family for both shotcrete thicknesses. The workbook does not \
 select a final reinforcement.", "Text", ExpressionUUID -> 
              "01110577-e335-d45a-7d96-2a80c6e93f46"], 
@@ -429,7 +429,7 @@ select a final reinforcement.", "Text", ExpressionUUID ->
                               {"\"barDiameterMm\"", " ", "->", " ", "12.`"}], RowBox[{",", " "}],
                               RowBox[{"\"barSpacingMm\"", " ", "->", " ", "150.`"}]}], "|>"}]}], "}"}]}], RowBox[{",", "\n", "  "}], RowBox[
                     {"\"compositeCase\"", " ", "->", " ", RowBox[{"<|", RowBox[
-                         {RowBox[{"\"enabled\"", " ", "->", " ", "True"}], RowBox[{",", " "}],
+                         {RowBox[{"\"enabled\"", " ", "->", " ", "False"}], RowBox[{",", " "}],
                           RowBox[{"\"interiorBarDiameterMm\"", " ", "->", " ", "8.`"}], RowBox[{",", " "}],
                           RowBox[{"\"interiorBarSpacingMm\"", " ", "->", " ", "150.`"}], RowBox[{",", " "}],
                           RowBox[{"\"interiorClearCoverMm\"", " ", "->", " ", "15.`"}], RowBox[{",", " "}],

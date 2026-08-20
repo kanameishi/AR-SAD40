@@ -67,8 +67,10 @@ Entradas en `calculation.json`:
   3,0 mm;
 - shotcrete de 100 y 150 mm, $f'_c=30$ MPa;
 - familias P--M para las mallas físicas Ø8/150, Ø10/150 y Ø12/150 en
-  ambas caras de cada espesor, más el caso asimétrico de chapa exterior y
-  Ø8/150 interior con acción compuesta total.
+  ambas caras de cada espesor. El caso asimétrico de chapa exterior más malla
+  interior fue retirado por decisión del usuario el 2026-08-20: no existe una
+  verificación específica de sección mixta y su acción compuesta no se
+  comprobaba (`compositeCase.enabled = false`).
 
 $\phi'$, OCR y ausencia de agua son hipótesis provisionales hasta recibir datos
 geotécnicos definitivos.
@@ -106,11 +108,9 @@ familia P--M no adopta una armadura. Sus resultados discretos son:
 | 100 mm | S8 | Ø8/150, ambas caras | 0,67 % | 0,96 | OK | 0,47 | OK | 0,23 | OK | OK |
 | 100 mm | S10 | Ø10/150, ambas caras | 1,05 % | 0,75 | OK | 0,44 | OK | 0,36 | OK | OK |
 | 100 mm | S12 | Ø12/150, ambas caras | 1,51 % | 0,66 | OK | 0,41 | OK | 0,52 | OK | OK |
-| 100 mm | A8 | chapa + Ø8/150 interior | 4,07 % | 6,23 | FAIL | 1,07 | FAIL | 0,23 | OK | FAIL |
 | 150 mm | S8 | Ø8/150, ambas caras | 0,45 % | 1,85 | FAIL | 0,94 | OK | 0,24 | OK | FAIL |
 | 150 mm | S10 | Ø10/150, ambas caras | 0,70 % | 1,28 | FAIL | 0,86 | OK | 0,37 | OK | FAIL |
 | 150 mm | S12 | Ø12/150, ambas caras | 1,01 % | 0,95 | OK | 0,80 | OK | 0,53 | OK | OK |
-| 150 mm | A8 | chapa + Ø8/150 interior | 2,71 % | 6,07 | FAIL | 1,48 | FAIL | 0,24 | OK | FAIL |
 
 `OK` corresponde a $U\leq1$ y `FAIL` a $U>1$. $E_{PM}$,
 $E_V$ y $E_r^{*}$ son dictámenes separados; $E$ combina flexocompresión y
@@ -119,27 +119,28 @@ desprendimiento radial del recubrimiento de CIRSOC 804-4, que no forma parte de
 la flexocompresión P--M.
 
 Cada curva P--M reúne estados resistentes compatibles; sus puntos no son
-iteraciones. Hay cuatro configuraciones y dos demandas por configuración:
-ocho marcadores por espesor. Las tres mallas simétricas comparten las mismas
-dos coordenadas de demanda porque emplean la misma rigidez fisurada; en la
-figura aparecen como tres anillos concéntricos. El caso asimétrico aporta otras
-dos coordenadas porque recalcula las acciones con su propia rigidez.
+iteraciones. Hay tres configuraciones y dos demandas por configuración: seis
+marcadores por espesor. Las tres mallas simétricas comparten las mismas dos
+coordenadas de demanda porque emplean la misma rigidez fisurada; en la figura
+aparecen como tres anillos concéntricos.
 
 ## Contenido restaurado
 
 El resumen ejecutivo integra la portada como sección no numerada. La memoria
-se organiza luego en seis capítulos sin prefijos numéricos —introducción,
+se organiza luego en cinco capítulos sin prefijos numéricos —introducción,
 modelo de cálculo, verificación del liner de acero, verificación del liner de
-shotcrete, sensibilidad al módulo del terreno y especificación técnica de
-inspección— seguidos por los apéndices. El capítulo de sensibilidad recalcula
-el caso completo con $E_g$ = 30, 60, 90 y 120 MPa (constante `MODULI` de
-`runCalculationMemo.R`), publica los productos `sensitivity.*.csv` mediante
-`buildCoverSensitivityData()` y presenta tablas de utilizaciones y figuras
-$P$--$M$ con trayectorias de la demanda gobernante (S8 y A8 por interfaz).
-Las comprobaciones AASHTO/USACE de la chapa son independientes de $E_g$
-(rama prismática); las secciones simples se rechazan en todo el rango y los
-dictámenes P--M de 150 mm cambian con el módulo (S8 y S10 verifican desde
-60 MPa).
+shotcrete y especificación técnica de inspección— seguidos por los apéndices.
+El análisis de sensibilidad al módulo del terreno no es un capítulo separado:
+cada bloque se presenta dentro de la verificación estructural que le
+corresponde, sin encabezado propio. El caso completo se recalcula con
+$E_g$ = 30, 60, 90 y 120 MPa (constante `MODULI` de
+`runCalculationMemo.R`) y `buildCoverSensitivityData()` publica los productos
+`sensitivity.*.csv`. Las comprobaciones AASHTO/USACE de la chapa son
+independientes de $E_g$ (rama prismática); las secciones simples se rechazan
+en todo el rango y los dictámenes P--M de 150 mm cambian con el módulo (S8 y
+S10 verifican desde 60 MPa). Las figuras $P$--$M$ de sensibilidad conservan el
+cuadrante $P\geq0$, $M\geq0$ y trazan la trayectoria de la demanda
+gobernante de S8 por interfaz, con el momento en valor absoluto.
 Conserva:
 
 - definición de $z(\theta)$, tensiones efectivas, $K_0$, presiones normales y

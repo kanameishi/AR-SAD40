@@ -246,7 +246,7 @@
         "convergenceTolerance": 0.015,
         "compositeCase": {
           "caseID": "existing-sheet-plus-interior-d8-s150",
-          "enabled": true,
+          "enabled": false,
           "interiorBarDiameterMm": 8.0,
           "interiorBarSpacingMm": 150.0,
           "interiorClearCoverMm": 15.0,

@@ -38,20 +38,14 @@ buildCalculationConcreteReinforcementSweepTable <- function(path, liningID) {
     drop = FALSE
   ]
   Data <- Data[order(Data$reinforcementCaseOrder), , drop = FALSE]
-  if (nrow(Data) != 4L ||
+  if (nrow(Data) != 3L ||
       any(Data$calculationStatus != "calculated") ||
-      sum(Data$isParametricCase) != 3L ||
-      sum(!Data$isParametricCase) != 1L ||
-      any(Data$reinforcementArrangementID[Data$isParametricCase] !=
-        "symmetric-two-face") ||
-      any(Data$reinforcementArrangementID[!Data$isParametricCase] !=
-        "existing-sheet-plus-interior-mesh")) {
+      any(Data$reinforcementArrangementID != "symmetric-two-face")) {
     stop("The reinforcement P-M family is incomplete.", call. = FALSE)
   }
-  ConfigurationID <- ifelse(
-    Data$isParametricCase,
-    paste0("S", trimws(formatC(Data$barDiameterMm, format = "fg", digits = 6L))),
-    paste0("A", trimws(formatC(Data$barDiameterMm, format = "fg", digits = 6L)))
+  ConfigurationID <- paste0(
+    "S",
+    trimws(formatC(Data$barDiameterMm, format = "fg", digits = 6L))
   )
   StatusCodes <- c(
     satisfied = "OK",

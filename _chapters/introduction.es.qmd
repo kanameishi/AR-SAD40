@@ -10,8 +10,7 @@ El alcance comprende la definición de las acciones permanentes, la interacción
 elástica suelo--revestimiento, las resultantes $N$--$M$--$Q$, la comprobación
 de referencia del liner corrugado, la evaluación local del hormigón simple y
 los dominios $P$--$M$ de las mallas `r IntroductionMeshList` para espesores
-de 100 y 150 mm, junto con el caso asimétrico de
-`r IntroductionCompositeLabel`.
+de 100 y 150 mm.
 Quedan fuera del alcance la selección de una armadura definitiva, el detalle
 constructivo, la acreditación de la edición contractual de las normas y la
 asignación de propiedades a la chapa y a sus uniones sin respaldo de la
@@ -79,9 +78,9 @@ suelo--revestimiento se adopta un módulo elástico constante de
 MPa. Este valor es una hipótesis específica del análisis y no una conversión
 del módulo secante de referencia de 140 MPa, cuya aplicación depende del nivel
 de tensiones y del modelo constitutivo. El módulo adoptado deberá confirmarse
-con la caracterización geotécnica de diseño; la
-@sec-calculation-sensitivity cuantifica el efecto de esta hipótesis sobre las
-verificaciones de los revestimientos.
+con la caracterización geotécnica de diseño; el efecto de esta hipótesis se
+cuantifica mediante un análisis de sensibilidad dentro de la verificación de
+cada revestimiento (@sec-calculation-steel y @sec-calculation-concrete).
 
 La interacción entre el relleno y cada revestimiento se representa mediante la
 solución de carga externa de Schwartz--Einstein. Se calculan dos límites de

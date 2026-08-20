@@ -1,15 +1,4 @@
 .pmFamilyLabel <- function(row) {
-  if (!row$isParametricCase) {
-    return(paste0(
-      "A",
-      trimws(formatC(row$barDiameterMm, format = "fg", digits = 6L)),
-      " · chapa + Ø",
-      trimws(formatC(row$barDiameterMm, format = "fg", digits = 6L)),
-      "/",
-      trimws(formatC(row$barSpacingMm, format = "fg", digits = 6L)),
-      " interior"
-    ))
-  }
   paste0(
     "S",
     trimws(formatC(row$barDiameterMm, format = "fg", digits = 6L)),
@@ -64,16 +53,12 @@
   data.table::setorder(Domains, reinforcementCaseID, domainPointIndex)
   CaseIDs <- Sweep[["reinforcementCaseID"]]
   Invalid <- c(
-    caseCount = nrow(Sweep) != 4L,
+    caseCount = nrow(Sweep) != 3L,
     duplicateCase = anyDuplicated(CaseIDs) > 0L,
     domainCases = !setequal(unique(Domains$reinforcementCaseID), CaseIDs),
     symmetricCount = sum(Sweep$isParametricCase) != 3L,
-    compositeCount = sum(!Sweep$isParametricCase) != 1L,
     arrangement =
-      any(Sweep$reinforcementArrangementID[Sweep$isParametricCase] !=
-        "symmetric-two-face") ||
-      any(Sweep$reinforcementArrangementID[!Sweep$isParametricCase] !=
-        "existing-sheet-plus-interior-mesh"),
+      any(Sweep$reinforcementArrangementID != "symmetric-two-face"),
     calculationStatus = any(Sweep$calculationStatus != "calculated"),
     demandReuse = any(Sweep$demandReuseStatus != "satisfied"),
     utilization = any(!is.finite(Sweep$maximumRadialUtilization))
@@ -160,11 +145,7 @@ buildCalculationConcreteAxialFlexurePlot <- function(
       ID = .pmFamilyLabel(Row),
       X = Domain$bendingStrengthKnMPerM,
       Y = Domain$axialStrengthKnPerM,
-      style = if (!Row$isParametricCase) {
-        "shortdashdot"
-      } else {
-        "solid"
-      },
+      style = "solid",
       size = 1.5
     )
   })
@@ -219,17 +200,16 @@ buildCalculationConcreteAxialFlexurePlot <- function(
       format = "f",
       digits = 2L
     ),
-    marker = Map(function(interfaceID, caseOrder, isParametricCase) {
+    marker = Map(function(interfaceID, caseOrder) {
       list(
         symbol = if (interfaceID == "full-slip") "circle" else "diamond",
-        radius = if (isParametricCase) 4 + 2 * caseOrder else 7,
+        radius = 4 + 2 * caseOrder,
         fillColor = "rgba(255,255,255,0)",
         lineWidth = 3
       )
     },
     Demands$interfaceID,
-    Demands$reinforcementCaseOrder,
-    Demands$reinforcementCaseOrder <= sum(Sweep$isParametricCase))
+    Demands$reinforcementCaseOrder)
   )
   Plot <- NGR::buildPlot(
     data.lines = Lines,
@@ -312,28 +292,21 @@ buildCalculationConcreteAxialFlexureSensitivityPlot <- function(
     stop("The P-M sensitivity moduli are unavailable.", call. = FALSE)
   }
   # The governing demand pair depends on each mesh's own domain, so the
-  # trajectories name one representative symmetric mesh and the composite
-  # case instead of claiming one family-wide path.
+  # trajectories name one representative symmetric mesh instead of claiming
+  # one family-wide path.
   SymmetricRow <- Sweep[Sweep$isParametricCase][1L]
-  CompositeRow <- Sweep[!Sweep$isParametricCase]
-  # The positive-thrust half of a closed domain may wrap around the point
-  # index origin; rotate it so the polyline stays continuous.
+  # The symmetric domains mirror in M, so the figure keeps the report's
+  # positive quadrant and the governing moments plot as magnitudes.
   DomainGroups <- lapply(Family[["domains", exact = TRUE]], function(Domain) {
-    Half <- Domain[Domain$axialStrengthKnPerM >= 0]
-    if (nrow(Half) < 2L) {
-      stop("The positive-thrust half domain is unavailable.", call. = FALSE)
+    Quarter <- Domain[
+      Domain$axialStrengthKnPerM >= 0 &
+        Domain$bendingStrengthKnMPerM >= 0
+    ]
+    if (nrow(Quarter) < 2L ||
+        any(diff(Quarter$domainPointIndex) != 1L)) {
+      stop("The positive P-M quadrant is not contiguous.", call. = FALSE)
     }
-    Gaps <- which(diff(Half$domainPointIndex) != 1L)
-    if (length(Gaps) > 1L) {
-      stop("The positive-thrust half domain is not contiguous.", call. = FALSE)
-    }
-    if (length(Gaps) == 1L) {
-      Half <- rbind(
-        Half[seq.int(Gaps + 1L, nrow(Half))],
-        Half[seq_len(Gaps)]
-      )
-    }
-    Half
+    Quarter
   })
   InterfaceLabels <- c(
     `full-slip` = "Slip (S)",
@@ -342,10 +315,6 @@ buildCalculationConcreteAxialFlexureSensitivityPlot <- function(
   SymmetricCode <- paste0(
     "S",
     trimws(formatC(SymmetricRow$barDiameterMm, format = "fg", digits = 6L))
-  )
-  CompositeCode <- paste0(
-    "A",
-    trimws(formatC(CompositeRow$barDiameterMm, format = "fg", digits = 6L))
   )
   Groups <- list(
     list(
@@ -357,18 +326,6 @@ buildCalculationConcreteAxialFlexureSensitivityPlot <- function(
     list(
       id = paste0("Demanda ", SymmetricCode, " · ", InterfaceLabels[["no-slip"]]),
       caseID = SymmetricRow[["reinforcementCaseID"]],
-      interfaceID = "no-slip",
-      symbol = "diamond"
-    ),
-    list(
-      id = paste0("Demanda ", CompositeCode, " · ", InterfaceLabels[["full-slip"]]),
-      caseID = CompositeRow[["reinforcementCaseID"]],
-      interfaceID = "full-slip",
-      symbol = "circle"
-    ),
-    list(
-      id = paste0("Demanda ", CompositeCode, " · ", InterfaceLabels[["no-slip"]]),
-      caseID = CompositeRow[["reinforcementCaseID"]],
       interfaceID = "no-slip",
       symbol = "diamond"
     )
@@ -391,7 +348,7 @@ buildCalculationConcreteAxialFlexureSensitivityPlot <- function(
       ID = .pmFamilyLabel(Row),
       X = Domain$bendingStrengthKnMPerM,
       Y = Domain$axialStrengthKnPerM,
-      style = if (!Row$isParametricCase) "shortdashdot" else "solid",
+      style = "solid",
       size = 1.5
     )
   })
@@ -399,7 +356,7 @@ buildCalculationConcreteAxialFlexureSensitivityPlot <- function(
     AUX <- TrajectoryRows[[i]]
     data.table::data.table(
       ID = Groups[[i]]$id,
-      X = AUX$bendingDemandKnMPerM,
+      X = abs(AUX$bendingDemandKnMPerM),
       Y = AUX$axialDemandKnPerM,
       style = "shortdash",
       size = 1
@@ -450,7 +407,7 @@ buildCalculationConcreteAxialFlexureSensitivityPlot <- function(
     )
     Series[[i]][["data"]] <- lapply(seq_len(nrow(AUX)), function(j) {
       list(
-        x = AUX$bendingDemandKnMPerM[j],
+        x = abs(AUX$bendingDemandKnMPerM[j]),
         y = AUX$axialDemandKnPerM[j],
         custom = list(
           e = formatC(AUX$modulusMPa[j], format = "fg"),

@@ -126,12 +126,6 @@ ReinforcementMeshSentence <- if (length(ReinforcementMeshLabels) == 1L) {
     sep = " y "
   )
 }
-CompositeMeshLabel <- paste0(
-  "Ø",
-  ReinforcementStudy$compositeCase$interiorBarDiameterMm,
-  "/",
-  ReinforcementStudy$compositeCase$interiorBarSpacingMm
-)
 FormatSpanishList <- function(Values) {
   Values <- unique(Values)
   if (length(Values) == 0L) {
@@ -155,13 +149,95 @@ ReinforcementCaseLabels <- function(Data) {
       if (Row$reinforcementArrangementID == "symmetric-two-face") {
         return(paste(Mesh, "en ambas caras"))
       }
-      if (Row$reinforcementArrangementID ==
-          "existing-sheet-plus-interior-mesh") {
-        return(paste("chapa exterior con", Mesh, "en la cara interior"))
-      }
       stop("Unsupported reinforcement arrangement in the report.")
     },
     character(1)
+  )
+}
+SensitivityPlain <- utils::read.csv(
+  Calculation$paths$sensitivityPlainChecks,
+  check.names = FALSE,
+  stringsAsFactors = FALSE
+)
+SensitivitySweep <- utils::read.csv(
+  Calculation$paths$sensitivityPmSweep,
+  check.names = FALSE,
+  stringsAsFactors = FALSE
+)
+SensitivityModuli <- sort(unique(SensitivityPlain$modulusMPa))
+if (length(SensitivityModuli) < 2L) {
+  stop("The sensitivity products require at least two moduli.")
+}
+SensitivityFirst <- SensitivityModuli[1L]
+SensitivityLast <- SensitivityModuli[length(SensitivityModuli)]
+SensitivityModuliSentence <- paste(
+  paste(head(SensitivityModuli, -1L), collapse = ", "),
+  tail(SensitivityModuli, 1L),
+  sep = " y "
+)
+SensitivityPlainU <- function(liningID, checkID, modulus) {
+  Value <- SensitivityPlain$utilization[
+    SensitivityPlain$liningID == liningID &
+      SensitivityPlain$checkID == checkID &
+      SensitivityPlain$modulusMPa == modulus
+  ]
+  if (length(Value) != 1L || !is.finite(Value)) {
+    stop("Missing plain sensitivity value: ", liningID, ".", checkID)
+  }
+  Value
+}
+SensitivityPlainTensionRobust <- all(
+  SensitivityPlain$utilization[
+    SensitivityPlain$checkID == "tension-face"
+  ] > 1
+)
+SensitivitySweep$configurationID <- paste0(
+  "S",
+  SensitivitySweep$barDiameterMm
+)
+SensitivityPmStatus <- function(liningID, configurationID, modulus) {
+  Value <- SensitivitySweep$localPMStatus[
+    SensitivitySweep$liningID == liningID &
+      SensitivitySweep$configurationID == configurationID &
+      SensitivitySweep$modulusMPa == modulus
+  ]
+  if (length(Value) != 1L) {
+    stop("Missing P-M sensitivity status: ", liningID, ".", configurationID)
+  }
+  Value
+}
+SensitivityConfigIDs <- function(liningID) {
+  AUX <- SensitivitySweep[
+    SensitivitySweep$liningID == liningID &
+      SensitivitySweep$modulusMPa == SensitivityFirst,
+    ,
+    drop = FALSE
+  ]
+  AUX$configurationID[order(AUX$reinforcementCaseOrder)]
+}
+SensitivityFlips <- function(liningID) {
+  IDs <- SensitivityConfigIDs(liningID)
+  IDs[vapply(IDs, function(s) {
+    SensitivityPmStatus(liningID, s, SensitivityFirst) !=
+      SensitivityPmStatus(liningID, s, SensitivityLast)
+  }, logical(1))]
+}
+SensitivityPassing <- function(liningID, modulus) {
+  IDs <- SensitivityConfigIDs(liningID)
+  IDs[vapply(IDs, function(s) {
+    identical(SensitivityPmStatus(liningID, s, modulus), "satisfied")
+  }, logical(1))]
+}
+SensitivityPassSentence <- function(liningID, modulus, object = FALSE) {
+  IDs <- SensitivityPassing(liningID, modulus)
+  Object <- if (object) " la flexocompresión " else " "
+  if (length(IDs) == 0L) {
+    return(paste0("ninguna configuración satisface", Object))
+  }
+  paste0(
+    if (length(IDs) == 1L) "satisface" else "satisfacen",
+    Object,
+    FormatSpanishList(IDs)
   )
 }
 ReinforcementConclusion <- function(liningID) {
@@ -222,8 +298,8 @@ ReinforcementConclusion <- function(liningID) {
 Este capítulo evalúa el shotcrete como revestimiento estructural independiente
 de la chapa. Para las secciones de 100 y 150 mm comprueba la respuesta del
 hormigón simple y compara familias resistentes P–M
-con mallas Ø8/150, Ø10/150 y Ø12/150 en ambas caras, además del caso compuesto
-con chapa exterior y malla interior. El objetivo es determinar, sin adoptar
+con mallas Ø8/150, Ø10/150 y Ø12/150 en ambas caras. El objetivo es
+determinar, sin adoptar
 una armadura final, qué configuraciones satisfacen por separado la
 flexocompresión, el corte unidireccional y el desprendimiento radial.
 

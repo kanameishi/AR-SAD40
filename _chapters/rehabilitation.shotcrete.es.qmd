@@ -149,6 +149,23 @@ en No Slip (NS). Para 150 mm, los valores correspondientes son
 y
 `r formatCalculationFixed(PlainGoverningUtilization("plainConcrete150", "no-slip"), 2L)`.
 
+La sensibilidad de estas comprobaciones al módulo de deformación del terreno
+se evalúa recalculando el caso completo con $E_g$ igual a
+`r SensitivityModuliSentence` MPa y los demás parámetros del escenario
+constantes. La @tbl-calculation-sensitivity-plain presenta las utilizaciones
+máximas para cada módulo.
+`r if (SensitivityPlainTensionRobust) "La tracción en la fibra extrema supera la resistencia de diseño en todo el rango para ambos espesores; el dictamen de las secciones simples es común a todos los módulos estudiados." else "Dentro del rango estudiado, el dictamen de las secciones simples depende del módulo del terreno."`
+La utilización de tracción de la sección de 100 mm varía de
+`r formatCalculationFixed(SensitivityPlainU("shotcrete", "tension-face", SensitivityFirst), 2L)`
+a
+`r formatCalculationFixed(SensitivityPlainU("shotcrete", "tension-face", SensitivityLast), 2L)`
+entre los módulos extremos, y la de 150 mm de
+`r formatCalculationFixed(SensitivityPlainU("plainConcrete150", "tension-face", SensitivityFirst), 2L)`
+a
+`r formatCalculationFixed(SensitivityPlainU("plainConcrete150", "tension-face", SensitivityLast), 2L)`.
+
+{{< include /_tbl/Calculation.sensitivity.plain.ES.qmd >}}
+
 ## Alternativa de hormigón armado
 
 El estudio de la alternativa armada considera
@@ -285,12 +302,7 @@ fisurada del hormigón. Para cada curva se
 selecciona, en cada límite de interfaz, el par $(P_u,M_u)$ que maximiza su
 utilización radial entre todas las posiciones angulares y combinaciones
 $EV/EH$. Por ello cada armadura presenta dos marcadores y la posición
-gobernante puede cambiar al modificarse el dominio resistente. El caso adicional
-representa la chapa exterior remanente trabajando en acción compuesta total
-con una malla circunferencial `r CompositeMeshLabel` en la cara interior. Para ese caso se
-calcula el centroide elástico de la sección asimétrica y se vuelven a obtener
-las acciones con su propia rigidez; no se reutilizan los puntos de demanda de
-las cuantías simétricas.
+gobernante puede cambiar al modificarse el dominio resistente.
 
 La comparación conserva el espesor, el hormigón y la calidad del acero. Para
 cada diámetro se calcula el área de las barras y la posición de sus capas a
@@ -339,9 +351,39 @@ A_{s,\max}=
 $$ {#eq-calculation-reinforced-radial-tension}
 
 La expresión corresponde al artículo 12.10.4.2.4c de CIRSOC 804-4
-[@CIRSOC8044]. La acción compuesta del caso asimétrico presupone transferencia
-completa en la interfaz para la carga total; la resistencia de esa interfaz y
-el estado previo de la chapa deben establecerse para el diseño de detalle.
+[@CIRSOC8044].
+
+La sensibilidad de las familias $P$--$M$ al módulo de deformación del terreno
+se evalúa con los mismos módulos que las comprobaciones del hormigón simple.
+La @tbl-calculation-sensitivity-pm100 y la
+@tbl-calculation-sensitivity-pm150 presentan las utilizaciones de ambos
+espesores. Para la sección de 100 mm, con el módulo adoptado de
+`r formatCalculationFixed(SensitivityFirst, 0L)` MPa
+`r SensitivityPassSentence("shotcrete", SensitivityFirst, object = TRUE)`
+y con `r formatCalculationFixed(SensitivityLast, 0L)` MPa
+`r SensitivityPassSentence("shotcrete", SensitivityLast)`. Para la sección de
+150 mm, los dictámenes de
+`r FormatSpanishList(SensitivityFlips("reinforcedConcrete"))`
+cambian dentro del rango: con el módulo adoptado
+`r SensitivityPassSentence("reinforcedConcrete", SensitivityFirst)`
+y con `r formatCalculationFixed(SensitivityLast, 0L)` MPa
+`r SensitivityPassSentence("reinforcedConcrete", SensitivityLast)`. La
+selección de armadura de este espesor depende del módulo que confirme la
+caracterización geotécnica de diseño.
+
+{{< include /_tbl/Calculation.sensitivity.pm100.ES.qmd >}}
+
+{{< include /_tbl/Calculation.sensitivity.pm150.ES.qmd >}}
+
+La @fig-pm-sensitivity-shotcrete100 y la @fig-pm-sensitivity-shotcrete150
+superponen a los dominios resistentes las trayectorias de la demanda
+gobernante de la malla S8 para cada módulo. La fuerza axial gobernante se
+mantiene aproximadamente constante y el momento concurrente se reduce con el
+módulo, de modo que la demanda se desplaza hacia el interior del dominio.
+
+{{< include /_fig/PMSensitivity.shotcrete100.ES.qmd >}}
+
+{{< include /_fig/PMSensitivity.shotcrete150.ES.qmd >}}
 
 En síntesis, en las comprobaciones de tracción y corte, el hormigón simple de
 100 mm

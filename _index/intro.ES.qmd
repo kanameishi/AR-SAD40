@@ -15,13 +15,6 @@ IntroductionMeshLabels <- vapply(
   character(1)
 )
 IntroductionMeshList <- IntroductionList(IntroductionMeshLabels)
-IntroductionCompositeLabel <- paste0(
-  "chapa exterior y Ø",
-  IntroductionReinforcementPolicy$compositeCase$interiorBarDiameterMm,
-  "/",
-  IntroductionReinforcementPolicy$compositeCase$interiorBarSpacingMm,
-  " interior"
-)
 IntroductionSectionGeometry <- list(
   leftUpperHeightM = 3.350,
   leftLowerHeightM = 2.350,

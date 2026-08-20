@@ -154,16 +154,12 @@ buildCalculationSensitivityPmTable <- function(path, liningID) {
     ,
     drop = FALSE
   ]
-  DATA$configurationID <- ifelse(
-    DATA$reinforcementArrangementID == "symmetric-two-face",
-    paste0(
-      "S",
-      trimws(formatC(DATA$barDiameterMm, format = "fg", digits = 6L))
-    ),
-    paste0(
-      "A",
-      trimws(formatC(DATA$barDiameterMm, format = "fg", digits = 6L))
-    )
+  if (any(DATA$reinforcementArrangementID != "symmetric-two-face")) {
+    stop("The P-M sensitivity requires symmetric meshes.", call. = FALSE)
+  }
+  DATA$configurationID <- paste0(
+    "S",
+    trimws(formatC(DATA$barDiameterMm, format = "fg", digits = 6L))
   )
   DATA$value <- DATA$maximumRadialUtilization
   WidePm <- .sensitivityWide(DATA, "configurationID", Moduli, 2L)

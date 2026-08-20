@@ -466,12 +466,12 @@ runCoverCalculationDataTests <- function() {
       "ev130-eh135", "ev130-eh090",
       "ev090-eh135", "ev090-eh090"
     )),
-    nrow(ReinforcementSweep) == 8L,
-    nrow(ReinforcementGoverningDemands) == 16L,
-    nrow(ReinforcementLimitChecks) == 16L,
-    all(table(ReinforcementSweep$liningID) == 4L),
-    all(table(ReinforcementGoverningDemands$liningID) == 8L),
-    all(table(ReinforcementLimitChecks$liningID) == 8L),
+    nrow(ReinforcementSweep) == 6L,
+    nrow(ReinforcementGoverningDemands) == 12L,
+    nrow(ReinforcementLimitChecks) == 12L,
+    all(table(ReinforcementSweep$liningID) == 3L),
+    all(table(ReinforcementGoverningDemands$liningID) == 6L),
+    all(table(ReinforcementLimitChecks$liningID) == 6L),
     all(table(
       ReinforcementGoverningDemands$liningID,
       ReinforcementGoverningDemands$reinforcementCaseID
@@ -486,8 +486,7 @@ runCoverCalculationDataTests <- function() {
       ReinforcementDomains$liningID,
       ReinforcementDomains$reinforcementCaseID
     ) > 0L] %in% c(1207L, 1211L)),
-    sum(ReinforcementSweep$isParametricCase) == 6L,
-    sum(!ReinforcementSweep$isParametricCase) == 2L,
+    all(ReinforcementSweep$isParametricCase),
     identical(
       LoaderEnvironment$Calculation$reinforcedConcrete$axialFlexureDomain,
       AxialFlexureDomain

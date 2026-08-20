@@ -1197,7 +1197,7 @@ reinforcementStudyView[study_Association] := Module[
     Style["P-M interaction domains for the evaluated reinforcement configurations", Bold],
     pmReinforcementFamilyPlot[study],
     Style[
-      "The Ø8/150, Ø10/150, and Ø12/150 symmetric curves share the cracked-concrete stiffness, so their two demand coordinates coincide; nested marker sizes keep the three colors visible. The existing-sheet + Ø8/150 curve uses its own transformed composite stiffness and therefore its own two demand points.",
+      "The Ø8/150, Ø10/150, and Ø12/150 symmetric curves share the cracked-concrete stiffness, so their two demand coordinates coincide; nested marker sizes keep the three colors visible.",
       GrayLevel[0.30]
     ],
     Spacer[8],

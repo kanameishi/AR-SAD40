@@ -214,6 +214,26 @@ perfil adoptada [@CSPIHandbookChapter6; @CIRSOC8044]. La inspección identificar
 la configuración de la unión existente y permitirá establecer su
 correspondencia con esa referencia.
 
+La sensibilidad de esta verificación al módulo de deformación del terreno se
+evalúa recalculando el caso completo con $E_g$ igual a
+`r SensitivityModuliSentence` MPa y los demás parámetros del escenario
+constantes. La @tbl-calculation-sensitivity-steel presenta los máximos
+absolutos de las resultantes para cada módulo. Entre
+`r formatCalculationFixed(SensitivityFirst, 0L)` y
+`r formatCalculationFixed(SensitivityLast, 0L)` MPa, la fuerza circunferencial
+máxima del límite Slip se reduce
+`r formatCalculationFixed(SensitivitySteelReductionPct("slip", "N"), 0L)` %;
+el momento flector y el corte se reducen
+`r formatCalculationFixed(SensitivitySteelReductionPct("slip", "M"), 0L)` y
+`r formatCalculationFixed(SensitivitySteelReductionPct("slip", "Q"), 0L)` %,
+con la mayor parte de la reducción entre los dos primeros módulos. El módulo
+adoptado es el extremo inferior del rango y produce las mayores demandas de
+interacción.
+
+{{< include /_tbl/Calculation.sensitivity.steel.ES.qmd >}}
+
+`r if (SensitivityAashtoConstant) paste0("Las cinco comparaciones de la @tbl-liner-aashto-checks producen utilizaciones idénticas para todos los módulos: el empuje prismático y el factor de rigidez del suelo tabulado no dependen de $E_g$, y la utilización de la costura es ", SensitivitySeamU, " en todo el rango.") else "Las comparaciones de la @tbl-liner-aashto-checks varían con el módulo del terreno y gobiernan la lectura de la @tbl-calculation-sensitivity-steel."`
+
 En síntesis, las resultantes angulares del modelo híbrido describen la demanda
 estructural del anillo y la rama AASHTO/USACE compara el empuje circunferencial
 escalar con los cinco límites de referencia de la

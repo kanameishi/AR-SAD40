@@ -66,7 +66,7 @@
         }
       ],
       "compositeCase": {
-        "enabled": true,
+        "enabled": false,
         "interiorBarDiameterMm": 8.0,
         "interiorBarSpacingMm": 150.0,
         "interiorClearCoverMm": 15.0,
