@@ -2,7 +2,7 @@
 #| include: false
 root <- normalizePath(".", mustWork = TRUE)
 source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
-IntroductionList <- function(values) {
+IntroductionList <- function(values) { 
   Values <- as.character(values)
   if (length(Values) == 1L) return(Values)
   paste(paste(head(Values, -1L), collapse = ", "), tail(Values, 1L), sep = " y ")

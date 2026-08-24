@@ -277,6 +277,18 @@ if (!exists("readCalculationJson", mode = "function", inherits = TRUE)) {
     stop("Could not publish the calculation products.", call. = FALSE)
   }
   if (HadOutput && dir.exists(Backup)) {
+    # The staged products are flat files; subdirectories such as the ring
+    # benchmark set are separately owned and must survive the swap.
+    for (s in list.dirs(Backup, full.names = FALSE, recursive = FALSE)) {
+      if (!nzchar(s)) next
+      if (!file.rename(file.path(Backup, s), file.path(outputDirectory, s))) {
+        stop(
+          "Could not preserve the ", s, " products during the swap; they ",
+          "remain at ", Backup, ".",
+          call. = FALSE
+        )
+      }
+    }
     unlink(Backup, recursive = TRUE, force = TRUE)
     if (dir.exists(Backup)) {
       warning("The previous calculation-product backup could not be removed.")

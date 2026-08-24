@@ -2,7 +2,7 @@
 
 ## Alcance y condición normativa
 
-La evaluación recibe un empuje circunferencial mayorado $T_u$, las propiedades
+La evaluación recibe la demanda circunferencial de diseño $T_u$, las propiedades
 por unidad de ancho de la corrugación y los datos resistentes de la pared y de
 la costura. El cálculo reproduce las comprobaciones identificadas para
 conductos circulares corrugados de AASHTO LRFD, sección 12.7, a partir de las
@@ -20,15 +20,19 @@ informa como no evaluado.
 ## Demanda circunferencial
 
 La presión vertical de diseño en la clave y la luz $S$ producen el empuje
-mayorado por unidad de longitud de pared. Para las componentes permanente y
-móvil, USACE reproduce la relación
+mayorado $T_f$ por unidad de longitud de pared, y el modificador de cargas
+$\eta_{cmp}=\eta_D\,\eta_R\,\eta_I$ lo convierte en la demanda de diseño
+$T_u$. Para las componentes permanente y móvil, USACE reproduce la relación
 
 $$
-T_u=\gamma_{DL}\frac{P_{FD}S}{2}
-   +\gamma_{LL}\frac{P_{FL}C_LF_1}{2}.
+T_u=\eta_{cmp}\,T_f
+=\eta_{cmp}\left(\gamma_{DL}\frac{P_{FD}S}{2}
+   +\gamma_{LL}\frac{P_{FL}C_LF_1}{2}\right).
 $$ {#eq-methodology-aashto-thrust}
 
-El empuje es una demanda escalar de pared. No sustituye la distribución
+La estructura enterrada se considera no redundante bajo la carga del relleno,
+por lo que el modificador por redundancia vale $1{,}05$
+[@USACE2020; @CIRSOC8044]. El empuje es una demanda escalar de pared. No sustituye la distribución
 perimetral de Schwartz--Einstein empleada para calcular $M_\theta$ y
 $Q_\theta$, ni convierte los
 extremos de resultantes correspondientes a ángulos distintos en una acción

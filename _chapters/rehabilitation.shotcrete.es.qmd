@@ -1,33 +1,24 @@
 ## Alternativa de hormigón simple
 
-Las alternativas de hormigón proyectado simple se calculan como revestimientos
-independientes de la chapa, con espesores de
+Las alternativas de hormigón proyectado simple se calculan como revestimientos independientes de la chapa, con espesores de
 `r formatCalculationFixed(1000 * Calculation$shotcrete$section$thicknessM, 0L)`
 y
 `r formatCalculationFixed(1000 * Calculation$reinforcedConcrete$section$thicknessM, 0L)`
 mm y una resistencia especificada
 $f'_c=`r formatCalculationFixed(Calculation$config$additionalLinings$shotcrete$compressiveStrengthMPa, 0L)`$
-MPa. Cada espesor se analiza con su propio radio baricéntrico y sus propias
-rigideces.
-Para el análisis elástico de corto plazo se adopta hormigón de peso normal, con
+MPa. Cada espesor se analiza con su propio radio baricéntrico y sus propias rigideces. Para el análisis elástico de corto plazo se adopta hormigón de peso normal, con
 
 $$
-E_c=4700\sqrt{f'_c}
-=`r formatCalculationFixed(Calculation$shotcrete$section$youngModulusKPa / 1000, 0L)`
-\ \mathrm{MPa},
-\qquad
-\nu_c=`r formatCalculationGeneral(Calculation$shotcrete$section$poisson)`.
+E_c=4700\sqrt{f'_c} =`r formatCalculationFixed(Calculation$shotcrete$section$youngModulusKPa / 1000, 0L)`
+\ \mathrm{MPa}, \qquad \nu_c=`r formatCalculationGeneral(Calculation$shotcrete$section$poisson)`.
 $$ {#eq-calculation-shotcrete-modulus}
 
-Las secciones conservan el área axial bruta y adoptan $I_e=0.35I_g$ para la
-flexión. Las rigideces resultantes son
+Las secciones conservan el área axial bruta y adoptan $I_e=0.35I_g$ para la flexión. Las rigideces resultantes son
 
 $$
 EA_{100}=
 `r formatCalculationFixed(Calculation$shotcrete$section$extensionalRigidityKnPerM, 1L)`
-\ \mathrm{kN/m},
-\qquad
-EI_{100}=
+\ \mathrm{kN/m}, \qquad EI_{100}=
 `r formatCalculationFixed(Calculation$shotcrete$section$flexuralRigidityKnM2PerM, 1L)`
 \ \mathrm{kN\,m^2/m},
 $$
@@ -35,17 +26,12 @@ $$
 $$
 EA_{150}=
 `r formatCalculationFixed(Calculation$reinforcedConcrete$section$extensionalRigidityKnPerM, 1L)`
-\ \mathrm{kN/m},
-\qquad
-EI_{150}=
+\ \mathrm{kN/m}, \qquad EI_{150}=
 `r formatCalculationFixed(Calculation$reinforcedConcrete$section$flexuralRigidityKnM2PerM, 1L)`
 \ \mathrm{kN\,m^2/m}.
 $$ {#eq-calculation-shotcrete-rigidities}
 
-La @tbl-liner-rehabilitation-plain-interaction reúne las razones de rigidez y
-las amplitudes de Schwartz--Einstein de esta alternativa; la
-@tbl-liner-rehabilitation-plain-extrema presenta sus extremos para factores de
-carga unitarios.
+La @tbl-liner-rehabilitation-plain-interaction reúne las razones de rigidez y las amplitudes de Schwartz--Einstein de esta alternativa; la @tbl-liner-rehabilitation-plain-extrema presenta sus extremos para factores de carga unitarios.
 
 {{< include /_tbl/liner.rehabilitation.plain.interaction.ES.qmd >}}
 
@@ -57,8 +43,7 @@ kN/m de fuerza circunferencial,
 `r formatCalculationFixed(ReportConcreteCase("shotcrete", "slip")$momentAbsoluteMaxKnMPerM, 1L)`
 kN·m/m de momento y
 `r formatCalculationFixed(ReportConcreteCase("shotcrete", "slip")$shearAbsoluteMaxKnPerM, 1L)`
-kN/m de corte. Para No Slip (NS), los máximos
-son
+kN/m de corte. Para No Slip (NS), los máximos son
 `r formatCalculationFixed(ReportConcreteCase("shotcrete", "no-slip")$normalAbsoluteMaxKnPerM, 1L)`
 kN/m,
 `r formatCalculationFixed(ReportConcreteCase("shotcrete", "no-slip")$momentAbsoluteMaxKnMPerM, 1L)`
@@ -66,37 +51,21 @@ kN·m/m y
 `r formatCalculationFixed(ReportConcreteCase("shotcrete", "no-slip")$shearAbsoluteMaxKnPerM, 1L)`
 kN/m, respectivamente.
 
-Las distribuciones completas de fuerza circunferencial, momento y corte se
-presentan para ambos espesores en figuras de tres paneles, con una escala
-radial propia para cada resultante.
+Las distribuciones completas de fuerza circunferencial, momento y corte se presentan para ambos espesores en figuras de tres paneles, con una escala radial propia para cada resultante.
 
 {{< include /_fig/Resultants.shotcrete100.ES.qmd >}}
 
 {{< include /_fig/Resultants.shotcrete150.ES.qmd >}}
 
-Las combinaciones resistentes vuelven a calcular las resultantes concurrentes
-en cada posición angular. Los pares de factores adoptados son
-`r StrengthCaseSentence`. $EV$ corresponde a la presión vertical del relleno
-permanente y $EH$ a la presión horizontal del terreno en reposo. Se evalúan
-los valores máximo y mínimo de la Tabla 3.4.1-2 de AASHTO para obtener la
-envolvente de efectos, de acuerdo con CIRSOC 804-4, artículos 12.5.4 y 12.6.1
-[@CIRSOC8044]. El peso de la capa superior de lodo está incluido en el mismo
-estado geostático permanente y no se trata como carga viva. Los factores se
-aplican a las dos componentes del estado de tensiones y la interacción
-suelo--revestimiento recalcula concurrentemente $N$, $M$ y $Q$. Para una
-franja de ancho $b$ se utilizan
+Las combinaciones resistentes vuelven a calcular las resultantes concurrentes en cada posición angular. Los pares de factores adoptados son
+`r StrengthCaseSentence`. $EV$ corresponde a la presión vertical del relleno permanente y $EH$ a la presión horizontal del terreno en reposo. Se evalúan los valores máximo y mínimo de la Tabla 3.4.1-2 de AASHTO para obtener la envolvente de efectos, de acuerdo con CIRSOC 804-4, artículos 12.5.4 y 12.6.1
+[@CIRSOC8044]. El peso de la capa superior de lodo está incluido en el mismo estado geostático permanente y no se trata como carga viva. Los factores se aplican a las dos componentes del estado de tensiones y la interacción suelo--revestimiento recalcula concurrentemente $N$, $M$ y $Q$. Para una franja de ancho $b$ se utilizan
 
 $$
-P_u=-N_\theta b,
-\qquad
-M_u=\lvert M_\theta\rvert b,
-\qquad
-V_u=\lvert Q_\theta\rvert b.
+P_u=-N_\theta b, \qquad M_u=\lvert M_\theta\rvert b, \qquad V_u=\lvert Q_\theta\rvert b.
 $$ {#eq-calculation-shotcrete-actions}
 
-El shotcrete se coloca sobre la cara interior del liner existente. Para ambos
-casos el espesor resistente $h_d$ coincide con el espesor especificado
-completo:
+El shotcrete se coloca sobre la cara interior del liner existente. Para ambos casos el espesor resistente $h_d$ coincide con el espesor especificado completo:
 
 $$
 h_d=h\in\left\{
@@ -105,25 +74,18 @@ h_d=h\in\left\{
 \right\}\ \mathrm{mm}.
 $$ {#eq-calculation-shotcrete-design-thickness}
 
-Con $A_g=bh_d$, $S_m=bh_d^2/6$ y $\phi=0.60$, la máxima tensión normal de
-tracción en una fibra extrema, producida por la acción concurrente de $P_u$ y
+Con $A_g=bh_d$, $S_m=bh_d^2/6$ y $\phi=0.60$, la máxima tensión normal de tracción en una fibra extrema, producida por la acción concurrente de $P_u$ y
 $M_u$, y la resistencia a corte son
 
 $$
-\sigma_{t,\max}=\max\left(0,\frac{M_u}{S_m}-\frac{P_u}{A_g}\right)
-\le
-\phi\,0.42\lambda\sqrt{f'_c},
-\qquad
-\phi V_n=\phi\,0.11\lambda\sqrt{f'_c}\,b h_d.
+\sigma_{t,\max}=\max\left (0,\frac{M_u}{S_m}-\frac{P_u}{A_g}\right)
+\le \phi\,0.42\lambda\sqrt{f'_c}, \qquad \phi V_n=\phi\,0.11\lambda\sqrt{f'_c}\,b h_d.
 $$ {#eq-calculation-shotcrete-local-strength}
 
 La comprobación de compresión combinada con flexión requiere además
 
 $$
-M_{n,c}=0.85f'_cS_m,
-\qquad
-P_n=0.60f'_cA_g
-\left[1-\left(\frac{\ell_c}{32h_d}\right)^2\right],
+M_{n,c}=0.85f'_cS_m, \qquad P_n=0.60f'_cA_g \left[1-\left (\frac{\ell_c}{32h_d}\right)^2\right],
 $$
 
 $$
@@ -131,12 +93,8 @@ U_{NM,c}=\frac{M_u}{\phi M_{n,c}}+\frac{P_u}{\phi P_n}\leq1.
 $$ {#eq-calculation-shotcrete-compression}
 
 Estas expresiones proceden de ACI 318-25, Capítulo 14
-[@ACI31825, tabla 14.5.4.1 y arts. 14.5.3.1 y 14.5.5.1(a)]. La utilización
-$U_{NM,c}$ requiere la longitud de compresión $\ell_c$, que corresponde al
-diseño de detalle de la rehabilitación. La verificación de esta memoria
-comprende la tracción en la fibra extrema y el corte unidireccional; la
-@tbl-liner-rehabilitation-plain-checks presenta ambas comprobaciones, con la
-flexión compuesta gobernada por la fibra traccionada, para los dos espesores.
+[@ACI31825, tabla 14.5.4.1 y arts. 14.5.3.1 y 14.5.5.1 (a)]. La utilización
+$U_{NM,c}$ requiere la longitud de compresión $\ell_c$, que corresponde al diseño de detalle de la rehabilitación. La verificación de esta memoria comprende la tracción en la fibra extrema y el corte unidireccional; la @tbl-liner-rehabilitation-plain-checks presenta ambas comprobaciones, con la flexión compuesta gobernada por la fibra traccionada, para los dos espesores.
 
 {{< include /_tbl/liner.rehabilitation.plain.checks.ES.qmd >}}
 
@@ -149,11 +107,8 @@ en No Slip (NS). Para 150 mm, los valores correspondientes son
 y
 `r formatCalculationFixed(PlainGoverningUtilization("plainConcrete150", "no-slip"), 2L)`.
 
-La sensibilidad de estas comprobaciones al módulo de deformación del terreno
-se evalúa recalculando el caso completo con $E_g$ igual a
-`r SensitivityModuliSentence` MPa y los demás parámetros del escenario
-constantes. La @tbl-calculation-sensitivity-plain presenta las utilizaciones
-máximas para cada módulo.
+La sensibilidad de estas comprobaciones al módulo de deformación del terreno se evalúa recalculando el caso completo con $E_g$ igual a
+`r SensitivityModuliSentence` MPa y los demás parámetros del escenario constantes. La @tbl-calculation-sensitivity-plain presenta las utilizaciones máximas para cada módulo.
 `r if (SensitivityPlainTensionRobust) "La tracción en la fibra extrema supera la resistencia de diseño en todo el rango para ambos espesores; el dictamen de las secciones simples es común a todos los módulos estudiados." else "Dentro del rango estudiado, el dictamen de las secciones simples depende del módulo del terreno."`
 La utilización de tracción de la sección de 100 mm varía de
 `r formatCalculationFixed(SensitivityPlainU("shotcrete", "tension-face", SensitivityFirst), 2L)`
@@ -171,28 +126,19 @@ a
 El estudio de la alternativa armada considera
 $t_c=`r formatCalculationFixed(1000 * Calculation$reinforcedConcrete$section$thicknessM, 0L)`$
 mm y $f'_c=`r formatCalculationFixed(Calculation$config$additionalLinings$reinforcedConcrete$compressiveStrengthMPa, 0L)`$
-MPa y compara las mallas `r ReinforcementMeshSentence` dispuestas en ambas caras.
-Las capas resistentes son simétricas y tienen un recubrimiento libre de
+MPa y compara las mallas `r ReinforcementMeshSentence` dispuestas en ambas caras. Las capas resistentes son simétricas y tienen un recubrimiento libre de
 `r formatCalculationFixed(Calculation$config$additionalLinings$reinforcedConcrete$reinforcementLayout$clearCoverMm / 10, 1L)`
-cm. La @tbl-liner-rehabilitation-reinforced-section reúne la geometría y los
-materiales comunes. Cada malla se comprueba por separado mediante su propio
-diagrama de interacción.
+cm. La @tbl-liner-rehabilitation-reinforced-section reúne la geometría y los materiales comunes. Cada malla se comprueba por separado mediante su propio diagrama de interacción.
 
 {{< include /_tbl/liner.rehabilitation.reinforced.section.ES.qmd >}}
 
-Para cada diámetro $\phi$ y separación $s$, el área por cara y por dirección,
-y las coordenadas de las dos capas medidas desde el plano medio, son
+Para cada diámetro $\phi$ y separación $s$, el área por cara y por dirección, y las coordenadas de las dos capas medidas desde el plano medio, son
 
 $$
-A_s=\frac{\pi\phi^2}{4}\frac{1000}{s},
-\qquad
-y_i=-\left(\frac{t_c}{2}-c-\frac{\phi}{2}\right),
-\qquad
-y_e=+\left(\frac{t_c}{2}-c-\frac{\phi}{2}\right).
+A_s=\frac{\pi\phi^2}{4}\frac{1000}{s}, \qquad y_i=-\left (\frac{t_c}{2}-c-\frac{\phi}{2}\right), \qquad y_e=+\left (\frac{t_c}{2}-c-\frac{\phi}{2}\right).
 $$ {#eq-calculation-concrete-reinforced-mesh-area}
 
-La cuantía circunferencial informada para las mallas simétricas suma ambas
-caras, $\rho_\theta=2A_s/(b t_c)$.
+La cuantía circunferencial informada para las mallas simétricas suma ambas caras, $\rho_\theta=2A_s/ (b t_c)$.
 
 La rigidez del análisis conserva $EA=E_cA_g$ y adopta
 $EI=0.35E_cI_g$:
@@ -200,18 +146,12 @@ $EI=0.35E_cI_g$:
 $$
 EA_r=
 `r formatCalculationFixed(Calculation$reinforcedConcrete$section$extensionalRigidityKnPerM, 1L)`
-\ \mathrm{kN/m},
-\qquad
-EI_r=
+\ \mathrm{kN/m}, \qquad EI_r=
 `r formatCalculationFixed(Calculation$reinforcedConcrete$section$flexuralRigidityKnM2PerM, 1L)`
 \ \mathrm{kN\,m^2/m}.
 $$ {#eq-calculation-concrete-reinforced-rigidities}
 
-La @tbl-liner-rehabilitation-reinforced-interaction reúne las razones de
-rigidez y las amplitudes de Schwartz--Einstein obtenidas con el radio y la
-sección de hormigón de 150 mm. La
-@tbl-liner-rehabilitation-reinforced-extrema presenta los extremos para
-factores de carga unitarios.
+La @tbl-liner-rehabilitation-reinforced-interaction reúne las razones de rigidez y las amplitudes de Schwartz--Einstein obtenidas con el radio y la sección de hormigón de 150 mm. La @tbl-liner-rehabilitation-reinforced-extrema presenta los extremos para factores de carga unitarios.
 
 {{< include /_tbl/liner.rehabilitation.reinforced.interaction.ES.qmd >}}
 
@@ -223,8 +163,7 @@ kN/m de fuerza circunferencial,
 `r formatCalculationFixed(ReportConcreteCase("reinforcedConcrete", "slip")$momentAbsoluteMaxKnMPerM, 1L)`
 kN·m/m de momento y
 `r formatCalculationFixed(ReportConcreteCase("reinforcedConcrete", "slip")$shearAbsoluteMaxKnPerM, 1L)`
-kN/m de corte. Para No Slip (NS), los máximos
-son
+kN/m de corte. Para No Slip (NS), los máximos son
 `r formatCalculationFixed(ReportConcreteCase("reinforcedConcrete", "no-slip")$normalAbsoluteMaxKnPerM, 1L)`
 kN/m,
 `r formatCalculationFixed(ReportConcreteCase("reinforcedConcrete", "no-slip")$momentAbsoluteMaxKnMPerM, 1L)`
@@ -235,27 +174,19 @@ kN/m.
 Para cada combinación y posición angular, las acciones de una franja son
 
 $$
-P_u=-N_\theta b,
-\qquad
-M_u=M_\theta b.
+P_u=-N_\theta b, \qquad M_u=M_\theta b.
 $$ {#eq-calculation-concrete-reinforced-actions}
 
-El límite resistente $(\phi P_n,\phi M_n)$ se obtiene mediante compatibilidad
-de deformaciones y equilibrio de la sección. Para una coordenada $y$ medida
-desde el centro de la pared,
+El límite resistente $(\phi P_n,\phi M_n)$ se obtiene mediante compatibilidad de deformaciones y equilibrio de la sección. Para una coordenada $y$ medida desde el centro de la pared,
 
 $$
-\varepsilon(y)=\varepsilon_0+\kappa(y-y_0),
-\qquad
-f_{s,i}=\max\left[-f_y,\min(E_s\varepsilon_i,f_y)\right].
+\varepsilon (y)=\varepsilon_0+\kappa (y-y_0), \qquad f_{s,i}=\max\left[-f_y,\min (E_s\varepsilon_i,f_y)\right].
 $$ {#eq-calculation-reinforced-strain-field}
 
 La fuerza y el momento nominales se obtienen mediante
 
 $$
-P_n=\int_{A_c}\sigma_c\,dA+\sum_iA_{s,i}f_{s,i},
-\qquad
-M_n=\int_{A_c}\sigma_c y\,dA+\sum_iA_{s,i}f_{s,i}y_i.
+P_n=\int_{A_c}\sigma_c\,dA+\sum_iA_{s,i}f_{s,i}, \qquad M_n=\int_{A_c}\sigma_c y\,dA+\sum_iA_{s,i}f_{s,i}y_i.
 $$ {#eq-calculation-reinforced-equilibrium}
 
 El dominio adopta $\varepsilon_{cu}=0.003$, un bloque de compresión de
@@ -270,128 +201,77 @@ $E_s=`r formatCalculationFixed(ReinforcedSteel$modulusMPa, 0L)`$
 MPa, por lo que $\varepsilon_y=f_y/E_s$. El factor de resistencia varía como
 
 $$
-\phi=
-\begin{cases}
-0.65, & \varepsilon_t\leq\varepsilon_y,\\
-0.65+0.25\dfrac{\varepsilon_t-\varepsilon_y}{0.003},
-& \varepsilon_y<\varepsilon_t<\varepsilon_y+0.003,\\
-0.90, & \varepsilon_t\geq\varepsilon_y+0.003,
-\end{cases}
+\phi= \begin{cases} 0.65, & \varepsilon_t\leq\varepsilon_y,\\ 0.65+0.25\dfrac{\varepsilon_t-\varepsilon_y}{0.003}, & \varepsilon_y<\varepsilon_t<\varepsilon_y+0.003,\\ 0.90, & \varepsilon_t\geq\varepsilon_y+0.003, \end{cases}
 $$ {#eq-calculation-reinforced-strength-reduction}
 
-con el límite del factor de resistencia del artículo 21.2.2.3 y el límite de
-resistencia axial $P_{n,\max}=0.80P_o$ del artículo 22.4.2.1 de ACI 318-25
-[@ACI31825, tabla 21.2.2 y arts. 21.2.2.3, 22.2.1, 22.2.2 y 22.4.2]. La utilización
-se determina con el multiplicador radial $\lambda_*$ que satisface
+con el límite del factor de resistencia del artículo 21.2.2.3 y el límite de resistencia axial $P_{n,\max}=0.80P_o$ del artículo 22.4.2.1 de ACI 318-25
+[@ACI31825, tabla 21.2.2 y arts. 21.2.2.3, 22.2.1, 22.2.2 y 22.4.2]. La utilización se determina con el multiplicador radial $\lambda_*$ que satisface
 
 $$
-(\phi P_n,\phi M_n)=\lambda_*(P_u,M_u),
-\qquad
-U_{PM}=\frac{1}{\lambda_*}\leq1.
+(\phi P_n,\phi M_n)=\lambda_*(P_u,M_u), \qquad U_{PM}=\frac{1}{\lambda_*}\leq1.
 $$ {#eq-calculation-concrete-reinforced-utilization}
 
 El dominio se calcula con discretizaciones de
 `r formatCalculationFixed(ReinforcementStudy$domainBasePointCount, 0L)` y
 `r formatCalculationFixed(ReinforcementStudy$domainRefinedPointCount, 0L)`
-puntos y se acepta
-cuando la diferencia relativa de utilización no supera
-`r formatCalculationGeneral(ReinforcementStudy$convergenceTolerance)`.
-Las acciones perimetrales son comunes a las mallas simétricas
-`r ReinforcementMeshSentence` de cada espesor porque todas emplean la misma rigidez
-fisurada del hormigón. Para cada curva se
-selecciona, en cada límite de interfaz, el par $(P_u,M_u)$ que maximiza su
-utilización radial entre todas las posiciones angulares y combinaciones
-$EV/EH$. Por ello cada armadura presenta dos marcadores y la posición
-gobernante puede cambiar al modificarse el dominio resistente.
+puntos y se acepta cuando la diferencia relativa de utilización no supera
+`r formatCalculationGeneral(ReinforcementStudy$convergenceTolerance)`. Las acciones perimetrales son comunes a las mallas simétricas
+`r ReinforcementMeshSentence` de cada espesor porque todas emplean la misma rigidez fisurada del hormigón. Para cada curva se selecciona, en cada límite de interfaz, el par $(P_u,M_u)$ que maximiza su utilización radial entre todas las posiciones angulares y combinaciones
+$EV/EH$. Por ello cada armadura presenta dos marcadores y la posición gobernante puede cambiar al modificarse el dominio resistente.
 
-La comparación conserva el espesor, el hormigón y la calidad del acero. Para
-cada diámetro se calcula el área de las barras y la posición de sus capas a
-partir del espaciamiento y del recubrimiento. La
-sección de 100 mm se presenta en la
-@tbl-calculation-concrete-t100-axial-flexure-sweep y la
-@fig-pm-shotcrete100.
+La comparación conserva el espesor, el hormigón y la calidad del acero. Para cada diámetro se calcula el área de las barras y la posición de sus capas a partir del espaciamiento y del recubrimiento. La sección de 100 mm se presenta en la @tbl-calculation-concrete-t100-axial-flexure-sweep y la @fig-pm-shotcrete100.
 
 {{< include /_tbl/Calculation.concrete.t100.axial.flexure.sweep.ES.qmd >}}
 
 {{< include /_fig/PM.shotcrete100.ES.qmd >}}
 
-La sección de 150 mm se presenta en la
-@tbl-calculation-concrete-reinforced-axial-flexure-sweep y la
-@fig-pm-shotcrete150.
+La sección de 150 mm se presenta en la @tbl-calculation-concrete-reinforced-axial-flexure-sweep y la @fig-pm-shotcrete150.
 
 {{< include /_tbl/Calculation.concrete.reinforced.axial.flexure.sweep.ES.qmd >}}
 
 {{< include /_fig/PM.shotcrete150.ES.qmd >}}
 
-Cada curva es una envolvente resistente formada por estados compatibles de
-deformación de la sección. Las columnas $E_{PM}$ indican exclusivamente el
-resultado de la flexocompresión: `OK` para $U_{PM}\leq1$ y `FAIL` para
-$U_{PM}>1$. Las columnas $E_V$ presentan por separado el corte unidireccional según ACI 318-25. La
-columna $E$ combina esos dos resultados para cada cuantía. Para una
-sección sin armadura transversal se
-emplea
+Cada curva es una envolvente resistente formada por estados compatibles de deformación de la sección. Las columnas $E_{PM}$ indican exclusivamente el resultado de la flexocompresión: `OK` para $U_{PM}\leq1$ y `FAIL` para
+$U_{PM}>1$. Las columnas $E_V$ presentan por separado el corte unidireccional según ACI 318-25. La columna $E$ combina esos dos resultados para cada cuantía. Para una sección sin armadura transversal se emplea
 
 $$
-V_c=\left[0.66\lambda_s\rho_w^{1/3}\sqrt{f'_c}
-+\frac{N_u}{6A_g}\right]b_wd,
-\qquad
-\phi V_c=0.75V_c,
+V_c=\left[0.66\lambda_s\rho_w^{1/3}\sqrt{f'_c} +\frac{N_u}{6A_g}\right]b_wd, \qquad \phi V_c=0.75V_c,
 $$ {#eq-calculation-reinforced-shear}
 
 con los límites de los artículos 22.5.5.1.1 a 22.5.5.1.3. Las columnas
-$E_r^{*}$ presentan el control separado del desprendimiento radial del
-recubrimiento: una barra
-circunferencial curva, cuando trabaja a tracción, transmite una acción radial
-hacia el hormigón. El control limita el área de la capa interior que puede
-disponerse sin estribos radiales:
+$E_r^{*}$ presentan el control separado del desprendimiento radial del recubrimiento: una barra circunferencial curva, cuando trabaja a tracción, transmite una acción radial hacia el hormigón. El control limita el área de la capa interior que puede disponerse sin estribos radiales:
 
 $$
-A_{s,\max}=
-\frac{110720\,r_sF_{rp}\sqrt{f'_c}\,R_\phi F_{rt}}{f_y}.
+A_{s,\max}= \frac{110720\,r_sF_{rp}\sqrt{f'_c}\,R_\phi F_{rt}}{f_y}.
 $$ {#eq-calculation-reinforced-radial-tension}
 
 La expresión corresponde al artículo 12.10.4.2.4c de CIRSOC 804-4
 [@CIRSOC8044].
 
-La sensibilidad de las familias $P$--$M$ al módulo de deformación del terreno
-se evalúa con los mismos módulos que las comprobaciones del hormigón simple.
-La @tbl-calculation-sensitivity-pm100 y la
-@tbl-calculation-sensitivity-pm150 presentan las utilizaciones de ambos
-espesores. Para la sección de 100 mm, con el módulo adoptado de
+La sensibilidad de las familias $P$--$M$ al módulo de deformación del terreno se evalúa con los mismos módulos que las comprobaciones del hormigón simple. La @tbl-calculation-sensitivity-pm100 y la @tbl-calculation-sensitivity-pm150 presentan las utilizaciones de ambos espesores. Para la sección de 100 mm, con el módulo adoptado de
 `r formatCalculationFixed(SensitivityFirst, 0L)` MPa
 `r SensitivityPassSentence("shotcrete", SensitivityFirst, object = TRUE)`
 y con `r formatCalculationFixed(SensitivityLast, 0L)` MPa
-`r SensitivityPassSentence("shotcrete", SensitivityLast)`. Para la sección de
-150 mm, los dictámenes de
+`r SensitivityPassSentence("shotcrete", SensitivityLast)`. Para la sección de 150 mm, los dictámenes de
 `r FormatSpanishList(SensitivityFlips("reinforcedConcrete"))`
 cambian dentro del rango: con el módulo adoptado
 `r SensitivityPassSentence("reinforcedConcrete", SensitivityFirst)`
 y con `r formatCalculationFixed(SensitivityLast, 0L)` MPa
-`r SensitivityPassSentence("reinforcedConcrete", SensitivityLast)`. La
-selección de armadura de este espesor depende del módulo que confirme la
-caracterización geotécnica de diseño.
+`r SensitivityPassSentence("reinforcedConcrete", SensitivityLast)`. La selección de armadura de este espesor depende del módulo que confirme la caracterización geotécnica de diseño.
 
 {{< include /_tbl/Calculation.sensitivity.pm100.ES.qmd >}}
 
 {{< include /_tbl/Calculation.sensitivity.pm150.ES.qmd >}}
 
-La @fig-pm-sensitivity-shotcrete100 y la @fig-pm-sensitivity-shotcrete150
-superponen a los dominios resistentes las trayectorias de la demanda
-gobernante de la malla S8 para cada módulo. La fuerza axial gobernante se
-mantiene aproximadamente constante y el momento concurrente se reduce con el
-módulo, de modo que la demanda se desplaza hacia el interior del dominio.
+La @fig-pm-sensitivity-shotcrete100 y la @fig-pm-sensitivity-shotcrete150 superponen a los dominios resistentes las trayectorias de la demanda gobernante de la malla S8 para cada módulo. La fuerza axial gobernante se mantiene aproximadamente constante y el momento concurrente se reduce con el módulo, de modo que la demanda se desplaza hacia el interior del dominio.
 
 {{< include /_fig/PMSensitivity.shotcrete100.ES.qmd >}}
 
 {{< include /_fig/PMSensitivity.shotcrete150.ES.qmd >}}
 
-En síntesis, en las comprobaciones de tracción y corte, el hormigón simple de
-100 mm
-`r if (Plain100Pass) "satisface" else "no satisface"` y el hormigón simple de
-150 mm
+En síntesis, en las comprobaciones de tracción y corte, el hormigón simple de 100 mm
+`r if (Plain100Pass) "satisface" else "no satisface"` y el hormigón simple de 150 mm
 `r if (Plain150Pass) "satisface" else "no satisface"`.
 `r ReinforcementConclusion("shotcrete")`
 `r ReinforcementConclusion("reinforcedConcrete")`
-La selección de espesor y armadura deberá considerar conjuntamente la
-flexocompresión y el corte, además del control separado de desprendimiento
-radial y las condiciones de la interfaz con la chapa existente.
+La selección de espesor y armadura deberá considerar conjuntamente la flexocompresión y el corte, además del control separado de desprendimiento radial y las condiciones de la interfaz con la chapa existente.

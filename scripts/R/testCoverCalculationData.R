@@ -110,6 +110,14 @@ runCoverCalculationDataTests <- function() {
   }
 
   Baseline <- buildVariant("cover-h2", Config)
+  ForeignDirectory <- file.path(Baseline$outputDirectory, "ring")
+  dir.create(ForeignDirectory)
+  writeLines("marker", file.path(ForeignDirectory, "marker.txt"))
+  Baseline <- buildVariant("cover-h2", Config)
+  stopifnot(
+    dir.exists(ForeignDirectory),
+    file.exists(file.path(ForeignDirectory, "marker.txt"))
+  )
   Files <- c(
     "calculation.config.json", "calculation.inputs.csv", "stress.state.csv",
     "section.properties.csv", "interaction.parameters.csv",

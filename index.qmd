@@ -1,5 +1,5 @@
 ---
-title: "Portada"
+title: "Resumen Ejecutivo"
 format:
   html:
     body-classes: cover-page
@@ -19,4 +19,4 @@ source(file.path(root, "scripts", "setup", "cover.R"), local = TRUE)
 cat("```{=html}\n", buildCoverReport(params), "\n```\n", sep = "")
 ```
 
-{{< include /_index/executive.ES.qmd >}}
+{{< include /_chapters/executive.ES.qmd >}}

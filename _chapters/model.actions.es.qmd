@@ -1,168 +1,106 @@
-El estado de cálculo se define mediante las tensiones efectivas en la cota del
-centro del túnel, antes de introducir el revestimiento. $H_0$ es la altura del
-relleno compactado comprendido entre la clave y la base de la capa superior de
-lodo; $H_1$ y $\gamma_1$ son la altura y el peso unitario de esa capa superior.
-Su peso produce la presión permanente uniforme
+El estado de cálculo se define mediante las tensiones efectivas en la cota del centro del túnel, antes de introducir el revestimiento. $H_0$ es la altura del relleno compactado comprendido entre la clave y la base de la capa superior de lodo; $H_1$ y $\gamma_1$ son la altura y el peso unitario de esa capa superior. Su peso produce la presión permanente uniforme
 
 $$
 q_D=\gamma_1H_1.
 $$ {#eq-calculation-upper-layer-pressure}
 
-Si $R$ es la distancia desde la clave hasta el centro de la sección, la
-profundidad de referencia dentro del relleno inferior es
+Si $R$ es la distancia desde la clave hasta el centro de la sección, la profundidad de referencia dentro del relleno inferior es
 
 $$
 z_{ref}=H_0+R.
 $$ {#eq-calculation-reference-depth}
 
-La tensión vertical efectiva se calcula
-como
+La tensión vertical efectiva se calcula como
 
 $$
-\sigma'_v(z_{ref})=q_D+\gamma'_0 z_{ref},
+\sigma'_v (z_{ref})=q_D+\gamma'_0 z_{ref},
 $$ {#eq-calculation-vertical-effective-stress}
 
-La capa de lodo y el relleno inferior son acciones permanentes; no se introduce
-una carga viva. La
-presión hidráulica neta adoptada es
+La capa de lodo y el relleno inferior son acciones permanentes; no se introduce una carga viva. La presión hidráulica neta adoptada es
 `r formatCalculationFixed(Calculation$config$action$waterPressureDifferenceKPa, 1L)`
-kPa y la tensión horizontal residual de compactación se adopta igual a cero;
-ambas magnitudes se actualizarán cuando la investigación del relleno y la
-condición de agua las cuantifique.
+kPa y la tensión horizontal residual de compactación se adopta igual a cero; ambas magnitudes se actualizarán cuando la investigación del relleno y la condición de agua las cuantifique.
 
-El coeficiente de presión en reposo relaciona las tensiones efectivas horizontal
-y vertical:
+El coeficiente de presión en reposo relaciona las tensiones efectivas horizontal y vertical:
 
 $$
-K_0=\frac{\sigma'_h}{\sigma'_v},
-\qquad
-\sigma'_h=K_0\sigma'_v.
+K_0=\frac{\sigma'_h}{\sigma'_v}, \qquad \sigma'_h=K_0\sigma'_v.
 $$ {#eq-calculation-k0}
 
-La rama empleada corresponde a la relación de Jáky para una condición
-normalmente consolidada [@Michalowski2005; @ChristopherEtAl2006]:
+La rama empleada corresponde a la relación de Jáky para una condición normalmente consolidada [@Michalowski2005; @ChristopherEtAl2006]:
 
 $$
 K_0=1-\sin\phi'.
 $$ {#eq-calculation-k0-application}
 
 Con
-$\phi'=`r formatCalculationFixed(Calculation$stress$frictionAngleDeg, 0L)`^\circ$,
-se obtiene $K_0=`r formatCalculationGeneral(Calculation$stress$k0Applied)`$.
-Las expresiones aplicables a otras trayectorias tensionales y las acciones
-de compactación se presentan en @sec-calculation-appendix-k0.
+$\phi'=`r formatCalculationFixed(Calculation$stress$frictionAngleDeg, 0L)`^\circ$, se obtiene $K_0=`r formatCalculationGeneral(Calculation$stress$k0Applied)`$. Las expresiones aplicables a otras trayectorias tensionales y las acciones de compactación se presentan en @sec-calculation-appendix-k0.
 
-En la cota de referencia se define el estado de campo libre utilizado por
-Schwartz--Einstein:
+En la cota de referencia se define el estado de campo libre utilizado por Schwartz--Einstein:
 
 $$
-P_{SE}=\sigma'_{v,A},
-\qquad
-K_{SE}=\frac{\sigma'_{h,A}}{\sigma'_{v,A}}.
+P_{SE}=\sigma'_{v,A}, \qquad K_{SE}=\frac{\sigma'_{h,A}}{\sigma'_{v,A}}.
 $$ {#eq-calculation-se-action-state}
 
-La solución de carga externa transforma este estado en resultantes del anillo
-mediante las razones de rigidez $C^*$ y $F^*$ de cada revestimiento y las
-condiciones de interfaz con deslizamiento libre y sin deslizamiento. La presión
-hidráulica neta uniforme se superpone a la componente media de fuerza
-circunferencial. Las expresiones completas se presentan en la metodología
-ampliada.
+La solución de carga externa transforma este estado en resultantes del anillo mediante las razones de rigidez $C^*$ y $F^*$ de cada revestimiento y las condiciones de interfaz con deslizamiento libre y sin deslizamiento. La presión hidráulica neta uniforme se superpone a la componente media de fuerza circunferencial. Las expresiones completas se presentan en la metodología ampliada.
 
-Para verificar independientemente el equilibrio, el mismo estado biaxial se
-proyecta como una carga prescrita sobre un plano tangente a la pared. Esa
-proyección produce una presión normal $p'_n$ y una componente paralela
+Para verificar independientemente el equilibrio, el mismo estado biaxial se proyecta como una carga prescrita sobre un plano tangente a la pared. Esa proyección produce una presión normal $p'_n$ y una componente paralela
 $p_t^*$:
 
 $$
-\begin{aligned}
-p'_n(\theta)&=\sigma'_{v,A}\cos^2\theta
-  +\sigma'_{h,A}\sin^2\theta,\\
-p_t^*(\theta)&=(\sigma'_{v,A}-\sigma'_{h,A})
-  \sin\theta\cos\theta,\\
-p_n(\theta)&=p'_n(\theta)+\Delta u_A.
-\end{aligned}
+\begin{aligned} p'_n (\theta)&=\sigma'_{v,A}\cos^2\theta +\sigma'_{h,A}\sin^2\theta,\\ p_t^*(\theta)&= (\sigma'_{v,A}-\sigma'_{h,A})
+\sin\theta\cos\theta,\\ p_n (\theta)&=p'_n (\theta)+\Delta u_A. \end{aligned}
 $$ {#eq-calculation-stress-projection}
 
 Las acciones estructurales se escriben como
 
 $$
-P_r(\theta)=-p_n(\theta),
-\qquad
-P_t(\theta)=\lambda_t p_t^*(\theta),
-\qquad 0\leq\lambda_t\leq1.
+P_r (\theta)=-p_n (\theta), \qquad P_t (\theta)=\lambda_t p_t^*(\theta), \qquad 0\leq\lambda_t\leq1.
 $$ {#eq-calculation-tangential-multiplier}
 
-En esta comprobación de carga prescrita, $\lambda_t=1$ representa el vector
-proyectado completo y $\lambda_t=0$ representa su componente normal. La solución
-Schwartz--Einstein caracteriza el contacto mediante sus propios coeficientes
-para deslizamiento libre y ausencia de deslizamiento.
+En esta comprobación de carga prescrita, $\lambda_t=1$ representa el vector proyectado completo y $\lambda_t=0$ representa su componente normal. La solución Schwartz--Einstein caracteriza el contacto mediante sus propios coeficientes para deslizamiento libre y ausencia de deslizamiento.
 
 Definiendo
 
 $$
-p_m=\Delta u_A+\frac{\sigma'_{v,A}+\sigma'_{h,A}}{2},
-\qquad
-\Delta\sigma=\sigma'_{v,A}-\sigma'_{h,A},
+p_m=\Delta u_A+\frac{\sigma'_{v,A}+\sigma'_{h,A}}{2}, \qquad \Delta\sigma=\sigma'_{v,A}-\sigma'_{h,A},
 $$
 
 las acciones quedan
 
 $$
-P_r(\theta)=-p_m-\frac{\Delta\sigma}{2}\cos2\theta,
-\qquad
-P_t(\theta)=\lambda_t\frac{\Delta\sigma}{2}\sin2\theta.
+P_r (\theta)=-p_m-\frac{\Delta\sigma}{2}\cos2\theta, \qquad P_t (\theta)=\lambda_t\frac{\Delta\sigma}{2}\sin2\theta.
 $$ {#eq-calculation-biaxial-load}
 
-$\sigma'_{v,A}$ y $\sigma'_{h,A}$ son las tensiones principales del campo libre
-en el eje. Su proyección sobre el contorno circular produce la dependencia
-angular de la @eq-calculation-biaxial-load y los modos de Fourier $n=0,2$.
+$\sigma'_{v,A}$ y $\sigma'_{h,A}$ son las tensiones principales del campo libre en el eje. Su proyección sobre el contorno circular produce la dependencia angular de la @eq-calculation-biaxial-load y los modos de Fourier $n=0,2$.
 
-La profundidad local y las tensiones efectivas alrededor del contorno se
-definen mediante
+La profundidad local y las tensiones efectivas alrededor del contorno se definen mediante
 
 $$
-z(\theta)=z_{ref}-R\cos\theta,
+z (\theta)=z_{ref}-R\cos\theta,
 $$
 
 $$
-\sigma'_v(\theta)=\sigma'_{v,A}-\gamma_vR\cos\theta,
-\qquad
-\sigma'_h(\theta)=\sigma'_{h,A}-\gamma_hR\cos\theta.
+\sigma'_v (\theta)=\sigma'_{v,A}-\gamma_vR\cos\theta, \qquad \sigma'_h (\theta)=\sigma'_{h,A}-\gamma_hR\cos\theta.
 $$ {#eq-calculation-local-geostatic-stress}
 
 Para el relleno inferior homogéneo con $K_0$ constante,
-$\gamma_v=\gamma'_0$ y $\gamma_h=K_0\gamma'_0$. La diferencia respecto del estado
-uniforme del eje se proyecta como
+$\gamma_v=\gamma'_0$ y $\gamma_h=K_0\gamma'_0$. La diferencia respecto del estado uniforme del eje se proyecta como
 
 $$
-\Delta P_r(\theta)=a_1^g\cos\theta+a_3^g\cos3\theta,
-\qquad
-\Delta P_t(\theta)=d_1^g\sin\theta+d_3^g\sin3\theta,
+\Delta P_r (\theta)=a_1^g\cos\theta+a_3^g\cos3\theta, \qquad \Delta P_t (\theta)=d_1^g\sin\theta+d_3^g\sin3\theta,
 $$
 
 $$
-\begin{aligned}
-a_1^g&=\frac{R}{4}(3\gamma_v+\gamma_h),
-&d_1^g&=-\frac{R}{4}(\gamma_v-\gamma_h),\\
-a_3^g&=\frac{R}{4}(\gamma_v-\gamma_h),
-&d_3^g&=-\frac{R}{4}(\gamma_v-\gamma_h).
-\end{aligned}
+\begin{aligned} a_1^g&=\frac{R}{4} (3\gamma_v+\gamma_h), &d_1^g&=-\frac{R}{4} (\gamma_v-\gamma_h),\\ a_3^g&=\frac{R}{4} (\gamma_v-\gamma_h), &d_3^g&=-\frac{R}{4} (\gamma_v-\gamma_h). \end{aligned}
 $$ {#eq-calculation-linear-gradient-load}
 
-La resultante gravitatoria del modo $n=1$ se equilibra con una reacción radial
-distribuida de coeficiente $a_1^s=-R\gamma_v$. Con
+La resultante gravitatoria del modo $n=1$ se equilibra con una reacción radial distribuida de coeficiente $a_1^s=-R\gamma_v$. Con
 $\Delta\gamma=\gamma_v-\gamma_h$, la corrección resultante es
 
 $$
-\Delta N_\theta(\theta)=
--\frac{R^2\Delta\gamma}{4}\cos\theta
--\frac{R^2\Delta\gamma}{8}\cos3\theta,
+\Delta N_\theta (\theta)= -\frac{R^2\Delta\gamma}{4}\cos\theta -\frac{R^2\Delta\gamma}{8}\cos3\theta,
 $$
 
 $$
-\Delta M_\theta(\theta)=
--\frac{R^3\Delta\gamma}{24}\cos3\theta,
-\qquad
-\Delta Q_\theta(\theta)=
-\frac{R^2\Delta\gamma}{8}\sin3\theta.
+\Delta M_\theta (\theta)= -\frac{R^3\Delta\gamma}{24}\cos3\theta, \qquad \Delta Q_\theta (\theta)= \frac{R^2\Delta\gamma}{8}\sin3\theta.
 $$ {#eq-calculation-balanced-gradient-resultants}
