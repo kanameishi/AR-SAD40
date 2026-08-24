@@ -1,0 +1,28 @@
+```{r}
+#| include: false
+source("scripts/fig/Resultants.R")
+PLOT <- buildCalculationResultantsInteractive(
+  pathCurves = Calculation$paths$shotcreteResultants,
+  pathScales = Calculation$paths$shotcreteScales,
+  radius = Calculation$reinforcedConcrete$section$centroidalRadiusM,
+  graphicAmplification =
+    Calculation$reinforcedConcrete$display$graphicAmplification,
+  raysPerCircle = Calculation$reinforcedConcrete$display$raysPerCircle,
+  liningID = "reinforcedConcrete",
+  scaleMode = "local-by-lining-and-resultant"
+)
+```
+
+```{r}
+#| label: fig-resultants-shotcrete150
+#| fig-cap: !expr CAP
+#| echo: false
+#| out-width: 100%
+#| fig-align: center
+PLOT
+```
+
+```{r}
+#| include: false
+rm(CAP, PLOT, buildCalculationResultantsInteractive)
+```

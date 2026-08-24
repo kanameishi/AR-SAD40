@@ -1,0 +1,11 @@
+```{r}
+#| include: false
+CAP.PM100 <- readCaption("fig.PM.shotcrete100.ES")
+```
+
+{{< include /_fig/PM.shotcrete100.qmd >}}
+
+```{r}
+#| include: false
+rm(CAP.PM100)
+```

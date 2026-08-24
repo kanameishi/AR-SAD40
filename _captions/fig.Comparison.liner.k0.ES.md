@@ -1,0 +1,1 @@
+Distribuciones polares de fuerza normal, momento flector y corte para la chapa corrugada con el campo $K_0$ prescrito. Las curvas corresponden a la proyección tangencial completa y a la acción exclusivamente normal.

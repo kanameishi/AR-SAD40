@@ -1,8 +1,6 @@
-source("scripts/fig/Calculation.resultants.R")
-source("scripts/fig/Calculation.envelopes.R")
-source("scripts/fig/Calculation.extrema.quantiles.R")
-source("scripts/fig/Calculation.compaction.stages.R")
-source("scripts/fig/Calculation.concrete.axial.flexure.R")
+source("scripts/fig/Resultants.R")
+source("scripts/fig/PM.R")
+source("scripts/fig/Comparison.R")
 source("scripts/tbl/Calculation.concrete.reinforcement.sweep.R")
 
 PathCurves <- "data/calculation/section.resultants.csv"
@@ -18,42 +16,6 @@ stopifnot(
   length(GraphicAmplification) == 1L,
   length(RadialFraction) == 1L
 )
-resultants <- buildCalculationResultants(
-  PathCurves,
-  PathScales,
-  Radius,
-  graphicAmplification = GraphicAmplification,
-  raysPerCircle = OrdinateCount
-)
-stopifnot(inherits(resultants, "ggplot"))
-stopifnot(identical(resultants$coordinates$ratio, 1))
-stopifnot(length(resultants$layers) == 4L)
-rays <- resultants$layers[[2L]]$data
-stopifnot(inherits(resultants$layers[[2L]]$geom, "GeomSegment"))
-stopifnot(nrow(rays) == 6L * OrdinateCount)
-sectionResidual <- abs(rays$xSection^2 + rays$ySection^2 - Radius^2)
-stopifnot(max(sectionResidual) < 1e-12 * Radius^2)
-rayLengths <- sqrt(
-  (rays$x - rays$xSection)^2 + (rays$y - rays$ySection)^2
-)
-expectedLengths <- abs(rays$displayScale * rays$value)
-stopifnot(max(abs(rayLengths - expectedLengths)) < 1e-12)
-stopifnot(all(rays$graphicAmplification == GraphicAmplification))
-stopifnot(all(abs(
-  rays$radialFraction - GraphicAmplification * RadialFraction
-) < 1e-14))
-stopifnot(all(abs(
-  rays$displayScale - GraphicAmplification * rays$baseDisplayScale
-) < 1e-14))
-stopifnot(identical(levels(rays$sign), c("positive", "negative")))
-curves <- resultants$layers[[3L]]$data
-curveGroups <- split(curves, interaction(curves$case, curves$resultant))
-stopifnot(length(curveGroups) == 6L)
-stopifnot(all(vapply(curveGroups, function(current) {
-  isTRUE(all.equal(current$x[1L], current$x[nrow(current)], tolerance = 1e-12)) &&
-    isTRUE(all.equal(current$y[1L], current$y[nrow(current)], tolerance = 1e-12))
-}, logical(1))))
-
 Interactive <- buildCalculationResultantsInteractive(
   PathCurves,
   PathScales,
@@ -79,11 +41,19 @@ DashByName <- stats::setNames(
 )
 stopifnot(identical(
   unname(DashByName[c(
-    "Schwartz–Einstein: deslizamiento libre",
-    "Schwartz–Einstein: sin deslizamiento"
+    "Modelo híbrido: Slip (S)",
+    "Modelo híbrido: No Slip (NS)"
   )]),
   c("ShortDash", "Dash")
 ))
+stopifnot(
+  is.null(Interactive$x$hc_opts$subtitle),
+  !grepl(
+    "Schwartz–Einstein",
+    paste(names(DashByName), collapse = " "),
+    fixed = TRUE
+  )
+)
 ReferenceSeries <- Filter(function(x) {
   identical(x$name, "Reference section")
 }, Series)
@@ -115,7 +85,7 @@ Geometry <- .readResultantGeometry(
 )
 stopifnot(identical(
   unique(as.character(Geometry$case)),
-  c("alpha-1", "alpha-0")
+  c("slip", "no-slip")
 ))
 stopifnot(identical(
   unique(Geometry$interfaceID),
@@ -154,11 +124,7 @@ LocalMomentInteractive <- buildCalculationResultantsInteractive(
 )
 stopifnot(
   inherits(LocalMomentInteractive, "highchart"),
-  grepl(
-    "escala radial propia de esta sección y resultante",
-    LocalMomentInteractive$x$hc_opts$subtitle$text,
-    fixed = TRUE
-  )
+  is.null(LocalMomentInteractive$x$hc_opts$subtitle)
 )
 PathConcreteCurves <- "data/calculation/shotcrete.section.resultants.csv"
 PathConcreteScales <- "data/calculation/shotcrete.display.scales.csv"
@@ -228,11 +194,11 @@ ReinforcedGeometry <- .readResultantGeometry(
 stopifnot(
   identical(
     unique(as.character(ConcreteGeometry$case)),
-    c("alpha-1", "alpha-0")
+    c("slip", "no-slip")
   ),
   identical(
     unique(as.character(ReinforcedGeometry$case)),
-    c("alpha-1", "alpha-0")
+    c("slip", "no-slip")
   ),
   identical(unique(ConcreteGeometry$interfaceID), c("full-slip", "no-slip")),
   identical(unique(ReinforcedGeometry$interfaceID), c("full-slip", "no-slip")),
@@ -283,36 +249,50 @@ stopifnot(
   identical(
     vapply(AxialFlexureSeries, `[[`, character(1), "name"),
     c(
-      "Referencia inferior · rho=0.18% · As=2.7 cm2/m",
-      "rho=1.00% · As=15.0 cm2/m",
-      "rho=2.00% · As=30.0 cm2/m",
-      "rho=3.00% · As=45.0 cm2/m",
-      "Chapa existente + Ø8/150 interior",
-      "Referencia inferior · rho=0.18% · As=2.7 cm2/m",
-      "rho=1.00% · As=15.0 cm2/m",
-      "rho=2.00% · As=30.0 cm2/m",
-      "rho=3.00% · As=45.0 cm2/m",
-      "Chapa existente + Ø8/150 interior"
+      "S8 · Ø8/150 · rho=0.45% · As=6.7 cm2/m",
+      "S10 · Ø10/150 · rho=0.70% · As=10.5 cm2/m",
+      "S12 · Ø12/150 · rho=1.01% · As=15.1 cm2/m",
+      "S8 · Ø8/150 · rho=0.45% · As=6.7 cm2/m",
+      "S10 · Ø10/150 · rho=0.70% · As=10.5 cm2/m",
+      "S12 · Ø12/150 · rho=1.01% · As=15.1 cm2/m"
     )
   ),
   identical(
     vapply(
-      AxialFlexureSeries[seq_len(5L)],
+      AxialFlexureSeries[seq_len(3L)],
       function(x) length(x[["data"]]),
       integer(1)
     ),
-    c(rep(1207L, 4L), 1211L)
+    c(447L, 440L, 435L)
   ),
   identical(
     vapply(
-      AxialFlexureSeries[-seq_len(5L)],
+      AxialFlexureSeries[-seq_len(3L)],
       function(x) length(x[["data"]]),
       integer(1)
     ),
-    rep(2L, 5L)
+    rep(2L, 3L)
   ),
+  identical(
+    vapply(
+      AxialFlexureSeries[-seq_len(3L)],
+      function(x) x[["data"]][[1L]][["marker"]][["radius"]],
+      numeric(1)
+    ),
+    c(6, 8, 10)
+  ),
+  all(vapply(
+    AxialFlexureSeries[-seq_len(4L)],
+    function(x) {
+      identical(
+        x[["data"]][[1L]][["marker"]][["lineColor"]],
+        x[["color"]]
+      )
+    },
+    logical(1)
+  )),
   all(!vapply(
-    AxialFlexureSeries[-seq_len(5L)],
+    AxialFlexureSeries[-seq_len(4L)],
     function(x) isTRUE(x$showInLegend),
     logical(1)
   ))
@@ -321,162 +301,132 @@ ReinforcementSweepTable <- buildCalculationConcreteReinforcementSweepTable(
   "data/calculation/shotcrete.axial.flexure.reinforcement.sweep.csv",
   "reinforcedConcrete"
 )
-ReinforcementSweepText <- as.character(ReinforcementSweepTable)
+ReinforcementSweepText <- unlist(
+  ReinforcementSweepTable$body$dataset,
+  use.names = FALSE
+)
 stopifnot(
-  inherits(ReinforcementSweepTable, "knitr_kable"),
-  any(grepl("2.00", ReinforcementSweepText, fixed = TRUE)),
-  any(grepl("Excede el dominio", ReinforcementSweepText, fixed = TRUE)),
-  any(grepl("Dentro del dominio", ReinforcementSweepText, fixed = TRUE))
+  inherits(ReinforcementSweepTable, "flextable"),
+  any(grepl("S12", ReinforcementSweepText, fixed = TRUE)),
+  any(grepl("FAIL", ReinforcementSweepText, fixed = TRUE)),
+  any(grepl("OK", ReinforcementSweepText, fixed = TRUE))
 )
-Baseline <- buildRingComparisonPlot(
-  geometry = Geometry,
-  baselineRadius = Radius,
-  raysPerCircle = OrdinateCount,
-  subtitle = paste0(
-    "Interacción Schwartz–Einstein; escala radial común de los productos; amplificación gráfica Ag = ",
-    GraphicAmplification,
-    ". La lectura interactiva conserva las magnitudes físicas."
+ComparisonCurves <- utils::read.csv(
+  "data/calculation/classical.comparison.curves.csv",
+  check.names = FALSE
+)
+ComparisonMethods <- c(
+  "official-hybrid",
+  "schwartz-einstein-uniform",
+  "prescribed-k0-ring"
+)
+ComparisonPlots <- lapply(ComparisonMethods, function(MethodID) {
+  buildCalculationClassicalComparisonFigure(
+    ComparisonCurves,
+    "steel",
+    MethodID
+  )
+})
+stopifnot(
+  all(vapply(ComparisonPlots, inherits, logical(1), "highchart")),
+  all(vapply(ComparisonPlots, function(Plot) {
+    identical(attr(Plot, "sectionLayout"), "responsive-square-panels")
+  }, logical(1))),
+  all(vapply(ComparisonPlots, function(Plot) {
+    sum(vapply(
+      Plot$x$hc_opts$series,
+      function(Series) isTRUE(Series$showInLegend),
+      logical(1)
+    )) == 2L
+  }, logical(1)))
+)
+source("scripts/tbl/Calculation.sensitivity.R")
+SensitivitySteel <- utils::read.csv(
+  "data/calculation/sensitivity.steel.extrema.csv",
+  check.names = FALSE
+)
+SensitivityAashto <- utils::read.csv(
+  "data/calculation/sensitivity.aashto.checks.csv",
+  check.names = FALSE
+)
+SensitivityPlain <- utils::read.csv(
+  "data/calculation/sensitivity.plain.checks.csv",
+  check.names = FALSE
+)
+SensitivitySweep <- utils::read.csv(
+  "data/calculation/sensitivity.pm.sweep.csv",
+  check.names = FALSE
+)
+SensitivityDemands <- utils::read.csv(
+  "data/calculation/sensitivity.pm.demands.csv",
+  check.names = FALSE
+)
+SensitivityModuli <- sort(unique(SensitivitySteel$modulusMPa))
+stopifnot(
+  length(SensitivityModuli) >= 2L,
+  nrow(SensitivitySteel) == 6L * length(SensitivityModuli),
+  nrow(SensitivityAashto) == 5L * length(SensitivityModuli),
+  nrow(SensitivityPlain) == 4L * length(SensitivityModuli),
+  nrow(SensitivitySweep) == 6L * length(SensitivityModuli),
+  nrow(SensitivityDemands) == 12L * length(SensitivityModuli),
+  identical(
+    sort(unique(SensitivityAashto$modulusMPa)),
+    SensitivityModuli
+  ),
+  identical(
+    sort(unique(SensitivityDemands$modulusMPa)),
+    SensitivityModuli
+  ),
+  setequal(
+    unique(SensitivityPlain$liningID),
+    c("shotcrete", "plainConcrete150")
+  ),
+  all(is.finite(SensitivitySweep$maximumRadialUtilization))
+)
+SensitivityTables <- list(
+  buildCalculationSensitivitySteelTable(
+    "data/calculation/sensitivity.steel.extrema.csv"
+  ),
+  buildCalculationSensitivityPlainTable(
+    "data/calculation/sensitivity.plain.checks.csv"
+  ),
+  buildCalculationSensitivityPmTable(
+    "data/calculation/sensitivity.pm.sweep.csv",
+    "shotcrete"
+  ),
+  buildCalculationSensitivityPmTable(
+    "data/calculation/sensitivity.pm.sweep.csv",
+    "reinforcedConcrete"
   )
 )
-Baseline$x$hc_opts$tooltip <- Interactive$x$hc_opts$tooltip
-stopifnot(identical(Baseline$x$hc_opts, Interactive$x$hc_opts))
-stopifnot(identical(Baseline$width, Interactive$width))
-stopifnot(identical(Baseline$height, Interactive$height))
-stopifnot(identical(Baseline$dependencies, Interactive$dependencies))
-CurveSeries <- Filter(function(x) {
-  length(x$data) > 0L && !is.null(x$data[[1L]]$custom)
-}, Series)
-stopifnot(length(CurveSeries) == 6L)
-for (v in CurveSeries) {
-  Resultant <- v$data[[1L]]$custom$resultant
-  CurrentGeometry <- Geometry[
-    Geometry$prescription == v$name &
-      Geometry$resultant == Resultant,
-    ,
-    drop = FALSE
-  ]
-  Values <- vapply(v$data, function(x) x$custom$value, numeric(1))
-  X <- vapply(v$data, `[[`, numeric(1), "x")
-  Y <- vapply(v$data, `[[`, numeric(1), "y")
-  stopifnot(identical(Values, CurrentGeometry$value))
-  stopifnot(identical(X, CurrentGeometry$x))
-  stopifnot(identical(Y, CurrentGeometry$y))
-}
-RaySeries <- Filter(function(x) {
-  !is.null(x$linkedTo) && isFALSE(x$enableMouseTracking)
-}, Series)
-stopifnot(length(RaySeries) == 10L)
-stopifnot(all(vapply(RaySeries, function(x) {
-  isFALSE(x$requireSorting)
-}, logical(1))))
-for (v in RaySeries) {
-  NullPositions <- which(vapply(v$data, is.null, logical(1)))
-  stopifnot(identical(NullPositions, seq(3L, length(v$data), by = 3L)))
-}
-Cases <- unique(Geometry$case)
-PhasedRays <- prepareRingRays(
-  geometry = Geometry,
-  baselineRadius = Radius,
-  raysPerCircle = OrdinateCount,
-  phaseDegByCase = stats::setNames(c(0, 5), Cases)
-)
-SignSeries <- nrow(unique(PhasedRays[c("case", "resultant", "sign")]))
-stopifnot(length(Series) == 6L + 3L * length(Cases) + SignSeries)
-Linked <- vapply(Series, function(x) {
-  if (is.null(x$linkedTo)) "" else x$linkedTo
-}, character(1))
-stopifnot(sum(Linked %in% GroupIDs) == 3L * length(Cases) + SignSeries - length(Cases))
-FirstAngles <- vapply(Cases, function(s) {
-  min(PhasedRays$thetaDeg[PhasedRays$case == s])
-}, numeric(1))
-stopifnot(abs(FirstAngles[1L]) < 1e-12)
-stopifnot(abs(FirstAngles[2L] - 5) < 0.3)
-
-theta <- (0:71) * 2 * pi / 72
-quantiles <- do.call(rbind, lapply(c(0.05, 0.50, 0.95), function(probability) {
-  data.frame(
-    model = "mathematical-control",
-    resultant = "M",
-    probability = probability,
-    thetaIndex = seq_along(theta) - 1L,
-    theta = theta,
-    thetaDeg = theta * 180 / pi,
-    value = 10 * cos(2 * theta) + c(`0.05` = -2, `0.5` = 0, `0.95` = 2)[as.character(probability)],
-    unit = "kN m/m",
-    sampleCount = 1000L,
-    quantileType = 7L,
-    statisticScope = "pointwise",
-    stringsAsFactors = FALSE
+stopifnot(all(vapply(
+  SensitivityTables,
+  inherits,
+  logical(1),
+  "flextable"
+)))
+for (SensitivityLiningID in c("shotcrete", "reinforcedConcrete")) {
+  SensitivityPlot <- buildCalculationConcreteAxialFlexureSensitivityPlot(
+    "data/calculation/shotcrete.axial.flexure.reinforcement.domains.csv",
+    "data/calculation/shotcrete.axial.flexure.reinforcement.sweep.csv",
+    "data/calculation/sensitivity.pm.demands.csv",
+    liningID = SensitivityLiningID
   )
-}))
-quantilePath <- tempfile(fileext = ".csv")
-utils::write.csv(quantiles, quantilePath, row.names = FALSE)
-envelope <- buildCalculationEnvelopes(quantilePath, "M", 0.02, Radius)
-stopifnot(inherits(envelope, "highchart"))
-
-extrema <- expand.grid(
-  model = "mathematical-control",
-  resultant = c("N", "M", "Q"),
-  statistic = "absoluteMaximum",
-  probability = c(0.05, 0.50, 0.95),
-  stringsAsFactors = FALSE
-)
-extrema$value <- seq_len(nrow(extrema))
-extrema$unit <- "scaled"
-extrema$sampleCount <- 1000L
-extrema$quantileType <- 7L
-extrema$valueBasis <- "absolute"
-extrema$statisticScope <- "spatialExtremum"
-extremaPath <- tempfile(fileext = ".csv")
-utils::write.csv(extrema, extremaPath, row.names = FALSE)
-extremaChart <- buildCalculationExtremaQuantiles(extremaPath)
-stopifnot(inherits(extremaChart, "shiny.tag"))
-
-CanonicalCurves <- utils::read.csv(PathCurves, check.names = FALSE)
-stages <- data.frame(
-  case = CanonicalCurves$caseID,
-  stage = ifelse(
-    CanonicalCurves$interfaceID == "full-slip",
-    "Etapa 1",
-    "Etapa 2"
-  ),
-  model = "mathematical-control",
-  prescription = ifelse(
-    CanonicalCurves$interfaceID == "full-slip",
-    "Interfaz con deslizamiento libre",
-    "Interfaz sin deslizamiento"
-  ),
-  resultant = CanonicalCurves$resultantID,
-  thetaIndex = CanonicalCurves$thetaIndex,
-  theta = CanonicalCurves$thetaRad,
-  thetaDeg = CanonicalCurves$thetaDeg,
-  value = CanonicalCurves$value,
-  unit = CanonicalCurves$unit,
-  evidenceLevel = CanonicalCurves$evidenceLevel,
-  stringsAsFactors = FALSE
-)
-stagePath <- tempfile(fileext = ".csv")
-stageScalePath <- tempfile(fileext = ".csv")
-utils::write.csv(stages, stagePath, row.names = FALSE)
-utils::write.csv(
-  data.frame(
-    resultant = ScaleData$resultantID,
-    displayScale = ScaleData$displayScale,
-    maximumAbsoluteValue = ScaleData$maximumAbsoluteValue,
-    unit = ScaleData$resultantUnit,
-    radialFraction = ScaleData$radialFraction,
-    stringsAsFactors = FALSE
-  ),
-  stageScalePath,
-  row.names = FALSE
-)
-stageChart <- buildCalculationCompactionStages(
-  stagePath,
-  stageScalePath,
-  "N",
-  Radius
-)
-stopifnot(inherits(stageChart, "highchart"))
-
-unlink(c(quantilePath, extremaPath, stagePath, stageScalePath))
+  SensitivitySeries <- SensitivityPlot$x$hc_opts$series
+  SensitivityMarked <- vapply(
+    SensitivitySeries,
+    function(Series) isTRUE(Series$marker$enabled),
+    logical(1)
+  )
+  stopifnot(
+    inherits(SensitivityPlot, "highchart"),
+    length(SensitivitySeries) == 5L,
+    sum(SensitivityMarked) == 2L,
+    all(vapply(
+      SensitivitySeries[SensitivityMarked],
+      function(Series) length(Series$data) == length(SensitivityModuli),
+      logical(1)
+    ))
+  )
+}
 cat("PASS: calculation figure builders.\n")

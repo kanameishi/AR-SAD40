@@ -1,1 +1,1 @@
-Razones de rigidez, coeficientes y amplitudes de la solución de carga externa de Schwartz--Einstein para el hormigón proyectado simple. Los dos límites de interfaz se recalculan con el radio y las rigideces de esta alternativa.
+Razones de rigidez, coeficientes y amplitudes de la solución de carga externa de Schwartz--Einstein para el hormigón proyectado simple. En la interfaz $I$, `S` significa Slip y `NS`, No Slip. Los dos límites se recalculan con el radio y las rigideces de esta alternativa.

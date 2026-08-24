@@ -1,1 +1,0 @@
-Fuerza normal circunferencial $N_\theta$ de la sección de hormigón proyectado de 100 mm para los límites de deslizamiento libre y sin deslizamiento. Las curvas corresponden al modelo híbrido. La figura utiliza una escala radial propia de esta sección y resultante; la lectura interactiva informa los valores físicos en kN/m.

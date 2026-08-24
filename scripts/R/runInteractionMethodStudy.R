@@ -16,7 +16,7 @@ if (length(FileArgument) != 1L) {
 }
 ScriptPath <- normalizePath(sub("^--file=", "", FileArgument))
 projectRoot <- normalizePath(file.path(dirname(ScriptPath), "..", ".."))
-OutputDirectory <- file.path(projectRoot, "TITO", "kb", "benchmarks")
+OutputDirectory <- file.path(projectRoot, "data", "benchmarks", "ring")
 
 source(
   file.path(projectRoot, "scripts", "setup", "calculationFunctions.R"),
@@ -28,31 +28,16 @@ sys.source(
   envir = Fourier
 )
 
-readMethodProfile <- function() {
-  Profile <- readCalculationJson(file.path(
-    projectRoot,
-    "scripts",
-    "config",
-    "cover.method.mesh.2026-08-16.json"
-  ))
-  Profile[["methodProfileID"]] <- NULL
-  Profile[["methodProfileVersion"]] <- NULL
-  Profile
-}
-
-# Refuse to study a stale method profile: calculation.json remains the human
-# input boundary and must resolve to the same validated calculation profile.
+# Resolve the study from the same human input boundary as the calculation
+# memo. The dated method profile defines the schema and defaults, while every
+# project value is hydrated from calculation.json.
 Manifest <- readCalculationJson(file.path(projectRoot, "calculation.json"))
 Resolution <- resolveCoverCaseConfig(
   inputs = Manifest[["inputs", exact = TRUE]],
   projectRoot = projectRoot,
   methodID = Manifest[["methodID", exact = TRUE]]
 )
-Profile <- readMethodProfile()
-stopifnot(identical(
-  Resolution[["config", exact = TRUE]],
-  validateCoverCalculationConfig(Profile)
-))
+Profile <- Resolution[["configSource", exact = TRUE]]
 Evaluation <- evaluateCoverConfiguration(Profile, projectRoot)
 
 withLiningID <- function(Table, liningID) {
@@ -498,6 +483,10 @@ Outputs <- list(
   "project-hybrid-gradient-verification.csv" = GradientVerification,
   "project-hybrid-resultant-comparison.csv" = HybridComparison
 )
+if (!dir.exists(OutputDirectory) &&
+    !dir.create(OutputDirectory, recursive = TRUE, showWarnings = FALSE)) {
+  stop("Cannot create methodology benchmark directory.", call. = FALSE)
+}
 for (FileName in names(Outputs)) {
   write.csv(
     Outputs[[FileName]],

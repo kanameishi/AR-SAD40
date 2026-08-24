@@ -7,7 +7,7 @@
   "cover": {
     "coverCrownM": 5.70,
     "crownToAxisM": 1.315,
-    "effectiveUnitWeightKnPerM3": 19.6133,
+    "effectiveUnitWeightKnPerM3": 19.0,
     "upperLayerHeightM": 5.70,
     "upperLayerUnitWeightKnPerM3": 14.709975,
     "effectiveSurchargeKPa": 83.8468575,
@@ -15,11 +15,10 @@
   },
   "ground": {
     "modulusKPa": 30000.0,
-    "poisson": 0.30,
+    "poisson": 0.25,
     "k0": {
-      "modelID": "mayne-kulhawy-unloading",
-      "frictionAngleDeg": 30.0,
-      "ocr": 1.0
+      "modelID": "jaky-nc",
+      "frictionAngleDeg": 33.0
     }
   },
   "action": {
@@ -31,13 +30,13 @@
   },
   "interfaceCases": [
     {
-      "caseID": "alpha-1",
+      "caseID": "slip",
       "interfaceID": "full-traction",
       "tangentialMultiplier": 1.0,
       "comparisonInterfaceID": "full-slip"
     },
     {
-      "caseID": "alpha-0",
+      "caseID": "no-slip",
       "interfaceID": "normal-only",
       "tangentialMultiplier": 0.0,
       "comparisonInterfaceID": "no-slip"
@@ -78,7 +77,7 @@
     "materialID": "adopted-steel-fy250-fu400",
     "materialSourceKey": "adopted-scenario",
     "materialSourceLocator": "calculation.json; material properties pending confirmation",
-    "totalUnitWeightKnPerM3": 19.6133,
+    "totalUnitWeightKnPerM3": 19.0,
     "spanM": 2.63,
     "tensileStrengthMPa": 400.0,
     "deadLoadFactor": 1.95,
@@ -90,6 +89,7 @@
     "wallSourceKey": "USACE2020",
     "wallSourceLocator": "Equation 4-22, printed page 87/PDF page 101",
     "seamResistanceFactor": 0.67,
+    "utilizationTolerance": 0.005,
     "seamFactorSourceKey": "AndersonEtAl2023",
     "seamFactorSourceLocator": "AASHTO LRFD 9e Table 12.5.5-1 reproduced by Anderson et al. (2023), printed page 164/PDF page 177",
     "soilStiffnessFactor": 0.22,
@@ -191,20 +191,20 @@
       "reinforcementLayout": {
         "barDiameterMm": 6.0,
         "barSpacingMm": 150.0,
-        "clearCoverRatio": 0.15
+        "clearCoverRatio": 0.1
       },
       "reinforcement": [
         {
           "layerID": "circumferential-interior",
           "areaMm2": 188.4955592153876,
-          "coordinateMm": -49.5,
+          "coordinateMm": -57.0,
           "yieldStrengthMPa": 414.0,
           "modulusMPa": 200000.0
         },
         {
           "layerID": "circumferential-exterior",
           "areaMm2": 188.4955592153876,
-          "coordinateMm": 49.5,
+          "coordinateMm": 57.0,
           "yieldStrengthMPa": 414.0,
           "modulusMPa": 200000.0
         }
@@ -213,14 +213,14 @@
         {
           "layerID": "orthogonal-interior",
           "areaMm2": 188.4955592153876,
-          "coordinateMm": -49.5,
+          "coordinateMm": -57.0,
           "yieldStrengthMPa": 414.0,
           "modulusMPa": 200000.0
         },
         {
           "layerID": "orthogonal-exterior",
           "areaMm2": 188.4955592153876,
-          "coordinateMm": 49.5,
+          "coordinateMm": 57.0,
           "yieldStrengthMPa": 414.0,
           "modulusMPa": 200000.0
         }
@@ -228,18 +228,26 @@
       "convergenceTolerance": 0.01,
       "reinforcementStudy": {
         "studyID": "symmetric-circumferential-local-pm-1",
-        "reinforcementRatioGrid": [
-          0.0018,
-          0.01,
-          0.02,
-          0.03
+        "reinforcementCases": [
+          {
+            "barDiameterMm": 8.0,
+            "barSpacingMm": 150.0
+          },
+          {
+            "barDiameterMm": 10.0,
+            "barSpacingMm": 150.0
+          },
+          {
+            "barDiameterMm": 12.0,
+            "barSpacingMm": 150.0
+          }
         ],
         "domainBasePointCount": 301,
         "domainRefinedPointCount": 601,
         "convergenceTolerance": 0.015,
         "compositeCase": {
           "caseID": "existing-sheet-plus-interior-d8-s150",
-          "enabled": true,
+          "enabled": false,
           "interiorBarDiameterMm": 8.0,
           "interiorBarSpacingMm": 150.0,
           "interiorClearCoverMm": 15.0,

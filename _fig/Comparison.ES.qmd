@@ -1,0 +1,14 @@
+```{r}
+#| include: false
+CAP.STEEL.H <- readCaption("fig.Comparison.liner.hybrid.ES")
+CAP.STEEL.SE <- readCaption("fig.Comparison.liner.einstein.ES")
+CAP.STEEL.K0 <- readCaption("fig.Comparison.liner.k0.ES")
+CAP.SC100.H <- readCaption("fig.Comparison.shotcrete100.hybrid.ES")
+CAP.SC100.SE <- readCaption("fig.Comparison.shotcrete100.einstein.ES")
+CAP.SC100.K0 <- readCaption("fig.Comparison.shotcrete100.k0.ES")
+CAP.SC150.H <- readCaption("fig.Comparison.shotcrete150.hybrid.ES")
+CAP.SC150.SE <- readCaption("fig.Comparison.shotcrete150.einstein.ES")
+CAP.SC150.K0 <- readCaption("fig.Comparison.shotcrete150.k0.ES")
+```
+
+{{< include /_fig/Comparison.qmd >}}

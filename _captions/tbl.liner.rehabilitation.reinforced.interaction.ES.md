@@ -1,1 +1,1 @@
-Razones de rigidez, coeficientes y amplitudes de la solución de carga externa de Schwartz--Einstein para la sección de hormigón proyectado usada en el estudio paramétrico de armadura. Los dos límites de interfaz se recalculan con el radio y las rigideces de esta sección.
+Razones de rigidez, coeficientes y amplitudes de la solución de carga externa de Schwartz--Einstein para la sección de hormigón proyectado de 150 mm. Los dos límites de interfaz se recalculan con el radio y las rigideces de esta sección.

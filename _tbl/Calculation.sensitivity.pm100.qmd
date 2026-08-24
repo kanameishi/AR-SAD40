@@ -1,0 +1,20 @@
+```{r}
+#| include: false
+source("scripts/tbl/Calculation.sensitivity.R")
+TBL.SENS.PM100 <- buildCalculationSensitivityPmTable(
+  path = Calculation$paths$sensitivityPmSweep,
+  liningID = "shotcrete"
+)
+```
+
+```{r}
+#| label: tbl-calculation-sensitivity-pm100
+#| tbl-cap: !expr CAP.SENS.PM100
+#| echo: false
+TBL.SENS.PM100
+```
+
+```{r}
+#| include: false
+rm(TBL.SENS.PM100)
+```

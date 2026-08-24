@@ -1,1 +1,0 @@
-Armadura mínima distribuida según ACI 318.2-14. Las áreas circunferencial y longitudinal suman ambas caras; la tercera fila comprueba que las dos caras reciben la misma área. La resistencia frente a fuerza y momento se evalúa por separado mediante el diagrama de interacción.

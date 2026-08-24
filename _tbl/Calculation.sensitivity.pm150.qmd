@@ -1,0 +1,20 @@
+```{r}
+#| include: false
+source("scripts/tbl/Calculation.sensitivity.R")
+TBL.SENS.PM150 <- buildCalculationSensitivityPmTable(
+  path = Calculation$paths$sensitivityPmSweep,
+  liningID = "reinforcedConcrete"
+)
+```
+
+```{r}
+#| label: tbl-calculation-sensitivity-pm150
+#| tbl-cap: !expr CAP.SENS.PM150
+#| echo: false
+TBL.SENS.PM150
+```
+
+```{r}
+#| include: false
+rm(TBL.SENS.PM150)
+```

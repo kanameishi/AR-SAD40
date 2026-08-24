@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 2,
+  "artifacts": [
+    {
+      "alias": "report",
+      "kind": "quarto",
+      "path": "html/report",
+      "required": true,
+      "renderSource": "_master/report.qmd",
+      "profile": "book",
+      "siteSlug": "arsad40-report",
+      "domain": "arsad40-report.srk.ar"
+    },
+    {
+      "alias": "model",
+      "kind": "quarto",
+      "path": "html/model",
+      "required": true,
+      "renderSource": "_master/model.qmd",
+      "profile": "html",
+      "siteSlug": "arsad40-model",
+      "domain": "arsad40-model.srk.ar"
+    }
+  ]
+}

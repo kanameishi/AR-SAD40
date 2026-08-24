@@ -1,0 +1,19 @@
+```{r}
+#| include: false
+source("scripts/tbl/Calculation.sensitivity.R")
+TBL.SENS.STEEL <- buildCalculationSensitivitySteelTable(
+  path = Calculation$paths$sensitivitySteelExtrema
+)
+```
+
+```{r}
+#| label: tbl-calculation-sensitivity-steel
+#| tbl-cap: !expr CAP.SENS.STEEL
+#| echo: false
+TBL.SENS.STEEL
+```
+
+```{r}
+#| include: false
+rm(TBL.SENS.STEEL)
+```

@@ -1,0 +1,24 @@
+```{r}
+#| include: false
+source("scripts/fig/PM.R")
+PLOT.SENS.PM100 <- buildCalculationConcreteAxialFlexureSensitivityPlot(
+  domainsPath = Calculation$paths$shotcreteReinforcementDomains,
+  sweepPath = Calculation$paths$shotcreteReinforcementSweep,
+  sensitivityDemandsPath = Calculation$paths$sensitivityPmDemands,
+  liningID = "shotcrete"
+)
+```
+
+```{r}
+#| label: fig-pm-sensitivity-shotcrete100
+#| fig-cap: !expr CAP.SENS.PM100.FIG
+#| echo: false
+#| out-width: 100%
+#| fig-align: center
+PLOT.SENS.PM100
+```
+
+```{r}
+#| include: false
+rm(PLOT.SENS.PM100)
+```

@@ -1,0 +1,6 @@
+![`r CAP`](/_fig/section.jpeg){#fig-cover-section fig-alt="Perfil longitudinal del túnel. En el extremo izquierdo se indican 3350 mm de lodo sobre 2350 mm de relleno; hacia el extremo derecho se indican 6650 mm de lodo sobre 4400 mm de relleno." width="100%" fig-align="center"}
+
+```{r}
+#| include: false
+rm(CAP)
+```

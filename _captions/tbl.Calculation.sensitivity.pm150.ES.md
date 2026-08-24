@@ -1,0 +1,1 @@
+Sección de 150 mm: sensibilidad de las utilizaciones del estudio $P$--$M$ al módulo del terreno. $U_{PM}^{E}$ y $U_{V}^{E}$ son las utilizaciones máximas de flexocompresión y de corte unidireccional para $E_g=E$ MPa. Los identificadores que comienzan con `S` corresponden a las mallas simétricas dispuestas en ambas caras; $U>1$ no verifica.

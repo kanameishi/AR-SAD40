@@ -1,13 +1,13 @@
 params:
   ext: png
   title: "Memoria de cálculo del revestimiento circular"
-  site: "Túnel del espesador San Francisco"
-  location: ""
+  site: "Túnel del Espesador San Francisco"
+  location: "Lo Barnechea, Región Metropolitana de Santiago, Chile"
   project_id: "AR-SAD40"
   year: 2026
   client:
-    name: ""
-    short: ""
+    name: "STRACON Chile SpA / Anglo American Sur"
+    short: "STRACON / Anglo American"
     city: ""
     address: []
     web: ""
@@ -21,3 +21,5 @@ params:
   roles: []
   footer:
     title: "AR-SAD40 — Memoria de cálculo"
+
+  URL: "https://arsad40-report.srk.ar/"

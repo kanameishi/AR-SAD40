@@ -1,66 +1,44 @@
-El cálculo del estado permanente relaciona las tensiones efectivas horizontal
-y vertical mediante $\sigma'_h=K_0\sigma'_v$. Para una idealización elástica
-lineal e isótropa con deformación lateral impedida,
+El cálculo del estado permanente relaciona las tensiones efectivas horizontal y vertical mediante $\sigma'_h=K_0\sigma'_v$. Para una idealización elástica lineal e isótropa con deformación lateral impedida,
 
 $$
 K_0=\frac{\nu_g}{1-\nu_g}.
 $$ {#eq-calculation-k0-elastic}
 
-Para carga primaria o condición normalmente consolidada se utiliza la
-relación de Jáky [@MayneKulhawy1982]:
+Para carga primaria o condición normalmente consolidada se utiliza la relación de Jáky [@MayneKulhawy1982]:
 
 $$
 K_{0,NC}=1-\sin\phi'.
 $$ {#eq-calculation-k0-jaky}
 
-Para una descarga demostrada desde la compresión virgen, Mayne y Kulhawy
-proponen
+Para una descarga demostrada desde la compresión virgen, Mayne y Kulhawy proponen
 
 $$
-K_{0,OC}=(1-\sin\phi')\,\mathrm{OCR}^{\sin\phi'},
-\qquad
-\mathrm{OCR}=\frac{\sigma'_{v,\max}}{\sigma'_v}.
+K_{0,OC}= (1-\sin\phi')\,\mathrm{OCR}^{\sin\phi'}, \qquad \mathrm{OCR}=\frac{\sigma'_{v,\max}}{\sigma'_v}.
 $$ {#eq-calculation-k0-unloading}
 
 Para una descarga seguida de recarga se define
 $\mathrm{OCR}_{\max}=\sigma'_{v,\max}/\sigma'_{v,\min}$ y se emplea
 
 $$
-K_0=(1-\sin\phi')\left[
-\frac{\mathrm{OCR}}
-{\mathrm{OCR}_{\max}^{\,1-\sin\phi'}}
-+\frac{3}{4}\left(
-1-\frac{\mathrm{OCR}}{\mathrm{OCR}_{\max}}
-\right)
+K_0= (1-\sin\phi')\left[
+\frac{\mathrm{OCR}} {\mathrm{OCR}_{\max}^{\,1-\sin\phi'}} +\frac{3}{4}\left (1-\frac{\mathrm{OCR}}{\mathrm{OCR}_{\max}} \right)
 \right].
 $$ {#eq-calculation-k0-reloading}
 
 El dominio de esta última relación requiere
 $1\leq\mathrm{OCR}\leq\mathrm{OCR}_{\max}$. El escenario calculado adopta
 $\mathrm{OCR}=1$ y, por lo tanto, utiliza la relación de Jáky. Ese valor de
-$K_0$ determina la tensión horizontal de campo libre y entra en las
-resultantes de los tres revestimientos.
+$K_0$ determina la tensión horizontal de campo libre y entra en las resultantes de los tres revestimientos.
 
-FHWA-RD-98-191 representa la acción de un equipo durante la colocación del
-relleno mediante la presión nodal horizontal equivalente
+FHWA-RD-98-191 representa la acción de un equipo durante la colocación del relleno mediante la presión nodal horizontal equivalente
 
 $$
-n_p=1.3P(1-\sin\phi_\ell)^3
-\left(\frac{970}{d_c-250}\right)^2,
+n_p=1.3P (1-\sin\phi_\ell)^3 \left (\frac{970}{d_c-250}\right)^2,
 $$ {#eq-calculation-fhwa-compaction}
 
-donde $P$ es la fuerza total del equipo en kN, $d_c$ es el diámetro hasta el
-baricentro de la pared en mm y $\phi_\ell$ es el ángulo de fricción del
-relleno suelto [@McGrathEtAl1999, sec. 5.2.1, ec. 5.1]. La fuente aplica
-$n_p$ sobre los nodos ubicados hasta 300 mm por debajo de la tongada activa.
-La @tbl-calculation-fhwa-compaction reproduce los casos publicados que definen
-el dominio de esa relación.
+donde $P$ es la fuerza total del equipo en kN, $d_c$ es el diámetro hasta el baricentro de la pared en mm y $\phi_\ell$ es el ángulo de fricción del relleno suelto [@McGrathEtAl1999, sec. 5.2.1, ec. 5.1]. La fuente aplica
+$n_p$ sobre los nodos ubicados hasta 300 mm por debajo de la tongada activa. La @tbl-calculation-fhwa-compaction reproduce los casos publicados que definen el dominio de esa relación.
 
 {{< include /_tbl/Calculation.fhwa.compaction.ES.qmd >}}
 
-El estado permanente de esta memoria utiliza la relación de Jáky y una
-tensión horizontal residual de compactación igual a cero. La evaluación de
-una etapa constructiva con la relación FHWA requiere identificar el equipo,
-la fuerza aplicada, el ángulo de fricción del relleno suelto y la secuencia de
-colocación. Esos datos permanecen `UNKNOWN`; por ello $n_p$ no se suma al
-estado permanente ni se transforma en un incremento de $K_0$.
+El estado permanente de esta memoria utiliza la relación de Jáky y una tensión horizontal residual de compactación igual a cero. La evaluación de una etapa constructiva con la relación FHWA requiere identificar el equipo, la fuerza aplicada, el ángulo de fricción del relleno suelto y la secuencia de colocación. No se dispone de esos datos; por ello $n_p$ no se suma al estado permanente ni se transforma en un incremento de $K_0$.

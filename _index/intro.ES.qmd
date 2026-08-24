@@ -1,0 +1,45 @@
+```{r}
+#| include: false
+root <- normalizePath(".", mustWork = TRUE)
+source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
+IntroductionList <- function(values) { 
+  Values <- as.character(values)
+  if (length(Values) == 1L) return(Values)
+  paste(paste(head(Values, -1L), collapse = ", "), tail(Values, 1L), sep = " y ")
+}
+IntroductionReinforcementPolicy <- Calculation$config$additionalLinings$
+  reinforcedConcrete$reinforcementStudy
+IntroductionMeshLabels <- vapply(
+  IntroductionReinforcementPolicy$reinforcementCases,
+  function(Case) paste0("Ø", Case$barDiameterMm, "/", Case$barSpacingMm),
+  character(1)
+)
+IntroductionMeshList <- IntroductionList(IntroductionMeshLabels)
+IntroductionSectionGeometry <- list(
+  leftUpperHeightM = 3.350,
+  leftLowerHeightM = 2.350,
+  rightUpperHeightM = 6.650,
+  rightLowerHeightM = 4.400
+)
+IntroductionSectionPressureKPa <- list(
+  left =
+    IntroductionSectionGeometry$leftUpperHeightM *
+      Calculation$stress$upperLayerUnitWeightKnPerM3 +
+    IntroductionSectionGeometry$leftLowerHeightM *
+      Calculation$stress$effectiveUnitWeightKnPerM3,
+  right =
+    IntroductionSectionGeometry$rightUpperHeightM *
+      Calculation$stress$upperLayerUnitWeightKnPerM3 +
+    IntroductionSectionGeometry$rightLowerHeightM *
+      Calculation$stress$effectiveUnitWeightKnPerM3,
+  adopted =
+    Calculation$stress$upperLayerHeightM *
+      Calculation$stress$upperLayerUnitWeightKnPerM3 +
+    Calculation$stress$coverCrownM *
+      Calculation$stress$effectiveUnitWeightKnPerM3
+)
+```
+
+# Introducción {#sec-introduction}
+
+{{< include /_chapters/introduction.es.qmd >}}

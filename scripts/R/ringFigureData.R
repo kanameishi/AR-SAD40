@@ -198,38 +198,3 @@ prepareRingRays <- function(
   rownames(OUT) <- NULL
   OUT
 }
-
-prepareRingEnvelope <- function(quantiles, displayScale, baselineRadius) {
-  assertFigureColumns(
-    quantiles,
-    c(
-      "model", "resultant", "probability", "thetaIndex", "theta",
-      "thetaDeg", "value", "unit", "statisticScope"
-    ),
-    "quantiles"
-  )
-  if (any(quantiles$statisticScope != "pointwise")) {
-    stop("Only pointwise quantiles can form an angular envelope.", call. = FALSE)
-  }
-  probabilities <- sort(unique(quantiles$probability))
-  if (length(probabilities) < 3L) {
-    stop("At least lower, central and upper probabilities are required.", call. = FALSE)
-  }
-  lower <- probabilities[1L]
-  central <- probabilities[which.min(abs(probabilities - 0.5))]
-  upper <- probabilities[length(probabilities)]
-  selected <- quantiles[quantiles$probability %in% c(lower, central, upper), ]
-  selected$case <- paste0("q", format(selected$probability, trim = TRUE))
-  selected$prescription <- selected$case
-  scales <- data.frame(
-    resultant = unique(selected$resultant),
-    displayScale = displayScale,
-    radialFraction = max(abs(displayScale * selected$value)) / baselineRadius,
-    stringsAsFactors = FALSE
-  )
-  geometry <- prepareRingDiagram(selected, scales, baselineRadius)
-  list(
-    geometry = geometry,
-    probabilities = c(lower = lower, central = central, upper = upper)
-  )
-}

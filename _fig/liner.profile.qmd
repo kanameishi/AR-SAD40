@@ -1,6 +1,0 @@
-![`r CAP`](/_images/liner.profile.CSPI.png){#fig-liner-profile fig-alt="Geometría de una onda del perfil corrugado adoptado, con sus dimensiones y variables seccionales." width="92%" fig-align="center"}
-
-```{r}
-#| include: false
-rm(CAP)
-```

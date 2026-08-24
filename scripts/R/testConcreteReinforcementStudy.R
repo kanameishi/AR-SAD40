@@ -41,20 +41,20 @@ Domains <- Study[["domains", exact = TRUE]]
 Summary <- Study[["summary", exact = TRUE]]
 GoverningDemands <- Study[["governingDemands", exact = TRUE]]
 LimitChecks <- Study[["limitChecks", exact = TRUE]]
-ExpectedRatios <- c(0.0018, 0.01, 0.02, 0.03)
+ExpectedDiameters <- c(8, 10, 12)
+ExpectedSpacings <- rep(150, 3L)
 stopifnot(
   is.data.frame(Domains),
   is.data.frame(Summary),
   is.data.frame(GoverningDemands),
   is.data.frame(LimitChecks),
-  nrow(Summary) == 2L * (length(ExpectedRatios) + 1L),
+  nrow(Summary) == 2L * length(ExpectedDiameters),
   setequal(unique(Summary$liningID), c("shotcrete", "reinforcedConcrete")),
-  sum(Summary$isParametricCase) == 2L * length(ExpectedRatios),
-  sum(!Summary$isParametricCase) == 2L,
+  all(Summary$isParametricCase),
   all(Summary$calculationStatus == "calculated"),
   all(Summary$demandReuseStatus == "satisfied"),
-  nrow(GoverningDemands) == 2L * (length(ExpectedRatios) + 1L) * 2L,
-  nrow(LimitChecks) == 2L * (length(ExpectedRatios) + 1L) * 2L,
+  nrow(GoverningDemands) == 2L * length(ExpectedDiameters) * 2L,
+  nrow(LimitChecks) == 2L * length(ExpectedDiameters) * 2L,
   setequal(
     unique(LimitChecks$checkID),
     c("one-way-shear", "radial-tension-without-radial-stirrups")
@@ -68,38 +68,38 @@ for (LiningID in c("shotcrete", "reinforcedConcrete")) {
   G <- GoverningDemands[GoverningDemands$liningID == LiningID, , drop = FALSE]
   L <- LimitChecks[LimitChecks$liningID == LiningID, , drop = FALSE]
   Groups <- split(D, D$reinforcementCaseID)
-  Parametric <- S$isParametricCase
+  ExpectedAreas <- 2 * pi * ExpectedDiameters^2 / 4 *
+    1000 / ExpectedSpacings
+  ThicknessMm <- if (LiningID == "shotcrete") 100 else 150
+  ExpectedRatios <- ExpectedAreas / (1000 * ThicknessMm)
   stopifnot(
     identical(
       S$reinforcementCaseOrder,
-      seq_len(length(ExpectedRatios) + 1L)
+      seq_len(length(ExpectedDiameters))
     ),
+    identical(S$barDiameterMm, ExpectedDiameters),
+    identical(S$barSpacingMm, ExpectedSpacings),
     isTRUE(all.equal(
-      S$reinforcementRatio[Parametric],
+      S$reinforcementRatio,
       ExpectedRatios,
       tolerance = 1e-12
     )),
-    sum(S$isLowerReferenceCase) == 1L,
-    all(diff(S$maximumRadialUtilization[Parametric]) <= 0.02),
-    S$reinforcementCaseID[!Parametric] ==
-      "existing-sheet-plus-interior-d8-s150",
-    S$demandReuseBasisID[!Parametric] ==
-      "full-composite-recalculated-demands",
+    all(diff(S$maximumRadialUtilization) <= 0.02),
     length(Groups) == nrow(S),
     all(vapply(Groups, function(x) {
       identical(x$domainPointIndex, seq_len(nrow(x))) &&
         length(unique(x$domainPrimitiveID)) == 1L
     }, logical(1))),
-    nrow(G) == 2L * (length(ExpectedRatios) + 1L),
+    nrow(G) == 2L * length(ExpectedDiameters),
     identical(
       G$demandOrder,
-      seq_len(2L * (length(ExpectedRatios) + 1L))
+      seq_len(2L * length(ExpectedDiameters))
     ),
     all(table(G$reinforcementCaseID) == 2L),
-    all(table(G$interfaceID) == length(ExpectedRatios) + 1L),
-    nrow(L) == 2L * (length(ExpectedRatios) + 1L),
+    all(table(G$interfaceID) == length(ExpectedDiameters)),
+    nrow(L) == 2L * length(ExpectedDiameters),
     all(table(L$reinforcementCaseID) == 2L)
   )
 }
 
-cat("PASS: four parametric P-M domains, one composite case and local limits per thickness.\n")
+cat("PASS: three physical P-M mesh domains and separate checks per thickness.\n")

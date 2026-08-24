@@ -1,0 +1,11 @@
+```{r}
+#| include: false
+CAP.SENS.PLAIN <- readCaption("tbl.Calculation.sensitivity.plain.ES")
+```
+
+{{< include /_tbl/Calculation.sensitivity.plain.qmd >}}
+
+```{r}
+#| include: false
+rm(CAP.SENS.PLAIN)
+```

@@ -122,324 +122,6 @@ mapAciShellActions <- function(
   )
 }
 
-evaluateAci318214ShellReference <- function(
-  actions,
-  thicknessMm,
-  stripWidthMm,
-  compressiveStrengthMPa,
-  concreteTypeID,
-  circumferentialAreaMm2,
-  longitudinalAreaMm2,
-  reinforcementGradeID,
-  shellClassificationStatus,
-  longitudinalBoundaryConditionID
-) {
-  RequiredActionFields <- c(
-    "thetaRad", "combinationID", "stageID", "forceEffectStatus",
-    "interfaceID", "axialForceKn", "bendingMomentKnM", "shearDemandKn"
-  )
-  if (!is.data.frame(actions) || nrow(actions) == 0L ||
-      !all(RequiredActionFields %in% names(actions))) {
-    stop("actions must be returned by mapAciShellActions().", call. = FALSE)
-  }
-  Thickness <- .concretePositiveScalar(thicknessMm, "thicknessMm")
-  Width <- .concretePositiveScalar(stripWidthMm, "stripWidthMm")
-  ConcreteStrength <- .concretePositiveScalar(
-    compressiveStrengthMPa,
-    "compressiveStrengthMPa"
-  )
-  .concreteTextScalar(concreteTypeID, "concreteTypeID")
-  if (!(concreteTypeID %in% c("plain-concrete", "reinforced-concrete"))) {
-    stop(
-      "concreteTypeID must be plain-concrete or reinforced-concrete.",
-      call. = FALSE
-    )
-  }
-  IsReinforced <- concreteTypeID == "reinforced-concrete"
-  Areas <- c(circumferentialAreaMm2, longitudinalAreaMm2)
-  if (!is.numeric(Areas) || length(Areas) != 2L ||
-      any(!is.finite(Areas)) || any(Areas < 0)) {
-    stop("Reinforcement areas must be finite nonnegative numbers.", call. = FALSE)
-  }
-  .concreteTextScalar(reinforcementGradeID, "reinforcementGradeID")
-  .concreteTextScalar(shellClassificationStatus, "shellClassificationStatus")
-  .concreteTextScalar(
-    longitudinalBoundaryConditionID,
-    "longitudinalBoundaryConditionID"
-  )
-  if (!(shellClassificationStatus %in% c(
-    "applicable",
-    "not-applicable",
-    "unknown"
-  ))) {
-    stop(
-      paste(
-        "shellClassificationStatus must be applicable, not-applicable",
-        "or unknown."
-      ),
-      call. = FALSE
-    )
-  }
-  if (!(longitudinalBoundaryConditionID %in% c(
-    "not-characterized",
-    "plane-stress-free-ends"
-  ))) {
-    stop(
-      paste(
-        "longitudinalBoundaryConditionID must be not-characterized or",
-        "plane-stress-free-ends."
-      ),
-      call. = FALSE
-    )
-  }
-
-  Minimum <- checkAci318214ShellReinforcement(
-    thicknessMm = Thickness,
-    stripWidthMm = Width,
-    circumferentialAreaMm2 = Areas[1L],
-    orthogonalAreaMm2 = Areas[2L],
-    reinforcementGradeID = reinforcementGradeID
-  )
-  Classification <- switch(
-    shellClassificationStatus,
-    "applicable" = "applicable",
-    "not-applicable" = "not-applicable",
-    "unknown" = "conditional"
-  )
-  ReinforcementApplicability <- if (IsReinforced) {
-    Classification
-  } else {
-    "not-applicable"
-  }
-  StatusForMinimum <- function(Status) {
-    if (!IsReinforced || shellClassificationStatus == "not-applicable") {
-      "not-applicable"
-    } else {
-      Status
-    }
-  }
-  Utilization <- function(Required, Provided) {
-    if (!IsReinforced || shellClassificationStatus == "not-applicable") {
-      return(NA_real_)
-    }
-    if (Provided == 0) return(Inf)
-    Required / Provided
-  }
-  ConcreteMinimum <- 3000 * 0.006894757293168
-  ConcreteStatus <- if (!IsReinforced ||
-      shellClassificationStatus == "not-applicable") {
-    "not-applicable"
-  } else if (ConcreteStrength >= ConcreteMinimum) {
-    "satisfied"
-  } else {
-    "not-satisfied"
-  }
-  ConcreteUtilization <- if (
-    !IsReinforced || shellClassificationStatus == "not-applicable"
-  ) {
-    NA_real_
-  } else {
-    ConcreteMinimum / ConcreteStrength
-  }
-  StrengthActions <- unique(actions$forceEffectStatus)
-  FactoredActions <- length(StrengthActions) == 1L &&
-    StrengthActions == "factored-strength"
-  StrengthBlock <- if (FactoredActions) {
-    "delegated-aci-318-provisions-not-available"
-  } else {
-    "factored-strength-actions-not-provided"
-  }
-  LongitudinalStatus <- if (
-    longitudinalBoundaryConditionID == "plane-stress-free-ends"
-  ) {
-    "satisfied"
-  } else {
-    "blocked"
-  }
-  LongitudinalCalculation <- if (LongitudinalStatus == "satisfied") {
-    "calculated"
-  } else {
-    "not-evaluated"
-  }
-  LongitudinalReason <- if (LongitudinalStatus == "satisfied") {
-    ""
-  } else {
-    "longitudinal-boundary-condition-not-characterized"
-  }
-
-  Checks <- rbind(
-    .aciShellCheckRow(
-      checkID = "plain-concrete-strength",
-      clauseID = "14.5",
-      sourceLocator = paste(
-        "ACI 318-14 chapter 14 identified in the official contents;",
-        "operative text unavailable"
-      ),
-      standardID = "ACI-318-14",
-      applicabilityStatus = if (IsReinforced) {
-        "not-applicable"
-      } else {
-        "applicable"
-      },
-      calculationStatus = if (IsReinforced) {
-        "not-applicable"
-      } else {
-        "not-evaluated"
-      },
-      checkStatus = if (IsReinforced) "not-applicable" else "blocked",
-      blockReason = if (IsReinforced) {
-        ""
-      } else {
-        "plain-concrete-code-text-not-available"
-      }
-    ),
-    .aciShellCheckRow(
-      checkID = "minimum-concrete-strength",
-      clauseID = "4.1.1",
-      sourceLocator = "ACI 318.2-14 section 4.1.1, printed page 6",
-      demandValue = ConcreteMinimum,
-      capacityValue = ConcreteStrength,
-      unit = "MPa",
-      utilization = ConcreteUtilization,
-      applicabilityStatus = ReinforcementApplicability,
-      checkStatus = ConcreteStatus
-    ),
-    .aciShellCheckRow(
-      checkID = "minimum-circumferential-reinforcement",
-      clauseID = "6.1.3",
-      sourceLocator = "ACI 318.2-14 section 6.1.3, printed page 9",
-      demandValue = Minimum$requiredAreaMm2,
-      capacityValue = Areas[1L],
-      unit = "mm2/m",
-      utilization = Utilization(Minimum$requiredAreaMm2, Areas[1L]),
-      applicabilityStatus = ReinforcementApplicability,
-      checkStatus = StatusForMinimum(Minimum$circumferentialStatus)
-    ),
-    .aciShellCheckRow(
-      checkID = "minimum-longitudinal-reinforcement",
-      clauseID = "6.1.3",
-      sourceLocator = "ACI 318.2-14 section 6.1.3, printed page 9",
-      demandValue = Minimum$requiredAreaMm2,
-      capacityValue = Areas[2L],
-      unit = "mm2/m",
-      utilization = Utilization(Minimum$requiredAreaMm2, Areas[2L]),
-      applicabilityStatus = ReinforcementApplicability,
-      checkStatus = StatusForMinimum(Minimum$orthogonalStatus)
-    ),
-    .aciShellCheckRow(
-      checkID = "longitudinal-action",
-      clauseID = "3.1.3",
-      sourceLocator = "ACI 318.2-14 section 3.1.3, printed page 5",
-      applicabilityStatus = Classification,
-      calculationStatus = LongitudinalCalculation,
-      checkStatus = LongitudinalStatus,
-      blockReason = LongitudinalReason
-    ),
-    .aciShellCheckRow(
-      checkID = "axial-flexure",
-      clauseID = "3.1.10;6.1.9",
-      sourceLocator = paste(
-        "ACI 318.2-14 sections 3.1.10 and 6.1.9;",
-        "delegated ACI 318 provisions unavailable"
-      ),
-      applicabilityStatus = Classification,
-      calculationStatus = "not-evaluated",
-      checkStatus = "blocked",
-      blockReason = StrengthBlock
-    ),
-    .aciShellCheckRow(
-      checkID = "one-way-shear",
-      clauseID = "6.1.4",
-      sourceLocator = paste(
-        "ACI 318.2-14 section 6.1.4;",
-        "delegated ACI 318 provisions unavailable"
-      ),
-      applicabilityStatus = Classification,
-      calculationStatus = "not-evaluated",
-      checkStatus = "blocked",
-      blockReason = StrengthBlock
-    ),
-    .aciShellCheckRow(
-      checkID = "reinforcement-detailing",
-      clauseID = "6.1.1-6.1.12",
-      sourceLocator = "ACI 318.2-14 sections 6.1.1 through 6.1.12",
-      applicabilityStatus = Classification,
-      calculationStatus = "not-evaluated",
-      checkStatus = "blocked",
-      blockReason = "reinforcement-detailing-not-provided"
-    ),
-    .aciShellCheckRow(
-      checkID = "shell-stability",
-      clauseID = "3.1.8",
-      sourceLocator = "ACI 318.2-14 section 3.1.8, printed pages 5-6",
-      applicabilityStatus = Classification,
-      calculationStatus = "not-evaluated",
-      checkStatus = "blocked",
-      blockReason = "stability-method-not-provided"
-    ),
-    .aciShellCheckRow(
-      checkID = "service-cracking",
-      clauseID = "3.1.7;6.1.1;6.1.7",
-      sourceLocator = paste(
-        "ACI 318.2-14 sections 3.1.7, 6.1.1 and 6.1.7;",
-        "ACI 224R-01 guide"
-      ),
-      applicabilityStatus = Classification,
-      calculationStatus = "not-evaluated",
-      checkStatus = "blocked",
-      blockReason = "service-combination-and-crack-model-not-provided"
-    ),
-    .aciShellCheckRow(
-      checkID = "durability",
-      clauseID = "5.1.4",
-      sourceLocator = "ACI 318.2-14 section 5.1.4, printed page 8",
-      applicabilityStatus = Classification,
-      calculationStatus = "not-evaluated",
-      checkStatus = "blocked",
-      blockReason = "exposure-class-and-protection-not-provided"
-    )
-  )
-  rownames(Checks) <- NULL
-
-  Failed <- Checks$checkStatus == "not-satisfied"
-  ReferenceStatus <- if (!IsReinforced) {
-    "not-evaluated-code-text"
-  } else if (shellClassificationStatus == "unknown") {
-    "not-evaluated-applicability"
-  } else if (shellClassificationStatus == "not-applicable") {
-    "not-applicable"
-  } else if (any(Failed)) {
-    "not-satisfied"
-  } else if (any(Checks$checkStatus == "blocked")) {
-    "not-evaluated-code-basis"
-  } else {
-    "satisfied"
-  }
-  GoverningCheckID <- if (any(Failed)) {
-    paste(Checks$checkID[Failed], collapse = ";")
-  } else {
-    ""
-  }
-  list(
-    actions = actions,
-    checks = Checks,
-    summary = data.frame(
-      standardSetID = if (IsReinforced) {
-        "aci-318.2-14-partial"
-      } else {
-        "aci-318-14-partial"
-      },
-      editionStatus = "historical-partial",
-      concreteTypeID = concreteTypeID,
-      shellClassificationStatus = shellClassificationStatus,
-      referenceAssessmentStatus = ReferenceStatus,
-      currentCodeStatus = "not-evaluated-code-text",
-      governingCheckID = GoverningCheckID,
-      stringsAsFactors = FALSE
-    )
-  )
-}
-
 .aci31825PlainCheckRows <- function(
   actions,
   checkID,
@@ -568,6 +250,16 @@ evaluateAci31825PlainConcreteStrip <- function(
       is.na(castAgainstSoil)) {
     stop("castAgainstSoil must be TRUE or FALSE.", call. = FALSE)
   }
+  if (castAgainstSoil) {
+    stop(
+      paste(
+        "castAgainstSoil = TRUE is outside this evaluator's scope:",
+        "the lining is not cast against ground and the ACI 318-25",
+        "50 mm thickness reduction is not implemented."
+      ),
+      call. = FALSE
+    )
+  }
   if (!is.numeric(compressionLengthMm) || length(compressionLengthMm) != 1L ||
       (!is.na(compressionLengthMm) &&
         (!is.finite(compressionLengthMm) || compressionLengthMm < 0))) {
@@ -614,10 +306,7 @@ evaluateAci31825PlainConcreteStrip <- function(
     stop("openingStatus is not supported.", call. = FALSE)
   }
 
-  Thickness <- ThicknessSpecified - if (castAgainstSoil) 50 else 0
-  if (Thickness <= 0) {
-    stop("The ACI design thickness must be positive.", call. = FALSE)
-  }
+  Thickness <- ThicknessSpecified
   Area <- Width * Thickness
   SectionModulus <- Width * Thickness^2 / 6
   Phi <- 0.60
@@ -999,28 +688,19 @@ evaluateAciShotcrete <- function(
 ) {
   .concreteTextScalar(standardSetID, "standardSetID")
   .concreteTextScalar(concreteTypeID, "concreteTypeID")
-  AllowedStandardSetIDs <- switch(
+  ExpectedStandardSetID <- switch(
     concreteTypeID,
-    "plain-concrete" = c(
-      "aci-318-25-plain-concrete",
-      "aci-318-14-partial"
-    ),
-    "reinforced-concrete" = c(
-      "aci-318.2-14-partial",
-      "aci-318.2-14-aci-318-25-reinforced-flexure"
-    ),
+    "plain-concrete" = "aci-318-25-plain-concrete",
+    "reinforced-concrete" =
+      "aci-318.2-14-aci-318-25-reinforced-flexure",
     stop(
       "concreteTypeID must be plain-concrete or reinforced-concrete.",
       call. = FALSE
     )
   )
-  if (!(standardSetID %in% AllowedStandardSetIDs)) {
+  if (standardSetID != ExpectedStandardSetID) {
     stop(
-      paste0(
-        "standardSetID must be one of: ",
-        paste(AllowedStandardSetIDs, collapse = ", "),
-        "."
-      ),
+      "standardSetID must be ", ExpectedStandardSetID, ".",
       call. = FALSE
     )
   }
@@ -1082,16 +762,5 @@ evaluateAciShotcrete <- function(
       sectionDomains = sectionDomains
     ))
   }
-  evaluateAci318214ShellReference(
-    actions = Actions,
-    thicknessMm = thicknessMm,
-    stripWidthMm = 1000 * stripWidthM,
-    compressiveStrengthMPa = compressiveStrengthMPa,
-    concreteTypeID = concreteTypeID,
-    circumferentialAreaMm2 = circumferentialAreaMm2,
-    longitudinalAreaMm2 = longitudinalAreaMm2,
-    reinforcementGradeID = reinforcementGradeID,
-    shellClassificationStatus = shellClassificationStatus,
-    longitudinalBoundaryConditionID = longitudinalBoundaryConditionID
-  )
+  stop("The validated standardSetID was not dispatched.", call. = FALSE)
 }

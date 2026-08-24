@@ -13,7 +13,7 @@ ACI. El cálculo no obtiene tensión local a partir de $Q$ ni calcula demandas
 de pernos.
 
 La metodología vigente está en
-[`_master/methodology.review.es.qmd`](../../_master/methodology.review.es.qmd).
+[`_master/model.qmd`](../../_master/model.qmd).
 
 ## Carga de la API
 
@@ -47,36 +47,16 @@ y en kN m/m para `M`.
 
 ## Escenario determinístico vigente
 
-El archivo [`calculationScenarioExample.R`](calculationScenarioExample.R)
-expone el cálculo vigente como una secuencia de etapas. No escribe productos ni
-define una implementación alternativa: llama a las mismas funciones que usa
-`buildCalculationData()` y comprueba al final la correspondencia con
-`calculateScenario()`.
+La entrada humana es [`calculation.json`](../../calculation.json), con
+contrato `cover-case-2`. `resolveCoverCaseConfig()` materializa la
+configuración vigente y `buildCalculationData()` llama al motor de escenarios
+por tapada para producir las tablas consumidas por la memoria y Wolfram.
 
-| Etapa | Función | Entradas principales | Salida |
-|---:|---|---|---|
-| 1 | `buildThetaMesh()` | cantidad de puntos y ángulos críticos | `theta`, en radianes |
-| 2 | `estimateK0()` | rama y primitivas de $K_0$ | estado de $K_0$ |
-| 3 | `calculateEffectiveStressState()` | $\sigma'_v$, $K_0$ y $\Delta u$ | $\sigma'_v$, $\sigma'_h$ y $\Delta u$, en kPa |
-| 4 | `interpolateCorrugatedSection()` | tabla, perfil y espesor base | $A_\theta$ e $I_\theta$ |
-| 5 | `calculateRingSection()` | $E_\theta$, $A_\theta$, $I_\theta$ y $R$ | $EA_\theta$, $EI_\theta$ y `sectionRatio` |
-| 6 | `calculatePerimeterActions()` | estado tensional, $\alpha$ y `theta` | $P_r(\theta)$ y $P_t(\theta)$ |
-| 7 | `calculateSectionResultants()` | acciones, $R$, rigidez y controles numéricos | $N_\theta$, $M_\theta$, $Q_\theta$ y diagnósticos |
-| 8 | `summarizeSectionResultants()` | respuesta de la etapa 7 | mínimos, máximos y posiciones |
-
-La ejecución independiente es:
+La ejecución reproducible del escenario declarado es:
 
 ```sh
-Rscript scripts/R/calculationScenarioExample.R
+Rscript scripts/R/runCalculationMemo.R
 ```
-
-`calculateScenario(realization, context)` compone esas mismas etapas. Para la
-realización, exige `effectiveVerticalKPa`, `waterPressureDifferenceKPa`,
-`baseThicknessMm`, `alpha` y las primitivas de la rama de $K_0$. El contexto
-contiene el modelo de $K_0$, la sección de referencia, el perfil, el módulo, el
-radio, la malla y las tolerancias. Su salida conserva `k0State`, `stressState`,
-`corrugatedSection`, `sectionRigidity`, `perimeterActions`,
-`sectionResultants` y `resultantExtrema`.
 
 ## Ejemplo general de carga prescrita
 
@@ -141,22 +121,15 @@ acepta el mismo cociente con `uniformMoment = "section"`.
 
 ## Evaluación resistente AISI
 
-`screenAisiFlexuralDemand()` se conserva como control unilateral aislado de
-las rutas prescriptivas F2--F4. No forma parte de
-`evaluateCoverScenario()`, no produce una capacidad disponible y no alimenta
-las interacciones H1/H2.
-
 `evaluateAisiS100Demand()` recibe cuatro objetos explícitos: filas concurrentes
 de demanda, una tabla larga de capacidades, estados de aplicabilidad y la base
 ASD o LRFD. La función evalúa H1 y H2 por separado, conserva el signo de
 $N_\theta$ y de $M_\theta$, y no convierte $Q_\theta$ en una reacción
 localizada. El proveedor de capacidades es una responsabilidad separada.
 
-Las pruebas `scripts/R/testAisiFlexuralBound.R` y
-`scripts/R/testAisiS100Demand.R` comprueban, respectivamente, la cota nominal
-y las interacciones H1/H2/H3. Una demanda de servicio no mayorada o una
-capacidad cuya aplicabilidad no esté demostrada no produce un dictamen
-resistente.
+La prueba `scripts/R/testAisiS100Demand.R` comprueba las interacciones
+H1/H2/H3. Una demanda de servicio no mayorada o una capacidad cuya
+aplicabilidad no esté demostrada no produce un dictamen resistente.
 
 ## Escenarios por tapada y alternativa de revestimiento
 
@@ -293,20 +266,7 @@ Diagnostic <- solveRingDirect(
 Diagnostic$diagnostics
 ```
 
-`runRingMonteCarlo()` no acepta respuestas de diagnóstico desequilibradas.
-
 ## Perfiles y cargas de fuente
-
-```r
-Stress <- ringVerticalStressOrdinates(
-  coverCrown = 5,
-  radius = 1,
-  layerBottom = c(3, Inf),
-  effectiveUnitWeight = c(17, 19),
-  effectiveSurcharge = 10,
-  waterTableDepth = 4
-)
-```
 
 Las relaciones de historia tensional reciben variables primitivas y devuelven
 $K_0$ derivado:
@@ -353,7 +313,7 @@ Theta <- buildThetaMesh(
 )
 PerimeterActions <- calculatePerimeterActions(
   stressState = StressState,
-  alpha = 0.5,
+  tangentialMultiplier = 0.5,
   theta = Theta
 )
 
@@ -393,7 +353,7 @@ Realization <- list(
   effectiveVerticalKPa = 100,
   waterPressureDifferenceKPa = 0,
   baseThicknessMm = 3,
-  alpha = 0.5
+  tangentialMultiplier = 0.5
 )
 Scenario <- calculateScenario(
   realization = Realization,
@@ -491,23 +451,17 @@ presión de agua se define como $u_{ext}-u_{int}$ y admite signo.
 
 ## Interacción elástica cerrada
 
-`ringInteraction.R` contiene comparadores que resuelven simultáneamente el
-contacto suelo-anillo y los resultantes. No son generadores de carga para
-`solveRingDirect()`:
+`ringInteraction.R` contiene el comparador de Schwartz--Einstein, que resuelve
+simultáneamente el contacto suelo-anillo y los resultantes. No es un generador
+de carga para `solveRingDirect()`:
 
 - `schwartzEinsteinStiffness()` calcula $C^*$ y $F^*$;
 - `schwartzEinsteinResultants()` evalúa las cuatro ramas
-  carga-externa/excavación por full-slip/no-slip;
-- `candeLevel1Parameters()` calcula $K$, $\alpha$ y $\beta$ sin desacoplar
-  artificialmente $K=\nu/(1-\nu)$;
-- `candeLevel1Response()` evalúa la tabla analítica Level 1 para interfaz
-  adherida o sin fricción.
+  carga-externa/excavación por full-slip/no-slip.
 
-Ambas fuentes usan $\theta=0$ en el arranque derecho y sentido antihorario.
-Schwartz–Einstein publica `thrust` positivo a compresión. Las dos páginas
-auditadas de CANDE no definen explícitamente el sentido físico de sus signos.
-Por ello estas funciones conservan nombres y convenciones fuente-nativas y no
-devuelven una clase `ringDirectResponse`.
+La fuente usa $\theta=0$ en el arranque derecho y sentido antihorario.
+Schwartz--Einstein publica `thrust` positivo a compresión. La función conserva
+esa convención fuente-nativa y no devuelve una clase `ringDirectResponse`.
 
 ```r
 SE <- schwartzEinsteinResultants(
@@ -524,11 +478,6 @@ SE <- schwartzEinsteinResultants(
 
 SE$extrema$values
 ```
-
-Para Monte Carlo sobre estas ramas fuente-nativas use
-`runOutputMonteCarlo()` y extraiga resultantes o extremos con nombres
-explícitos; no mezcle sus signos con el solver directo sin una transformación
-documentada.
 
 `calculatePrismThrust()` conserva la relación USACE como un resultado escalar:
 devuelve la presión de carga permanente en clave y los empujes de servicio y
@@ -549,58 +498,17 @@ forma analítica. `fullSlip` y `noSlip` son escenarios discretos; una eventual
 envolvente exterior es una envolvente de escenarios de modelo, no una cota
 física demostrada para la interfaz real.
 
-## Monte Carlo
-
-El motor recibe realizaciones, no distribuciones:
-
-```r
-Draws <- data.frame(
-  frictionAngleDeg = c(28, 32, 36),
-  effectiveVerticalKPa = c(80, 100, 120),
-  waterPressureDifferenceKPa = c(0, 10, 20),
-  baseThicknessMm = c(3.0, 3.1, 3.2),
-  alpha = c(0, 0.5, 1)
-)
-
-Result <- runRingMonteCarlo(
-  draws = Draws,
-  responseFunction = function(draw, theta) {
-    Context.draw <- Context
-    Context.draw$theta <- theta
-    Scenario <- calculateScenario(
-      realization = as.list(draw[1L, , drop = FALSE]),
-      context = Context.draw
-    )
-    Scenario$sectionResultants
-  },
-  theta = Context$theta,
-  probabilities = c(0.05, 0.50, 0.95),
-  modelLabel = "declared geotechnical branch"
-)
-```
-
-El callback adapta una fila ya materializada al mismo `calculateScenario()`
-que usa el cálculo determinístico. `runRingMonteCarlo()` conserva el orden de
-esas filas y no elige distribuciones, dependencias, probabilidades de modelo ni
-semilla.
-
-Resultados principales:
-
-- `pointwiseQuantiles`: cuantiles en cada ángulo;
-- `extremaSamples`: extremos de cada realización, con signo y ángulo;
-- `extremaQuantiles`: cuantiles de esos extremos;
-- `diagnostics`: control de equilibrio de cada realización.
-
 ## Verificación reproducible
 
 ```sh
 Rscript scripts/R/testRingMethod.R
 Rscript scripts/R/testAisiS100Demand.R
-Rscript scripts/R/testCalculationData.R
+Rscript scripts/R/testCoverCalculationData.R
+Rscript scripts/R/testCoverCase.R
 Rscript scripts/R/testCalculationFigures.R
+Rscript scripts/R/testReferenceCases.R
 Rscript scripts/R/runRingBenchmarks.R
-Rscript scripts/R/runRingFigures.R
 ```
 
-Las tablas se escriben en `TITO/kb/benchmarks` y las figuras en
-`TITO/kb/figures`. Los scripts sólo sobrescriben los nombres que declaran.
+Los productos del escenario vigente se regeneran con
+`Rscript scripts/R/runCalculationMemo.R`.

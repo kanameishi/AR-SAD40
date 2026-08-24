@@ -153,46 +153,6 @@ layeredEffectiveVerticalStress <- function(
   }, numeric(1))
 }
 
-ringVerticalStressOrdinates <- function(
-  coverCrown,
-  radius,
-  layerBottom,
-  effectiveUnitWeight,
-  effectiveSurcharge = 0,
-  waterTableDepth = Inf,
-  waterUnitWeight = 9.81
-) {
-  .assertFiniteScalar(coverCrown, "coverCrown", minimum = 0)
-  .assertFiniteScalar(radius, "radius", minimum = 0, strict = TRUE)
-  if (!is.numeric(waterTableDepth) || length(waterTableDepth) != 1L ||
-      is.na(waterTableDepth) || waterTableDepth < 0) {
-    stop("waterTableDepth must be one non-negative value or Inf.", call. = FALSE)
-  }
-  .assertFiniteScalar(waterUnitWeight, "waterUnitWeight", minimum = 0)
-
-  Depth <- coverCrown + c(0, radius, 2 * radius)
-  Effective <- layeredEffectiveVerticalStress(
-    depth = Depth,
-    layerBottom = layerBottom,
-    effectiveUnitWeight = effectiveUnitWeight,
-    effectiveSurcharge = effectiveSurcharge
-  )
-  Pore <- if (is.infinite(waterTableDepth)) {
-    rep(0, length(Depth))
-  } else {
-    waterUnitWeight * pmax(0, Depth - waterTableDepth)
-  }
-
-  data.frame(
-    location = c("crown", "axis", "invert"),
-    depth = Depth,
-    effectiveVertical = Effective,
-    porePressure = Pore,
-    totalVertical = Effective + Pore,
-    stringsAsFactors = FALSE
-  )
-}
-
 k0TensorLoad <- function(
   effectiveVertical,
   k0,
@@ -270,7 +230,7 @@ biaxialStressTangentialMultiplierLoad <- function(
       tangentialMultiplier * Difference * sin(2 * theta) / 2
     },
     label = paste0(
-      "Biaxial stress field with tangential multiplier alpha = ",
+      "Biaxial stress field with tangential multiplier = ",
       format(tangentialMultiplier, trim = TRUE)
     ),
     source = "derived projection of a prescribed biaxial stress state",
@@ -613,7 +573,7 @@ fhwaCompactionBandLoad <- function(
       bandDepthM = bandDepthM,
       publishedBandDepthM = 0.300,
       limitation = paste(
-        "Equivalent 2D CANDE pressure calibrated to deformation;",
+        "Equivalent two-dimensional pressure calibrated to deformation;",
         "not a measured retained contact pressure"
       )
     )

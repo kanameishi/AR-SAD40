@@ -1,0 +1,26 @@
+```{r}
+#| include: false
+source("scripts/fig/PM.R")
+PLOT.PM <- buildCalculationConcreteAxialFlexurePlot(
+  domainsPath = Calculation$paths$shotcreteReinforcementDomains,
+  sweepPath = Calculation$paths$shotcreteReinforcementSweep,
+  governingDemandsPath =
+    Calculation$paths$shotcreteReinforcementGoverningDemands,
+  liningID = "reinforcedConcrete"
+)
+```
+
+```{r}
+#| label: fig-pm-shotcrete150
+#| fig-cap: !expr CAP.PM
+#| echo: false
+#| out-width: 100%
+#| fig-align: center
+PLOT.PM
+```
+
+
+```{r}
+#| include: false
+rm(PLOT.PM, buildCalculationConcreteAxialFlexurePlot)
+```

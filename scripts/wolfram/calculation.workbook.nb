@@ -27,21 +27,17 @@ controls the corrugated profile, remaining base thickness \
 PlainConcreteInputs controls plain-shotcrete thickness (thicknessM) and \
 concrete strength (compressiveStrengthMPa). Section 2.6 / \
 ReinforcedConcreteInputs controls reinforced-shotcrete thickness and concrete \
-strength, reinforcement grade, bar diameter, reference spacing, clear-cover \
-ratio, steel modulus, and the reinforcement-ratio grid plotted in both P-M \
-families. compositeCase controls the additional existing-sheet + Ø8/150 \
-interior sensitivity. Diameter and clear-cover ratio define the layer \
-coordinates. Spacing remains part of the input contract but does not select a \
-curve or an adopted reinforcement. Edit reinforcementRatioGrid to choose the \
-total reinforcement ratios compared by R; do not type a derived steel area \
-directly. Section 2.7 contains the two parameters used only by the classical \
+strength, reinforcement grade, fixed clear cover, steel modulus, and the \
+physical reinforcementCases plotted in both P-M families. Each case gives a \
+bar diameter and spacing; R derives its steel area, ratio, and layer \
+coordinates. compositeCase remains disabled: the memoir compares the \
+symmetric meshes only. Section 2.7 contains the two parameters used only by the classical \
 Nunez comparison.\n4. Calculation-method constants are read-only and are returned with the \
 results.\n5. For a first run, evaluate the complete notebook from a fresh kernel. The \
 workbook loads the setup once and calls R once.\n6. After changing inputs, \
 reevaluate the edited input cell, Section 3.2 (EngineeringInputs), Section 3.3 \
 (Evaluate once), and the affected result section. The complete discrete P-M \
-families for both shotcrete thicknesses, beginning with the lower evaluated \
-ratio, will update. No curve is \
+families for both shotcrete thicknesses will update. No curve is \
 selected as the final reinforcement.\n7. Review the normalized inputs, three \
 solution sections, nine circular diagrams, and both P-M interaction families.", \
 "Text", ExpressionUUID -> 
@@ -58,8 +54,8 @@ initial diameter, and relative diameter loss.\nPlain-concrete lining \
 \[LongDash] independent outer radius, thickness, material, and construction \
 condition.\nSecond shotcrete section and P-M study inputs \[LongDash] \
 independent outer radius, thickness, concrete material, reinforcement grade, \
-bar diameter, reference spacing, clear-cover ratio, reinforcement modulus, and \
-the reinforcement-ratio grid and the composite case; R derives the layer coordinates and evaluates the configured reinforcement-ratio \
+bar diameter, reference spacing, fixed clear cover, reinforcement modulus, and \
+the physical reinforcementCases; R derives the layer coordinates and evaluates the configured reinforcement \
 family for both shotcrete thicknesses. No symmetric-family bar spacing or steel area is adopted.\nThe crown-to-axis distance, steel centroidal \
 radius, plain-concrete outer radius, and reinforced-concrete outer radius are \
 four separate inputs even when their defaults are equal.\nClassical comparison \
@@ -134,7 +130,7 @@ properties used by the E-S plus balanced-gradient interaction. K0 is derived.", 
                    StripOnInput -> False], Background -> RGBColor[0.14, 0.2, 
                     0.28], StripOnInput -> False]}, 
                 {"\"Lower compacted-fill unit weight\"", "\"gamma_0\"", "\"kN/m^3\"",
-                 "\"19.613\"", "\"Permanent lower layer; defines the gradient over the liner height\""},
+                 "\"19.000\"", "\"Permanent lower layer; defines the gradient over the liner height\""},
                 {"\"Upper mud-layer height\"", "\"H_1\"", "\"m\"", "\"5.700\"",
                  "\"Height of the permanent upper layer\""},
                 {"\"Upper mud-layer unit weight\"", "\"gamma_1\"", "\"kN/m^3\"", "\"14.710\"",
@@ -142,11 +138,11 @@ properties used by the E-S plus balanced-gradient interaction. K0 is derived.", 
                 {"\"Ground Young's modulus\"", "\"E_g\"", "\"kPa\"", 
                  "\"30000\"", "\"Uniform Schwartz-Einstein interaction component\""}, 
                 {"\"Ground Poisson's ratio\"", "\"nu_g\"", "\"-\"", 
-                 "\"0.30\"", "\"Uniform Schwartz-Einstein interaction component\""}, 
+                 "\"0.25\"", "\"Uniform Schwartz-Einstein interaction component\""}, 
                 {"\"K0 model\"", "\"-\"", "\"selection\"", 
-                 "\"mayne-kulhawy-unloading\"", "\"Selects the derived K0 branch\""}, 
+                 "\"jaky-nc\"", "\"Selects the derived K0 branch\""}, 
                 {"\"Effective friction angle\"", "\"phi'\"", "\"deg\"", 
-                 "\"30.0\"", "\"Primitive input for K0\""}, 
+                 "\"33.0\"", "\"Primitive input for K0\""}, 
                 {"\"Overconsolidation ratio\"", "\"OCR\"", "\"-\"", 
                  "\"1.00\"", "\"Primitive input for K0\""}, 
                 {"\"Net water pressure\"", "\"Delta u\"", "\"kPa\"", 
@@ -164,18 +160,18 @@ properties used by the E-S plus balanced-gradient interaction. K0 is derived.", 
            Cell[BoxData[RowBox[{"GroundInputs", " ", "=", " ", RowBox[
                 {"<|", "\n", "  ", RowBox[{RowBox[
                     {"\"effectiveUnitWeightKnPerM3\"", " ", "->", " ", 
-                     "19.6133`"}], RowBox[{",", "\n", "  "}], RowBox[
+                     "19.`"}], RowBox[{",", "\n", "  "}], RowBox[
                     {"\"upperLayerHeightM\"", " ", "->", " ", "5.7`"}],
                    RowBox[{",", "\n", "  "}], RowBox[
                     {"\"upperLayerUnitWeightKnPerM3\"", " ", "->", " ", "14.709975`"}],
                    RowBox[{",", "\n", "  "}], RowBox[{"\"modulusKPa\"", " ", 
                      "->", " ", "30000.`"}], RowBox[{",", "\n", "  "}], 
-                   RowBox[{"\"poisson\"", " ", "->", " ", "0.3`"}], 
+                   RowBox[{"\"poisson\"", " ", "->", " ", "0.25`"}], 
                    RowBox[{",", "\n", "  "}], RowBox[
                     {"\"k0ModelID\"", " ", "->", " ", 
-                     "\"mayne-kulhawy-unloading\""}], 
+                     "\"jaky-nc\""}], 
                    RowBox[{",", "\n", "  "}], RowBox[
-                    {"\"frictionAngleDeg\"", " ", "->", " ", "30.`"}], 
+                    {"\"frictionAngleDeg\"", " ", "->", " ", "33.`"}], 
                    RowBox[{",", "\n", "  "}], RowBox[
                     {"\"ocr\"", " ", "->", " ", "1.`"}], 
                    RowBox[{",", "\n", "  "}], RowBox[
@@ -352,11 +348,10 @@ thickness is used because it is applied to the existing liner.", "Text", Express
           {Cell["2.6 Second shotcrete section and P-M study inputs", 
             "Section", ExpressionUUID -> 
              "68969ff3-6ec3-420e-b118-0db6e1286d6a"], Cell["This alternative \
-uses the geometry, material, study, and composite-case input fields. Diameter and clear-cover \
-ratio define the layer position. Spacing is retained as a reference field in \
-the input contract but does not select a curve. reinforcementRatioGrid selects \
-the total steel ratios shown as separate curves. compositeCase defines the \
-additional existing-sheet + Ø8/150 interior curve. R evaluates the complete P-M \
+uses the geometry, material, study, and composite-case input fields. \
+reinforcementCases defines each physical diameter and spacing; R derives its \
+steel area, ratio, and layer position using the fixed clearCoverMm. compositeCase \
+remains disabled. R evaluates the complete P-M \
 interaction family for both shotcrete thicknesses. The workbook does not \
 select a final reinforcement.", "Text", ExpressionUUID -> 
              "01110577-e335-d45a-7d96-2a80c6e93f46"], 
@@ -384,17 +379,17 @@ select a final reinforcement.", "Text", ExpressionUUID ->
                  "\"30.0\"", "\"Concrete modulus and P-M domain\""},
                 {"\"Reinforcement grade\"", "\"-\"", "\"catalog selection\"", 
                  "\"Grade-60\"", "\"Yield strength resolved by R\""}, 
-                {"\"Bar diameter\"", "\"d_b\"", "\"mm\"", "\"6\"", 
-                 "\"Layer centroid position for the parametric family\""}, 
-                {"\"Bar spacing\"", "\"s\"", "\"mm\"", "\"150\"", 
-                 "\"Reference input; does not select a family curve\""}, 
-                {"\"Clear-cover ratio\"", "\"c/t\"", "\"-\"", "\"0.15\"", 
-                 "\"R derives clear cover and layer coordinates\""}, 
+                {"\"Reference bar diameter\"", "\"d_b\"", "\"mm\"", "\"6\"", 
+                 "\"Reference layout used by the R input profile\""}, 
+                {"\"Reference bar spacing\"", "\"s\"", "\"mm\"", "\"150\"", 
+                 "\"Reference layout used by the R input profile\""}, 
+                {"\"Clear cover\"", "\"c\"", "\"mm\"", "\"15\"", 
+                 "\"R derives the cover ratio and layer coordinates\""}, 
                 {"\"Reinforcing-steel modulus\"", "\"E_s,r\"", "\"MPa\"", 
                  "\"200000\"", "\"Common material for all four layers\""}, 
-                {"\"Reinforcement-ratio grid\"", "\"rho\"", 
-                 "\"As,total/(b t)\"", "\"{0.18%, 1%, 2%, 3%}\"", 
-                 "\"Curves evaluated for both shotcrete thicknesses\""}}, 
+                {"\"Reinforcement cases\"", "\"phi/s\"", 
+                 "\"mm/mm\"", "\"{8/150, 10/150, 12/150}\"", 
+                 "\"Physical meshes evaluated for both shotcrete thicknesses\""}}, 
                GridBoxAlignment -> {"Columns" -> {Left, Center, Center, 
                    Right, Left}, "Rows" -> {{Center}}}, AutoDelete -> False, 
                GridBoxBackground -> {"Columns" -> {{None}}, "Rows" -> 
@@ -419,15 +414,22 @@ select a final reinforcement.", "Text", ExpressionUUID ->
                    RowBox[{",", "\n", "  "}], RowBox[
                     {"\"barSpacingMm\"", " ", "->", " ", "150.`"}], 
                    RowBox[{",", "\n", "  "}], RowBox[
-                    {"\"clearCoverRatio\"", " ", "->", " ", "0.15`"}], 
+                    {"\"clearCoverMm\"", " ", "->", " ", "15.`"}], 
                    RowBox[{",", "\n", "  "}], RowBox[
                     {"\"reinforcementModulusMPa\"", " ", "->", " ", 
                      "200000.`"}], RowBox[{",", "\n", "  "}], RowBox[
-                    {"\"reinforcementRatioGrid\"", " ", "->", " ", 
-                     RowBox[{"{", RowBox[{"0.0018`", ",", "0.01`", ",", 
-                          "0.02`", ",", "0.03`"}], "}"}]}], RowBox[{",", "\n", "  "}], RowBox[
+                    {"\"reinforcementCases\"", " ", "->", " ", 
+                     RowBox[{"{", RowBox[{RowBox[{"<|", RowBox[{RowBox[
+                              {"\"barDiameterMm\"", " ", "->", " ", "8.`"}], RowBox[{",", " "}],
+                              RowBox[{"\"barSpacingMm\"", " ", "->", " ", "150.`"}]}], "|>"}],
+                          RowBox[{",", " "}], RowBox[{"<|", RowBox[{RowBox[
+                              {"\"barDiameterMm\"", " ", "->", " ", "10.`"}], RowBox[{",", " "}],
+                              RowBox[{"\"barSpacingMm\"", " ", "->", " ", "150.`"}]}], "|>"}],
+                          RowBox[{",", " "}], RowBox[{"<|", RowBox[{RowBox[
+                              {"\"barDiameterMm\"", " ", "->", " ", "12.`"}], RowBox[{",", " "}],
+                              RowBox[{"\"barSpacingMm\"", " ", "->", " ", "150.`"}]}], "|>"}]}], "}"}]}], RowBox[{",", "\n", "  "}], RowBox[
                     {"\"compositeCase\"", " ", "->", " ", RowBox[{"<|", RowBox[
-                         {RowBox[{"\"enabled\"", " ", "->", " ", "True"}], RowBox[{",", " "}],
+                         {RowBox[{"\"enabled\"", " ", "->", " ", "False"}], RowBox[{",", " "}],
                           RowBox[{"\"interiorBarDiameterMm\"", " ", "->", " ", "8.`"}], RowBox[{",", " "}],
                           RowBox[{"\"interiorBarSpacingMm\"", " ", "->", " ", "150.`"}], RowBox[{",", " "}],
                           RowBox[{"\"interiorClearCoverMm\"", " ", "->", " ", "15.`"}], RowBox[{",", " "}],

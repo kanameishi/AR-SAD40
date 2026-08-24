@@ -3,7 +3,6 @@ project:
   execute-dir: project
   resources:
     - styles/**
-    - ref/**
 
 book:
   language: es
@@ -26,7 +25,7 @@ format:
     toc-depth: 4
     toc-expand: true
     toc-location: left
-    number-sections: true
+    number-sections: false
     number-depth: 4
     highlight-style: a11y
     code-fold: true

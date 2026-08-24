@@ -1,1 +1,0 @@
-Reproducción de los cuatro casos HP97 de Schwartz y Einstein [@SchwartzEinstein1980, pp. 391--392]. $s_i=E$ corresponde a excavación y $s_i=X$, a carga externa; $j_i=F$ identifica interfaz sin fricción y $j_i=N$, interfaz sin deslizamiento. Los subíndices $p$ y $c$ distinguen los valores publicado y calculado.

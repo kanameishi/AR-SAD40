@@ -1,37 +1,26 @@
+Este capítulo verifica el liner de acero existente con el perfil corrugado y el espesor remanente del escenario de cálculo. Determina sus propiedades y rigideces, obtiene las distribuciones de fuerza circunferencial, momento y corte para ambos límites de interfaz, y contrasta el empuje circunferencial con los controles de pared, pandeo, costura, flexibilidad y tapada. El objetivo es identificar los estados que gobiernan y los datos de inspección que deben confirmarse para la evaluación definitiva de la estructura existente.
+
 El revestimiento existente se representa con el perfil corrugado CSPI de
 `r formatCalculationFixed(Calculation$section$nominalPitchMm, 0L)` ×
-`r formatCalculationFixed(Calculation$section$nominalDepthMm, 0L)` mm. La fila
-de referencia tiene un espesor especificado de
-`r formatCalculationGeneral(Calculation$section$specifiedThicknessMm)` mm y un
-espesor base de diseño de
-`r formatCalculationGeneral(Calculation$section$designBaseThicknessMm)` mm. El
-cálculo adopta un espesor remanente de
-`r formatCalculationGeneral(Calculation$section$remainingBaseThicknessMm)` mm;
-por lo tanto, el escenario
-`r if (abs(RemainingThicknessLossRatio) < 1e-12) "supone cero pérdida de espesor por corrosión" else paste0("representa una pérdida de espesor de ", formatCalculationFixed(100 * RemainingThicknessLossRatio, 0L), " % respecto del espesor base de diseño")`. La
-@fig-liner-profile reproduce el croquis del catálogo que define el paso, la
-profundidad, el radio de plegado y las variables geométricas del perfil. El
-espesor $T$ del croquis es una variable; el espesor especificado y el espesor
-remanente empleados en esta memoria son los indicados en el párrafo anterior
-y en la @tbl-liner-section-reference.
+`r formatCalculationFixed(Calculation$section$nominalDepthMm, 0L)` mm. La fila de referencia tiene un espesor especificado de
+`r formatCalculationGeneral(Calculation$section$specifiedThicknessMm)` mm y un espesor base de diseño de
+`r formatCalculationGeneral(Calculation$section$designBaseThicknessMm)` mm. El cálculo adopta un espesor remanente de
+`r formatCalculationGeneral(Calculation$section$remainingBaseThicknessMm)` mm; por lo tanto, el escenario
+`r if (abs(RemainingThicknessLossRatio) < 1e-12) "supone cero pérdida de espesor por corrosión" else paste0("representa una pérdida de espesor de ", formatCalculationFixed(100 * RemainingThicknessLossRatio, 0L), " % respecto del espesor base de diseño")`. La @fig-profile reproduce el croquis del catálogo que define el paso, la profundidad, el radio de plegado y las variables geométricas del perfil. El espesor $T$ del croquis es una variable; el espesor especificado y el espesor remanente empleados en esta memoria son los indicados en el párrafo anterior y en la @tbl-liner-section-reference.
 
-{{< include /_fig/liner.profile.ES.qmd >}}
+{{< include /_fig/Profile.ES.qmd >}}
 
-La @tbl-liner-section-reference reproduce las propiedades seccionales
-publicadas que se emplean en la evaluación
+La @tbl-liner-section-reference reproduce las propiedades seccionales publicadas que se emplean en la evaluación
 [@CSPIHandbookChapter2, fig. 2.1 y tabla 2.4].
 
 {{< include /_tbl/liner.section.reference.ES.qmd >}}
 
-Por unidad de ancho axial proyectado, el área, el momento de inercia y el módulo
-resistente son
+Por unidad de ancho axial proyectado, el área, el momento de inercia y el módulo resistente son
 
 $$
 A_\theta=
 `r formatCalculationFixed(Calculation$section$areaMm2PerMm, 3L)`
-\ \mathrm{mm^2/mm},
-\qquad
-I_\theta=
+\ \mathrm{mm^2/mm}, \qquad I_\theta=
 `r formatCalculationFixed(Calculation$section$inertiaMm4PerMm, 2L)`
 \ \mathrm{mm^4/mm},
 $$
@@ -49,93 +38,123 @@ Con $E_\theta=
 $$
 EA_\theta=
 `r formatCalculationFixed(Calculation$section$extensionalRigidityKnPerM, 1L)`
-\ \mathrm{kN/m},
-\qquad
-EI_\theta=
+\ \mathrm{kN/m}, \qquad EI_\theta=
 `r formatCalculationFixed(Calculation$section$flexuralRigidityKnM2PerM, 1L)`
 \ \mathrm{kN\,m^2/m}.
 $$ {#eq-calculation-application-rigidities}
 
-La @tbl-liner-existing-interaction reúne las razones de rigidez y las
-amplitudes de Schwartz--Einstein obtenidas con la sección corrugada. La
-@tbl-liner-existing-extrema informa los mínimos, máximos y máximos absolutos,
-con su signo y posición angular.
+La @tbl-liner-existing-interaction reúne las razones de rigidez y las amplitudes de Schwartz--Einstein obtenidas con la sección corrugada. La @tbl-liner-existing-extrema informa los mínimos, máximos y máximos absolutos, con su signo y posición angular.
 
 {{< include /_tbl/liner.existing.interaction.ES.qmd >}}
 
 {{< include /_tbl/liner.existing.extrema.ES.qmd >}}
 
-Con deslizamiento libre, los máximos absolutos
-son
-`r formatCalculationFixed(ReportExtreme("alpha-1", "N"), 1L)` kN/m de fuerza
-circunferencial,
-`r formatCalculationFixed(ReportExtreme("alpha-1", "M"), 1L)` kN·m/m de
-momento flector y
-`r formatCalculationFixed(ReportExtreme("alpha-1", "Q"), 1L)` kN/m de corte.
-Sin deslizamiento, los máximos son
-`r formatCalculationFixed(ReportExtreme("alpha-0", "N"), 1L)` kN/m,
-`r formatCalculationFixed(ReportExtreme("alpha-0", "M"), 1L)` kN·m/m y
-`r formatCalculationFixed(ReportExtreme("alpha-0", "Q"), 1L)` kN/m,
-respectivamente. Estos valores proceden de la solución de carga externa de
-Schwartz--Einstein y reflejan las rigideces propias de la chapa.
+Para Slip (S), los máximos absolutos son
+`r formatCalculationFixed(ReportExtreme("slip", "N"), 1L)` kN/m de fuerza circunferencial,
+`r formatCalculationFixed(ReportExtreme("slip", "M"), 1L)` kN·m/m de momento flector y
+`r formatCalculationFixed(ReportExtreme("slip", "Q"), 1L)` kN/m de corte. Para No Slip (NS), los máximos son
+`r formatCalculationFixed(ReportExtreme("no-slip", "N"), 1L)` kN/m,
+`r formatCalculationFixed(ReportExtreme("no-slip", "M"), 1L)` kN·m/m y
+`r formatCalculationFixed(ReportExtreme("no-slip", "Q"), 1L)` kN/m, respectivamente. Estos valores suman la componente uniforme de Schwartz--Einstein y la corrección equilibrada del gradiente geostático; la componente uniforme se calcula con las rigideces propias de la chapa.
 
-Las distribuciones completas de fuerza circunferencial, momento y corte se
-presentan a continuación. Cada figura ajusta la escala radial a su resultante
-para que también sean visibles las magnitudes menores de la chapa.
+Las distribuciones completas de fuerza circunferencial, momento y corte se presentan a continuación en una figura de tres paneles. Cada panel ajusta la escala radial a su resultante para que también sean visibles las magnitudes menores de la chapa.
 
-{{< include /_fig/Calculation.resultants.ES.qmd >}}
+{{< include /_fig/Resultants.liner.ES.qmd >}}
 
-La comprobación del conducto corrugado presenta la demanda escalar de
-AASHTO/USACE junto con las resultantes angulares anteriores. El empuje
-circunferencial de servicio y su demanda de diseño se desarrollan en
-@sec-calculation-appendix-thrust.
-`r if (Calculation$aashto$inputs$liveCrownPressureKPa[1L] == 0) paste0("El escenario adopta una presión móvil en clave de ", formatCalculationFixed(Calculation$aashto$inputs$liveCrownPressureKPa[1L], 1L), " kPa.") else "La carga móvil se incorpora con la presión y el ancho cargado definidos en las entradas."`
-La @tbl-liner-aashto-inputs presenta la tapada,
-la luz, los materiales, los factores y los límites utilizados. Estos valores
-reproducen una base compuesta de USACE 2020, AASHTO LRFD 8.ª edición y la
-recopilación de la 9.ª edición de Anderson et al. La evaluación contractual se
-completará con la edición y los parámetros establecidos para el proyecto
-[@USACE2020; @AndersonEtAl2023; @AASHTO2024TOC].
-El mismo empuje se incluye en la comparación de formulaciones de
-@sec-calculation-appendix-references.
+La comprobación del conducto corrugado presenta la demanda escalar de AASHTO/USACE junto con las resultantes angulares anteriores. La presión permanente en la clave incluye el peso del relleno inferior y la presión uniforme de la capa superior:
+
+$$
+P_D=\gamma_0H_0+q_D.
+$$ {#eq-calculation-prism-pressure}
+
+El empuje circunferencial de servicio y la demanda de diseño se calculan como
+
+$$
+T_D=\frac{P_DS}{2}, \qquad T_L=\frac{P_LC_LF_L}{2},
+$$
+
+$$
+T_u=\eta_{cmp}\,T_f =\eta_{cmp}\left (\gamma_DT_D+\gamma_LT_L\right),
+$$ {#eq-calculation-aashto-design-thrust}
+
+donde $T_D$ es el empuje de servicio del prisma permanente, $T_L$ la componente de carga móvil, $T_f$ el empuje mayorado y $T_u$ la demanda de diseño; $S$ es la luz; $P_L$, $C_L$ y $F_L$ describen la carga móvil;
+$\gamma_D$ y $\gamma_L$ son los factores de carga permanente y móvil; y
+$\eta_{cmp}$ es el modificador de cargas por ductilidad, redundancia e importancia operativa
+[@USACE2020, secs. 4.12.3.1.1 y 4.12.3.1.4, ecs. 4-20 y 4-21; @AndersonEtAl2023, p. 164]. La estructura enterrada se considera no redundante bajo la carga del relleno, por lo que el modificador por redundancia vale $1{,}05$ [@CIRSOC8044, art. 12.5.4].
+`r if (Calculation$aashto$inputs$liveCrownPressureKPa[1L] == 0) paste0("El escenario no incluye carga móvil, por lo que $T_L=0$ y la demanda de diseño equivale a $\\gamma_D\\,\\eta_{cmp}=", formatCalculationFixed(Calculation$aashto$inputs$deadLoadFactor[1L] * Calculation$aashto$inputs$demandModifier[1L], 2L), "$ veces el empuje de servicio.") else "La carga móvil se incorpora con la presión y el ancho cargado definidos en las entradas."`
+La @tbl-liner-aashto-inputs presenta la tapada, la luz, los materiales, los factores y los límites utilizados. Estos valores reproducen una base compuesta de USACE 2020, AASHTO LRFD 8.ª edición y la recopilación de la 9.ª edición de Anderson et al. La evaluación contractual se completará con la edición y los parámetros establecidos para el proyecto
+[@USACE2020; @AndersonEtAl2023; @AASHTO2024TOC]. El mismo empuje se incluye en la comparación de formulaciones de @sec-calculation-appendix-references.
 
 {{< include /_tbl/liner.aashto.inputs.ES.qmd >}}
 
-La fluencia y el pandeo de la pared se desarrollan en
-@sec-calculation-appendix-buckling. La rama de pandeo que corresponde al caso
-es
+La pared corrugada se comprueba frente a fluencia y pandeo con la demanda
+$T_u$. Para el área $A$, el momento de inercia $I$ y el radio de giro
+$r=\sqrt{I/A}$ por unidad de ancho, se calculan
+
+$$
+\lambda_b=k_s\frac{S}{r}, \qquad S_{tr}=\frac{r}{k_s}\sqrt{\frac{24E}{F_u}},
+$$ {#eq-calculation-aashto-buckling-slenderness}
+
+$$
+F_{cr}= \begin{cases} F_u-\dfrac{F_u^2}{48E}\lambda_b^2, & S\leq S_{tr},\\[6pt]
+\dfrac{12E}{\lambda_b^2}, & S>S_{tr}, \end{cases}
+$$ {#eq-calculation-aashto-buckling-stress}
+
+$$
+R_y=\phi_wAF_y, \qquad R_b=\phi_wAF_{cr}.
+$$ {#eq-calculation-aashto-wall-resistance}
+
+$k_s$ es el factor de rigidez del suelo, $E$ es el módulo del acero, $F_y$ y
+$F_u$ son sus resistencias de fluencia y tracción, y $\phi_w$ es el factor de resistencia de la pared. Estas expresiones alimentan directamente las filas de fluencia y pandeo de la tabla de comprobaciones
+[@USACE2020, secs. 4.12.3.2--4.12.3.3; @AndersonEtAl2023, p. 164]. La rama de pandeo que corresponde al caso es
 `r if (Calculation$aashto$calculation$bucklingBranchID == "inelastic") "inelástica" else "elástica"`.
-La costura y la pérdida de diámetro de los pernos se desarrollan en
-@sec-calculation-appendix-seam; la flexibilidad y la tapada mínima, en
-@sec-calculation-appendix-flexibility. La
-@tbl-liner-aashto-checks presenta la demanda, la resistencia o límite y la
-relación entre ambas [@USACE2020, secs. 4.12.3--4.12.5;
-@AndersonEtAl2023, pp. 133, 164].
+
+Para la costura, $d_0$ es el diámetro nominal del perno, $d_r$ su diámetro remanente y $\delta_d$ la pérdida relativa. La resistencia de referencia se reduce en proporción al área remanente:
+
+$$
+d_r=d_0 (1-\delta_d), \qquad R_s (\delta_d)=\phi_sR_{n,0} (1-\delta_d)^2, \qquad U_s (\delta_d)=\frac{T_u}{R_s (\delta_d)}.
+$$ {#eq-calculation-aashto-seam-resistance}
+
+Cuando $T_u\leq\phi_sR_{n,0}$, la pérdida que iguala demanda y resistencia es
+
+$$
+\delta_{d,lim}=1-\sqrt{\frac{T_u}{\phi_sR_{n,0}}}.
+$$ {#eq-calculation-aashto-seam-loss-limit}
+
+$R_{n,0}$ es la resistencia nominal publicada de la costura de referencia y
+$\phi_s$ su factor de resistencia [@CSPIHandbookChapter6; @CIRSOC8044].
+
+El factor de flexibilidad caracteriza la deformabilidad de la chapa durante la manipulación e instalación, y la relación de tapada mínima establece el límite geométrico correspondiente:
+
+$$
+FF=\frac{S^2}{EI}, \qquad H_{min}=\max\left (\frac{S}{8},\ 0.3048\ \mathrm{m}\right).
+$$ {#eq-calculation-aashto-service-limits}
+
+Para $FF$, $S$ se expresa en mm, $E$ en MPa e $I$ en mm$^4$/mm; el resultado se obtiene en mm/N [@USACE2020, secs. 4.12.4--4.12.5; @AndersonEtAl2023, p. 133]. La @tbl-liner-aashto-checks presenta la demanda, la resistencia o límite y la relación entre ambas [@USACE2020, secs. 4.12.3--4.12.5; @AndersonEtAl2023, pp. 133, 164]. El estado satisfecho admite la tolerancia de utilización declarada de
+`r formatCalculationGeneral(Calculation$config$aashto$utilizationTolerance)`, equivalente a redondear $U$ a dos decimales.
 
 {{< include /_tbl/liner.aashto.checks.ES.qmd >}}
 
 `r if (all(Calculation$aashto$checks$checkStatus == "satisfied")) "Las cinco comparaciones aritméticas satisfacen los límites de la base adoptada." else "La tabla identifica las comparaciones que exceden los límites adoptados."`
 La fuerza circunferencial de diseño es
 `r formatCalculationFixed(Calculation$aashto$calculation$designThrustKnPerM, 1L)`
-kN/m. Para la costura se obtiene esa demanda frente a una resistencia de
-referencia factorizada de
-`r formatCalculationFixed(ReportAashtoCheck("seam")$limitValue, 1L)` kN/m y
-una utilización de
-`r formatCalculationFixed(ReportAashtoCheck("seam")$utilization, 2L)`. Con
-pérdida nula de diámetro, la igualdad entre demanda y resistencia se alcanzaría
-alrededor de una pérdida de
-`r formatCalculationFixed(100 * Calculation$aashto$calculation$criticalFastenerDiameterLossRatio, 0L)` %.
-Esta sensibilidad cuantifica el efecto de la pérdida de diámetro de los pernos.
-La resistencia publicada corresponde a una costura doble de la familia de
-perfil adoptada [@CSPIHandbookChapter6; @CIRSOC8044]. La inspección identificará
-la configuración de la unión existente y permitirá establecer su
-correspondencia con esa referencia.
+kN/m. Para la costura se obtiene esa demanda frente a una resistencia de referencia factorizada de
+`r formatCalculationFixed(ReportAashtoCheck("seam")$limitValue, 1L)` kN/m y una utilización de
+`r formatCalculationFixed(ReportAashtoCheck("seam")$utilization, 2L)`. Con pérdida nula de diámetro, la igualdad entre demanda y resistencia se alcanzaría alrededor de una pérdida de
+`r formatCalculationFixed(100 * Calculation$aashto$calculation$criticalFastenerDiameterLossRatio, 0L)` %. Esta sensibilidad cuantifica el efecto de la pérdida de diámetro de los pernos. La resistencia publicada corresponde a una costura doble de la familia de perfil adoptada [@CSPIHandbookChapter6; @CIRSOC8044]. La inspección identificará la configuración de la unión existente y permitirá establecer su correspondencia con esa referencia.
 
-El resultado de la chapa depende directamente del espesor remanente, de las
-propiedades del acero y de la unión. El cálculo actual
-`r if (all(Calculation$aashto$checks$checkStatus == "satisfied")) "indica que la sección y la costura de referencia resisten aritméticamente el escenario adoptado" else "identifica las comprobaciones que requieren una capacidad mayor"`;
-la inspección definirá los valores representativos del revestimiento existente
-que deben emplearse en la evaluación definitiva. Las resultantes angulares del
-modelo híbrido describen la demanda estructural del anillo y la rama
-AASHTO/USACE compara el empuje circunferencial escalar con los cinco límites de
-referencia indicados en la @tbl-liner-aashto-checks.
+La sensibilidad de esta verificación al módulo de deformación del terreno se evalúa recalculando el caso completo con $E_g$ igual a
+`r SensitivityModuliSentence` MPa y los demás parámetros del escenario constantes. La @tbl-calculation-sensitivity-steel presenta los máximos absolutos de las resultantes para cada módulo. Entre
+`r formatCalculationFixed(SensitivityFirst, 0L)` y
+`r formatCalculationFixed(SensitivityLast, 0L)` MPa, la fuerza circunferencial máxima del límite Slip se reduce
+`r formatCalculationFixed(SensitivitySteelReductionPct("slip", "N"), 0L)` %; el momento flector y el corte se reducen
+`r formatCalculationFixed(SensitivitySteelReductionPct("slip", "M"), 0L)` y
+`r formatCalculationFixed(SensitivitySteelReductionPct("slip", "Q"), 0L)` %, con la mayor parte de la reducción entre los dos primeros módulos. El módulo adoptado es el extremo inferior del rango y produce las mayores demandas de interacción.
+
+{{< include /_tbl/Calculation.sensitivity.steel.ES.qmd >}}
+
+`r if (SensitivityAashtoConstant) paste0("Las cinco comparaciones de la @tbl-liner-aashto-checks producen utilizaciones idénticas para todos los módulos: el empuje prismático y el factor de rigidez del suelo tabulado no dependen de $E_g$, y la utilización de la costura es ", SensitivitySeamU, " en todo el rango.") else "Las comparaciones de la @tbl-liner-aashto-checks varían con el módulo del terreno y gobiernan la lectura de la @tbl-calculation-sensitivity-steel."`
+
+En síntesis, las resultantes angulares del modelo híbrido describen la demanda estructural del anillo y la rama AASHTO/USACE compara el empuje circunferencial escalar con los cinco límites de referencia de la @tbl-liner-aashto-checks.
+`r if (all(Calculation$aashto$checks$checkStatus == "satisfied")) "Las cinco comparaciones satisfacen sus límites." else if (identical(Calculation$aashto$checks$checkID[Calculation$aashto$checks$checkStatus != "satisfied"], "seam")) "Las comparaciones de fluencia, pandeo, flexibilidad y tapada mínima satisfacen sus límites; la costura de referencia no satisface." else "La tabla identifica las comparaciones que no satisfacen sus límites."`
+El resultado depende directamente del espesor remanente, de las propiedades del acero y de la configuración resistente de la unión; la inspección debe establecer esos valores para la evaluación definitiva del liner existente.

@@ -1,3 +1,7 @@
+if (!exists("buildReportTable", mode = "function", inherits = TRUE)) {
+  source(file.path("scripts", "tbl", "table.R"), local = TRUE)
+}
+
 .classicalDash <- function(value, digits = 1L) {
   ifelse(
     is.na(value),
@@ -31,10 +35,10 @@
 )
 
 .classicalCaseCode <- c(
-  `alpha-1` = "D",
-  `alpha-0` = "S",
-  `schwartz-einstein-full-slip` = "D",
-  `schwartz-einstein-no-slip` = "S",
+  slip = "S",
+  `no-slip` = "NS",
+  `schwartz-einstein-full-slip` = "S",
+  `schwartz-einstein-no-slip` = "NS",
   `nunez-project-sensitivity` = "—",
   `aashto-service-thrust` = "SER",
   `aashto-modified-factored-demand` = "LRFD"
@@ -71,7 +75,11 @@ buildCalculationClassicalInputsTable <- function(data) {
     check.names = FALSE,
     stringsAsFactors = FALSE
   )
-  knitr::kable(Output, align = c("l", "r", "c"), escape = FALSE)
+  buildReportTable(
+    data = Output,
+    headers = names(Output),
+    align = c("l", "r", "c")
+  )
 }
 
 buildCalculationClassicalSectionsTable <- function(data) {
@@ -91,14 +99,13 @@ buildCalculationClassicalSectionsTable <- function(data) {
     stringsAsFactors = FALSE
   )
   if (anyNA(Output$Seccion)) stop("A section label is missing.", call. = FALSE)
-  knitr::kable(
-    Output,
-    col.names = c(
+  buildReportTable(
+    data = Output,
+    headers = c(
       "Sección", "$D_c$ [m]", "$t$ [mm]", "$e_N$ [mm]",
       "$E_\\ell$ [GPa]", "$EA$ [kN/m]", "$EI$ [kN·m²/m]", "$a_N$"
     ),
-    align = c("l", rep("r", 7)),
-    escape = FALSE
+    align = c("l", rep("r", 7))
   )
 }
 
@@ -110,14 +117,21 @@ buildCalculationClassicalSummaryTable <- function(data, liningID) {
     "nunez-2000", "nunez-2014", "aashto-usace"
   )
   CaseOrder <- c(
-    "alpha-1", "alpha-0", "schwartz-einstein-full-slip",
+    "slip", "no-slip", "schwartz-einstein-full-slip",
     "schwartz-einstein-no-slip", "nunez-project-sensitivity",
     "aashto-service-thrust", "aashto-modified-factored-demand"
   )
   Data <- Data[order(match(Data$methodID, MethodOrder), match(Data$caseID, CaseOrder)), ]
+  CaseCode <- unname(.classicalCaseCode[Data$caseID])
+  CaseCode[
+    Data$methodID == "prescribed-k0-ring" & Data$caseID == "slip"
+  ] <- "PT"
+  CaseCode[
+    Data$methodID == "prescribed-k0-ring" & Data$caseID == "no-slip"
+  ] <- "PN"
   Output <- data.frame(
     Metodo = unname(.classicalMethodCode[Data$methodID]),
-    Caso = unname(.classicalCaseCode[Data$caseID]),
+    Caso = CaseCode,
     N = .classicalDash(Data$normalAbsoluteMaxKnPerM, 1L),
     rN = .classicalDash(Data$normalRatioToOfficialEnvelope, 2L),
     M = .classicalDash(Data$momentAbsoluteMaxKnMPerM, 1L),
@@ -130,14 +144,13 @@ buildCalculationClassicalSummaryTable <- function(data, liningID) {
   if (anyNA(Output[, c("Metodo", "Caso")])) {
     stop("A comparison label is missing.", call. = FALSE)
   }
-  knitr::kable(
-    Output,
-    col.names = c(
-      "Mét.", "Caso", "$|N|_{\\max}$", "$r_N$",
+  buildReportTable(
+    data = Output,
+    headers = c(
+      "$m$", "$c$", "$|N|_{\\max}$", "$r_N$",
       "$|M|_{\\max}$", "$r_M$", "$|Q|_{\\max}$", "$r_Q$"
     ),
-    align = c("c", "c", rep("r", 6)),
-    escape = FALSE
+    align = c("c", "c", rep("r", 6))
   )
 }
 
@@ -156,10 +169,9 @@ buildCalculationClassicalPointsTable <- function(data) {
     stringsAsFactors = FALSE
   )
   if (anyNA(Output)) stop("A point-resultant label is missing.", call. = FALSE)
-  knitr::kable(
-    Output,
-    col.names = c("Sección", "Formulación", "Posición", "Magnitud", "Valor", "Unidad"),
-    align = c("l", "l", "l", "c", "r", "c"),
-    escape = FALSE
+  buildReportTable(
+    data = Output,
+    headers = c("Sección", "Formulación", "Posición", "Magnitud", "Valor", "Unidad"),
+    align = c("l", "l", "l", "c", "r", "c")
   )
 }

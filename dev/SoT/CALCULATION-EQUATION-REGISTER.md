@@ -58,7 +58,7 @@ $$
 
 - **Evidencia:** definición seccional de este estudio; correspondencia interna
   con la Fase 1 documentada en
-  `TITO/kb/calculation-memo/equation-traceability.md`.
+  `_ref/TITO-kb/calculation-memo/equation-traceability.md`.
 - **R:** convención de `solveRingDirect()` y
   `summarizeSectionResultants()`.
 - **Producto:** `section.resultants.csv` y `section.extrema.csv`.

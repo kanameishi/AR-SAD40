@@ -9,7 +9,6 @@ ProjectRoot <- normalizePath(file.path(dirname(ScriptPath), "..", ".."))
 source(file.path(ProjectRoot, "scripts", "R", "ringDirect.R"))
 source(file.path(ProjectRoot, "scripts", "R", "ringLoads.R"))
 source(file.path(ProjectRoot, "scripts", "R", "ringInteraction.R"))
-source(file.path(ProjectRoot, "scripts", "R", "ringMonteCarlo.R"))
 
 assertNear <- function(actual, expected, tolerance, label) {
   if (length(actual) != length(expected)) {
@@ -1079,182 +1078,6 @@ assertNear(
   "Schwartz-Einstein geometric similarity"
 )
 
-# 7. CANDE-2025 Level 1, Table 1.1.1-1. The numerical case is a
-# project-declared formula benchmark, not a numerical result printed by CANDE.
-CandeAngles <- c(0, pi / 4, pi / 2)
-CandeExpected <- list(
-  bonded = data.frame(
-    radialPressure = c(20.257481, 16.666667, 13.075853),
-    tangentialPressure = c(0, 17.703549, 0),
-    radialDisplacement = c(0.621956, 2.083333, 3.544711) / 1000,
-    tangentialDisplacement = c(0, 1.283925, 0) / 1000,
-    moment = c(2.586987, 0.833333, -0.920320),
-    thrust = c(27.272095, 16.666667, 6.061239),
-    shear = c(0, -3.507307, 0)
-  ),
-  frictionless = data.frame(
-    radialPressure = c(11.162080, 16.666667, 22.171254),
-    tangentialPressure = c(0, 0, 0),
-    radialDisplacement = c(0.554281, 2.083333, 3.612385) / 1000,
-    tangentialDisplacement = c(0, 0.764526, 0) / 1000,
-    moment = c(2.668196, 0.833333, -1.001529),
-    thrust = c(18.501529, 16.666667, 14.831804),
-    shear = c(0, -3.669725, 0)
-  )
-)
-CandeEquilibriumRadius <- 2.3
-
-for (s in names(CandeExpected)) {
-  Cande <- candeLevel1Response(
-    theta = CandeAngles,
-    overburdenPressure = 100,
-    radius = 1,
-    groundShearModulus = 20000,
-    groundPoisson = 1 / 3,
-    alpha = 0.2,
-    beta = 0.01,
-    interface = s
-  )
-  Expected <- CandeExpected[[s]]
-  for (v in names(Expected)) {
-    Tolerance <- if (grepl("Displacement", v)) 6e-10 else 6e-6
-    assertNear(
-      Cande$response[[v]],
-      Expected[[v]],
-      Tolerance,
-      paste("CANDE Level 1", s, v)
-    )
-  }
-
-  DifferenceStep <- 1e-6
-  Equilibrium <- candeLevel1Response(
-    theta = 0.37 + c(-DifferenceStep, 0, DifferenceStep),
-    overburdenPressure = 100,
-    radius = CandeEquilibriumRadius,
-    groundShearModulus = 20000,
-    groundPoisson = 1 / 3,
-    alpha = 0.2,
-    beta = 0.01,
-    interface = s
-  )$response
-  Derivative <- function(value) diff(value[c(1L, 3L)]) /
-    (2 * DifferenceStep)
-  Residual <- c(
-    tangential = Derivative(Equilibrium$thrust) -
-      Equilibrium$shear[2L] +
-      CandeEquilibriumRadius * Equilibrium$tangentialPressure[2L],
-    radial = Derivative(Equilibrium$shear) +
-      Equilibrium$thrust[2L] -
-      CandeEquilibriumRadius * Equilibrium$radialPressure[2L],
-    moment = Derivative(Equilibrium$moment) -
-      CandeEquilibriumRadius * Equilibrium$shear[2L]
-  )
-  assertNear(
-    Residual,
-    0,
-    2e-8,
-    paste(
-      "CANDE Level 1",
-      s,
-      "differential equilibrium at non-unit radius"
-    )
-  )
-}
-
-CandeParameters <- candeLevel1Parameters(
-  radius = 1,
-  groundShearModulus = 20000,
-  groundPoisson = 1 / 3,
-  pipeYoungModulus = 187500,
-  pipePoisson = 0.25,
-  wallArea = 0.04,
-  wallInertia = 0.002
-)
-assertNear(
-  unlist(CandeParameters[c("stressRatio", "alpha", "beta")]),
-  c(0.5, 0.2, 0.01),
-  1e-14,
-  "CANDE Level 1 dimensional parameters"
-)
-
-# 8. Monte Carlo runner: realized draws in, quantiles and grid extrema out.
-Draws <- data.frame(
-  effectiveVertical = c(80, 100, 120, 110),
-  k0 = c(0.4, 0.5, 0.6, 0.55),
-  porePressure = c(0, 10, 20, 5)
-)
-MonteCarlo <- runRingMonteCarlo(
-  draws = Draws,
-  responseFunction = function(draw, theta) {
-    solveK0Closed(
-      effectiveVertical = draw$effectiveVertical,
-      k0 = draw$k0,
-      porePressure = draw$porePressure,
-      radius = Radius,
-      theta = theta,
-      interface = "fullTraction"
-    )
-  },
-  theta = Theta,
-  probabilities = c(0.05, 0.50, 0.95),
-  modelLabel = "K0 test",
-  keepSampleCurves = TRUE
-)
-assertTrue(MonteCarlo$sampleCount == nrow(Draws), "Monte Carlo sample count")
-assertTrue(
-  nrow(MonteCarlo$pointwiseQuantiles) ==
-    3L * 3L * length(Theta),
-  "Monte Carlo pointwise row count"
-)
-assertTrue(
-  all(MonteCarlo$extremaSamples$value[
-    MonteCarlo$extremaSamples$statistic == "absoluteMaximum"
-  ] >= 0),
-  "Monte Carlo absolute extrema"
-)
-SingleQuantile <- runRingMonteCarlo(
-  draws = Draws[1L, , drop = FALSE],
-  responseFunction = function(draw, theta) {
-    solveK0Closed(
-      effectiveVertical = draw$effectiveVertical,
-      k0 = draw$k0,
-      porePressure = draw$porePressure,
-      radius = Radius,
-      theta = theta,
-      interface = "fullTraction"
-    )
-  },
-  theta = Theta,
-  probabilities = 0.5,
-  modelLabel = "single-quantile test"
-)
-assertTrue(
-  nrow(SingleQuantile$pointwiseQuantiles) == 3L * length(Theta),
-  "Monte Carlo single probability"
-)
-ScalarOutput <- runOutputMonteCarlo(
-  draws = Draws,
-  outputFunction = function(draw) c(
-    vertical = draw$effectiveVertical,
-    horizontal = draw$effectiveVertical * draw$k0
-  ),
-  probabilities = 0.5,
-  modelLabel = "scalar-output test",
-  keepSamples = FALSE
-)
-assertTrue(nrow(ScalarOutput$quantiles) == 2L, "scalar output Monte Carlo")
-assertTrue(is.null(ScalarOutput$samples), "scalar output sample retention")
-assertError(
-  function() runOutputMonteCarlo(
-    draws = Draws,
-    outputFunction = function(draw) c(value = draw$k0),
-    modelLabel = "invalid keepSamples test",
-    keepSamples = NA
-  ),
-  "scalar output keepSamples validation",
-  "keepSamples"
-)
-
 # Boundary validation utilities.
 assertError(
   function() usaceCmpThrust(
@@ -1484,7 +1307,7 @@ if (nzchar(OraclePath)) {
 message(
   paste0(
     "PASS: direct mechanics, Fourier, Baker, USACE, FHWA, Nunez, ",
-    "Schwartz-Einstein, CANDE, and sample aggregation"
+    "Schwartz-Einstein and sample aggregation"
   ),
   if (nzchar(OraclePath)) ", and Wolfram parity." else "."
 )

@@ -1,13 +1,12 @@
 ```{r}
 #| include: false
 source("scripts/tbl/Calculation.classical.comparison.R")
-readCaption <- function(path) paste(readLines(path, warn = FALSE), collapse = "\n")
-CAP.INPUTS <- readCaption("_captions/tbl.Calculation.classical.inputs.ES.md")
-CAP.SECTIONS <- readCaption("_captions/tbl.Calculation.classical.sections.ES.md")
-CAP.STEEL <- readCaption("_captions/tbl.Calculation.classical.steel.ES.md")
-CAP.SC100 <- readCaption("_captions/tbl.Calculation.classical.shotcrete100.ES.md")
-CAP.SC150 <- readCaption("_captions/tbl.Calculation.classical.shotcrete150.ES.md")
-CAP.NUNEZ <- readCaption("_captions/tbl.Calculation.classical.nunez.ES.md")
+CAP.INPUTS <- readCaption("tbl.Calculation.classical.inputs.ES")
+CAP.SECTIONS <- readCaption("tbl.Calculation.classical.sections.ES")
+CAP.STEEL <- readCaption("tbl.Calculation.classical.steel.ES")
+CAP.SC100 <- readCaption("tbl.Calculation.classical.shotcrete100.ES")
+CAP.SC150 <- readCaption("tbl.Calculation.classical.shotcrete150.ES")
+CAP.NUNEZ <- readCaption("tbl.Calculation.classical.nunez.ES")
 ```
 
 ```{r}
@@ -56,8 +55,7 @@ buildCalculationClassicalPointsTable(Calculation$classicalComparison$points)
 #| include: false
 rm(
   CAP.INPUTS, CAP.SECTIONS, CAP.STEEL, CAP.SC100, CAP.SC150, CAP.NUNEZ,
-  readCaption, buildCalculationClassicalInputsTable,
-  buildCalculationClassicalSectionsTable,
+  buildCalculationClassicalInputsTable, buildCalculationClassicalSectionsTable,
   buildCalculationClassicalSummaryTable,
   buildCalculationClassicalPointsTable, .classicalDash,
   .classicalLiningLabel, .classicalMethodLabel,

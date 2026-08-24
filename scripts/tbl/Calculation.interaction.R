@@ -1,3 +1,7 @@
+if (!exists("buildReportTable", mode = "function", inherits = TRUE)) {
+  source(file.path("scripts", "tbl", "table.R"), local = TRUE)
+}
+
 buildCalculationInteractionTable <- function(path, liningID = NULL) {
   if (!file.exists(path)) {
     stop("The interaction-parameter product is not available.", call. = FALSE)
@@ -30,7 +34,7 @@ buildCalculationInteractionTable <- function(path, liningID = NULL) {
   InterfaceCodes <- c(`full-traction` = "Completa", `normal-only` = "Normal")
   Output <- data.frame(
     Projection = unname(InterfaceCodes[Data$interfaceID]),
-    Alpha = Data$tangentialMultiplier,
+    TangentialMultiplier = Data$tangentialMultiplier,
     Eta = Data$sectionRatio,
     N0 = round(Data$normalMeanKnPerM),
     N2 = round(Data$normalCosineKnPerM),
@@ -43,16 +47,15 @@ buildCalculationInteractionTable <- function(path, liningID = NULL) {
   if (anyNA(Output$Projection) || any(!is.finite(as.matrix(Output[-1L])))) {
     stop("The interaction parameters are incomplete.", call. = FALSE)
   }
-  knitr::kable(
-    Output,
-    digits = c(0, 0, 6, 0, 0, 0, 0, 0),
-    col.names = c(
-      "Proyección", "$\\alpha$", "$\\eta_s$", "$N_0$ (kN/m)",
+  buildReportTable(
+    data = Output,
+    headers = c(
+      "Proyección", "$\\lambda_t$", "$\\eta_s$", "$N_0$ (kN/m)",
       "$N_2$ (kN/m)", "$M_0$ (kN·m/m)", "$M_2$ (kN·m/m)",
       "$Q_2$ (kN/m)"
     ),
     align = c("l", "r", "r", "r", "r", "r", "r", "r"),
-    escape = FALSE
+    digits = c(0, 0, 6, 0, 0, 0, 0, 0)
   )
 }
 
@@ -85,10 +88,7 @@ buildCalculationSchwartzEinsteinTable <- function(path, liningID = NULL) {
   if (nrow(Data) != 2L) {
     stop("The Schwartz-Einstein interface envelope is incomplete.", call. = FALSE)
   }
-  InterfaceCodes <- c(
-    `full-slip` = "Deslizamiento libre",
-    `no-slip` = "Sin deslizamiento"
-  )
+  InterfaceCodes <- c(`full-slip` = "S", `no-slip` = "NS")
   Output <- data.frame(
     Interface = unname(InterfaceCodes[Data$interfaceID]),
     CStar = Data$cStar,
@@ -106,15 +106,14 @@ buildCalculationSchwartzEinsteinTable <- function(path, liningID = NULL) {
   if (anyNA(Output) || any(!is.finite(as.matrix(Output[-1L])))) {
     stop("The Schwartz-Einstein parameters are incomplete.", call. = FALSE)
   }
-  knitr::kable(
-    Output,
-    digits = c(0, 4, 1, 4, 4, 4, 0, 0, 0, 0),
-    col.names = c(
-      "Interfaz", "$C^*$", "$F^*$", "$t_0$", "$t_2$", "$m_2$",
+  buildReportTable(
+    data = Output,
+    headers = c(
+      "$I$", "$C^*$", "$F^*$", "$t_0$", "$t_2$", "$m_2$",
       "$N_0$ (kN/m)", "$N_2$ (kN/m)", "$M_2$ (kN·m/m)",
       "$Q_2$ (kN/m)"
     ),
     align = c("l", rep("r", 9L)),
-    escape = FALSE
+    digits = c(0, 4, 1, 4, 4, 4, 0, 0, 0, 0)
   )
 }

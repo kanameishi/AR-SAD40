@@ -748,6 +748,7 @@
   }
   Mechanical <- NULL
   MechanicalUtilization <- NA_real_
+  MechanicalStatus <- "not-applicable"
   if ("sectionDomains" %in% names(Lining)) {
     stop(
       paste(
@@ -756,63 +757,6 @@
       ),
       call. = FALSE
     )
-  }
-  UsesLegacyDomain <- nrow(Reinforcement) > 0L &&
-    (is.null(Lining$aci) || identical(
-      Lining$aci$standardSetID,
-      "aci-318.2-14-partial"
-    ))
-  SectionDomains <- attr(Lining, ".shotcreteDomains", exact = TRUE)
-  SectionDomains <- if (!UsesLegacyDomain) {
-    NULL
-  } else if (is.null(SectionDomains)) {
-    buildAciE702421ReinforcedSectionDomains(
-      thicknessMm = 1000 * Lining$thicknessM,
-      stripWidthMm = 1000 * Lining$stripWidthM,
-      compressiveStrengthMPa = Lining$compressiveStrengthMPa,
-      reinforcement = Reinforcement
-    )
-  } else {
-    SectionDomains
-  }
-  MechanicalStatus <- if (!UsesLegacyDomain) {
-    "not-applicable"
-  } else {
-    "not-evaluated"
-  }
-  if (UsesLegacyDomain) {
-    Evaluation <- evaluateAciE702421SectionDemand(
-      normalForceKnPerM = Values$normalForceKnPerM,
-      bendingMomentKnMPerM = Values$bendingMomentKnMPerM,
-      stripWidthM = Lining$stripWidthM,
-      sectionDomains = SectionDomains,
-      forceEffectStatus = scenario$action$forceEffectStatus,
-      convergenceTolerance = Lining$convergenceTolerance
-    )
-    Mechanical <- cbind(
-      data.frame(
-        scenarioID = scenario$scenarioID,
-        sectionID = Lining$sectionID,
-        combinationID = Values$combinationID,
-        stageID = Values$stageID,
-        interfaceID = Values$interfaceID,
-        thetaRad = Values$thetaRad,
-        thetaDeg = Values$thetaDeg,
-        shearForceKnPerM = Values$shearForceKnPerM,
-        stringsAsFactors = FALSE
-      ),
-      Evaluation
-    )
-    MechanicalUtilization <- max(Mechanical$radialUtilization)
-    MechanicalStatus <- if (any(
-      Mechanical$convergenceStatus != "satisfied"
-    )) {
-      "not-evaluated-convergence"
-    } else if (MechanicalUtilization <= 1) {
-      "inside-supplied-domain"
-    } else {
-      "outside-supplied-domain"
-    }
   }
   AciCalculated <- if (is.null(Aci)) {
     logical()

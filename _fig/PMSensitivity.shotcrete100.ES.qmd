@@ -1,0 +1,11 @@
+```{r}
+#| include: false
+CAP.SENS.PM100.FIG <- readCaption("fig.PMSensitivity.shotcrete100.ES")
+```
+
+{{< include /_fig/PMSensitivity.shotcrete100.qmd >}}
+
+```{r}
+#| include: false
+rm(CAP.SENS.PM100.FIG)
+```

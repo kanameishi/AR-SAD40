@@ -1,5 +1,0 @@
-"quantity","publishedValue","calculatedValue","unit","evidence","sourceLocation"
-"dead crown pressure",3600,3600,"lb/ft2","published","Appendix D4 printed p. 332/PDF p. 346"
-"dead service thrust",UNKNOWN,5400,"lb/ft","derived from Eq. 4-20","Eq. 4-20 printed p. 86/PDF p. 100"
-"factored thrust",10530,10530,"lb/ft","published","Appendix D4 printed p. 333/PDF p. 347"
-"modified design demand",11583,11583,"lb/ft","published","Appendix D4 printed p. 333/PDF p. 347"

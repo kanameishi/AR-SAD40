@@ -1,3 +1,7 @@
+if (!exists("buildReportTable", mode = "function", inherits = TRUE)) {
+  source(file.path("scripts", "tbl", "table.R"), local = TRUE)
+}
+
 buildCalculationConcreteReinforcementSweepTable <- function(path, liningID) {
   if (!file.exists(path)) {
     stop("The reinforcement P-M family product is not available.",
@@ -16,14 +20,14 @@ buildCalculationConcreteReinforcementSweepTable <- function(path, liningID) {
   )
   Required <- c(
     "liningID", "reinforcementCaseOrder",
+    "barDiameterMm", "barSpacingMm", "reinforcementArrangementID",
     "circumferentialAreaTotalMm2PerM", "reinforcementRatio",
     "maximumRadialUtilization", "localPMStatus",
     "maximumShearUtilization", "shearStatus",
     "radialTensionUtilization", "radialTensionStatus",
-    "overallLocalStatus",
     "governingInterfaceID", "governingVerticalStressFactor",
     "governingHorizontalStressFactor", "governingThetaDeg",
-    "isLowerReferenceCase", "isParametricCase", "calculationStatus"
+    "isParametricCase", "calculationStatus"
   )
   if (length(setdiff(Required, names(Data))) > 0L) {
     stop("The reinforcement P-M family has an invalid schema.", call. = FALSE)
@@ -34,35 +38,31 @@ buildCalculationConcreteReinforcementSweepTable <- function(path, liningID) {
     drop = FALSE
   ]
   Data <- Data[order(Data$reinforcementCaseOrder), , drop = FALSE]
-  if (nrow(Data) < 3L || nrow(Data) > 6L ||
+  if (nrow(Data) != 3L ||
       any(Data$calculationStatus != "calculated") ||
-      sum(Data$isLowerReferenceCase) != 1L ||
-      sum(!Data$isParametricCase) > 1L) {
+      any(Data$reinforcementArrangementID != "symmetric-two-face")) {
     stop("The reinforcement P-M family is incomplete.", call. = FALSE)
   }
-  Role <- vapply(seq_len(nrow(Data)), function(i) {
-    if (!Data$isParametricCase[i]) {
-      "Chapa existente + Ø8/150 interior"
-    } else if (Data$isLowerReferenceCase[i]) {
-      "Cuantía mínima de referencia"
-    } else {
-      "Cuantía evaluada"
-    }
-  }, character(1))
-  InterfaceLabels <- c(
-    `full-slip` = "Deslizamiento libre",
-    `no-slip` = "Sin deslizamiento"
+  ConfigurationID <- paste0(
+    "S",
+    trimws(formatC(Data$barDiameterMm, format = "fg", digits = 6L))
   )
-  StatusLabels <- c(
-    satisfied = "Dentro del dominio",
-    `not-satisfied` = "Excede el dominio"
+  StatusCodes <- c(
+    satisfied = "OK",
+    `not-satisfied` = "FAIL"
   )
-  CheckStatusLabels <- c(
-    satisfied = "Satisface",
-    `not-satisfied` = "No satisface"
+  OverallStatus <- ifelse(
+    Data$localPMStatus == "satisfied" & Data$shearStatus == "satisfied",
+    "OK",
+    "FAIL"
   )
   Output <- data.frame(
-    Role = Role,
+    ConfigurationID = ConfigurationID,
+    Mesh = paste0(
+      trimws(formatC(Data$barDiameterMm, format = "fg", digits = 6L)),
+      "/",
+      trimws(formatC(Data$barSpacingMm, format = "fg", digits = 6L))
+    ),
     Area = formatC(
       Data$circumferentialAreaTotalMm2PerM / 100,
       format = "f",
@@ -78,34 +78,35 @@ buildCalculationConcreteReinforcementSweepTable <- function(path, liningID) {
       format = "f",
       digits = 2L
     ),
-    Status = unname(StatusLabels[Data$localPMStatus]),
+    Status = unname(StatusCodes[Data$localPMStatus]),
     Shear = formatC(
       Data$maximumShearUtilization,
       format = "f",
       digits = 2L
     ),
-    ShearStatus = unname(CheckStatusLabels[Data$shearStatus]),
+    ShearStatus = unname(StatusCodes[Data$shearStatus]),
     Radial = formatC(
       Data$radialTensionUtilization,
       format = "f",
       digits = 2L
     ),
-    RadialStatus = unname(CheckStatusLabels[Data$radialTensionStatus]),
-    Overall = unname(CheckStatusLabels[Data$overallLocalStatus]),
+    RadialStatus = unname(StatusCodes[Data$radialTensionStatus]),
+    OverallStatus = OverallStatus,
     check.names = FALSE,
     stringsAsFactors = FALSE
   )
   if (anyNA(Output)) {
     stop("The reinforcement P-M public mapping is incomplete.", call. = FALSE)
   }
-  knitr::kable(
-    Output,
-    col.names = c(
-      "Caso", "Área circunferencial total [cm²/m]", "Cuantía [%]",
-      "U P–M", "P–M", "U corte", "Corte", "U tracción radial",
-      "Tracción radial", "Resultado local"
+  buildReportTable(
+    data = Output,
+    headers = c(
+      "$ID$", "$\\phi/s$", "$A_{s,\\theta}$ [cm²/m]", "$\\rho_\\theta$ [%]",
+      "$U_{PM,\\max}$", "$E_{PM}$", "$U_{V,\\max}$", "$E_V$",
+      "$U_{r,\\max}^{*}$", "$E_r^{*}$", "$E$"
     ),
-    align = c("l", "r", "r", "r", "l", "r", "l", "r", "l", "l"),
-    escape = FALSE
+    align = c(
+      "c", "c", "r", "r", "r", "c", "r", "c", "r", "c", "c"
+    )
   )
 }

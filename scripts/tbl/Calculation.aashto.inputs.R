@@ -1,3 +1,7 @@
+if (!exists("buildReportTable", mode = "function", inherits = TRUE)) {
+  source(file.path("scripts", "tbl", "table.R"), local = TRUE)
+}
+
 buildCalculationAashtoInputsTable <- function(path) {
   if (!file.exists(path)) {
     stop("The AASHTO-input product is not available.", call. = FALSE)
@@ -97,10 +101,9 @@ buildCalculationAashtoInputsTable <- function(path) {
     )
   }
   Output <- do.call(rbind, Rows)
-  knitr::kable(
-    Output,
-    col.names = c("$x_i$", "$v_i$", "$u_i$"),
-    align = c("c", "r", "c"),
-    escape = FALSE
+  buildReportTable(
+    data = Output,
+    headers = c("$x_i$", "$v_i$", "$u_i$"),
+    align = c("c", "r", "c")
   )
 }

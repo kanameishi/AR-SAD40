@@ -28,7 +28,7 @@ normaliseAci31825ReinforcementStudyPolicy <- function(
     stop(path, " must be one named object.", call. = FALSE)
   }
   Required <- c(
-    "studyID", "reinforcementRatioGrid", "domainBasePointCount",
+    "studyID", "reinforcementCases", "domainBasePointCount",
     "domainRefinedPointCount", "convergenceTolerance", "compositeCase"
   )
   Missing <- setdiff(Required, names(value))
@@ -51,16 +51,63 @@ normaliseAci31825ReinforcementStudyPolicy <- function(
       is.na(StudyID) || !nzchar(StudyID)) {
     stop(path, ".studyID must be one non-empty string.", call. = FALSE)
   }
-  Grid <- unlist(
-    value[["reinforcementRatioGrid", exact = TRUE]],
-    recursive = TRUE,
-    use.names = FALSE
-  )
-  if (!is.numeric(Grid) || length(Grid) < 2L || any(!is.finite(Grid)) ||
-      any(Grid <= 0) || is.unsorted(Grid, strictly = TRUE)) {
+  CasesInput <- value[["reinforcementCases", exact = TRUE]]
+  if (!is.list(CasesInput) || length(CasesInput) < 2L) {
+    stop(path, ".reinforcementCases must contain at least two layouts.",
+      call. = FALSE
+    )
+  }
+  Cases <- lapply(seq_along(CasesInput), function(i) {
+    CasePath <- paste0(path, ".reinforcementCases[[", i, "]]" )
+    Case <- CasesInput[[i]]
+    Fields <- c("barDiameterMm", "barSpacingMm")
+    AllowedFields <- c(Fields, "caseID")
+    if (!is.list(Case) || is.null(names(Case)) ||
+        any(!Fields %in% names(Case)) ||
+        any(!names(Case) %in% AllowedFields)) {
+      stop(
+        CasePath, " must contain: ",
+        paste(Fields, collapse = ", "),
+        "; caseID is the only optional normalized field.",
+        call. = FALSE
+      )
+    }
+    Diameter <- .reinforcementStudyScalar(
+      Case[["barDiameterMm", exact = TRUE]],
+      paste0(CasePath, ".barDiameterMm"),
+      minimum = .Machine$double.eps
+    )
+    Spacing <- .reinforcementStudyScalar(
+      Case[["barSpacingMm", exact = TRUE]],
+      paste0(CasePath, ".barSpacingMm"),
+      minimum = .Machine$double.eps
+    )
+    if (Spacing <= Diameter) {
+      stop(CasePath, ".barSpacingMm must exceed the diameter.",
+        call. = FALSE
+      )
+    }
+    DerivedCaseID <- .reinforcementStudyMeshCaseID(Diameter, Spacing)
+    if ("caseID" %in% names(Case) &&
+        !identical(Case[["caseID", exact = TRUE]], DerivedCaseID)) {
+      stop(CasePath, ".caseID is inconsistent with the layout.",
+        call. = FALSE
+      )
+    }
+    list(
+      caseID = DerivedCaseID,
+      barDiameterMm = Diameter,
+      barSpacingMm = Spacing
+    )
+  })
+  CaseIDs <- vapply(Cases, `[[`, character(1), "caseID")
+  Areas <- vapply(Cases, function(Case) {
+    pi * Case$barDiameterMm^2 / 4 * 1000 / Case$barSpacingMm
+  }, numeric(1))
+  if (anyDuplicated(CaseIDs) || is.unsorted(Areas, strictly = TRUE)) {
     stop(
       path,
-      ".reinforcementRatioGrid must be a strictly increasing numeric array.",
+      ".reinforcementCases must be unique and ordered by increasing area.",
       call. = FALSE
     )
   }
@@ -135,7 +182,7 @@ normaliseAci31825ReinforcementStudyPolicy <- function(
   }
   list(
     studyID = StudyID,
-    reinforcementRatioGrid = as.numeric(Grid),
+    reinforcementCases = Cases,
     domainBasePointCount = BaseCount,
     domainRefinedPointCount = RefinedCount,
     convergenceTolerance = .reinforcementStudyScalar(
@@ -154,16 +201,25 @@ normaliseAci31825ReinforcementStudyPolicy <- function(
   )
 }
 
-.reinforcementStudyCaseID <- function(areaTotalMm2PerM) {
+.reinforcementStudyNumberToken <- function(value) {
   Token <- formatC(
-    areaTotalMm2PerM,
+    value,
     format = "f",
     digits = 6L,
     drop0trailing = TRUE
   )
   Token <- sub("^-", "m", Token)
   Token <- gsub("\\.", "p", Token)
-  paste0("circumferential-as-total-", Token)
+  Token
+}
+
+.reinforcementStudyMeshCaseID <- function(barDiameterMm, barSpacingMm) {
+  paste0(
+    "symmetric-d",
+    .reinforcementStudyNumberToken(barDiameterMm),
+    "-s",
+    .reinforcementStudyNumberToken(barSpacingMm)
+  )
 }
 
 .reinforcementStudyDomain <- function(domains, stripWidthM) {
@@ -272,6 +328,66 @@ normaliseAci31825ReinforcementStudyPolicy <- function(
   )
 }
 
+.reinforcementStudySymmetricLayers <- function(
+  layerTemplate,
+  thicknessMm,
+  stripWidthM,
+  barDiameterMm,
+  barSpacingMm,
+  clearCoverRatio
+) {
+  Thickness <- .reinforcementStudyScalar(
+    thicknessMm,
+    "thicknessMm",
+    minimum = .Machine$double.eps
+  )
+  Width <- .reinforcementStudyScalar(
+    stripWidthM,
+    "stripWidthM",
+    minimum = .Machine$double.eps
+  )
+  Diameter <- .reinforcementStudyScalar(
+    barDiameterMm,
+    "barDiameterMm",
+    minimum = .Machine$double.eps
+  )
+  Spacing <- .reinforcementStudyScalar(
+    barSpacingMm,
+    "barSpacingMm",
+    minimum = .Machine$double.eps
+  )
+  CoverRatio <- .reinforcementStudyScalar(
+    clearCoverRatio,
+    "clearCoverRatio",
+    minimum = .Machine$double.eps
+  )
+  if (Spacing <= Diameter || CoverRatio >= 0.5) {
+    stop("The symmetric reinforcement layout is invalid.", call. = FALSE)
+  }
+  Layers <- .validateConcreteReinforcement(layerTemplate, Thickness)
+  if (nrow(Layers) != 2L ||
+      sum(Layers$coordinateMm < 0) != 1L ||
+      sum(Layers$coordinateMm > 0) != 1L ||
+      length(unique(Layers$yieldStrengthMPa)) != 1L ||
+      length(unique(Layers$modulusMPa)) != 1L) {
+    stop(
+      "The reinforcement study requires two symmetric equal-material layers.",
+      call. = FALSE
+    )
+  }
+  ClearCover <- CoverRatio * Thickness
+  CoordinateMagnitude <- Thickness / 2 - ClearCover - Diameter / 2
+  if (CoordinateMagnitude <= 0) {
+    stop("A reinforcement-study layer lies outside the section.",
+      call. = FALSE
+    )
+  }
+  AreaPerFaceMm2PerM <- pi * Diameter^2 / 4 * 1000 / Spacing
+  Layers$coordinateMm <- sign(Layers$coordinateMm) * CoordinateMagnitude
+  Layers$areaMm2 <- AreaPerFaceMm2PerM * Width
+  Layers
+}
+
 evaluateAci31825SymmetricCircumferentialStudy <- function(
   scenarioID,
   liningID,
@@ -283,6 +399,7 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
   actions,
   interfaceCaseIDs,
   strengthCaseIDs,
+  clearCoverRatio,
   policy
 ) {
   Policy <- normaliseAci31825ReinforcementStudyPolicy(policy)
@@ -301,6 +418,14 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
     "compressiveStrengthMPa",
     minimum = .Machine$double.eps
   )
+  CoverRatio <- .reinforcementStudyScalar(
+    clearCoverRatio,
+    "clearCoverRatio",
+    minimum = .Machine$double.eps
+  )
+  if (CoverRatio >= 0.5) {
+    stop("clearCoverRatio must be less than 0.5.", call. = FALSE)
+  }
   Reinforcement <- .validateConcreteReinforcement(
     layerTemplate,
     Thickness
@@ -350,17 +475,21 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
     loadCombinationBasisID = actions$loadCombinationBasisID,
     stringsAsFactors = FALSE
   )
-  Ratios <- Policy$reinforcementRatioGrid
-  AreasPerFace <- Ratios * 1000 * Thickness / 2
+  Cases <- Policy$reinforcementCases
+  Diameters <- vapply(Cases, `[[`, numeric(1), "barDiameterMm")
+  Spacings <- vapply(Cases, `[[`, numeric(1), "barSpacingMm")
+  AreasPerFace <- pi * Diameters^2 / 4 * 1000 / Spacings
+  Ratios <- 2 * AreasPerFace / (1000 * Thickness)
 
-  buildRecord <- function(areaPerFace) {
-    Area <- .reinforcementStudyScalar(
-      areaPerFace,
-      "areaPerFaceMm2PerM",
-      minimum = .Machine$double.eps
+  buildRecord <- function(caseIndex) {
+    Layers <- .reinforcementStudySymmetricLayers(
+      layerTemplate = Reinforcement,
+      thicknessMm = Thickness,
+      stripWidthM = WidthM,
+      barDiameterMm = Diameters[caseIndex],
+      barSpacingMm = Spacings[caseIndex],
+      clearCoverRatio = CoverRatio
     )
-    Layers <- Reinforcement
-    Layers$areaMm2 <- Area * WidthM
     Domains <- buildAci31825ReinforcedSectionDomains(
       thicknessMm = Thickness,
       stripWidthMm = 1000 * WidthM,
@@ -379,8 +508,8 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
     )
     if (any(Demand$convergenceStatus != "satisfied")) {
       stop(
-        "The discrete domain at ", format(Area, digits = 16),
-        " mm2/m per face has maximum relative difference ",
+        "The discrete domain for ", Cases[[caseIndex]]$caseID,
+        " has maximum relative difference ",
         format(max(Demand$convergenceRelativeDifference), digits = 8),
         ", above ", format(Policy$convergenceTolerance, digits = 8), ".",
         call. = FALSE
@@ -400,16 +529,11 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
     )
   }
 
-  Records <- lapply(seq_along(Ratios), function(i) {
-    buildRecord(AreasPerFace[i])
-  })
-  CaseIDs <- vapply(AreasPerFace, function(area) {
-    .reinforcementStudyCaseID(2 * area)
-  }, character(1))
+  Records <- lapply(seq_along(Cases), buildRecord)
+  CaseIDs <- vapply(Cases, `[[`, character(1), "caseID")
   if (anyDuplicated(CaseIDs)) {
     stop("Reinforcement case identifiers are not unique.", call. = FALSE)
   }
-  LowerReferenceFlags <- Ratios == min(Ratios)
   SummaryRows <- lapply(seq_along(Records), function(i) {
     Record <- Records[[i]]
     Governing <- .reinforcementStudyGoverningRow(Record$demands)
@@ -422,6 +546,10 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
       studyID = Policy$studyID,
       reinforcementCaseID = CaseIDs[i],
       reinforcementCaseOrder = i,
+      barDiameterMm = Diameters[i],
+      barSpacingMm = Spacings[i],
+      clearCoverMm = CoverRatio * Thickness,
+      reinforcementArrangementID = "symmetric-two-face",
       circumferentialAreaTotalMm2PerM = 2 * AreasPerFace[i],
       reinforcementRatio = Ratios[i],
       calculationStatus = "calculated",
@@ -444,7 +572,6 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
       governingAxialDemandKnPerM = Governing$axialDemandKnPerM[1L],
       governingBendingDemandKnMPerM =
         Governing$bendingDemandKnMPerM[1L],
-      isLowerReferenceCase = LowerReferenceFlags[i],
       isParametricCase = TRUE,
       demandReuseBasisID =
         "aci-318-25-cracked-wall-0p35-ig-invariant-demands",
@@ -1021,7 +1148,7 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
     stringsAsFactors = FALSE
   )
   CaseID <- CompositePolicy$caseID
-  CaseOrder <- length(Policy$reinforcementRatioGrid) + 1L
+  CaseOrder <- length(Policy$reinforcementCases) + 1L
   AreaTotal <- sum(StrengthLayers$areaMm2) / WidthM
   Ratio <- AreaTotal / (1000 * Thickness)
   Governing <- .reinforcementStudyGoverningRow(Demands)
@@ -1049,6 +1176,10 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
     studyID = Policy$studyID,
     reinforcementCaseID = CaseID,
     reinforcementCaseOrder = CaseOrder,
+    barDiameterMm = CompositePolicy$interiorBarDiameterMm,
+    barSpacingMm = CompositePolicy$interiorBarSpacingMm,
+    clearCoverMm = CompositePolicy$interiorClearCoverMm,
+    reinforcementArrangementID = "existing-sheet-plus-interior-mesh",
     circumferentialAreaTotalMm2PerM = AreaTotal,
     reinforcementRatio = Ratio,
     calculationStatus = "calculated",
@@ -1064,7 +1195,6 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
     governingThetaDeg = Governing$thetaDeg[1L],
     governingAxialDemandKnPerM = Governing$axialDemandKnPerM[1L],
     governingBendingDemandKnMPerM = Governing$bendingDemandKnMPerM[1L],
-    isLowerReferenceCase = FALSE,
     isParametricCase = FALSE,
     demandReuseBasisID = "full-composite-recalculated-demands",
     demandReuseStatus = "satisfied",
@@ -1143,7 +1273,12 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
         "aci-318-25-cracked-wall-0p35-ig")) {
     stop("The reinforced-concrete study basis is unavailable.", call. = FALSE)
   }
-  ReferenceThickness <- 1000 * ReferenceLining[["thicknessM", exact = TRUE]]
+  ReferenceLayout <- ReferenceLining[["reinforcementLayout", exact = TRUE]]
+  if (is.null(ReferenceLayout)) {
+    stop("The reinforcement-study layer geometry is unavailable.",
+      call. = FALSE
+    )
+  }
   TargetIDs <- intersect(c("shotcrete", "reinforcedConcrete"), names(additionalLinings))
   Studies <- lapply(TargetIDs, function(LiningID) {
     Lining <- config[["additionalLinings", exact = TRUE]][[LiningID]]
@@ -1152,7 +1287,13 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
     Actions <- if (is.null(Aci)) NULL else Aci[["actions", exact = TRUE]]
     Thickness <- 1000 * Lining[["thicknessM", exact = TRUE]]
     Layers <- ReferenceLining[["reinforcement", exact = TRUE]]
-    Layers$coordinateMm <- Layers$coordinateMm * Thickness / ReferenceThickness
+    # The reference layers carry the 150-mm coordinates; the study rebuilds
+    # each case from the fixed clear cover, so the template must first be
+    # placed inside the target thickness.
+    CentroidCover <- ReferenceLayout[["clearCoverMm", exact = TRUE]] +
+      ReferenceLayout[["barDiameterMm", exact = TRUE]] / 2
+    Layers$coordinateMm <- sign(Layers$coordinateMm) *
+      (Thickness / 2 - CentroidCover)
     Study <- evaluateAci31825SymmetricCircumferentialStudy(
       scenarioID = config[["scenarioID", exact = TRUE]],
       liningID = LiningID,
@@ -1164,14 +1305,21 @@ evaluateAci31825SymmetricCircumferentialStudy <- function(
       actions = Actions,
       interfaceCaseIDs = config[["interfaceCases", exact = TRUE]][["caseID", exact = TRUE]],
       strengthCaseIDs = Lining[["aci", exact = TRUE]][["strengthCases", exact = TRUE]][["caseID", exact = TRUE]],
+      clearCoverRatio = ReferenceLayout[["clearCoverMm", exact = TRUE]] /
+        Thickness,
       policy = Policy
     )
     LimitRows <- lapply(seq_len(nrow(Study$summary)), function(i) {
-      Ratio <- Study$summary$reinforcementRatio[i]
       CaseID <- Study$summary$reinforcementCaseID[i]
-      CaseLayers <- Layers
-      CaseLayers$areaMm2 <-
-        Ratio * 1000 * Thickness / 2 * Lining$stripWidthM
+      CaseLayers <- .reinforcementStudySymmetricLayers(
+        layerTemplate = Layers,
+        thicknessMm = Thickness,
+        stripWidthM = Lining$stripWidthM,
+        barDiameterMm = Study$summary$barDiameterMm[i],
+        barSpacingMm = Study$summary$barSpacingMm[i],
+        clearCoverRatio = ReferenceLayout[["clearCoverMm", exact = TRUE]] /
+          Thickness
+      )
       Limit <- .reinforcementStudyLimitAssessment(
         scenarioID = config$scenarioID,
         liningID = LiningID,

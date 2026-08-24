@@ -44,7 +44,8 @@ if (any(!vapply(
     "flexibilityLimitMmPerN"
   )
   NonnegativeFields <- c(
-    "liveLoadFactor", "liveCrownPressureKPa", "liveLoadedWidthM"
+    "liveLoadFactor", "liveCrownPressureKPa", "liveLoadedWidthM",
+    "utilizationTolerance"
   )
   .requireFields(
     Aashto,
@@ -1471,7 +1472,7 @@ validateCoverCalculationConfig <- function(config) {
       Cases[["caseID", exact = TRUE]][i],
       "action",
       "tangential-multiplier",
-      "alpha",
+      "lambda_t",
       Cases[["tangentialMultiplier", exact = TRUE]][i],
       evidenceLevel = "HA",
       conditionCode = "scenario-input"
@@ -2225,6 +2226,107 @@ validateCoverCalculationConfig <- function(config) {
   })
   Checks <- do.call(rbind, Checks)
   rownames(Checks) <- NULL
+  if (all(c("shotcrete", "reinforcedConcrete") %in% LiningIDs)) {
+    PlainReference <- config[["additionalLinings", exact = TRUE]][[
+      "shotcrete",
+      exact = TRUE
+    ]]
+    TargetConfig <- config[["additionalLinings", exact = TRUE]][[
+      "reinforcedConcrete",
+      exact = TRUE
+    ]]
+    TargetResult <- Linings[["reinforcedConcrete", exact = TRUE]]
+    TargetAci <- TargetResult[["assessment", exact = TRUE]][[
+      "aci",
+      exact = TRUE
+    ]]
+    TargetActions <- TargetAci[["actions", exact = TRUE]]
+    GroupID <- interaction(
+      TargetActions[["caseID", exact = TRUE]],
+      TargetActions[["strengthCaseID", exact = TRUE]],
+      drop = TRUE
+    )
+    Plain150Checks <- lapply(split(seq_len(nrow(TargetActions)), GroupID),
+      function(Index) {
+        Action <- TargetActions[Index, , drop = FALSE]
+        Evaluation <- evaluateAci31825PlainConcreteStrip(
+          actions = Action,
+          specifiedThicknessMm = 1000 * TargetConfig[[
+            "thicknessM",
+            exact = TRUE
+          ]],
+          stripWidthMm = 1000 * TargetConfig[["stripWidthM", exact = TRUE]],
+          compressiveStrengthMPa = TargetConfig[[
+            "compressiveStrengthMPa",
+            exact = TRUE
+          ]],
+          lambda = PlainReference[["aci", exact = TRUE]][[
+            "lambda",
+            exact = TRUE
+          ]],
+          castAgainstSoil = FALSE,
+          compressionLengthMm = PlainReference[["aci", exact = TRUE]][[
+            "compressionLengthMm",
+            exact = TRUE
+          ]],
+          structuralClassificationID = PlainReference[["aci", exact = TRUE]][[
+            "structuralClassificationID",
+            exact = TRUE
+          ]],
+          plainConcretePermissionBasisID = PlainReference[[
+            "aci",
+            exact = TRUE
+          ]][["plainConcretePermissionBasisID", exact = TRUE]],
+          seismicDesignCategoryID = PlainReference[["aci", exact = TRUE]][[
+            "seismicDesignCategoryID",
+            exact = TRUE
+          ]],
+          jointingStatus = PlainReference[["aci", exact = TRUE]][[
+            "jointingStatus",
+            exact = TRUE
+          ]],
+          openingStatus = PlainReference[["aci", exact = TRUE]][[
+            "openingStatus",
+            exact = TRUE
+          ]]
+        )
+        Data <- Evaluation[["checks", exact = TRUE]]
+        Data[["scenarioID"]] <- config[["scenarioID", exact = TRUE]]
+        Data[["liningID"]] <- "plainConcrete150"
+        Data[["sectionID"]] <- paste0(
+          TargetConfig[["sectionID", exact = TRUE]],
+          "-plain-check"
+        )
+        Data[["concreteTypeID"]] <- "plain-concrete"
+        Data[["caseID"]] <- Action[["caseID", exact = TRUE]][1L]
+        Data[["strengthCaseID"]] <- Action[[
+          "strengthCaseID",
+          exact = TRUE
+        ]][1L]
+        Data[["verticalStressFactor"]] <- Action[[
+          "verticalStressFactor",
+          exact = TRUE
+        ]][1L]
+        Data[["horizontalStressFactor"]] <- Action[[
+          "horizontalStressFactor",
+          exact = TRUE
+        ]][1L]
+        Data[["loadCombinationBasisID"]] <- Action[[
+          "loadCombinationBasisID",
+          exact = TRUE
+        ]][1L]
+        Data[["loadCombinationSourceLocator"]] <- PlainReference[[
+          "aci",
+          exact = TRUE
+        ]][["sourceLocator", exact = TRUE]]
+        Data[, names(Checks), drop = FALSE]
+      }
+    )
+    Plain150Checks <- do.call(rbind, Plain150Checks)
+    rownames(Plain150Checks) <- NULL
+    Checks <- rbind(Checks, Plain150Checks)
+    rownames(Checks) <- NULL
+  }
   Summary <- lapply(seq_along(Linings), function(i) {
     Data <- Linings[[i]][["summary", exact = TRUE]]
     Data[["liningScenarioID"]] <- Data[["scenarioID", exact = TRUE]]

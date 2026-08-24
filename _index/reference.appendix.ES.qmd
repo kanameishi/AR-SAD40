@@ -2,6 +2,7 @@
 #| include: false
 root <- normalizePath(".", mustWork = TRUE)
 source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
+source(file.path(root, "scripts", "setup", "utils.R"), local = knitr::knit_global())
 ```
 
 # Comparación con formulaciones clásicas {#sec-calculation-appendix-references}

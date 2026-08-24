@@ -87,6 +87,7 @@
   sourceKey,
   sourceLocator,
   specificationVerified,
+  utilizationTolerance,
   applicable = TRUE
 ) {
   if (!is.logical(applicable) || length(applicable) != 1L ||
@@ -101,7 +102,11 @@
     .aashtoNumber(observedValue, "observedValue", strict = FALSE)
     .aashtoNumber(limitValue, "limitValue")
     Utilization <- observedValue / limitValue
-    CheckStatus <- if (Utilization <= 1) "satisfied" else "not-satisfied"
+    CheckStatus <- if (Utilization <= 1 + utilizationTolerance) {
+      "satisfied"
+    } else {
+      "not-satisfied"
+    }
     NormativeStatus <- if (specificationVerified) {
       CheckStatus
     } else {
@@ -174,7 +179,8 @@ evaluateAashto127CorrugatedConduit <- function(
       "editionStatus", "errataStatus", "productApplicabilityStatus",
       "wallResistanceFactor", "wallSourceKey", "wallSourceLocator",
       "seamResistanceFactor", "seamFactorSourceKey",
-      "seamFactorSourceLocator", "soilStiffnessFactor", "soilSourceKey",
+      "seamFactorSourceLocator", "utilizationTolerance",
+      "soilStiffnessFactor", "soilSourceKey",
       "soilSourceLocator", "flexibilityLimitMmPerN",
       "flexibilitySourceKey", "flexibilitySourceLocator",
       "minimumCoverSourceKey", "minimumCoverSourceLocator"
@@ -286,6 +292,17 @@ evaluateAashto127CorrugatedConduit <- function(
       paste0("specification.", Field)
     )
   }
+  UtilizationTolerance <- .aashtoNumber(
+    Specification[["utilizationTolerance", exact = TRUE]],
+    "specification.utilizationTolerance",
+    strict = FALSE
+  )
+  if (UtilizationTolerance >= 0.05) {
+    stop(
+      "specification.utilizationTolerance must stay below 0.05.",
+      call. = FALSE
+    )
+  }
 
   Seam <- seam
   if (!is.null(Seam)) {
@@ -391,7 +408,8 @@ evaluateAashto127CorrugatedConduit <- function(
       unit = "kN/m",
       sourceKey = Specification[["wallSourceKey", exact = TRUE]],
       sourceLocator = Specification[["wallSourceLocator", exact = TRUE]],
-      specificationVerified = SpecificationVerified
+      specificationVerified = SpecificationVerified,
+      utilizationTolerance = UtilizationTolerance
     ),
     .aashtoCheckRow(
       checkID = "wall-buckling",
@@ -408,7 +426,8 @@ evaluateAashto127CorrugatedConduit <- function(
         Specification[["soilSourceLocator", exact = TRUE]],
         sep = "; "
       ),
-      specificationVerified = SpecificationVerified
+      specificationVerified = SpecificationVerified,
+      utilizationTolerance = UtilizationTolerance
     ),
     .aashtoCheckRow(
       checkID = "seam",
@@ -434,6 +453,7 @@ evaluateAashto127CorrugatedConduit <- function(
         "seam resistance not supplied"
       },
       specificationVerified = SpecificationVerified,
+      utilizationTolerance = UtilizationTolerance,
       applicable = SeamAvailable
     ),
     .aashtoCheckRow(
@@ -446,7 +466,8 @@ evaluateAashto127CorrugatedConduit <- function(
         "flexibilitySourceLocator",
         exact = TRUE
       ]],
-      specificationVerified = SpecificationVerified
+      specificationVerified = SpecificationVerified,
+      utilizationTolerance = UtilizationTolerance
     ),
     .aashtoCheckRow(
       checkID = "minimum-cover",
@@ -459,6 +480,7 @@ evaluateAashto127CorrugatedConduit <- function(
         exact = TRUE
       ]],
       specificationVerified = SpecificationVerified,
+      utilizationTolerance = UtilizationTolerance,
       applicable = TRUE
     )
   )

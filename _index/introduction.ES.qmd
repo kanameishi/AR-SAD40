@@ -1,9 +1,0 @@
-```{r}
-#| include: false
-root <- normalizePath(".", mustWork = TRUE)
-source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
-```
-
-# Introducción {#sec-introduction}
-
-{{< include /_chapters/introduction.es.qmd >}}

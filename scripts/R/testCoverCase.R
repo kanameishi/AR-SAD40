@@ -48,7 +48,7 @@ stopifnot(
     Manifest[["methodID", exact = TRUE]],
     "ar-sad40-cover-current"
   ),
-  countCoverCaseLeaves(Inputs) == 45L,
+  countCoverCaseLeaves(Inputs) == 47L,
   identical(
     names(Inputs),
     c(
@@ -93,19 +93,19 @@ stopifnot(
   Resolution[["derived", exact = TRUE]][[
     "reinforcedClearCoverMm",
     exact = TRUE
-  ]] == 22.5,
+  ]] == 15,
   Resolution[["derived", exact = TRUE]][[
     "reinforcedLayerCentroidCoverMm",
     exact = TRUE
-  ]] == 25.5,
+  ]] == 18,
   Resolution[["derived", exact = TRUE]][[
     "reinforcedInteriorLayerCoordinateMm",
     exact = TRUE
-  ]] == -49.5,
+  ]] == -57,
   Resolution[["derived", exact = TRUE]][[
     "reinforcedExteriorLayerCoordinateMm",
     exact = TRUE
-  ]] == 49.5,
+  ]] == 57,
   Resolution[["derived", exact = TRUE]][[
     "reinforcementYieldStrengthMPa",
     exact = TRUE
@@ -146,7 +146,7 @@ stopifnot(
   nrow(Observed[["reinforcementStudy", exact = TRUE]][[
     "summary",
     exact = TRUE
-  ]]) == 10L
+  ]]) == 6L
 )
 Study <- Observed[["reinforcementStudy", exact = TRUE]]
 stopifnot(
@@ -156,8 +156,9 @@ stopifnot(
   ) %in% names(Study[["domains", exact = TRUE]])),
   all(c(
     "liningID", "reinforcementCaseID", "reinforcementCaseOrder",
+    "barDiameterMm", "barSpacingMm", "reinforcementArrangementID",
     "reinforcementRatio", "circumferentialAreaTotalMm2PerM",
-    "maximumRadialUtilization", "localPMStatus", "isLowerReferenceCase"
+    "maximumRadialUtilization", "localPMStatus"
   ) %in% names(Study[["summary", exact = TRUE]])),
   all(c(
     "liningID", "demandOrder", "interfaceID", "strengthCaseID",
@@ -168,7 +169,7 @@ stopifnot(
     "liningID", "reinforcementCaseID", "checkID", "utilization",
     "checkStatus"
   ) %in% names(Study[["limitChecks", exact = TRUE]])),
-  nrow(Study[["limitChecks", exact = TRUE]]) == 20L,
+  nrow(Study[["limitChecks", exact = TRUE]]) == 12L,
   identical(sort(unique(Study[["summary"]][["liningID"]])), c(
     "reinforcedConcrete", "shotcrete"
   ))
@@ -274,9 +275,8 @@ Mutations <- list(
   list(path = c("ground", "upperLayerUnitWeightKnPerM3"), value = 14.8),
   list(path = c("ground", "modulusKPa"), value = 31000),
   list(path = c("ground", "poisson"), value = 0.31),
-  list(path = c("ground", "k0ModelID"), value = "jaky-nc"),
+  list(path = c("ground", "k0ModelID"), value = "mayne-kulhawy-unloading"),
   list(path = c("ground", "frictionAngleDeg"), value = 31),
-  list(path = c("ground", "ocr"), value = 1.1),
   list(path = c("ground", "waterPressureDifferenceKPa"), value = 1),
   list(path = c("steel", "centroidalRadiusM"), value = 1.325),
   list(path = c("steel", "remainingBaseThicknessMm"), value = 2.60),
@@ -303,19 +303,23 @@ Mutations <- list(
     value = 140
   ),
   list(
-    path = c("reinforcedConcrete", "clearCoverRatio"),
-    value = 0.16
+    path = c("reinforcedConcrete", "clearCoverMm"),
+    value = 16
   ),
   list(
     path = c("reinforcedConcrete", "reinforcementModulusMPa"),
     value = 201000
   ),
   list(
-    path = c("reinforcedConcrete", "reinforcementRatioGrid"),
-    value = list(0.0018, 0.008, 0.016, 0.024)
+    path = c("reinforcedConcrete", "reinforcementCases"),
+    value = list(
+      list(barDiameterMm = 8, barSpacingMm = 140),
+      list(barDiameterMm = 10, barSpacingMm = 140),
+      list(barDiameterMm = 12, barSpacingMm = 140)
+    )
   )
 )
-stopifnot(length(Mutations) == 32L)
+stopifnot(length(Mutations) == 31L)
 for (i in seq_along(Mutations)) {
   AUX <- Mutations[[i]]
   Variant <- mutateCoverCaseInput(
@@ -379,10 +383,25 @@ stopifnot(
   identical(Calculation[Unaffected], CalculationFastener[Unaffected])
 )
 
+InvalidOcr <- mutateCoverCaseInput(
+  inputs = Inputs,
+  path = c("ground", "ocr"),
+  value = 1.1
+)
+OcrMessage <- tryCatch(
+  resolveCoverCaseConfig(
+    inputs = InvalidOcr,
+    projectRoot = projectRoot,
+    methodID = Manifest[["methodID", exact = TRUE]]
+  ),
+  error = function(e) conditionMessage(e)
+)
+stopifnot(grepl("must equal 1 for k0ModelID = jaky-nc", OcrMessage, fixed = TRUE))
+
 InvalidClearCover <- mutateCoverCaseInput(
   inputs = Inputs,
-  path = c("reinforcedConcrete", "clearCoverRatio"),
-  value = 0.49
+  path = c("reinforcedConcrete", "clearCoverMm"),
+  value = 72
 )
 InvalidClearCover[["reinforcedConcrete"]][["barDiameterMm"]] <- 10
 ClearCoverMessage <- tryCatch(

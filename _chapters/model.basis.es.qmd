@@ -1,58 +1,24 @@
-El terreno se representa mediante un estado efectivo biaxial uniforme en la
-cota del centro del túnel. La demanda estructural de cada revestimiento se
-obtiene con la solución de carga externa de Schwartz--Einstein, que relaciona
-ese estado de campo libre con la rigidez propia del terreno y del anillo. Se
-calculan los límites de interfaz con deslizamiento libre y sin deslizamiento.
-La chapa, el hormigón proyectado simple y la familia de secciones armadas
-comparten el estado geotécnico, pero cada una recalcula las razones de rigidez
-y sus propias resultantes.
+Este capítulo establece la base común para calcular la respuesta transversal del túnel. Define las acciones permanentes, las convenciones de signo y las rigideces de cada revestimiento; combina la interacción suelo--estructura de Schwartz--Einstein con el gradiente geostático equilibrado; y controla las resultantes mediante integración Runge--Kutta y reconstrucción de Fourier. Su objetivo es obtener distribuciones coherentes de fuerza circunferencial, momento y corte para la chapa y para cada espesor de shotcrete, considerando los límites de interfaz con deslizamiento libre y sin deslizamiento.
 
-Sobre la componente uniforme de Schwartz--Einstein se superpone la variación
-lineal de las tensiones geostáticas entre clave y solera. La proyección de ese
-gradiente sobre el contorno circular agrega los armónicos $n=1$ y $n=3$; una
-reacción radial distribuida satisface el equilibrio global. La demanda de cada
-revestimiento es la suma de la respuesta interactiva uniforme y de esta
-corrección geostática equilibrada.
+El terreno se representa mediante un estado efectivo biaxial uniforme en la cota del centro del túnel. La demanda estructural de cada revestimiento se obtiene con la solución de carga externa de Schwartz--Einstein, que relaciona ese estado de campo libre con la rigidez propia del terreno y del anillo. Se calculan los límites de interfaz con deslizamiento libre y sin deslizamiento. La chapa, el hormigón proyectado simple y la familia de secciones armadas comparten el estado geotécnico, pero cada una recalcula las razones de rigidez y sus propias resultantes.
 
-La integración Runge--Kutta de cuarto orden resuelve las acciones perimetrales
-prescritas como comprobación independiente del equilibrio. La solución cerrada
-y la representación de Fourier reproducen los mismos campos: el estado
-biaxial uniforme contiene los modos $n=0,2$ y el gradiente lineal agrega los
-modos $n=1,3$. Cada término de Fourier es una componente armónica; los puntos
-de la integración Runge--Kutta son pasos de discretización angular.
+Sobre la componente uniforme de Schwartz--Einstein se superpone la variación lineal de las tensiones geostáticas entre clave y solera. La proyección de ese gradiente sobre el contorno circular agrega los armónicos $n=1$ y $n=3$; una reacción radial distribuida satisface el equilibrio global. La demanda de cada revestimiento es la suma de la respuesta interactiva uniforme y de esta corrección geostática equilibrada.
 
-La coordenada angular $\theta$ se mide desde la clave en sentido horario. El
-vector radial $\mathbf e_r$ es positivo hacia el exterior del revestimiento y
-el vector tangencial $\mathbf e_t$ sigue el sentido creciente de $\theta$.
-Así, $P_r>0$ actúa hacia el exterior y $P_t>0$ actúa en la dirección de
+La integración Runge--Kutta de cuarto orden resuelve las acciones perimetrales prescritas como comprobación independiente del equilibrio. La solución cerrada y la representación de Fourier reproducen los mismos campos: el estado biaxial uniforme contiene los modos $n=0,2$ y el gradiente lineal agrega los modos $n=1,3$. Cada término de Fourier es una componente armónica; los puntos de la integración Runge--Kutta son pasos de discretización angular.
+
+La coordenada angular $\theta$ se mide desde la clave en sentido horario. El vector radial $\mathbf e_r$ es positivo hacia el exterior del revestimiento y el vector tangencial $\mathbf e_t$ sigue el sentido creciente de $\theta$. Así, $P_r>0$ actúa hacia el exterior y $P_t>0$ actúa en la dirección de
 $\mathbf e_t$.
 
-La fuerza circunferencial $N_\theta$ es positiva a tracción. La coordenada
-seccional $\xi$ se mide desde el baricentro de la pared y es positiva hacia la
-cara interior; por esta convención, $M_\theta>0$ produce tracción en esa cara.
-En la cara positiva de un elemento diferencial, $Q_\theta>0$ actúa hacia el
-centro de la sección circular. $P_r$ y $P_t$ se expresan en kPa,
+La fuerza circunferencial $N_\theta$ es positiva a tracción. La coordenada seccional $\xi$ se mide desde el baricentro de la pared y es positiva hacia la cara interior; por esta convención, $M_\theta>0$ produce tracción en esa cara. En la cara positiva de un elemento diferencial, $Q_\theta>0$ actúa hacia el centro de la sección circular. $P_r$ y $P_t$ se expresan en kPa,
 $N_\theta$ y $Q_\theta$ en kN/m, y $M_\theta$ en kN·m/m.
 
-Para una posición angular fija, $A_b$ es el dominio material de una franja de
-ancho axial proyectado $b$ en un corte normal a la dirección circunferencial.
-La coordenada $x_L$ sigue el eje del túnel y $dA=dx_L\,d\xi$. Las resultantes
-por unidad de ancho se definen como
+Para una posición angular fija, $A_b$ es el dominio material de una franja de ancho axial proyectado $b$ en un corte normal a la dirección circunferencial. La coordenada $x_L$ sigue el eje del túnel y $dA=dx_L\,d\xi$. Las resultantes por unidad de ancho se definen como
 
 $$
-\begin{aligned}
-N_\theta(\theta)
-&=\frac{1}{b}\iint_{A_b}
-\sigma_\theta(\theta,x_L,\xi)\,dA,\\
-M_\theta(\theta)
-&=\frac{1}{b}\iint_{A_b}
-\sigma_\theta(\theta,x_L,\xi)\,\xi\,dA,\\
-Q_\theta(\theta)
-&=\frac{1}{b}\iint_{A_b}
-\tau_{\theta\xi}(\theta,x_L,\xi)\,dA.
-\end{aligned}
+\begin{aligned} N_\theta (\theta)
+&=\frac{1}{b}\iint_{A_b} \sigma_\theta (\theta,x_L,\xi)\,dA,\\ M_\theta (\theta)
+&=\frac{1}{b}\iint_{A_b} \sigma_\theta (\theta,x_L,\xi)\,\xi\,dA,\\ Q_\theta (\theta)
+&=\frac{1}{b}\iint_{A_b} \tau_{\theta\xi} (\theta,x_L,\xi)\,dA. \end{aligned}
 $$ {#eq-calculation-resultant-definitions}
 
-El origen de $\xi$ satisface $\iint_{A_b}\xi\,dA=0$. Cada integral se evalúa
-sobre la sección resistente en una posición angular determinada; la variación
-alrededor del túnel se obtiene repitiendo la evaluación para todo $\theta$.
+El origen de $\xi$ satisface $\iint_{A_b}\xi\,dA=0$. Cada integral se evalúa sobre la sección resistente en una posición angular determinada; la variación alrededor del túnel se obtiene repitiendo la evaluación para todo $\theta$.

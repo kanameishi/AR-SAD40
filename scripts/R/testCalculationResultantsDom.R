@@ -71,10 +71,11 @@ if (!requireNamespace("chromote", quietly = TRUE)) {
       abs(Chart$height - Element$height) > Tolerance) {
     stop(label, ": Highcharts canvas and widget dimensions differ.", call. = FALSE)
   }
-  if (length(Metrics$xAxes) != 1L || length(Metrics$yAxes) != 1L) {
-    stop(label, ": expected one X and one Y axis.", call. = FALSE)
+  PanelCount <- length(Metrics$xAxes)
+  if (PanelCount != 3L || length(Metrics$yAxes) != PanelCount) {
+    stop(label, ": expected three X-Y axis pairs.", call. = FALSE)
   }
-  for (i in seq_len(1L)) {
+  for (i in seq_len(PanelCount)) {
     X <- Metrics$xAxes[[i]]
     Y <- Metrics$yAxes[[i]]
     if (abs(X$width - X$height) > Tolerance ||
@@ -88,7 +89,8 @@ if (!requireNamespace("chromote", quietly = TRUE)) {
       stop(label, ": panel ", i, " exceeds the canvas.", call. = FALSE)
     }
   }
-  if (length(Metrics$reference) != 1L || length(Metrics$bottomLabels) != 1L) {
+  if (length(Metrics$reference) != PanelCount ||
+      length(Metrics$bottomLabels) != PanelCount) {
     stop(label, ": reference circles or bottom labels are missing.", call. = FALSE)
   }
   if (!is.finite(Metrics$maxRelativeExcursion) ||
@@ -128,16 +130,16 @@ if (!requireNamespace("chromote", quietly = TRUE)) {
 
 Checks <- list(
   list(
-    path = "html/report.es/_index/liner.ES.html",
-    selector = "#fig-calculation-normal"
+    path = "html/report/_index/liner.ES.html",
+    selector = "#fig-resultants-liner"
   ),
   list(
-    path = "html/report.es/_index/liner.ES.html",
-    selector = "#fig-calculation-moment"
+    path = "html/report/_index/rehabilitation.ES.html",
+    selector = "#fig-resultants-shotcrete100"
   ),
   list(
-    path = "html/report.es/_index/liner.ES.html",
-    selector = "#fig-calculation-shear"
+    path = "html/report/_index/rehabilitation.ES.html",
+    selector = "#fig-resultants-shotcrete150"
   )
 )
 for (Check in Checks) {
@@ -151,4 +153,4 @@ for (Check in Checks) {
     .assertContained(Metrics, Label)
   }
 }
-cat("PASS: three one-panel resultant figures are square, contained, and toggle complete formulations.\n")
+cat("PASS: three three-panel resultant figures are square, contained, and toggle complete formulations.\n")

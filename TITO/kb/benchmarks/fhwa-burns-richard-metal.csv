@@ -1,3 +1,0 @@
-"constrainedModulusMpa","bendingStiffnessRatioPartA","bendingStiffnessRatioPartB","hoopStiffnessRatio","crownPressureKpa","springlinePressureKpa","springlineThrustKnM","crownMomentKnMPerM","springlineMomentKnMPerM","verticalArchingFactor","sourceLocation","note"
-3.5,57,57,0.005,27,19,11.39,-0.289,0.288,1.05,"FHWA-RD-98-191 Table 5.1, printed pp. 166-167/PDF pp. 181-182","Part A and Part B agree"
-16,260,261,0.022,24,22,10.84,-0.077,0.076,1,"FHWA-RD-98-191 Table 5.1, printed pp. 166-167/PDF pp. 181-182","Part A prints SB=260; Part B prints SB=261"

@@ -18,7 +18,6 @@ if (any(!vapply(
     call. = FALSE
   )
 }
-
 calculateHomogeneousCoverStress <- function(
   coverCrownM,
   crownToAxisM,
@@ -295,81 +294,5 @@ summarizePrescribedBiaxialInteraction <- function(result) {
     thetaDeg = Summary[["thetaDeg", exact = TRUE]],
     unit = unname(Units[Summary[["resultant", exact = TRUE]]]),
     stringsAsFactors = FALSE
-  )
-}
-
-calculateCoverInteractionScenario <- function(
-  theta,
-  coverCrownM,
-  effectiveUnitWeightKnPerM3,
-  effectiveSurchargeKPa,
-  referencePositionID,
-  crownToAxisM,
-  k0,
-  liningRadiusM,
-  groundModulusKPa,
-  groundPoisson,
-  liningSection,
-  liningPoisson,
-  interface,
-  combinationID,
-  stageID,
-  forceEffectStatus
-) {
-  .assertTheta(theta)
-  .assertFiniteScalar(k0, "k0", minimum = 0)
-  if (!is.list(liningSection) || is.null(liningSection$rigidity)) {
-    stop(
-      "liningSection must contain the rigidity returned by a lining helper.",
-      call. = FALSE
-    )
-  }
-  Rigidity <- liningSection$rigidity
-  Fields.required <- c("youngModulus", "area", "inertia")
-  Fields.missing <- setdiff(Fields.required, names(Rigidity))
-  if (length(Fields.missing) > 0L) {
-    stop(
-      "liningSection$rigidity is missing: ",
-      paste(Fields.missing, collapse = ", "),
-      ".",
-      call. = FALSE
-    )
-  }
-
-  Stress <- calculateHomogeneousCoverStress(
-    coverCrownM = coverCrownM,
-    crownToAxisM = crownToAxisM,
-    effectiveUnitWeightKnPerM3 = effectiveUnitWeightKnPerM3,
-    effectiveSurchargeKPa = effectiveSurchargeKPa,
-    referencePositionID = referencePositionID
-  )
-  VerticalStress <- Stress$effectiveVerticalStressKPa
-  HorizontalStress <- k0 * VerticalStress
-  Interaction <- calculateExternalInteraction(
-    theta = theta,
-    effectiveVerticalStressKPa = VerticalStress,
-    effectiveHorizontalStressKPa = HorizontalStress,
-    stressReferenceID = referencePositionID,
-    radiusM = liningRadiusM,
-    groundModulusKPa = groundModulusKPa,
-    groundPoisson = groundPoisson,
-    liningModulusKPa = Rigidity$youngModulus,
-    liningPoisson = liningPoisson,
-    liningAreaM2PerM = Rigidity$area,
-    liningInertiaM4PerM = Rigidity$inertia,
-    interface = interface,
-    combinationID = combinationID,
-    stageID = stageID,
-    forceEffectStatus = forceEffectStatus
-  )
-  list(
-    freeFieldStress = data.frame(
-      Stress,
-      effectiveHorizontalStressKPa = HorizontalStress,
-      k0 = k0,
-      stringsAsFactors = FALSE
-    ),
-    interaction = Interaction,
-    extrema = summarizeExternalInteraction(Interaction)
   )
 }
