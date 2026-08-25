@@ -197,11 +197,6 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../_index/rehabilitation.ES.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Verificación del liner de shotcrete</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../_index/specifications.ES.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Especificación técnica de inspección</span></a>
   </div>
 </li>
@@ -247,8 +242,8 @@ window.Quarto = {
 
 
 
-<p>Este capítulo establece la base común para calcular la respuesta transversal del túnel. Define las acciones permanentes, las convenciones de signo y las rigideces de cada revestimiento; combina la interacción suelo–estructura de Schwartz–Einstein con el gradiente geostático equilibrado; y controla las resultantes mediante integración Runge–Kutta y reconstrucción de Fourier. Su objetivo es obtener distribuciones coherentes de fuerza circunferencial, momento y corte para la chapa y para cada espesor de shotcrete, considerando los límites de interfaz con deslizamiento libre y sin deslizamiento.</p>
-<p>El terreno se representa mediante un estado efectivo biaxial uniforme en la cota del centro del túnel. La demanda estructural de cada revestimiento se obtiene con la solución de carga externa de Schwartz–Einstein, que relaciona ese estado de campo libre con la rigidez propia del terreno y del anillo. Se calculan los límites de interfaz con deslizamiento libre y sin deslizamiento. La chapa, el hormigón proyectado simple y la familia de secciones armadas comparten el estado geotécnico, pero cada una recalcula las razones de rigidez y sus propias resultantes.</p>
+<p>Este capítulo establece la base común para calcular la respuesta transversal del túnel. Define las acciones permanentes, las convenciones de signo y las rigideces de cada revestimiento; combina la interacción suelo–estructura de Schwartz–Einstein con el gradiente geostático equilibrado; y controla las resultantes mediante integración Runge–Kutta y reconstrucción de Fourier. Su objetivo es obtener distribuciones coherentes de fuerza circunferencial, momento y corte para cada sección considerando los límites de interfaz con deslizamiento libre y sin deslizamiento.</p>
+<p>El terreno se representa mediante un estado efectivo biaxial uniforme en la cota del centro del túnel. La demanda estructural de cada revestimiento se obtiene con la solución de carga externa de Schwartz–Einstein, que relaciona ese estado de campo libre con la rigidez propia del terreno y del anillo. Se calculan los límites de interfaz con deslizamiento libre y sin deslizamiento.</p>
 <p>Sobre la componente uniforme de Schwartz–Einstein se superpone la variación lineal de las tensiones geostáticas entre clave y solera. La proyección de ese gradiente sobre el contorno circular agrega los armónicos <span class="math inline">\(n=1\)</span> y <span class="math inline">\(n=3\)</span>; una reacción radial distribuida satisface el equilibrio global. La demanda de cada revestimiento es la suma de la respuesta interactiva uniforme y de esta corrección geostática equilibrada.</p>
 <p>La integración Runge–Kutta de cuarto orden resuelve las acciones perimetrales prescritas como comprobación independiente del equilibrio. La solución cerrada y la representación de Fourier reproducen los mismos campos: el estado biaxial uniforme contiene los modos <span class="math inline">\(n=0,2\)</span> y el gradiente lineal agrega los modos <span class="math inline">\(n=1,3\)</span>. Cada término de Fourier es una componente armónica; los puntos de la integración Runge–Kutta son pasos de discretización angular.</p>
 <p>La coordenada angular <span class="math inline">\(\theta\)</span> se mide desde la clave en sentido horario. El vector radial <span class="math inline">\(\mathbf e_r\)</span> es positivo hacia el exterior del revestimiento y el vector tangencial <span class="math inline">\(\mathbf e_t\)</span> sigue el sentido creciente de <span class="math inline">\(\theta\)</span>. Así, <span class="math inline">\(P_r&gt;0\)</span> actúa hacia el exterior y <span class="math inline">\(P_t&gt;0\)</span> actúa en la dirección de <span class="math inline">\(\mathbf e_t\)</span>.</p>

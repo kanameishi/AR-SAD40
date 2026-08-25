@@ -1,4 +1,4 @@
-Este apéndice compara, para el mismo caso de proyecto, las resultantes que producen las formulaciones empleadas como referencia en la memoria. La comparación conserva las acciones de servicio, las propiedades del terreno y la geometría definidas en @sec-calculation-model. Las tres secciones son la chapa corrugada con espesor remanente, el revestimiento de hormigón proyectado de 100 mm y el revestimiento de hormigón proyectado de 150 mm.
+Este apéndice compara, para el mismo caso de proyecto, las resultantes que producen las formulaciones empleadas como referencia en la memoria. La comparación conserva las acciones de servicio, las propiedades del terreno y la geometría definidas en @sec-calculation-model.
 
 La @tbl-calculation-classical-inputs reúne la base de acciones. La tensión vertical efectiva se evalúa a la profundidad del eje y la tensión horizontal se obtiene con el coeficiente de empuje en reposo del caso. La @tbl-calculation-classical-sections presenta las rigideces que diferencian la respuesta de cada revestimiento.
 
@@ -32,7 +32,7 @@ que conserva la inercia por unidad de ancho del perfil corrugado. Esta transform
 
 Las formulaciones de Núñez de 2000 y de Núñez, Sfriso y Laiún de 2014 producen resultantes en posiciones características y un momento máximo. En esta sensibilidad se emplean los valores de $\eta_N$ y $\chi_N$ declarados en la @tbl-calculation-classical-inputs. Su dominio original corresponde a túneles excavados; su incorporación en este apéndice cuantifica la sensibilidad del caso colocado en trinchera frente a una formulación clásica adicional. La @tbl-calculation-classical-nunez conserva las posiciones y magnitudes que cada fuente define.
 
-La relación AASHTO/USACE desarrollada en @sec-calculation-steel se aplica a la chapa corrugada y entrega un empuje escalar. La fila **SER** informa el valor de servicio y la fila **LRFD** conserva la demanda mayorada. La relación fuente define fuerza normal; por esa razón las columnas de momento y corte se muestran con raya. Las secciones de hormigón también se muestran con raya en esas filas, porque la rama normativa corresponde al producto de acero corrugado.
+La relación AASHTO/USACE desarrollada en @sec-calculation-steel se aplica a la chapa corrugada y entrega un empuje escalar. La fila **SER** informa el valor de servicio y la fila **LRFD** conserva la demanda mayorada. La relación fuente define fuerza normal; por esa razón las columnas de momento y corte se muestran con raya.
 
 El tratamiento FHWA de compactación representa una acción de construcción asociada al equipo, al material suelto y a la secuencia de colocación. Su evaluación para el proyecto requiere la fuerza del compactador, el ángulo de fricción del relleno suelto y la retención de esa acción al completar el relleno. No se dispone de esos parámetros; el estado comparado en este apéndice corresponde al relleno completado.
 
