@@ -1,7 +1,5 @@
 Este apéndice compara, para el mismo caso de proyecto, las resultantes que producen las formulaciones empleadas como referencia en la memoria. La comparación conserva las acciones de servicio, las propiedades del terreno y la geometría definidas en @sec-calculation-model. Las tres secciones son la chapa corrugada con espesor remanente, el revestimiento de hormigón proyectado de 100 mm y el revestimiento de hormigón proyectado de 150 mm.
 
-## Base común de comparación
-
 La @tbl-calculation-classical-inputs reúne la base de acciones. La tensión vertical efectiva se evalúa a la profundidad del eje y la tensión horizontal se obtiene con el coeficiente de empuje en reposo del caso. La @tbl-calculation-classical-sections presenta las rigideces que diferencian la respuesta de cada revestimiento.
 
 Las tablas utilizan los códigos **H** para el modelo híbrido, **SE** para Schwartz--Einstein uniforme, **K0** para el anillo con campo prescrito, **N00** y **N14** para las dos formulaciones de Núñez, y **AU** para la relación AASHTO/USACE. En las soluciones de interacción, **S** identifica el límite con deslizamiento libre y **NS** el límite sin deslizamiento. Para el anillo con campo prescrito, **PT** identifica la proyección normal y tangencial completa y **PN** la acción exclusivamente normal. **SER** y **LRFD**
@@ -31,21 +29,6 @@ e_N= (12I_\ell)^{1/3},
 $$ {#eq-calculation-nunez-equivalent-thickness}
 
 que conserva la inercia por unidad de ancho del perfil corrugado. Esta transformación mantiene la comparación sobre la rigidez flexional efectiva de la chapa.
-
-## Distribuciones de resultantes
-
-Las curvas muestran tres representaciones del mismo estado de servicio. El modelo híbrido empleado en el cuerpo de la memoria combina la respuesta uniforme de Schwartz--Einstein con la corrección equilibrada por gradiente de profundidad. El contraste Schwartz--Einstein uniforme conserva únicamente el campo medio evaluado al eje. El anillo con campo $K_0$ prescrito resuelve el equilibrio de la distribución biaxial sin realimentación de la rigidez del terreno. Cada representación se evalúa para los dos límites de transferencia tangencial definidos en la memoria.
-
-Cada formulación se presenta con el mismo constructor polar empleado para las resultantes del cuerpo de la memoria. Los tres paneles corresponden a $N$,
-$M$ y $Q$; la circunferencia de referencia representa el valor nulo y cada panel utiliza una escala radial propia. Las dos curvas de cada figura son los límites de transferencia tangencial de la formulación correspondiente.
-
-{{< include /_fig/Comparison.ES.qmd >}}
-
-Los máximos absolutos y sus razones respecto de la envolvente híbrida se informan en las tablas del apartado anterior.
-
-La diferencia entre la curva híbrida y Schwartz--Einstein uniforme mide el efecto de trasladar la resultante lateral mediante el gradiente equilibrado. La diferencia entre revestimientos refleja el cambio de rigidez que entra en los parámetros $C^*$ y $F^*$ de Schwartz--Einstein. El campo $K_0$ prescrito sirve como referencia de un anillo sometido a acciones dadas y, por ello, separa el efecto de la carga del efecto de interacción terreno--revestimiento.
-
-## Resultantes puntuales y empuje normativo
 
 Las formulaciones de Núñez de 2000 y de Núñez, Sfriso y Laiún de 2014 producen resultantes en posiciones características y un momento máximo. En esta sensibilidad se emplean los valores de $\eta_N$ y $\chi_N$ declarados en la @tbl-calculation-classical-inputs. Su dominio original corresponde a túneles excavados; su incorporación en este apéndice cuantifica la sensibilidad del caso colocado en trinchera frente a una formulación clásica adicional. La @tbl-calculation-classical-nunez conserva las posiciones y magnitudes que cada fuente define.
 

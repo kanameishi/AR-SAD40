@@ -7,7 +7,6 @@ chapters:
   - _index/intro.ES.qmd
   - _index/model.ES.qmd
   - _index/liner.ES.qmd
-  - _index/rehabilitation.ES.qmd
   - _index/specifications.ES.qmd
 appendices:
   - _index/k0.appendix.ES.qmd
