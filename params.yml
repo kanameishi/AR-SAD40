@@ -9,7 +9,7 @@ params:
     name: "STRACON Chile SpA / Anglo American Sur"
     short: "STRACON / Anglo American"
     city: ""
-    address: []
+    address: [ ]
     web: ""
   consultant:
     name: "SRK Consulting (Argentina) S.A."
@@ -18,7 +18,13 @@ params:
       - "Av. Emilio Civit 404"
       - "Ciudad de Mendoza, Argentina"
     web: "https://www.srk.com"
-  roles: []
+  roles:
+    - label: "Autor"
+      name: "Alejandro Verri Kozlowski"
+      title: "Ingeniero Civil"
+    - label: "Autor"
+      name: "Dr. Alejo Sfriso"
+      title: "Ingeniero Civil"
   footer:
     title: "AR-SAD40 — Memoria de cálculo"
 

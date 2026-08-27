@@ -31,6 +31,23 @@ buildCoverReport <- function(params) {
     '</div></section>'
   )
 
+  AuthorBlock <- ""
+  if (!is.null(params$roles) && length(params$roles)) {
+    AuthorLines <- vapply(params$roles, function(Role) {
+      Name <- h(Role$name)
+      Title <- h(Role$title)
+      if (!nzchar(Title)) return(paste0("<p>", Name, "</p>"))
+      paste0("<p>", Name, "<br>", Title, "</p>")
+    }, character(1))
+    AuthorBlock <- paste0(
+      '<section class="srk-cover__block">',
+      '<div class="srk-cover__block-title">Autores:</div>',
+      '<div class="srk-cover__block-body">',
+      paste(AuthorLines, collapse = "\n"),
+      '</div></section>'
+    )
+  }
+
   ClientBlock <- ""
   if (nzchar(h(params$client$name))) {
     ClientBlock <- paste0(
@@ -46,7 +63,7 @@ buildCoverReport <- function(params) {
     '<div class="srk-cover__content"><div class="srk-cover__title-group">',
     '<div class="srk-cover__kicker">', h(SiteLocation), '</div>',
     '<div class="srk-cover__project">', ProjectLines, '</div></div>',
-    '<div class="srk-cover__blocks">', ClientBlock, ConsultantBlock, '</div>',
+    '<div class="srk-cover__blocks">', ClientBlock, ConsultantBlock, AuthorBlock, '</div>',
     '<div class="srk-cover__meta"><div class="srk-cover__meta-item">',
     '<div class="srk-cover__meta-label">Proyecto</div>',
     '<div class="srk-cover__meta-value">', h(params$project_id), '</div>',
