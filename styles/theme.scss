@@ -358,6 +358,8 @@ code {
   min-height: 0;
 }
 // Report cover styling
+// The cover page carries its own title group (srk-cover); the generic
+// Quarto title banner would repeat it, so it is suppressed entirely here.
 .cover-page #title-block-header {
   display: none;
 }

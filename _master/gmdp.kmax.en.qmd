@@ -1,0 +1,52 @@
+---
+title: ""
+number-sections: false
+toc: false
+listing: false
+
+author:
+  - name: "Alejandro Verri Kozlowski, PEng"
+    position: "Corporate Consultant (Geotechnical Earthquake Engineering)"
+    affiliation: "SRK Consulting"
+    email: averri@srk.com.ar
+
+bibliography:
+  - bib/references.bib
+  - _local/bib/references.bib
+csl: bib/apa.csl
+---
+
+```{r}
+#| label: setup
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+```
+
+```{r}
+#| results: asis
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "cover.R"))
+cat(buildCoverPpt(params, title = "Performance-Based Seismic Coefficient $k_{max}$"))
+```
+
+{{< include /_revealjs/tabreflow.qmd >}}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_revealjs/kmax.qmd",
+    stem = "kmax",
+    sites = SiteTable,
+    i = i,
+    vars = list(
+      TITLE = sprintf("$k_{max}$<br>Site: %s", SiteTable$label[[i]])
+    ),
+    root = root,
+    context = "kmax deck"
+  )
+}
+rm(i, SiteTable)
+```

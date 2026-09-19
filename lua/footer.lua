@@ -1,33 +1,19 @@
--- footer.lua
--- Builds revealjs footer from YAML metadata: meta.title and meta.subtitle.
--- If meta.footer is already set to a non-empty value, leave it untouched.
--- Format: "<title> · <subtitle>" (or just "<title>" if no subtitle).
+-- Quarto constructs footer divs before Lua filters run. Append the render
+-- stamp to those existing divs, preserving their links and formatting.
+function Pandoc(doc)
+  local stamp = pandoc.system.environment()["NGR_RENDER_STAMP"] or ""
+  if stamp == "" then return nil end
 
-function Meta(meta)
-  -- Skip if user explicitly set a non-empty footer
-  if meta.footer ~= nil then
-    local current = pandoc.utils.stringify(meta.footer)
-    if current ~= "" then
-      return nil
+  return doc:walk({
+    Div = function(div)
+      if not div.classes:includes("footer") then return nil end
+      local last = div.content[#div.content]
+      if last and (last.t == "Para" or last.t == "Plain") then
+        last.content:extend(pandoc.Inlines(" · " .. stamp))
+      else
+        div.content:insert(pandoc.Para(pandoc.Inlines(stamp)))
+      end
+      return div
     end
-  end
-
-  local title    = meta.title    and pandoc.utils.stringify(meta.title)    or ""
-  local subtitle = meta.subtitle and pandoc.utils.stringify(meta.subtitle) or ""
-
-  if title == "" and subtitle == "" then
-    return nil
-  end
-
-  local footer = title
-  if subtitle ~= "" then
-    if title ~= "" then
-      footer = title .. " · " .. subtitle
-    else
-      footer = subtitle
-    end
-  end
-
-  meta.footer = pandoc.MetaString(footer)
-  return meta
+  })
 end

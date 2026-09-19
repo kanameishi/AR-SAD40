@@ -1,0 +1,32 @@
+---
+title: ""
+lang: es
+number-sections: false
+toc: false
+listing: false
+---
+
+```{r}
+#| label: setup
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+```
+
+```{r}
+#| results: asis
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "cover.R"))
+cat(buildCoverPpt(params, title = "Parámetros de Diseño Sísmico", language = "es"))
+```
+
+```{r}
+#| include: false
+# Segundo nivel: el mismo componente del índice, filtrado a Ts, Dn, kmax y kh.
+TOC.scope <- "gmdp"
+TOC.language <- "es"
+TITLE <- "Parámetros de Diseño Sísmico"
+```
+
+{{< include /_revealjs/contents.toc.qmd >}}
+
+{{< include /_revealjs/signature.ES.qmd >}}

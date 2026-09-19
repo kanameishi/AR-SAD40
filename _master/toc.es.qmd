@@ -1,0 +1,23 @@
+---
+title: ""
+number-sections: false
+toc: false
+listing: false
+---
+
+```{r}
+#| label: setup
+TOC.language <- "es"
+TITLE <- "Contenidos"
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+```
+
+```{r}
+#| results: asis
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "cover.R"))
+cat(buildCoverPpt(params, title = "Tabla de contenidos", language = "es"))
+```
+
+{{< include /_revealjs/contents.toc.qmd >}}

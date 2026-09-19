@@ -1,0 +1,149 @@
+---
+title: ""
+number-sections: false
+toc: false
+listing: false
+
+author:
+  - name: "Alejandro Verri Kozlowski, PEng"
+    position: "Corporate Consultant (Geotechnical Earthquake Engineering)"
+    affiliation: "SRK Consulting"
+    email: averri@srk.com.ar
+
+bibliography:
+  - bib/references.bib
+  - _local/bib/references.bib
+csl: bib/apa.csl
+---
+
+```{r}
+#| label: setup
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+```
+
+```{r}
+#| results: asis
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "cover.R"))
+cat(buildCoverPpt(params, title = "Seismic Hazard Assessment"))
+```
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path = "/_revealjs/contents.sha.qmd",
+  stem = "contents",
+  labels = "rewrite",
+  vars = list(siteID.target = NULL, TITLE = "Contents"),
+  root = root
+)
+invisible(lapply(seq_len(nrow(SiteTable)), function(i) {
+  NGR::knitBlock(
+    path = "/_revealjs/seismicity.qmd",
+    stem = paste(SiteTable$key[[i]], "seismicity", sep = "-"),
+    labels = "rewrite",
+    vars = list(
+      siteID.target = SiteTable$siteID[[i]],
+      TITLE = sprintf("Regional Seismicity<br>Site: %s", SiteTable$label[[i]])
+    ),
+    root = root
+  )
+}))
+if (!is.null(GMPETable) && nrow(GMPETable)) {
+  NGR::knitBlock(
+    path = "/_revealjs/gmm.qmd",
+    stem = "gmm",
+    labels = "rewrite",
+    vars = list(
+      siteID.target = NULL,
+      TITLE = "Ground Motion Models"
+    ),
+    root = root
+  )
+}
+invisible(lapply(seq_len(nrow(SiteTable)), function(i) {
+  SiteID <- SiteTable$siteID[[i]]
+  SiteLabel <- SiteTable$label[[i]]
+
+  if (nrow(SiteTable) > 1L) {
+    NGR::knitBlock(
+      path = "/_revealjs/contents.sha.qmd",
+      stem = paste(SiteTable$key[[i]], "contents", sep = "-"),
+      labels = "rewrite",
+      vars = list(
+        siteID.target = SiteID,
+        TITLE = sprintf("Contents<br>Site: %s", SiteLabel)
+      ),
+      root = root
+    )
+  }
+  SiteLabel <- paste0("<br>Site: ", SiteLabel)
+  NGR::knitBlock(
+    path = "/_revealjs/hazard.qmd",
+    stem = paste(SiteTable$key[[i]], "hazard", sep = "-"),
+    labels = "rewrite",
+    vars = list(
+      siteID.target = SiteID,
+      TITLE = paste0("Seismic Hazard (PSHA)", SiteLabel)
+    ),
+    root = root
+  )
+  NGR::knitBlock(
+    path = "/_revealjs/disagg.qmd",
+    stem = paste(SiteTable$key[[i]], "disagg", sep = "-"),
+    labels = "rewrite",
+    vars = list(
+      siteID.target = SiteID,
+      TITLE = paste0("Hazard Deaggregation", SiteLabel)
+    ),
+    root = root
+  )
+  if (!is.null(MCETable) && nrow(MCETable)) {
+    NGR::knitBlock(
+      path = "/_revealjs/mce.qmd",
+      stem = paste(SiteTable$key[[i]], "mce", sep = "-"),
+      labels = "rewrite",
+      vars = list(
+        siteID.target = SiteID,
+        TITLE = paste0("Seismic Hazard (DSHA)", SiteLabel)
+      ),
+      root = root
+    )
+  }
+  NGR::knitBlock(
+    path = "/_revealjs/hazard.compare.qmd",
+    stem = paste(SiteTable$key[[i]], "hazard-compare", sep = "-"),
+    labels = "rewrite",
+    vars = list(
+      siteID.target = SiteID,
+      TITLE = paste0("Design Spectra (PSHA/DSHA)", SiteLabel)
+    ),
+    root = root
+  )
+  NGR::knitBlock(
+    path = "/_revealjs/uhs.qmd",
+    stem = paste(SiteTable$key[[i]], "uhs", sep = "-"),
+    labels = "rewrite",
+    vars = list(
+      siteID.target = SiteID,
+      TITLE = paste0("Site Response Spectra (PSHA/DSHA)", SiteLabel)
+    ),
+    root = root
+  )
+  NGR::knitBlock(
+    path = "/_revealjs/af.qmd",
+    stem = paste(SiteTable$key[[i]], "af", sep = "-"),
+    labels = "rewrite",
+    vars = list(
+      siteID.target = SiteID,
+      TITLE = paste0("Site Amplification (AF)", SiteLabel)
+    ),
+    root = root
+  )
+}))
+```
+
+{{< include /_revealjs/signature.qmd >}}

@@ -5,7 +5,7 @@ project:
     - styles/**
 
 book:
-  language: es
+  language: en
   sidebar:
     logo: styles/logo.png
     logo-alt: SRK Consulting logo
@@ -29,7 +29,7 @@ format:
     number-depth: 4
     highlight-style: a11y
     code-fold: true
-    code-summary: "Código"
+    code-summary: "Source"
     code-line-numbers: true
     code-copy: false
     code-overflow: scroll

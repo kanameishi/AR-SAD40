@@ -1,0 +1,95 @@
+---
+title: ""
+number-sections: false
+toc: false
+listing: false
+
+author:
+  - name: "Alejandro Verri Kozlowski, PEng"
+    position: "Corporate Consultant (Geotechnical Earthquake Engineering)"
+    affiliation: "SRK Consulting"
+    email: averri@srk.com.ar
+
+bibliography:
+  - bib/references.bib
+  - _local/bib/references.bib
+csl: bib/apa.csl
+---
+
+```{r}
+#| label: setup
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+```
+
+```{r}
+#| results: asis
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "cover.R"))
+cat(buildCoverPpt(params, title = "Seismic Design Criteria"))
+```
+
+```{r}
+#| echo: false
+#| results: asis
+invisible(lapply(seq_len(nrow(SiteTable)), function(i) {
+  SiteID <- SiteTable$siteID[[i]]
+  SiteLabel <- SiteTable$label[[i]]
+
+  NGR::knitBlock(
+    path = "/_revealjs/contents.sdc.qmd",
+    stem = paste(SiteTable$key[[i]], "contents", sep = "-"),
+    labels = "rewrite",
+    vars = list(TITLE = sprintf("Contents<br>Site: %s", SiteLabel)),
+    root = root
+  )
+  NGR::knitBlock(
+    path = "/_revealjs/deq.gistm.qmd",
+    stem = paste(SiteTable$key[[i]], "gistm", sep = "-"),
+    labels = "rewrite",
+    vars = list(
+      siteID.target = SiteID,
+      TITLE = sprintf("GISTM Design Criteria<br>Site: %s", SiteLabel)
+    ),
+    root = root
+  )
+  NGR::knitBlock(
+    path = "/_revealjs/deq.ancold.qmd",
+    stem = paste(SiteTable$key[[i]], "ancold", sep = "-"),
+    labels = "rewrite",
+    vars = list(
+      siteID.target = SiteID,
+      TITLE = sprintf("ANCOLD Design Criteria<br>Site: %s", SiteLabel)
+    ),
+    root = root
+  )
+  NGR::knitBlock(
+    path = "/_revealjs/deq.cda.qmd",
+    stem = paste(SiteTable$key[[i]], "cda", sep = "-"),
+    labels = "rewrite",
+    vars = list(
+      siteID.target = SiteID,
+      TITLE = sprintf("CDA Design Criteria<br>Site: %s", SiteLabel)
+    ),
+    root = root
+  )
+  NGR::knitBlock(
+    path = "/_revealjs/asce.qmd",
+    stem = paste(SiteTable$key[[i]], "asce", sep = "-"),
+    labels = "rewrite",
+    vars = list(
+      siteID.target = SiteID,
+      TITLE = sprintf("ASCE-7 Design Criteria<br>Site: %s", SiteLabel)
+    ),
+    root = root
+  )
+}))
+```
+
+## <br>References
+
+::: {#refs}
+:::
+
+{{< include /_revealjs/signature.qmd >}}

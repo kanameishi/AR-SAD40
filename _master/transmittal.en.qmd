@@ -1,0 +1,15 @@
+---
+title: ""
+lang: en
+number-sections: false
+toc: false
+listing: false
+---
+
+```{r}
+#| echo: false
+#| results: asis
+root <- normalizePath(getwd())
+source(file.path(root, "scripts", "setup", "transmittal.R"))
+knitTransmittalLetter(language = "en")
+```

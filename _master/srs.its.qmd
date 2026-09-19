@@ -1,0 +1,140 @@
+---
+title: ""
+number-sections: false
+toc: false
+listing: false
+---
+
+```{r}
+#| label: setup
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+
+if (!exists("SRS_UNITS", inherits = FALSE)) SRS_UNITS <- "mm"
+SelectionTable <- .srsDeckSelections(
+  params, root,
+  path = if (exists("PathSRS", inherits = FALSE)) PathSRS else NULL
+)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SelectionTable))) {
+  PathSRS <- SelectionTable$PathSRS[[i]]
+  ITS_FILE <- file.path(PathSRS, "data", "ITS.csv")
+  if (!file.exists(ITS_FILE)) {
+    stop(sprintf("SRS ITS input not found: %s", ITS_FILE), call. = FALSE)
+  }
+  ITSTable <- data.table::fread(ITS_FILE)
+  META_FILE <- file.path(PathSRS, "metadata", "MasterIndex.csv")
+  IMW_FILE <- file.path(PathSRS, "data", "IMW.csv")
+  for (FILE in c(META_FILE, IMW_FILE)) {
+    if (!file.exists(FILE)) stop(sprintf("SRS ITS caption input not found: %s", FILE), call. = FALSE)
+  }
+  MasterTable <- data.table::fread(META_FILE)
+  IMWTable <- data.table::fread(IMW_FILE)
+  MISS <- setdiff(c(
+    "RecordID", "OCID", "EventName", "EventMagnitude", "EventMagnitudeType",
+    "StationVs30", "Repi"
+  ), names(MasterTable))
+  if (length(MISS)) stop(sprintf("MasterIndex.csv missing columns: %s.", paste(MISS, collapse = ", ")), call. = FALSE)
+  MISS <- setdiff(c("RecordID", "OCID", "PGA"), names(IMWTable))
+  if (length(MISS)) stop(sprintf("IMW.csv missing columns: %s.", paste(MISS, collapse = ", ")), call. = FALSE)
+  CaptionTable <- unique(MasterTable[OCID == "H1", .(
+    RecordID, OCID, EventName, EventMagnitude, EventMagnitudeType, StationVs30, Repi
+  )])
+  CaptionTable <- merge(
+    CaptionTable,
+    IMWTable[OCID == "H1", .(RecordID, OCID, PGA = PGA)],
+    by = c("RecordID", "OCID"),
+    all.x = TRUE
+  )
+  CAPTION_DUP <- CaptionTable[, .N, by = .(RecordID, OCID)][N > 1L]
+  if (nrow(CAPTION_DUP)) stop("SRS caption inputs have duplicate RecordID/OCID rows.", call. = FALSE)
+  RecordOrder <- unique(ITSTable[OCID == "H1", .(RecordID)])
+  RecordOrder <- merge(
+    RecordOrder,
+    IMWTable[OCID == "H1", .(RecordID, PGA = PGA)],
+    by = "RecordID",
+    all.x = TRUE
+  )
+  if (anyNA(RecordOrder$PGA)) stop("IMW.csv missing H1 PGA values for ITS records.", call. = FALSE)
+  setorder(RecordOrder, -PGA, RecordID)
+  RecordIDs <- head(as.character(RecordOrder$RecordID), 24L)
+  if (!length(RecordIDs)) stop("SRS ITS has no RecordID values.", call. = FALSE)
+  MISSING_CAPTIONS <- setdiff(RecordIDs, CaptionTable[OCID == "H1", RecordID])
+  if (length(MISSING_CAPTIONS)) stop(sprintf(
+    "SRS caption inputs missing H1 caption rows for: %s.",
+    paste(MISSING_CAPTIONS, collapse = ", ")
+  ), call. = FALSE)
+
+  .srsMissing <- function(x) !length(x) || is.na(x) || !nzchar(as.character(x))
+  .srsText <- function(x) if (.srsMissing(x)) "not available" else as.character(x)
+  .srsNum <- function(x, digits) {
+    if (.srsMissing(x)) return("not available")
+    prettyNum(round(as.numeric(x), digits), big.mark = ",", nsmall = digits)
+  }
+  .srsMagnitude <- function(x) {
+    M <- .srsNum(x$EventMagnitude, 2L)
+    T <- .srsText(x$EventMagnitudeType)
+    if (M == "not available" && T == "not available") return("magnitude not available")
+    if (T == "not available") return(sprintf("M %s", M))
+    if (M == "not available") return(T)
+    sprintf("%s %s", T, M)
+  }
+  .srsPGA <- function(x) {
+    if (.srsMissing(x)) return("not available")
+    sprintf("%.3f g", as.numeric(x) / 9806.65)
+  }
+  .srsCaptionRow <- function(recordID) {
+    X <- CaptionTable[RecordID == as.character(recordID) & OCID == "H1"]
+    if (nrow(X) != 1L) stop(sprintf("SRS caption inputs have no single H1 row for %s.", recordID), call. = FALSE)
+    X
+  }
+  .srsRecordText <- function(recordID) {
+    X <- .srsCaptionRow(recordID)
+    sprintf(
+      "record %s (%s; %s; Repi = %s km; Vs30 = %s m/s; matched PGA = %s)",
+      recordID,
+      .srsText(X$EventName),
+      .srsMagnitude(X),
+      .srsNum(X$Repi, 1L),
+      .srsNum(X$StationVs30, 0L),
+      .srsPGA(X$PGA)
+    )
+  }
+  .srsItsCaption <- function(recordID) sprintf(
+    "Matched acceleration time history for %s. The solid line is the matched H1 component; dashed/dotted lines show retained VMD modal contributions.",
+    .srsRecordText(recordID)
+  )
+  .knitSelectionBlock(
+    path = "/_revealjs/srs.its.qmd",
+    stem = "srs-its",
+    selections = SelectionTable,
+    i = i,
+    vars = list(TITLE = sprintf(
+        "Selected Ground-Motion Suite%s<br>Retained VMD Modal Time Histories",
+        if (nrow(SelectionTable) > 1L) {
+          sprintf(" — %s", SelectionTable$label[[i]])
+        } else {
+          ""
+        }
+      )),
+    root = root,
+    context = "SRS ITS deck"
+  )
+}
+```
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "RecordIDs", "RecordID.target", "i", "PathSRS", "SelectionTable", "SRS_UNITS",
+  "ITSTable", "ITS_FILE", "RecordOrder", "MasterTable", "IMWTable", "CaptionTable",
+  "META_FILE", "IMW_FILE", "FILE", "CAPTION_DUP",
+  "MISSING_CAPTIONS", "MISS", "PLOT",
+  ".srsMissing", ".srsText", ".srsNum", ".srsMagnitude", ".srsPGA",
+  ".srsCaptionRow", ".srsRecordText", ".srsItsCaption"
+), ls()))
+```

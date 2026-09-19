@@ -1,0 +1,31 @@
+---
+title: ""
+number-sections: false
+toc: false
+listing: false
+---
+
+```{r}
+#| label: setup
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+```
+
+```{r}
+#| results: asis
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "cover.R"))
+cat(buildCoverPpt(params, title = "Seismic Record Selection"))
+```
+
+```{r}
+#| include: false
+# Segundo nivel: el mismo componente del índice, filtrado a los espectros.
+# Son decks aparte por tamaño, no por tema, y cuelgan de este hub.
+TOC.scope <- "srs"
+TITLE <- "Seismic Record Selection"
+```
+
+{{< include /_revealjs/contents.toc.qmd >}}
+
+{{< include /_revealjs/signature.qmd >}}

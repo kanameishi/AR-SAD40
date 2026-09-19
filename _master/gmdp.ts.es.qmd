@@ -1,0 +1,33 @@
+---
+title: ""
+lang: es
+number-sections: false
+toc: false
+listing: false
+
+author:
+  - name: "Alejandro Verri Kozlowski, PEng"
+    position: "Corporate Consultant (Geotechnical Earthquake Engineering)"
+    affiliation: "SRK Consulting"
+    email: averri@srk.com.ar
+
+bibliography:
+  - bib/references.bib
+  - _local/bib/references.bib
+csl: bib/apa.csl
+---
+
+```{r}
+#| label: setup
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+```
+
+```{r}
+#| results: asis
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "cover.R"))
+cat(buildCoverPpt(params, title = "Períodos fundamentales", language = "es"))
+```
+
+{{< include /_revealjs/periods.ES.qmd >}}

@@ -7,6 +7,7 @@ format:
   docx:
     reference-doc: styles/reference.docx
     filters:
+      - lua/cover-title.lua
       - lua/list-style.lua
       - at: post-render
         path: lua/appendix-style.lua

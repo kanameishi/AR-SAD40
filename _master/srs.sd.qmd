@@ -1,0 +1,52 @@
+---
+title: ""
+number-sections: false
+toc: false
+listing: false
+---
+
+```{r}
+#| label: setup
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+
+if (!exists("SRS_UNITS", inherits = FALSE)) SRS_UNITS <- "mm"
+SelectionTable <- .srsDeckSelections(
+  params, root,
+  path = if (exists("PathSRS", inherits = FALSE)) PathSRS else NULL
+)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SelectionTable))) {
+  PathSRS <- SelectionTable$PathSRS[[i]]
+  PSWTable <- data.table::fread(file.path(PathSRS, "data", "PSW.csv"))
+  NGR::knitBlock(
+    path = "/_revealjs/srs.sd.qmd",
+    stem = if (nrow(SelectionTable) > 1L) {
+      paste(SelectionTable$key[[i]], "srs-sd", sep = "-")
+    } else {
+      "srs-sd"
+    },
+    labels = if (nrow(SelectionTable) > 1L) "rewrite" else "keep",
+    vars = list(TITLE = sprintf(
+        "Selected Ground-Motion Suite%s<br>Spectral Displacement",
+        if (nrow(SelectionTable) > 1L) {
+          sprintf(" — %s", SelectionTable$label[[i]])
+        } else {
+          ""
+        }
+      )),
+    root = root
+  )
+}
+```
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "i", "ID", "DIR", "PathSRS", "SRS_UNITS", "PSWTable", "SelectionTable"
+), ls()))
+```

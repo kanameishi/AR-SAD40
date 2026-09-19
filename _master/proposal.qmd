@@ -1,0 +1,47 @@
+---
+title: "Technical Proposal — Site-Specific Seismic Hazard and Seismic Design Criteria"
+---
+
+{{< include /_scope/objective.md >}}
+
+{{< include /_scope/scope.md >}}
+
+## Work plan
+
+The proposed work plan is described below:
+
+{{< include /_scope/background.md >}}
+
+{{< include /_scope/hazard.md >}}
+
+{{< include /_scope/gmm.md >}}
+
+{{< include /_scope/dsha.md >}}
+
+{{< include /_scope/site.md >}}
+
+{{< include /_scope/srs.md >}}
+
+{{< include /_scope/ts.md >}}
+
+{{< include /_scope/dn.md >}}
+
+{{< include /_scope/kmax.md >}}
+
+{{< include /_scope/deq.md >}}
+
+{{< include /_scope/mcer.md >}}
+
+{{< include /_scope/tank.md >}}
+
+{{< include /_scope/information.md >}}
+
+{{< include /_scope/deliverables.md >}}
+
+{{< include /_scope/team.md >}}
+
+{{< include /_scope/schedule.md >}}
+
+{{< include /_scope/experience.md >}}
+
+{{< include /_scope/cv.md >}}

@@ -1,0 +1,52 @@
+---
+title: ""
+number-sections: false
+toc: false
+listing: false
+
+author:
+  - name: "Alejandro Verri Kozlowski, PEng"
+    position: "Corporate Consultant (Geotechnical Earthquake Engineering)"
+    affiliation: "SRK Consulting"
+    email: averri@srk.com.ar
+
+bibliography:
+  - bib/references.bib
+  - _local/bib/references.bib
+csl: bib/apa.csl
+---
+
+```{r}
+#| label: setup
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+```
+
+```{r}
+#| results: asis
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "cover.R"))
+cat(buildCoverPpt(params, title = "Newmark Displacements $D_n$"))
+```
+
+{{< include /_revealjs/tabreflow.qmd >}}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_revealjs/newmark.qmd",
+    stem = "dn",
+    sites = SiteTable,
+    i = i,
+    vars = list(
+      TITLE = sprintf("Newmark Displacements $D_n$<br>Site: %s", SiteTable$label[[i]])
+    ),
+    root = root,
+    context = "dn deck"
+  )
+}
+rm(i, SiteTable)
+```

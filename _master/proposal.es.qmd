@@ -1,0 +1,48 @@
+---
+lang: es
+title: "Propuesta técnica — Amenaza sísmica específica del sitio y criterios de diseño sísmico"
+---
+
+{{< include /_scope/objective.es.md >}}
+
+{{< include /_scope/scope.es.md >}}
+
+## Plan de trabajo
+
+El plan de trabajo propuesto se describe a continuación:
+
+{{< include /_scope/background.es.md >}}
+
+{{< include /_scope/hazard.es.md >}}
+
+{{< include /_scope/gmm.es.md >}}
+
+{{< include /_scope/dsha.es.md >}}
+
+{{< include /_scope/site.es.md >}}
+
+{{< include /_scope/srs.es.md >}}
+
+{{< include /_scope/ts.es.md >}}
+
+{{< include /_scope/dn.es.md >}}
+
+{{< include /_scope/kmax.es.md >}}
+
+{{< include /_scope/deq.es.md >}}
+
+{{< include /_scope/mcer.es.md >}}
+
+{{< include /_scope/tank.es.md >}}
+
+{{< include /_scope/information.es.md >}}
+
+{{< include /_scope/deliverables.es.md >}}
+
+{{< include /_scope/team.es.md >}}
+
+{{< include /_scope/schedule.es.md >}}
+
+{{< include /_scope/experience.es.md >}}
+
+{{< include /_scope/cv.es.md >}}
