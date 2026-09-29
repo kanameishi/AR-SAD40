@@ -1,0 +1,1 @@
+Seismogenic depth architecture of the IND area sources by tectonic region type (TRT), in kilometres. `z_upper` and `z_lower` are the upper and lower seismogenic depths; the last column gives the mean hypocentral depth, assigned deterministically to each zone as a single-value distribution with probability 1.0.

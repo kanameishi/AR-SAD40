@@ -1,0 +1,21 @@
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.kh.sites")
+```
+
+&nbsp;
+
+```{r}
+#| include: true
+#| label: tbl-kh-sites
+#| tbl-cap: !expr CAP
+source(file.path(root, "scripts", "tbl", "kh.sites.R"))
+TBL
+```
+
+&nbsp;
+
+```{r}
+#| include: false
+rm(CAP)
+```

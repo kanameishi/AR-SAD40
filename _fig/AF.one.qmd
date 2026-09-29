@@ -1,0 +1,8 @@
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-af-one
+#| fig-cap: !expr CAP |> sprintf(Vs30.target, if (exists("TR.target", inherits = FALSE)) prettyNum(round(TR.target, 0), big.mark = ",") else "", SiteID.caption)
+source(file.path(root, "scripts", "fig/AF.R"))
+PLOT
+```

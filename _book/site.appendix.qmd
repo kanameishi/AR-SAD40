@@ -1,0 +1,13 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root,"scripts","setup","setup.R"))
+```
+
+# Site Classification and Ground Properties {#sec-site_model}
+
+## Site Classification {#sec-classification}
+
+{{< include /_chapters/site.Vs30.md >}}
+
+{{< include /_chapters/site.appendix.md >}}

@@ -1,0 +1,130 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root,"scripts","setup","setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+```
+
+
+
+# Site-Response Model {#sec-site-response}
+
+{{< include /_chapters/site.model.md >}}
+
+{{< include /_chapters/site.amplification.md >}}
+
+{{< include /_chapters/site.uncertainty.md >}}
+
+
+## Site-Response Spectra {#sec-site_results}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_fig/UHS.qmd",
+    stem = "site-uhs",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    heading = if (knitr::is_html_output()) SiteTable$label[[i]] else NULL,
+    level = 4L,
+    anchor = "sec-site-uhs-site",
+    context = "site UHS"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/PGA.qmd",
+    stem = "site-pga",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    heading = SiteTable$label[[i]],
+    level = 4L,
+    anchor = "sec-site-pga-site",
+    context = "site PGA"
+  )
+  .knitReportBlock(
+    path = "/_tbl/PGA.TR.qmd",
+    stem = "site-pga-tr",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "site PGA by return period and condition"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/PSA.qmd",
+    stem = "site-psa",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    heading = SiteTable$label[[i]],
+    level = 4L,
+    anchor = "sec-site-psa-site",
+    context = "site PSA"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_fig/AF.qmd",
+    stem = "site-af-fig",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    heading = if (knitr::is_html_output()) SiteTable$label[[i]] else NULL,
+    level = 4L,
+    anchor = "sec-site-af-fig-site",
+    context = "site AF figure"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/AF.qmd",
+    stem = "site-af",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    heading = SiteTable$label[[i]],
+    level = 4L,
+    anchor = "sec-site-af-site",
+    context = "site AF"
+  )
+}
+rm(list = intersect(c(
+  "i", "SiteTable"
+), ls()))
+```

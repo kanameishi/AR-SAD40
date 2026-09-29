@@ -1,0 +1,5 @@
+**Probabilistic Seismic Hazard Assessment.** This task involves conducting a probabilistic seismic hazard assessment (PSHA), including characterisation of the seismic sources, selection of the ground-motion models, hazard disaggregation, and definition of the design earthquakes for different return periods. The activities to be carried out are:
+
+- *Seismic hazard model definition:* implementation of the adopted source model — occurrence rates and magnitude–distance distributions per source — and selection of the ground-motion logic trees for each tectonic regime; the annual probabilities of exceeding ground acceleration are estimated as the probabilistic sum of contributions from each source.
+- *Seismic hazard disaggregation:* identification of the modal magnitude–distance scenarios that most contribute to the hazard, for the return periods of interest at each site.
+- *Uniform hazard spectra:* definition of UHS on rock for the annual exceedance probabilities selected according to the level of acceptable consequences defined for each structure at each project stage (operation, closure, and post-closure).

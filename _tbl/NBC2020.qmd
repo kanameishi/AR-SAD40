@@ -1,0 +1,30 @@
+&nbsp;
+
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.NBC2020")
+root <- here::here()
+if (!exists("NBC2020Table", inherits = FALSE)) {
+  NBC2020Table <- data.table(
+    "SC" = c("A", "B", "C", "D", "E", "F"),
+    "Description" = c("Hard rocks", "Rocks", "Very dense soils or soft rocks", "Stiff soils",
+    "Soft soils", "Other soils"),
+    "Vs30" = c(">1500 [m/s]", ">760-1500 [m/s]", ">360-760 [m/s]", ">180-360 [m/s]",
+    ">140-360 [m/s]", "<=140 [m/s]")
+  )
+}
+```
+
+```{r}
+#| include: true
+#| label: tbl-scnbc
+#| tbl-cap: !expr CAP
+source(file.path(root, "scripts", "tbl", "NBC2020.R"))
+TBL
+```
+
+```{r}
+#| include: false
+rm(list = intersect(c("CAP", "NBC2020Table"), ls()))
+```
+&nbsp;

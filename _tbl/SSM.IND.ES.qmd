@@ -1,0 +1,12 @@
+```{r}
+#| include: false
+CAP <- stats::setNames(
+  lapply(
+    c("inventory", "lt", "recurrence", "depth"),
+    function(key) readCaption(sprintf("tbl.SSM.IND.%s.ES", key))
+  ),
+  c("inventory", "lt", "recurrence", "depth")
+)
+```
+
+{{< include /_tbl/SSM.IND.qmd >}}

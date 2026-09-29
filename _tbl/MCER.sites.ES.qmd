@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+CAP <- readCaption("tbl.MCER.sites.ES")
+```
+
+{{< include /_tbl/MCER.sites.qmd >}}

@@ -1,0 +1,12 @@
+```{r}
+#| include: false
+TRT.text <- c(
+  ASC = "fuente de corteza superficial activa",
+  SCC = "fuente de corteza continental estable",
+  SIF = "fuente de subducción interplaca",
+  SIS = "fuente de subducción intraplaca"
+)
+CAP <- readCaption(if (identical(ID.target, "MCE")) "fig.MCE.envelope.ES" else "fig.MCE.UHS.ES")
+```
+
+{{< include /_fig/MCE.UHS.qmd >}}

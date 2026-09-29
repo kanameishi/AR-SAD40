@@ -1,0 +1,14 @@
+:::{.panel-tabset .full-width }
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| results: asis
+for (IDgTab in IDg.gmdp) {
+  cat("\n###### ", IDgTab, "\n\n", sep = "")
+  NGR::knitBlock(path = "/_tbl/kmax.one.qmd", stem = .composeTargetStem(paste(c("kmax", if (length(IDn.target) == 1L) tolower(IDn.target), tolower(IDm.target), tolower(IDgTab)), collapse = "-")), labels = "rewrite", vars = list(IDg.target = IDgTab), root = root)
+}
+rm(IDgTab)
+```
+
+:::

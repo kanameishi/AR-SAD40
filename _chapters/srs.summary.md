@@ -1,0 +1,1 @@
+Ground-motion time histories provide the seismic input for the dynamic deformation analyses. The delivered suite includes the time histories, intensity measures, spectra, and provenance metadata of the selected records.

@@ -1,0 +1,31 @@
+{{< include /_revealjs/tabreflow.qmd >}}
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Contents"`
+
+::: {.index}
+
+- [ ] Regional Seismicity
+
+```{r}
+#| echo: false
+#| results: asis
+if (is.null(siteID.target) && !is.null(GMPETable) && nrow(GMPETable)) {
+  cat("- [ ] Ground Motion Models\n\n")
+}
+```
+
+- [ ] Seismic Hazard (PSHA)
+- [ ] Hazard Deaggregation
+
+```{r}
+#| echo: false
+#| results: asis
+if (!is.null(MCETable) && nrow(MCETable)) {
+  cat("- [ ] Seismic Hazard (DSHA)\n\n")
+}
+```
+
+- [ ] Design Spectra (PSHA/DSHA)
+- [ ] Site Response Spectra (PSHA/DSHA)
+- [ ] Site Amplification (AF)
+
+:::

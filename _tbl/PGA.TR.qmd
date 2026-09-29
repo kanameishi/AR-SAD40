@@ -1,0 +1,54 @@
+
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.PGA.TR")
+Target <- .currentTarget("ID.target")
+ID.target <- .resolveIDTarget(
+  UHSTable,
+  "PGA.TR.qmd",
+  base = TRUE,
+  target = Target,
+  siteID = .currentTarget("siteID.target")
+)
+if (!exists("TR.target") || !length(TR.target)) TR.target <- TR.gmdp
+if (!exists("Vs30.target") || !length(Vs30.target)) Vs30.target <- Vs30.gmdp
+if (!exists("PSA_Units") || !length(PSA_Units)) PSA_Units <- "g"
+root <- here::here()
+```
+
+::: {.content-visible when-format='docx'}
+
+&nbsp;
+
+```{r}
+#| eval: !expr knitr::pandoc_to("docx")
+#| include: true
+#| label: tbl-pga-tr-docx
+#| tbl-cap: !expr CAP |> sprintf(paste(.currentTarget("siteID.target"), collapse = ", "), PSA_Units)
+source(file.path(root, "scripts", "tbl", "PGA.TR.R"))
+TBL
+```
+
+&nbsp;
+
+:::
+
+::: {.content-visible when-format='html'}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: tbl-pga-tr
+#| tbl-cap: !expr CAP |> sprintf(paste(.currentTarget("siteID.target"), collapse = ", "), PSA_Units)
+source(file.path(root, "scripts", "tbl", "PGA.TR.R"))
+TBL
+```
+
+:::
+
+```{r}
+#| include: false
+rm(TR.target, Vs30.target, PSA_Units, CAP, ID.target)
+if (exists("Target", inherits = FALSE) && length(Target)) ID.target <- Target
+rm(list = intersect("Target", ls()))
+```

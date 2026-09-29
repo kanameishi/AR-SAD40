@@ -25,6 +25,8 @@ params:
     - label: "Autor"
       name: "Dr. Alejo Sfriso"
       title: "Ingeniero Civil"
+  signature:
+    place: "Mendoza, Argentina"
   footer:
     title: "AR-SAD40 — Memoria de cálculo"
 

@@ -1,0 +1,23 @@
+```{r}
+#| include: false
+CAP <- readCaption("tbl.gistm.ES")
+GistmTable <- data.table(
+  "Clase" = c("Low", "Significant", "High", "Very High", "Extreme"),
+  "PAR" = c("Ninguna", "1–10", "10–100", "100–1,000", ">1,000"),
+  "Consecuencias" = c(
+    "No se espera pérdida de vidas; impactos mínimos fuera del emplazamiento.",
+    "Impactos menores fuera del emplazamiento que deben notificarse.",
+    "Impactos importantes de alcance local, con posibilidad de múltiples víctimas mortales.",
+    "Impactos regionales sustanciales, con probables múltiples víctimas mortales.",
+    "Impactos catastróficos, extensos y de larga duración, con más de 100 probables víctimas mortales."),
+  "Operación y cierre bajo cuidado activo" = c("1/200", "1/1,000", "1/2,475", "1/5,000", "1/10,000"),
+  "Post-cierre bajo cuidado pasivo" = c("1/10,000", "1/10,000", "1/10,000", "1/10,000", "1/10,000")
+)
+GistmNotes <- c(
+  "PAR = población en riesgo (personas fuera del emplazamiento)",
+  "Criterios de excedencia anual durante la operación y el cierre activo. El UHS de 1/10,000 de la clase Extreme y el MCE definen los límites de diseño reportados",
+  "El UHS de 1/10,000 y el MCE definen los límites de diseño reportados para el cierre pasivo"
+)
+```
+
+{{< include /_tbl/gistm.qmd >}}

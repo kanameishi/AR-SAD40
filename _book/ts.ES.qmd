@@ -1,0 +1,32 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+```
+
+# Propiedades dinámicas de taludes {#sec-slope_periods}
+
+{{< include /_chapters/ts.model.es.md >}}
+
+{{< include /_tbl/IDm.ES.qmd >}}
+
+## Períodos fundamentales {#sec-periods_results}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/Ts.ES.qmd",
+    stem = "periods-table",
+    sites = SiteTable,
+    i = i,
+    root = root,
+    context = "tabla de períodos fundamentales"
+  )
+}
+rm(list = intersect(c(
+  "i", "SiteTable"
+), ls()))
+```

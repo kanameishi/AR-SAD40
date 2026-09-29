@@ -1,0 +1,1 @@
+Median response spectra $S_a(T_n)$, in $g$, for the GMM participating in scenario %s (%s, $M_w = %s$ at $R_{epi} = %.2f$ km), combining its rupture variants. The weighted mixture is reported at quantiles $p = %s$; the band spans the 5th to 95th percentiles of the conditional distribution. Reference rock condition $V_{S30} = %.0f$ m/s and 5%% critical damping. Site `%s`.

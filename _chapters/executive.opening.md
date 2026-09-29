@@ -1,0 +1,1 @@
+`r params$consultant$name` prepared this report for `r params$client$name` under project `r params$project_id`, located in `r params$location`. The report presents the seismic hazard assessment and the seismic design criteria of the project.

@@ -1,0 +1,1 @@
+**Deterministic Seismic Hazard Assessment.** Definition of the Maximum Credible Earthquake (MCE) scenarios on the tectonic sources that govern the site demand, evaluation of the resulting scenario spectra, and comparison against the probabilistic results.

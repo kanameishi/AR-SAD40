@@ -1,0 +1,33 @@
+---
+title: "Seismic Hazard Study"
+bibliography:
+  - bib/references.bib
+  - _local/bib/references.bib
+chapters:
+  - index.qmd
+  - _book/executive.qmd
+  - _book/intro.qmd
+  - part: "Seismic Hazard Assessment"
+    chapters:
+      - _book/psha.qmd
+      - _book/ssm.qmd
+      - _book/gmm.qmd
+      - _book/dsha.qmd
+      - _book/srs.qmd
+  - part: "Design Ground Motions"
+    chapters:
+      - _book/site.qmd
+      - _book/deq.qmd
+      - _book/mcer.qmd
+  - part: "Ground-Motion Design Parameters"
+    chapters:
+      - _book/ts.qmd
+      - _book/dn.qmd
+  - _book/references.qmd
+appendices:
+  - _book/notation.appendix.qmd
+  - _book/gmm.appendix.qmd
+  - _book/deq.appendix.qmd
+  - _book/site.appendix.qmd
+  - _book/dn.appendix.qmd
+---

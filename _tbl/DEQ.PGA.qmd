@@ -1,0 +1,37 @@
+
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.DEQ.PGA")
+Target <- .currentTarget("ID.target")
+ID.target <- .resolveIDTarget(
+  DEQTable,
+  "DEQ.PGA.qmd",
+  base = TRUE,
+  target = Target,
+  siteID = .currentTarget("siteID.target")
+)
+if (!exists("Standard.target") || !length(Standard.target)) Standard.target <- "GISTM"
+if (!exists("Stage.target") || !length(Stage.target)) Stage.target <- "Operation"
+if (!exists("Vs30.target") || !length(Vs30.target)) Vs30.target <- Vs30.gmdp
+if (!exists("PSA_Units") || !length(PSA_Units)) PSA_Units <- "g"
+root <- here::here()
+```
+
+&nbsp;
+
+```{r}
+#| include: true
+#| label: tbl-deq-pga
+#| tbl-cap: !expr CAP |> sprintf(Standard.target, Stage.target, paste(siteID.target, collapse = ", "), PSA_Units, paste(sort(Vs30.target), collapse = ", "))
+source(file.path(root, "scripts", "tbl", "DEQ.PGA.R"))
+TBL
+```
+
+&nbsp;
+
+```{r}
+#| include: false
+rm(Standard.target, Stage.target, Vs30.target, PSA_Units, CAP, ID.target)
+if (exists("Target", inherits = FALSE) && length(Target)) ID.target <- Target
+rm(list = intersect("Target", ls()))
+```

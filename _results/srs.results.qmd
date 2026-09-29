@@ -1,0 +1,17 @@
+```{r}
+#| include: false
+if (!exists("SRS.PGA.units", inherits = FALSE)) SRS.PGA.units <- "g"
+SRS.range.word <- "to"
+source(file.path(root, "scripts", "setup", "srs.R"))
+SRS_TARGET <- paste0(intToUtf8(96), SRS.config$target, intToUtf8(96))
+```
+
+The selected suite comprises `r .fmti(SRS$records)` strong-motion records from `r .fmti(SRS$events)` earthquakes and `r .fmti(SRS$providers)` databases. It spans $M_w$ `r SRS$Mw` and epicentral distance $R_{\mathrm{epi}}$ `r SRS$Repi`, with scale factors from `r SRS_SCALE$range`. For the target identified as `r SRS_TARGET`, defined at $V_{S30}=$ `r .fmti(SRS.config$Vs30)` m/s, the relative RMSE between the suite-mean spectrum and the target spectrum is `r SRS_STAGE$RMSE`, and the ratio of the suite-mean PGA to the target PGA is `r SRS_STAGE$pgaRatio`.
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "SRS.selection.text", "SRS.PGA.units", "SRS.range.word", "SrsG", "SRS",
+  "SRS.target.PGA", "SRS.config", "SRS_STAGE", "SRS_SCALE", "SRS_TARGET"
+), ls()))
+```

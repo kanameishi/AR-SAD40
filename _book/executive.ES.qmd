@@ -1,0 +1,12 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+```
+
+# Resumen ejecutivo
+
+{{< include /_chapters/executive.opening.es.md >}}
+
+{{< include /_book/executive.site.ES.qmd >}}

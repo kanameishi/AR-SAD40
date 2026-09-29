@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+source(file.path(root, "scripts", "setup", "dynamics.R"))
+```
+
+The analyses considered `r uniqueN(DynamicsSummary$materials$IDm)` material scenarios, with basal small-strain shear modulus $G_o$ between `r .fmt(min(DynamicsSummary$materials$Go.min), 0)` MPa (`r DynamicsSummary$materials[which.min(Go.min), IDm]`) and `r .fmt(max(DynamicsSummary$materials$Go.max), 0)` MPa (`r DynamicsSummary$materials[which.max(Go.max), IDm]`), and basal shear-wave velocity $V_S^o$ between `r .fmt(min(DynamicsSummary$materials$VSo.min), 0)` m/s (`r DynamicsSummary$materials[which.min(VSo.min), IDm]`) and `r .fmt(max(DynamicsSummary$materials$VSo.max), 0)` m/s (`r DynamicsSummary$materials[which.max(VSo.max), IDm]`), over `r uniqueN(DynamicsSummary$periods$IDg)` slope geometries with heights between `r min(DynamicsSummary$periods$Hs)` m (`r DynamicsSummary$periods[which.min(Hs), IDg]`) and `r max(DynamicsSummary$periods$Hs)` m (`r DynamicsSummary$periods[which.max(Hs), IDg]`). The estimated fundamental period varies with the material class between `r DynamicsSummary$periods[which.min(Hs), .fmt(Ts.min, 2)]` and `r DynamicsSummary$periods[which.min(Hs), .fmt(Ts.max, 2)]` s in the lowest slope, and between `r DynamicsSummary$periods[which.max(Hs), .fmt(Ts.min, 2)]` and `r DynamicsSummary$periods[which.max(Hs), .fmt(Ts.max, 2)]` s in the highest one.

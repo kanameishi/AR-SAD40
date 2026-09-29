@@ -1,0 +1,1 @@
+**Seismic design criteria for waste dumps and tailings deposits.** Estimation of maximum expected permanent displacements in representative sliding failure wedges of TSFs, WRDs, and bench slopes, and definition of a calibrated pseudo-static horizontal seismic coefficient for different levels of admissible deformation.

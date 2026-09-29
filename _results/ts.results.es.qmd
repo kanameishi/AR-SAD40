@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+source(file.path(root, "scripts", "setup", "dynamics.R"))
+```
+
+Se analizaron `r uniqueN(DynamicsSummary$materials$IDm)` escenarios de material, con módulo de corte basal de pequeña deformación $G_o$ entre `r .fmt(min(DynamicsSummary$materials$Go.min), 0)` MPa (`r DynamicsSummary$materials[which.min(Go.min), IDm]`) y `r .fmt(max(DynamicsSummary$materials$Go.max), 0)` MPa (`r DynamicsSummary$materials[which.max(Go.max), IDm]`), y velocidad basal de onda de corte $V_S^o$ entre `r .fmt(min(DynamicsSummary$materials$VSo.min), 0)` m/s (`r DynamicsSummary$materials[which.min(VSo.min), IDm]`) y `r .fmt(max(DynamicsSummary$materials$VSo.max), 0)` m/s (`r DynamicsSummary$materials[which.max(VSo.max), IDm]`), sobre `r uniqueN(DynamicsSummary$periods$IDg)` geometrías de talud con alturas entre `r min(DynamicsSummary$periods$Hs)` m (`r DynamicsSummary$periods[which.min(Hs), IDg]`) y `r max(DynamicsSummary$periods$Hs)` m (`r DynamicsSummary$periods[which.max(Hs), IDg]`). El período fundamental estimado varía según la clase de material entre `r DynamicsSummary$periods[which.min(Hs), .fmt(Ts.min, 2)]` y `r DynamicsSummary$periods[which.min(Hs), .fmt(Ts.max, 2)]` s en el talud más bajo, y entre `r DynamicsSummary$periods[which.max(Hs), .fmt(Ts.min, 2)]` y `r DynamicsSummary$periods[which.max(Hs), .fmt(Ts.max, 2)]` s en el más alto.

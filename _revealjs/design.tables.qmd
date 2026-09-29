@@ -1,0 +1,27 @@
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Design Tables"`
+
+```{r}
+IDg.target <- IDg.gmdp
+IDm.target <- IDm.gmdp
+IDn.target <- c("ensemble", "rigid", "flexible")
+p.target <- "mean"
+```
+
+:::{.panel-tabset }
+
+### $k_{max}$
+
+{{< include /_tbl/kmax.qmd >}}
+
+### $k_h$
+
+{{< include /_tbl/kh.qmd >}}
+
+:::
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "IDg.target", "IDm.target", "IDn.target", "p.target"
+), ls()))
+```

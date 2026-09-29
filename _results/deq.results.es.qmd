@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+source(file.path(root, "scripts", "setup", "criteriaResults.R"))
+```
+
+Los criterios de diseño se evaluaron según `r CriteriaSummary$standards`, para las clases de consecuencia y las etapas del ciclo de vida que cada estándar define. En la condición de roca de referencia ($V_{S30}=`r round(CriteriaSummary$bandsVs30)`$ m/s), los criterios de las clases de consecuencia más bajas conducen a PGA de diseño de `r round(CriteriaSummary$bands[band == 1L, PGA.min], 2)` a `r round(CriteriaSummary$bands[band == 1L, PGA.max], 2)` g; los intermedios, de `r round(CriteriaSummary$bands[band == 2L, PGA.min], 2)` a `r round(CriteriaSummary$bands[band == 2L, PGA.max], 2)` g; y los más exigentes, de `r round(CriteriaSummary$bands[band == 3L, PGA.min], 2)` a `r round(CriteriaSummary$bands[band == 3L, PGA.max], 2)` g. Las tablas y los espectros resumen los valores de diseño correspondientes a cada estándar, clase de consecuencia y etapa del ciclo de vida.

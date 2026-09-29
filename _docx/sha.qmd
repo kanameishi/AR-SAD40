@@ -1,0 +1,196 @@
+# Seismic Hazard Assessment
+
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root,"scripts","setup","setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+```
+
+## Probabilistic Seismic Hazard Assessment (PSHA)
+
+{{< include /_chapters/psha.model.md >}}
+
+{{< include /_chapters/psha.uncertainty.md >}}
+
+{{< include /_chapters/psha.disagg.md >}}
+
+### Hazard Curves and Spectra {#sec-hazard_results}
+
+{{< include /_chapters/psha.aep.md >}}
+
+{{< include /_chapters/psha.poe.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/RMw.qmd",
+    stem = "hazard-rmw-table",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "hazard RMw table"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+if (nrow(SiteTable)) {
+  NOTE <- .deckNote("sha", "Seismic Hazard Assessment", "The hazard curves and probabilistic spectra are developed in the %s annex.")
+  if (nzchar(NOTE)) cat("\n\n", NOTE, "\n\n", sep = "")
+  rm(NOTE)
+}
+```
+
+## Seismic Source Characterization {#sec-ssc}
+
+### Seismotectonic Setting
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path   = sprintf("/_chapters/ssm.tectonic.%s.md", params$ssm),
+  stem   = sprintf("ssm-tectonic-%s", tolower(params$ssm)),
+  labels = "keep",
+  root   = root
+)
+```
+
+### Seismicity
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path   = sprintf("/_chapters/ssm.seismicity.%s.md", params$ssm),
+  stem   = sprintf("ssm-seismicity-%s", tolower(params$ssm)),
+  labels = "keep",
+  root   = root
+)
+```
+
+### Neotectonics
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path   = sprintf("/_chapters/ssm.faults.%s.md", params$ssm),
+  stem   = sprintf("ssm-faults-%s", tolower(params$ssm)),
+  labels = "keep",
+  root   = root
+)
+```
+
+### Regional Sources (SSM) {#sec-ssm}
+
+```{r}
+#| echo: false
+#| results: asis
+if (is.null(params$ssm) || !nzchar(params$ssm)) {
+  stop("params.yml: params$ssm must name the seismic source model chapter (_chapters/ssm.<ID>.md).", call. = FALSE)
+}
+NGR::knitBlock(
+  path = sprintf("/_chapters/ssm.%s.md", params$ssm),
+  stem = sprintf("ssm-%s", tolower(params$ssm)),
+  labels = "keep",
+  root = root
+)
+```
+
+## Ground Motion Models (GMM) {#sec-gmm_appendix}
+
+{{< include /_chapters/gmm.model.md >}}
+
+{{< include /_chapters/gmm.trees.md >}}
+
+{{< include /_chapters/gmm.uncertainty.md >}}
+
+`r .deckNote("sha", "Seismic Hazard Assessment", "The seismic hazard assessment is documented in the %s annex.")`
+
+## Deterministic Seismic Hazard Assessment (DSHA) {#sec-mce}
+
+{{< include /_chapters/dsha.model.md >}}
+
+{{< include /_chapters/dsha.uncertainty.md >}}
+
+{{< include /_chapters/dsha.results.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/Scenarios.qmd",
+    stem = "dsha-scenarios",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "declared scenario parameters"
+  )
+  .knitReportBlock(
+    path = "/_tbl/DSHA.qmd",
+    stem = "dsha-table",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp, Vs30.target = 760),
+    root = root,
+    context = "DSHA comparison table"
+  )
+  .knitReportBlock(
+    path = "/_tbl/Scenarios.PGA.qmd",
+    stem = "dsha-scenarios-pga",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "scenario PGA by condition"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+if (nrow(SiteTable)) {
+  NOTE <- .deckNote("sha", "Seismic Hazard Assessment", "The deterministic scenario spectra and their comparison with the probabilistic demand are developed in the %s annex.")
+  if (nzchar(NOTE)) cat("\n\n", NOTE, "\n\n", sep = "")
+  rm(NOTE)
+}
+```
+
+## Seismic Record Selection {#sec-srs}
+
+{{< include /_chapters/srs.model.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+if (!is.null(SelectionTable)) {
+  for (i in seq_len(nrow(SelectionTable))) {
+    .knitSelectionBlock(
+      path = "/_tbl/SRS.qmd",
+      stem = "srs-records",
+      selections = SelectionTable,
+      i = i,
+      root = root,
+      context = "SRS chapter"
+    )
+  }
+  NOTE <- .deckNote("srs", "Seismic Record Selection", "The selected records and their verifications are presented in the %s annex.")
+  if (nzchar(NOTE)) cat("\n\n", NOTE, "\n\n", sep = "")
+  rm(NOTE)
+  rm(i)
+}
+rm(list = intersect(c("SiteTable", "SelectionTable"), ls()))
+```
+

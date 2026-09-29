@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+CAP <- readCaption("fig.AEP.ES")
+```
+
+{{< include /_fig/AEP.qmd >}}

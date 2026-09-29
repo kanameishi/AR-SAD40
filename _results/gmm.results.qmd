@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+source(file.path(root, "scripts", "setup", "gmmResults.R"))
+```
+
+For the magnitude, epicentral-distance, and depth combinations adopted as reference conditions for each tectonic regime, the aleatory variability of the individual formulations, $\sigma_{\ln I}$, ranges from `r .fmt(min(GMMSummary$epistemic$sigma.min), 2)` to `r .fmt(max(GMMSummary$epistemic$sigma.max), 2)`.

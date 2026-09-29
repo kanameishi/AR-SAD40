@@ -1,0 +1,49 @@
+# Apéndices
+
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+```
+
+## Notación {#sec-notation}
+
+{{< include /_chapters/notation.es.md >}}
+
+## Ecuaciones de predicción de movimiento sísmico (GMPE)
+
+### Corteza superficial activa (ASC)
+
+{{< include /_chapters/gmm.ASC.es.md >}}
+
+### Corteza continental estable (SCC)
+
+{{< include /_chapters/gmm.SCC.es.md >}}
+
+### Subducción interplaca (SIF)
+
+{{< include /_chapters/gmm.SIF.es.md >}}
+
+### Subducción intraplaca (SIS)
+
+{{< include /_chapters/gmm.SIS.es.md >}}
+
+## Criterios sísmicos normativos para depósitos de relaves {#sec-tsf-criteria-appendix}
+
+{{< include /_tbl/gistm.ES.qmd >}}
+
+{{< include /_tbl/cda.ES.qmd >}}
+
+{{< include /_tbl/ancold.ES.qmd >}}
+
+## Clasificación de sitios y propiedades del terreno {#sec-site_model}
+
+### Clasificación de sitio {#sec-classification}
+
+{{< include /_chapters/site.Vs30.es.md >}}
+
+{{< include /_chapters/site.appendix.es.md >}}
+
+## Formulaciones de desplazamientos permanentes de Newmark {#sec-newmark-appendix}
+
+{{< include /_chapters/dn.appendix.es.md >}}

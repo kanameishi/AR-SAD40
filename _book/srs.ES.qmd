@@ -1,0 +1,59 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+```
+
+# Selección de registros sísmicos {#sec-srs}
+
+{{< include /_chapters/srs.model.es.md >}}
+
+## Registros Seleccionados {#sec-srs_results}
+
+### Conjunto seleccionado {#sec-srs_results_records}
+
+```{r}
+#| echo: false
+#| results: asis
+if (!is.null(SelectionTable)) {
+  for (i in seq_len(nrow(SelectionTable))) {
+    .knitSelectionBlock(
+      path = "/_tbl/SRS.ES.qmd",
+      stem = "srs-records",
+      selections = SelectionTable,
+      i = i,
+      root = root,
+      heading = SelectionTable$label[[i]],
+      level = 4L,
+      anchor = "sec-srs_records",
+      context = "capítulo SRS"
+    )
+  }
+  rm(i)
+}
+```
+
+### Compatibilidad con el espectro objetivo {#sec-srs_results_psa}
+
+```{r}
+#| echo: false
+#| results: asis
+if (!is.null(SelectionTable)) {
+  for (i in seq_len(nrow(SelectionTable))) {
+    .knitSelectionBlock(
+      path = "/_fig/srs.psa.ES.qmd",
+      stem = "srs-psa",
+      selections = SelectionTable,
+      i = i,
+      root = root,
+      heading = SelectionTable$label[[i]],
+      level = 4L,
+      anchor = "sec-srs_psa",
+      context = "capítulo SRS"
+    )
+  }
+  rm(i)
+}
+rm(list = intersect(c("SiteTable", "SelectionTable"), ls()))
+```

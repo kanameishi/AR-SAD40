@@ -1,0 +1,96 @@
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("fig.AEPS")
+SiteID.caption <- .requireOneTarget(
+  .currentTarget("siteID.target"), "siteID.target", "AEPS caption"
+)
+if (!exists("Vs30.target") || !length(Vs30.target)) {
+  Vs30.target <- .resolveValueTarget(sort(unique(AEPSTable$Vs30)), "Vs30.target", "AEPS.qmd")
+}
+Target <- .currentTarget("ID.target")
+ID.target <- .resolveIDTarget(
+  AEPSTable,
+  "AEPS.qmd",
+  target = Target,
+  siteID = .currentTarget("siteID.target"),
+  base = TRUE
+)
+Sa.log <- TRUE
+AEP.log <- TRUE
+```
+
+::: {.content-visible when-format='html'}
+:::{.panel-tabset .full-width }
+
+### $T_n=0$ (PGA)
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-aeps-pga
+#| fig-cap: !expr CAP |> sprintf(0, Vs30.target, SiteID.caption)
+ 
+Tn.target <- 0
+source(file.path(root,"scripts","fig/AEPS.R"))
+PLOT
+```
+
+### $0.10\,s$
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-aeps-tn010
+#| fig-cap: !expr CAP |> sprintf(0.1, Vs30.target, SiteID.caption)
+ 
+Tn.target <- 0.1
+source(file.path(root,"scripts","fig/AEPS.R"))
+PLOT
+```
+
+### $0.20\,s$
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-aeps-tn020
+#| fig-cap: !expr CAP |> sprintf(0.2, Vs30.target, SiteID.caption)
+ 
+Tn.target <- 0.2
+source(file.path(root,"scripts","fig/AEPS.R"))
+PLOT
+```
+
+### $0.50\,s$
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-aeps-tn050
+#| fig-cap: !expr CAP |> sprintf(0.5, Vs30.target, SiteID.caption)
+ 
+Tn.target <- 0.5
+source(file.path(root,"scripts","fig/AEPS.R"))
+PLOT
+```
+
+### $1.0\,s$
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-aeps-tn100
+#| fig-cap: !expr CAP |> sprintf(1.0, Vs30.target, SiteID.caption)
+ 
+Tn.target <- 1.0
+source(file.path(root,"scripts","fig/AEPS.R"))
+PLOT
+```
+
+:::
+
+:::
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "ID.target", "Vs30.target", "Tn.target", "Sa.log", "AEP.log",
+  "CAP", "SiteID.caption"
+), ls()))
+if (exists("Target", inherits = FALSE) && length(Target)) ID.target <- Target
+rm(list = intersect("Target", ls()))
+```

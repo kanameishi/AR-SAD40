@@ -1,0 +1,37 @@
+&nbsp;
+
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.gistm")
+root <- here::here()
+if (!exists("GistmTable", inherits = FALSE)) {
+  GistmTable <- data.table(
+    "Class" = c("Low", "Significant", "High", "Very High", "Extreme"),
+    "PAR" = c("None", "1–10", "10–100", "100–1,000", ">1,000"),
+    "Consequences" = c("No expected loss of life; minimal off‑site impacts.", "Minor but reportable off‑site impacts.",
+    "Major localized impacts, potential for multiple fatalities.",
+    "Substantial regional impacts, likely multiple fatalities.",
+    "Catastrophic, long‑term, widespread impacts, >100 likely fatalities."
+    ),
+    "Operations and Active-Care Closure" = c("1/200", "1/1,000", "1/2,475", "1/5,000", "1/10,000"),
+    "Passive-Care Post-Closure" = c("1/10,000", "1/10,000", "1/10,000", "1/10,000", "1/10,000")
+  )
+  GistmNotes <- c("PAR = Population at Risk (off‑site persons)", "Annual-exceedance criteria during operations and active closure. The Extreme 1/10,000 UHS and MCE define the reported design bounds.",
+  "The 1/10,000 UHS and MCE define the reported passive-closure design bounds."
+  )
+}
+```
+
+```{r}
+#| include: true
+#| label: tbl-gistm
+#| tbl-cap: !expr CAP
+source(file.path(root, "scripts", "tbl", "gistm.R"))
+TBL
+```
+
+```{r}
+#| include: false
+rm(list = intersect(c("CAP", "GistmTable", "GistmNotes"), ls()))
+```
+&nbsp;

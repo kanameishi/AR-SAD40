@@ -1,0 +1,73 @@
+# Ground-Motion Design Parameters
+
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+```
+
+## Dynamic Properties of Slopes {#sec-slope_periods}
+
+{{< include /_chapters/ts.model.md >}}
+
+{{< include /_tbl/IDm.qmd >}}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/Ts.qmd",
+    stem = "periods-table",
+    sites = SiteTable,
+    i = i,
+    root = root,
+    context = "fundamental-period table"
+  )
+}
+rm(i)
+```
+
+## Performance-Based Seismic Coefficient {#sec-coefficients}
+
+{{< include /_chapters/dn.ensemble.md >}}
+
+{{< include /_chapters/dn.model.md >}}
+
+{{< include /_chapters/dn.uncertainty.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+if (nrow(SiteTable)) {
+  NOTE <- .deckNote("gmdp", "Ground-Motion Design Parameters", "The Newmark displacement curves are developed in the %s annex.")
+  if (nzchar(NOTE)) cat("\n\n", NOTE, "\n\n", sep = "")
+  rm(NOTE)
+}
+```
+
+```{r}
+#| echo: false
+#| results: asis
+if (nrow(SiteTable)) {
+  NOTE <- .deckNote("gmdp", "Ground-Motion Design Parameters", "The seismic coefficients $k_{max}$ and $k_h$ are developed in the %s annex.")
+  if (nzchar(NOTE)) cat("\n\n", NOTE, "\n\n", sep = "")
+  rm(NOTE)
+}
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/kh.sites.qmd",
+    stem = "kh-table",
+    sites = SiteTable,
+    i = i,
+    vars = list(IDg.target = IDg.gmdp, IDm.target = IDm.gmdp),
+    root = root,
+    heading = SiteTable$label[[i]],
+    level = 3L,
+    anchor = "sec-kh-table-site",
+    context = "MCE kh table"
+  )
+}
+rm(i, SiteTable)
+```

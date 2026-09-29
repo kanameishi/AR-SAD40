@@ -1,0 +1,1 @@
+Las curvas AEP reportan la tasa anual media de excedencia, $\lambda_I$, en $1/\text{año}$ para cada umbral de movimiento sísmico. Las curvas de amenaza total integran la contribución de todas las fuentes consideradas; las curvas por fuente conservan la contribución individual. La probabilidad exacta para un intervalo se presenta en las curvas PoE.

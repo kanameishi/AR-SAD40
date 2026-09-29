@@ -1,22 +1,19 @@
 ---
-title: "Resumen Ejecutivo"
+title: "TOC"
 format:
   html:
     body-classes: cover-page
-    title-block-banner: false
 bibliography:
   - bib/references.bib
+  - _local/bib/references.bib
+csl: bib/apa.csl
 ---
 
 ```{r}
 #| include: true
 #| results: asis
-#| echo: false
-root <- normalizePath(".", mustWork = TRUE)
-source(file.path(root, "scripts", "setup", "setup.R"), local = TRUE)
-source(file.path(root, "scripts", "setup", "cover.R"), local = TRUE)
-
-cat("```{=html}\n", buildCoverReport(params), "\n```\n", sep = "")
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+source(file.path(root, "scripts", "setup", "cover.R"))
+knitCoverPage(root, params)
 ```
-
-{{< include /_chapters/executive.ES.qmd >}}

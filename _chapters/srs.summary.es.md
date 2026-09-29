@@ -1,0 +1,1 @@
+Las historias temporales constituyen la demanda sísmica de entrada de los análisis dinámicos de deformaciones. El conjunto entregado incluye las historias temporales, las medidas de intensidad, los espectros y los metadatos de procedencia de los registros seleccionados.

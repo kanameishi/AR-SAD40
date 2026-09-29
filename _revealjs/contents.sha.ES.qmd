@@ -1,0 +1,31 @@
+{{< include /_revealjs/tabreflow.qmd >}}
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Contenidos"`
+
+::: {.index}
+
+- [ ] Sismicidad Regional
+
+```{r}
+#| echo: false
+#| results: asis
+if (is.null(siteID.target) && !is.null(GMPETable) && nrow(GMPETable)) {
+  cat("- [ ] Modelos de Predicción de Movimiento Sísmico\n\n")
+}
+```
+
+- [ ] Amenaza Sísmica (PSHA)
+- [ ] Desagregación de Amenaza
+
+```{r}
+#| echo: false
+#| results: asis
+if (!is.null(MCETable) && nrow(MCETable)) {
+  cat("- [ ] Amenaza Sísmica (DSHA)\n\n")
+}
+```
+
+- [ ] Espectros de Diseño (PSHA/DSHA)
+- [ ] Espectros de Respuesta de Sitio (PSHA/DSHA)
+- [ ] Amplificación de Sitio (AF)
+
+:::

@@ -1,0 +1,53 @@
+```{r}
+#| include: false
+root <- here::here()
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.IDm")
+if (!exists("ZONE", inherits = FALSE)) {
+  HEADER <- "TSF Zone"
+  ZONE <- c(
+    "Fine Tailings (Slimes, Pond)",
+    "Coarse Tailings Beach / Upstream Shell",
+    "Transitional Zone (Beach Margin / Intermediate Tailings)",
+    "Rockfill Buttress / Downstream Shell",
+    "Downstream Shell with Granular Filter or Transition Layer",
+    "Downstream Shell with Fines-Enriched Transition / Filter",
+    "Core Zone (Impervious Core / Cutoff Trench)",
+    "Core Zone with Silty-Clay Transition (Core Margin / Fine Fill)"
+  )
+}
+```
+
+:::{.content-visible when-format='docx'}
+
+&nbsp;
+
+```{r}
+#| eval: !expr knitr::pandoc_to("docx")
+#| include: true
+#| label: tbl-idm-docx
+#| tbl-cap: !expr CAP
+source(file.path(root, "scripts", "tbl", "IDm.R"))
+TBL
+```
+
+&nbsp;
+
+:::
+
+:::{.content-visible when-format='html'}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: tbl-idm
+#| tbl-cap: !expr CAP
+source(file.path(root, "scripts", "tbl", "IDm.R"))
+TBL
+```
+
+:::
+
+```{r}
+#| include: false
+rm(list = intersect(c("CAP", "ZONE", "HEADER"), ls()))
+```

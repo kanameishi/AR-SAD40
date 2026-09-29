@@ -1,0 +1,199 @@
+# Sismos de Diseño
+
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+Standard.target <- c("GISTM", "CDA", "ANCOLD")
+```
+
+## Respuesta de sitio {#sec-site-response}
+
+{{< include /_chapters/site.model.es.md >}}
+
+{{< include /_chapters/site.amplification.es.md >}}
+
+{{< include /_chapters/site.uncertainty.es.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/PGA.ES.qmd",
+    stem = "site-pga",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "PGA de sitio"
+  )
+  .knitReportBlock(
+    path = "/_tbl/PGA.TR.ES.qmd",
+    stem = "site-pga-tr",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "PGA de sitio por período de retorno y condición"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/PSA.ES.qmd",
+    stem = "site-psa",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "PSA de sitio"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/AF.ES.qmd",
+    stem = "site-af",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "AF de sitio"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+if (nrow(SiteTable)) {
+  NOTE <- .deckNote("sha", "Evaluación de Amenaza Sísmica", "Los espectros por condición de sitio y los factores de amplificación se desarrollan en el anexo %s.")
+  if (nzchar(NOTE)) cat("\n\n", NOTE, "\n\n", sep = "")
+  rm(NOTE)
+}
+```
+
+## Criterios de diseño sísmico para taludes {#sec-criteria}
+
+{{< include /_chapters/deq.criteria.es.md >}}
+
+{{< include /_chapters/deq.kmax.es.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/DEQ.operation.ES.qmd",
+    stem = "criteria-obe-table",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "tabla de criterios operacionales de relaves"
+  )
+  .knitReportBlock(
+    path = "/_tbl/DEQ.PGA.ES.qmd",
+    stem = "criteria-obe-pga",
+    sites = SiteTable,
+    i = i,
+    vars = list(
+      ID.target = ID.gmdp,
+      Standard.target = "GISTM",
+      Stage.target = "Operation"
+    ),
+    root = root,
+    context = "tabla GISTM de PGA de diseño por condición de sitio"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/DEQ.closure.ES.qmd",
+    stem = "criteria-sse-table",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "tabla de criterios de cierre de relaves"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/DEQ.postclosure.ES.qmd",
+    stem = "criteria-pce-table",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "tabla de criterios post-cierre de relaves"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+if (nrow(SiteTable)) {
+  NOTE <- .deckNote("sdc", "Criterios de Diseño Sísmico", "Los criterios de diseño por estándar y clase de consecuencias se desarrollan en el anexo %s.")
+  if (nzchar(NOTE)) cat("\n\n", NOTE, "\n\n", sep = "")
+  rm(NOTE)
+}
+```
+
+## Criterios de diseño sísmico para estructuras {#sec-structures}
+
+{{< include /_chapters/mcer.model.es.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/MCER.ES.qmd",
+    stem = "structures-criteria",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "tabla de criterios de estructuras"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+if (nrow(SiteTable)) {
+  NOTE <- .deckNote("sdc", "Criterios de Diseño Sísmico", "Los espectros de diseño estructural y sus parámetros se desarrollan en el anexo %s.")
+  if (nzchar(NOTE)) cat("\n\n", NOTE, "\n\n", sep = "")
+  rm(NOTE)
+}
+rm(SiteTable)
+```

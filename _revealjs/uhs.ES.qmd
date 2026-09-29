@@ -1,0 +1,55 @@
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Site Response Spectra"`
+
+:::{.panel-tabset .full-width }
+
+### Espectros de Amenaza Uniforme (UHS)
+
+```{r}
+ID.target <- .resolveIDTarget(
+  UHSTable,
+  "UHS slide",
+  target = .currentTarget("ID.target"),
+  siteID = .currentTarget("siteID.target"),
+  base = TRUE
+)
+.ID.BASE <- ID.target
+```
+
+{{< include /_fig/UHS.ES.qmd >}}
+
+### PGA
+
+```{r}
+ID.target <- .resolveIDTarget(
+  UHSTable,
+  "PGA slide",
+  base = TRUE,
+  target = .ID.BASE,
+  siteID = .currentTarget("siteID.target")
+)
+```
+
+{{< include /_tbl/PGA.ES.qmd >}}
+
+### PSA
+
+```{r}
+ID.target <- .resolveIDTarget(
+  UHSTable,
+  "PSA slide",
+  base = TRUE,
+  target = .ID.BASE,
+  siteID = .currentTarget("siteID.target")
+)
+```
+
+{{< include /_tbl/PSA.ES.qmd >}}
+
+:::
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "ID.target", "p.target", ".ID.BASE"
+), ls()))
+```

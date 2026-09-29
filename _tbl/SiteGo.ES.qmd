@@ -1,0 +1,8 @@
+```{r}
+#| include: false
+CAP <- readCaption("tbl.SiteGo.ES")
+SiteGo.headers <- c("Formulación", "Familia", "Material de referencia", "Autor")
+SiteGo.groups <- c(Sands = "Arenas", Fines = "Finos", Gravels = "Gravas")
+```
+
+{{< include /_tbl/SiteGo.qmd >}}

@@ -1,0 +1,62 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+```
+
+# Caracterización de fuentes sísmicas {#sec-ssc}
+
+## Marco sismotectónico
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path   = sprintf("/_chapters/ssm.tectonic.%s.es.md", params$ssm),
+  stem   = sprintf("ssm-tectonic-%s", tolower(params$ssm)),
+  labels = "keep",
+  root   = root
+)
+```
+
+## Sismicidad
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path   = sprintf("/_chapters/ssm.seismicity.%s.es.md", params$ssm),
+  stem   = sprintf("ssm-seismicity-%s", tolower(params$ssm)),
+  labels = "keep",
+  root   = root
+)
+```
+
+## Neotectónica
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path   = sprintf("/_chapters/ssm.faults.%s.es.md", params$ssm),
+  stem   = sprintf("ssm-faults-%s", tolower(params$ssm)),
+  labels = "keep",
+  root   = root
+)
+```
+
+## Modelo regional de fuentes (SSM) {#sec-ssm}
+
+```{r}
+#| echo: false
+#| results: asis
+if (is.null(params$ssm) || !nzchar(params$ssm)) {
+  stop("params.yml: params$ssm must name the seismic source model chapter (_chapters/ssm.<ID>.es.md).", call. = FALSE)
+}
+NGR::knitBlock(
+  path = sprintf("/_chapters/ssm.%s.es.md", params$ssm),
+  stem = sprintf("ssm-%s", tolower(params$ssm)),
+  labels = "keep",
+  root = root
+)
+```

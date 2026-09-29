@@ -1,0 +1,63 @@
+```{r}
+#| include: false
+root <- here::here()
+Target <- .currentTarget("ID.target")
+SiteValue <- .requireOneTarget(
+  .currentTarget("siteID.target"), "siteID.target", "UHS by return period caption"
+)
+ID.target <- .resolveIDTarget(
+  UHSTable,
+  "UHS.TR.qmd",
+  target = Target,
+  siteID = SiteValue,
+  base = TRUE
+)
+Vs30.target <- 760
+p.target <- "mean"
+AUX <- UHSTable[ID %in% ID.target & Vs30 == Vs30.target]
+if ("siteID" %in% names(AUX) && length(SiteValue)) {
+  AUX <- AUX[siteID %in% SiteValue]
+}
+TR.target <- sort(unique(AUX[TR >= 100 & TR <= 10000, TR]))
+if (!length(TR.target)) {
+  stop("UHS.TR.qmd: no TR = 100-10,000 rock rows.", call. = FALSE)
+}
+rm(AUX)
+Sa.log <- TRUE
+fill.target <- FALSE
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("fig.UHS.TR")
+CAP <- CAP |>
+  sprintf(
+    Vs30.target,
+    prettyNum(min(TR.target), big.mark = ","),
+    prettyNum(max(TR.target), big.mark = ","),
+    SiteValue
+  )
+```
+
+::: {.content-visible when-format='html'}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-uhs-tr
+#| fig-cap: !expr CAP
+source(file.path(root, "scripts", "fig", "UHS.R"))
+PLOT
+```
+
+:::
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "TR.target", "p.target", "Vs30.target", "Sa.log", "fill.target", "CAP",
+  "SiteValue"
+), ls()))
+if (length(Target)) {
+  ID.target <- Target
+} else {
+  rm(list = intersect("ID.target", ls()))
+}
+rm(Target)
+```

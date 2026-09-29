@@ -1,0 +1,37 @@
+```{r}
+#| include: true
+MCEMDEIDHadTarget <- exists("ID.target", inherits = FALSE)
+MCEMDEIDTarget <- .currentTarget("ID.target")
+MCEMDEIDRequest <- MCEMDEIDTarget
+if (!length(MCEMDEIDRequest)) MCEMDEIDRequest <- .currentTarget("ID.gmdp")
+ID.target <- .resolveIDTarget(
+  ASCETable,
+  "MCE.MDE.qmd",
+  base = TRUE,
+  target = MCEMDEIDRequest,
+  siteID = .currentTarget("siteID.target")
+)
+MCEMDETRTarget <- 10000
+Sa.log   <- TRUE
+Tn.log   <- TRUE
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("fig.MCE.MDE")
+SiteID.caption <- .requireOneTarget(
+  .currentTarget("siteID.target"), "siteID.target", "MCE/MDE figure caption"
+)
+```
+
+:::{.content-hidden when-format='docx'}
+{{< include /_fig/MCE.MDE.Vs30.qmd >}}
+:::
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "ID.target", "MCEMDEIDRequest", "MCEMDETRTarget", "Vs30.target",
+  "Sa.log", "Tn.log", "CAP", "SiteID.caption"
+), ls()))
+if (MCEMDEIDHadTarget) ID.target <- MCEMDEIDTarget
+rm(list = intersect(c(
+  "MCEMDEIDHadTarget", "MCEMDEIDTarget"
+), ls()))
+```

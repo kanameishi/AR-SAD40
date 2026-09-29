@@ -1,0 +1,63 @@
+:::{.content-hidden when-format='docx'}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+ID <- "AT"
+```
+
+:::{.panel-tabset .full-width }
+
+#### H1
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+DIR <- "H1"
+source(file.path(root, "scripts", "fig", "TS.R"))
+```
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| label: fig-srs-at-h1
+#| fig-cap: !expr sprintf(readCaption("fig.srs.ts"), ID, DIR)
+PLOT
+```
+
+#### H2
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+DIR <- "H2"
+source(file.path(root, "scripts", "fig", "TS.R"))
+```
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| label: fig-srs-at-h2
+#| fig-cap: !expr sprintf(readCaption("fig.srs.ts"), ID, DIR)
+PLOT
+```
+
+#### UP
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+DIR <- "UP"
+source(file.path(root, "scripts", "fig", "TS.R"))
+```
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| label: fig-srs-at-up
+#| fig-cap: !expr sprintf(readCaption("fig.srs.ts"), ID, DIR)
+PLOT
+```
+
+:::
+
+:::

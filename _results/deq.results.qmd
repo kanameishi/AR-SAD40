@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+source(file.path(root, "scripts", "setup", "criteriaResults.R"))
+```
+
+At the reference-rock condition ($V_{S30}=`r .fmti(CriteriaSummary$bandsVs30)`$ m/s), criteria for the lowest consequence classes yield design PGA from `r .fmt(CriteriaSummary$bands[band == 1L, PGA.min])` to `r .fmt(CriteriaSummary$bands[band == 1L, PGA.max])` g; intermediate criteria yield `r .fmt(CriteriaSummary$bands[band == 2L, PGA.min])` to `r .fmt(CriteriaSummary$bands[band == 2L, PGA.max])` g; and the most demanding criteria yield `r .fmt(CriteriaSummary$bands[band == 3L, PGA.min])` to `r .fmt(CriteriaSummary$bands[band == 3L, PGA.max])` g.

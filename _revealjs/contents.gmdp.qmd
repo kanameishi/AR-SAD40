@@ -1,0 +1,10 @@
+{{< include /_revealjs/tabreflow.qmd >}}
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Contents"`
+
+::: {.index}
+
+- [ ] Fundamental Periods. (Material Scenarios).
+- [ ] Newmark Displacements
+- [ ] Seismic Coefficients
+
+:::

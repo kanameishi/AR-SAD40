@@ -1,0 +1,1 @@
+Según el catálogo instrumental de sismos del USGS, el evento significativo de mayor magnitud y más cercano ($M_w \geq 4.5$) dentro de un radio de 1,000 km del sitio fue el sismo de {MCE.Mw$Location}, de fecha {format(MCE.Mw$Date, '%Y-%m')}, con magnitud de momento $M_w$ {MCE.Mw$Mw} y distancia hipocentral de {MCE.Mw$Rhyp} km al sitio.

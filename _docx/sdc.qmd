@@ -1,0 +1,199 @@
+# Design Earthquakes
+
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+Standard.target <- c("GISTM", "CDA", "ANCOLD")
+```
+
+## Site-Response {#sec-site-response}
+
+{{< include /_chapters/site.model.md >}}
+
+{{< include /_chapters/site.amplification.md >}}
+
+{{< include /_chapters/site.uncertainty.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/PGA.qmd",
+    stem = "site-pga",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "site PGA"
+  )
+  .knitReportBlock(
+    path = "/_tbl/PGA.TR.qmd",
+    stem = "site-pga-tr",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "site PGA by return period and condition"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/PSA.qmd",
+    stem = "site-psa",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "site PSA"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/AF.qmd",
+    stem = "site-af",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "site AF"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+if (nrow(SiteTable)) {
+  NOTE <- .deckNote("sha", "Seismic Hazard Assessment", "The spectra by site condition and the amplification factors are developed in the %s annex.")
+  if (nzchar(NOTE)) cat("\n\n", NOTE, "\n\n", sep = "")
+  rm(NOTE)
+}
+```
+
+## Seismic Design Criteria for Slopes {#sec-criteria}
+
+{{< include /_chapters/deq.criteria.md >}}
+
+{{< include /_chapters/deq.kmax.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/DEQ.operation.qmd",
+    stem = "criteria-obe-table",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "tailings operational criteria table"
+  )
+  .knitReportBlock(
+    path = "/_tbl/DEQ.PGA.qmd",
+    stem = "criteria-obe-pga",
+    sites = SiteTable,
+    i = i,
+    vars = list(
+      ID.target = ID.gmdp,
+      Standard.target = "GISTM",
+      Stage.target = "Operation"
+    ),
+    root = root,
+    context = "GISTM design PGA by site condition table"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/DEQ.closure.qmd",
+    stem = "criteria-sse-table",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "tailings closure criteria table"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/DEQ.postclosure.qmd",
+    stem = "criteria-pce-table",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "tailings post-closure criteria table"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+if (nrow(SiteTable)) {
+  NOTE <- .deckNote("sdc", "Seismic Design Criteria", "The design criteria by standard and consequence classification are developed in the %s annex.")
+  if (nzchar(NOTE)) cat("\n\n", NOTE, "\n\n", sep = "")
+  rm(NOTE)
+}
+```
+
+## Seismic Design Criteria for Structures {#sec-structures}
+
+{{< include /_chapters/mcer.model.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/MCER.qmd",
+    stem = "structures-criteria",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "structural design criteria"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+if (nrow(SiteTable)) {
+  NOTE <- .deckNote("sdc", "Seismic Design Criteria", "The structural design spectra and their parameters are developed in the %s annex.")
+  if (nzchar(NOTE)) cat("\n\n", NOTE, "\n\n", sep = "")
+  rm(NOTE)
+}
+rm(SiteTable)
+```

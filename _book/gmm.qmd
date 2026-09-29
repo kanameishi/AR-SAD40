@@ -1,0 +1,13 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root,"scripts","setup","setup.R"))
+```
+
+# Ground Motion Models (GMM) {#sec-gmm_appendix}
+
+{{< include /_chapters/gmm.model.md >}}
+
+{{< include /_chapters/gmm.trees.md >}}
+
+{{< include /_chapters/gmm.uncertainty.md >}}

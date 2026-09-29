@@ -1,0 +1,58 @@
+
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.PSA.sites")
+if (!exists("Vs30.docx", inherits = FALSE)) Vs30.docx <- 800
+if (!exists("PSA_Units") || !length(PSA_Units)) PSA_Units <- "cm/s2"
+if (!exists("Tn.target") || !length(Tn.target)) Tn.target <- Tn.gmdp
+if (!exists("TR.target") || !length(TR.target)) TR.target <- TR.MDE
+if (!exists("p.target") || !length(p.target))  p.target  <- "mean"
+Vs30.target <- Vs30.docx
+Sites.caption <- paste(siteID.target, collapse = ", ")
+Target <- .currentTarget("ID.target")
+ID.target <- .resolveIDTarget(
+  UHSTable,
+  "PSA.sites.qmd",
+  base = TRUE,
+  target = Target,
+  siteID = siteID.target
+)
+root <- here::here()
+```
+
+::: {.content-visible when-format='docx'}
+
+&nbsp;
+
+```{r}
+#| eval: !expr knitr::pandoc_to("docx")
+#| include: true
+#| label: tbl-psa-sites-docx
+#| tbl-cap: !expr CAP |> sprintf(PSA_Units, prettyNum(round(TR.target, 0), big.mark = ","), Vs30.target, p.target, Sites.caption)
+source(file.path(root, "scripts", "tbl", "PSA.sites.R"))
+TBL
+```
+
+&nbsp;
+
+:::
+
+::: {.content-visible when-format='html'}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: tbl-psa-sites
+#| tbl-cap: !expr CAP |> sprintf(PSA_Units, prettyNum(round(TR.target, 0), big.mark = ","), Vs30.target, p.target, Sites.caption)
+source(file.path(root, "scripts", "tbl", "PSA.sites.R"))
+TBL
+```
+
+:::
+
+```{r}
+#| include: false
+rm(Tn.target, TR.target, p.target, Vs30.target, PSA_Units, CAP, ID.target, Sites.caption)
+if (exists("Target", inherits = FALSE) && length(Target)) ID.target <- Target
+rm(list = intersect("Target", ls()))
+```

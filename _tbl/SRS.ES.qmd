@@ -1,0 +1,9 @@
+```{r}
+#| include: false
+CAP <- sprintf(
+  readCaption("tbl.SRS.ES"),
+  .requireOneTarget(.currentTarget("siteID.target"), "siteID.target", "caption de la tabla SRS")
+)
+```
+
+{{< include /_tbl/SRS.qmd >}}

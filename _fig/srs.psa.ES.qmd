@@ -1,0 +1,17 @@
+```{r}
+#| include: false
+SRS_SITE_TEXT <- .reportLabel()
+if (!nzchar(SRS_SITE_TEXT) && !is.null(params$site) && length(params$site)) {
+  SRS_SITE_TEXT <- trimws(as.character(params$site[[1L]]))
+}
+if (!nzchar(SRS_SITE_TEXT) && !is.null(params$location) && length(params$location)) {
+  SRS_SITE_TEXT <- trimws(as.character(params$location[[1L]]))
+}
+if (!nzchar(SRS_SITE_TEXT)) SRS_SITE_TEXT <- "el proyecto"
+CAPTION <- sprintf(
+  readCaption("fig.srs.psa.ES"),
+  SRS_SITE_TEXT
+)
+```
+
+{{< include /_fig/srs.psa.qmd >}}

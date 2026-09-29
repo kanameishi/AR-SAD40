@@ -1,0 +1,16 @@
+```{r}
+#| include: false
+Stage.label <- if (length(Standard.target) != 1L) NULL else switch(
+  Standard.target,
+  ANCOLD = "SEE",
+  CDA = "Cierre y cuidado pasivo",
+  "Cierre"
+)
+if (is.null(Stage.label)) Stage.label <- "Cierre"
+CAP <- paste0(
+  if (length(Standard.target) == 1L) paste0(Standard.target, ". ") else "", Stage.label, ". ",
+  readCaption("fig.DEQ.closure.ES")
+)
+```
+
+{{< include /_fig/DEQ.closure.qmd >}}

@@ -1,0 +1,27 @@
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("fig.RMw2D_cell")
+AUX <- .rmwStats(tn = Tn.target, tr = TR.target)
+CAP.txt <- CAP |> sprintf(
+  AUX$MwBlk, AUX$RBlk, Tn.target, prettyNum(round(AUX$TR, 0), big.mark = ","),
+  AUX$MwMode, AUX$RMode, AUX$pctMode, AUX$MwBar, AUX$RBar, SiteID.caption
+)
+```
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-rmw2d
+#| fig-cap: !expr CAP.txt
+source(file.path(root, "scripts", "fig/RMw2D.R"))
+PLOT
+```
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: false
+# CAP stays: the language wrapper defines it once for ALL panels of
+# the tabset loop; RMw2D.qmd clears it after the loop.
+rm(list = intersect(c("AUX", "CAP.txt"), ls()))
+```

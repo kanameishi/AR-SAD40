@@ -1,0 +1,37 @@
+```{r}
+#| include: false
+MCERIDHadTarget <- exists("ID.target", inherits = FALSE)
+MCERIDTarget <- .currentTarget("ID.target")
+MCERIDRequest <- MCERIDTarget
+if (!length(MCERIDRequest)) MCERIDRequest <- .currentTarget("ID.gmdp")
+ID.target <- .resolveIDTarget(
+  ASCETable,
+  "MCER table",
+  base = TRUE,
+  target = MCERIDRequest,
+  siteID = .currentTarget("siteID.target")
+)
+Vs30.target <- Vs30.gmdp
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.MCER")
+```
+
+&nbsp;
+
+```{r}
+#| include: true
+#| label: tbl-mcer
+#| tbl-cap: !expr CAP |> sprintf(.requireOneTarget(.currentTarget("siteID.target"), "siteID.target", "MCER caption"))
+source(file.path(root, "scripts", "tbl", "MCER.R"))
+TBL
+```
+
+&nbsp;
+
+```{r}
+#| include: false
+rm(ID.target, MCERIDRequest, Vs30.target, CAP)
+if (MCERIDHadTarget) ID.target <- MCERIDTarget
+rm(list = intersect(c(
+  "MCERIDHadTarget", "MCERIDTarget"
+), ls()))
+```

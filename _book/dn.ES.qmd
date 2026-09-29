@@ -1,0 +1,142 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+```
+
+# Coeficiente sísmico basado en desempeño {#sec-coefficients}
+
+{{< include /_chapters/dn.ensemble.es.md >}}
+
+{{< include /_chapters/dn.model.es.md >}}
+
+{{< include /_chapters/dn.uncertainty.es.md >}}
+
+## Desplazamientos y coeficientes sísmicos {#sec-newmark_results}
+
+Las figuras de desplazamientos sombrean los umbrales de daño del Capítulo [-@sec-criteria] como bandas de $D_n/H$ en el `r paste(.fmt(DAMAGE.CUTS, 1), collapse = ", ")`% de la altura del talud, y las figuras de coeficientes sombrean los mismos umbrales sobre el eje $D_a/H$; cada pestaña de demanda reúne las combinaciones material–geometría para un período de retorno o el MCE, con colores para los materiales y trazos y grosores para las geometrías.
+
+### Curvas de desplazamientos de Newmark {#sec-dn-curves}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .reportHeading(
+    .reportSite(SiteTable, i, "dn-curves", list(), "curvas de desplazamientos Newmark"),
+    heading = SiteTable$label[[i]],
+    level = 4L,
+    anchor = "sec-newmark-curves-site",
+    context = "curvas de desplazamientos Newmark",
+    kind = "multisite"
+  )
+  .knitReportBlock(
+    path = "/_fig/Dn.ES.qmd",
+    stem = "dn-curves",
+    sites = SiteTable,
+    i = i,
+    root = root,
+    context = "curvas de desplazamientos Newmark"
+  )
+}
+rm(i)
+```
+
+### Curvas de diseño — $k_{\max}$ {#sec-kmax-curves}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .reportHeading(
+    .reportSite(SiteTable, i, "kmax-curves", list(), "curvas de kmax basadas en desempeño"),
+    heading = SiteTable$label[[i]],
+    level = 4L,
+    anchor = "sec-kmax-curves-site",
+    context = "curvas de kmax basadas en desempeño",
+    kind = "multisite"
+  )
+  .knitReportBlock(
+    path = "/_fig/kmax.ES.qmd",
+    stem = "kmax-curves",
+    sites = SiteTable,
+    i = i,
+    root = root,
+    context = "curvas de kmax basadas en desempeño"
+  )
+}
+rm(i)
+```
+
+### Curvas de diseño — $k_h$ {#sec-kh-curves}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .reportHeading(
+    .reportSite(SiteTable, i, "kh-curves", list(), "curvas de kh basadas en desempeño"),
+    heading = SiteTable$label[[i]],
+    level = 4L,
+    anchor = "sec-kh-curves-site",
+    context = "curvas de kh basadas en desempeño",
+    kind = "multisite"
+  )
+  .knitReportBlock(
+    path = "/_fig/kh.ES.qmd",
+    stem = "kh-curves",
+    sites = SiteTable,
+    i = i,
+    root = root,
+    context = "curvas de kh basadas en desempeño"
+  )
+}
+rm(i)
+```
+
+### Tablas de diseño — $k_{\max}$ {#sec-kmax-tables}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/kmax.ES.qmd",
+    stem = "kmax-tables",
+    sites = SiteTable,
+    i = i,
+    vars = list(p.target = "mean"),
+    root = root,
+    heading = SiteTable$label[[i]],
+    level = 4L,
+    anchor = "sec-kmax-tables-site",
+    context = "kmax design tables"
+  )
+}
+rm(i)
+```
+
+### Tablas de diseño — $k_h$ {#sec-kh-tables}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/kh.ES.qmd",
+    stem = "kh-tables",
+    sites = SiteTable,
+    i = i,
+    vars = list(p.target = "mean"),
+    root = root,
+    heading = SiteTable$label[[i]],
+    level = 4L,
+    anchor = "sec-kh-tables-site",
+    context = "kh design tables"
+  )
+}
+rm(list = intersect(c(
+  "i", "SiteTable"
+), ls()))
+```

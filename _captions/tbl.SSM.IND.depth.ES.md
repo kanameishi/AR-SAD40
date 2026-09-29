@@ -1,0 +1,1 @@
+Arquitectura de profundidad sismogénica de las fuentes de área del modelo IND por tipo de región tectónica (TRT), en kilómetros. `z_upper` y `z_lower` son las profundidades sismogénicas superior e inferior; la última columna presenta la profundidad hipocentral media, asignada determinísticamente a cada zona como una distribución de valor único con probabilidad 1.0.

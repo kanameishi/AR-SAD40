@@ -1,0 +1,1 @@
+The ground-motion characterization adopts an independent logic tree for each tectonic region type present in the source model. The Ground Motion Prediction Models appendix documents, regime by regime, the branches that compose each tree -- each one a ground-motion prediction equation (GMPE) with its weight -- and the calibration context of each model.

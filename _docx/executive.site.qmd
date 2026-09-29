@@ -1,0 +1,135 @@
+::: {.content-hidden when-format='html'}
+
+## Seismic Hazard Assessment (PSHA / DSHA) {.unnumbered}
+
+:::
+
+{{< include /_chapters/psha.summary.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(path = "/_tbl/PGA.TR.qmd", stem = "exec-pga-tr", labels = "rewrite", vars = list(ID.target = ID.gmdp, siteID.target = SiteTable$siteID, TR.target = TR.gmdp, Vs30.target = Vs30.gmdp, PSA_Units = "cm/s2"), root = root)
+```
+
+{{< include /_chapters/site.summary.md >}}
+
+
+::: {.content-hidden when-format='html'}
+`r .deckNote("sha", "Seismic Hazard Assessment", "The hazard curves and probabilistic spectra are developed in the %s annex.")`
+:::
+
+```{r}
+#| echo: false
+#| results: asis
+if (!is.null(SelectionTable)) {
+  cat("::: {.content-hidden when-format='html'}\n## Seismic Record Selection\n:::\n\n")
+  NGR::knitBlock(
+    path = "/_chapters/srs.summary.md",
+    stem = "exec-srs-summary",
+    labels = "keep",
+    root = root
+  )
+  for (i in seq_len(nrow(SelectionTable))) {
+    .knitSelectionBlock(
+      path = "/_results/srs.results.qmd",
+      stem = "exec-srs-results",
+      selections = SelectionTable,
+      i = i,
+      root = root,
+      heading = SelectionTable$label[[i]],
+      level = 3L,
+      anchor = "sec-exec-srs-selection",
+      context = "SRS executive summary"
+    )
+  }
+  cat(sprintf(
+    "\n::: {.content-hidden when-format='html'}\n%s\n:::\n",
+    .deckNote("srs", "Seismic Record Selection", "The selected records and their verifications are presented in the %s annex.")
+  ))
+  rm(i)
+}
+```
+
+::: {.content-hidden when-format='html'}
+
+## Seismic Design Criteria for Tailings Storage Facilities {.unnumbered}
+
+:::
+
+{{< include /_chapters/deq.summary.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(path = "/_tbl/DEQ.PGA.qmd", stem = "exec-deq-pga", labels = "keep", vars = list(ID.target = ID.gmdp, siteID.target = SiteTable$siteID, Standard.target = "GISTM", Stage.target = "Operation", Vs30.target = 800, PSA_Units = "cm/s2"), root = root)
+```
+
+::: {.content-hidden when-format='html'}
+`r .deckNote("sdc", "Seismic Design Criteria", "The design criteria by standard and consequence classification are developed in the %s annex.")`
+:::
+
+::: {.content-hidden when-format='html'}
+
+## Seismic Design Criteria for Conventional Structures {.unnumbered}
+
+:::
+
+{{< include /_chapters/mcer.summary.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(path = "/_tbl/MCER.sites.qmd", stem = "exec-mcer-sites", labels = "keep", vars = list(ID.target = ID.gmdp, siteID.target = SiteTable$siteID, Vs30.target = Vs30.gmdp, PSA_Units = "cm/s2"), root = root)
+```
+
+::: {.content-hidden when-format='html'}
+`r .deckNote("sdc", "Seismic Design Criteria", "The structural design spectra and their parameters are developed in the %s annex.")`
+:::
+
+::: {.content-hidden when-format='html'}
+
+## Dynamic Properties of Slopes {.unnumbered}
+
+:::
+
+
+```{r}
+#| echo: false
+#| results: asis
+.knitReportBlock(
+  path = "/_results/ts.results.qmd",
+  stem = "exec-ts-results",
+  sites = SiteTable,
+  i = 1L,
+  root = root,
+  context = "ts executive results"
+)
+```
+
+::: {.content-hidden when-format='html'}
+`r .deckNote("gmdp", "Ground-Motion Design Parameters", "The fundamental periods and dynamic properties are detailed in the %s annex.")`
+:::
+
+::: {.content-hidden when-format='html'}
+
+## Performance-Based Seismic Coefficients {.unnumbered}
+
+:::
+
+{{< include /_chapters/kmax.summary.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(path = "/_tbl/kh.sites.qmd", stem = "exec-kh-sites", labels = "rewrite", vars = list(siteID.target = SiteTable$siteID, IDg.target = .summaryIDg(ShearTable, IDg.gmdp), IDm.target = IDm.gmdp), root = root)
+```
+
+::: {.content-hidden when-format='html'}
+`r .deckNote("gmdp", "Ground-Motion Design Parameters", "The seismic coefficients $k_{max}$ and $k_h$ are developed in the %s annex.")`
+:::
+
+```{r}
+#| include: false
+rm(list = intersect(c("siteID.target"), ls()))
+```

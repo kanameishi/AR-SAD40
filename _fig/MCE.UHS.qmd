@@ -1,0 +1,49 @@
+```{r}
+#| include: false
+source(file.path(root, "scripts", "setup", "mce.R"))
+Vs30.target <- 760
+SiteID.caption <- .requireOneTarget(
+  .currentTarget("siteID.target"), "siteID.target", "MCE spectrum caption"
+)
+if (!exists("Sa.log", inherits = FALSE)) Sa.log <- TRUE
+if (identical(ID.target, "MCE")) {
+  Scn <- NULL
+  if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("fig.MCE.envelope")
+  CAP <- CAP |>
+    sprintf(paste(p.target, collapse = ", "), Vs30.target, SiteID.caption)
+} else {
+  Scn <- ScenarioTable[ID %in% ID.target]
+  if ("siteID" %in% names(Scn) && exists("siteID.target", inherits = FALSE)) {
+    Scn <- Scn[siteID %in% siteID.target]
+  }
+  if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("fig.MCE.UHS")
+  CAP <- CAP |>
+    sprintf(
+      ID.target,
+      TRT.text[[Scn$TRT]],
+      Scn$Mw,
+      round(Scn$Repi),
+      paste(p.target, collapse = ", "),
+      Vs30.target,
+      SiteID.caption
+    )
+}
+```
+
+::: {.content-visible when-format='html'}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-mce-uhs
+#| fig-cap: !expr CAP
+source(file.path(root, "scripts", "fig", "UHS.R"))
+PLOT
+```
+
+:::
+
+```{r}
+#| include: false
+rm(list = intersect(c("CAP", "Scn", "SiteID.caption"), ls()))
+```

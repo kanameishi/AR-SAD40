@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+CAP <- readCaption(if (identical(ID.target, "MCE")) "tbl.MCE.envelope.ES" else "tbl.MCE.PSA.ES")
+```
+
+{{< include /_tbl/MCE.PSA.qmd >}}

@@ -1,0 +1,40 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+```
+
+# Seismic Design Criteria for Structures {#sec-structures}
+
+{{< include /_chapters/mcer.model.md >}}
+
+## Design Spectra {#sec-mcer_results}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/MCER.qmd",
+    stem = "structures-criteria",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "structural design criteria"
+  )
+  .knitReportBlock(
+    path = "/_fig/MCE.MDE.qmd",
+    stem = "structures-mcer",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "structural design criteria"
+  )
+}
+rm(list = intersect(c(
+  "i", "SiteTable"
+), ls()))
+```

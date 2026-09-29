@@ -1,0 +1,1 @@
+Aceleración máxima del terreno de los escenarios determinísticos para el sitio `%s`, por condición de sitio. Cada escenario $e$ reporta su PGA media (%s); las filas MCE reportan la envolvente determinística de los escenarios en su media y su percentil 84. Cada columna restante es una condición de sitio identificada por su velocidad de onda de corte promedio $V_{S30}$ (m/s).

@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+CAP <- readCaption("fig.UHS.compare.ES")
+```
+
+{{< include /_fig/UHS.compare.qmd >}}

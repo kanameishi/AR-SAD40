@@ -1,0 +1,3 @@
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Ground Motion Models"`
+
+{{< include /_fig/GMPE.PSA.qmd >}}

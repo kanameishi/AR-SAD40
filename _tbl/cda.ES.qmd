@@ -1,0 +1,22 @@
+```{r}
+#| include: false
+CAP <- readCaption("tbl.cda.ES")
+CdaTable <- data.table(
+  "Clase" = c("Low", "Significant", "High", "Very High", "Extreme"),
+  "Población en riesgo" = c("Ninguna", "Sólo temporal", "Permanente", "Permanente", "Permanente"),
+  "Pérdida de vidas" = c("0", "No especificada", "10 o menos", "100 o menos", "Más de 100"),
+  "Construcción, operación y transición" = c("1/100", "Entre 1/100 y 1/1,000", "1/2,475",
+    "1/2 entre 1/2,475 y 1/10,000, o MCE", "1/10,000, o MCE"),
+  "Cierre y cuidado pasivo" = c("1/1,000", "1/2,475", "1/2 entre 1/2,475 y 1/10,000, o MCE",
+    "1/10,000, o MCE", "1/10,000, o MCE")
+)
+CdaNotes <- c(
+  "CDA Technical Bulletin, Tabla 3-1, basada en la Tabla 2-1 de las CDA Dam Safety Guidelines",
+  "Probabilidad anual de excedencia de sismos, CDA Technical Bulletin, Tabla 3-3. ",
+  "El nivel 1/2,475 está vinculado al National Building Code of Canada",
+  "Probabilidad anual de excedencia de sismos, CDA Technical Bulletin, Tabla 4-2. ",
+  "El cierre bajo cuidado activo con monitoreo regular conserva los niveles de la Tabla 3-3"
+)
+```
+
+{{< include /_tbl/cda.qmd >}}

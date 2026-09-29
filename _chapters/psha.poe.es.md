@@ -1,0 +1,1 @@
+Las curvas de probabilidad de excedencia (PoE) reportan la probabilidad de superar un umbral de movimiento sísmico durante el período de exposición del proyecto. La desagregación magnitud-distancia cierra este capítulo.

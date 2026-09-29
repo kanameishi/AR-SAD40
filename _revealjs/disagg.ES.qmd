@@ -1,0 +1,16 @@
+
+
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Desagregación de Amenaza"`
+:::{.panel-tabset}
+
+
+
+### Mapa de calor $(M_w,R)$
+
+{{< include /_fig/RMw2D.ES.qmd >}}
+
+### Tablas $(M_w,R)$
+
+{{< include /_tbl/RMw.ES.qmd >}}
+
+:::

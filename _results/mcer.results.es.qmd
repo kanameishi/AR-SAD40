@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+source(file.path(root, "scripts", "setup", "structures.R"))
+```
+
+Para el sitio `r siteID.target` se obtuvieron los espectros MCER y los parámetros de diseño para las `r uniqueN(StructuresSummary$parameters$Vs30)` condiciones de sitio evaluadas ($V_{S30}$ de `r round(min(StructuresSummary$parameters$Vs30))` a `r round(max(StructuresSummary$parameters$Vs30))` m/s): $S_{DS}$ entre `r .fmt(min(StructuresSummary$parameters$SDS), 3)` y `r .fmt(max(StructuresSummary$parameters$SDS), 3)` g y $S_{D1}$ entre `r .fmt(min(StructuresSummary$parameters$SD1), 3)` y `r .fmt(max(StructuresSummary$parameters$SD1), 3)` g. La tabla siguiente resume los parámetros por condición de sitio.

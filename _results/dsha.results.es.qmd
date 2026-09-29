@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+source(file.path(root, "scripts", "setup", "dshaResults.R"))
+```
+
+En roca de referencia, $V_{S30}=760$ m/s, la PGA media de `r if (nrow(DSHASummary$scenarios) == 1L) "el escenario" else "cada escenario"` es `r paste(DSHASummary$scenarios[, sprintf("%s: %s", ID, .fmtSa(PGA.mean, PSA_Units))], collapse = "; ")` `r PSA_Units`. En PGA, `r DSHASummary$governorMean` define el máximo de las medias. Como referencia probabilística, la PGA media del espectro de amenaza uniforme para $T_R=10{,}000$ años es `r .fmtSa(DSHASummary$probabilisticPGA, PSA_Units)` `r PSA_Units`.

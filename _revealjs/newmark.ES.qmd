@@ -1,0 +1,15 @@
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Desplazamientos de Newmark $D_n$"` {.scrollable}
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path = "/_fig/Dn.ES.qmd",
+  stem = .composeTargetStem("dn-curves"),
+  labels = "rewrite",
+  vars = list(
+    p.target = "mean"
+  ),
+  root = root
+)
+```

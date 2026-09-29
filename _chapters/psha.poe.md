@@ -1,0 +1,1 @@
+Probability of exceedance (PoE) curves report the probability that a specified ground-motion intensity is exceeded over the project exposure interval. Magnitude-distance disaggregation closes this chapter.

@@ -1,0 +1,81 @@
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Probabilistic Hazard Assessment"`
+
+```{r}
+#| include: false
+.ID.BASE <- .currentTarget("ID.target")
+ID.target <- .resolveIDTarget(
+  AEPTable,
+  "hazard slide",
+  target = .ID.BASE,
+  siteID = .currentTarget("siteID.target"),
+  base = TRUE
+)
+.ID.BASE <- ID.target
+```
+
+:::{.panel-tabset }
+
+### Espectros de Amenaza Uniforme
+
+```{r}
+#| echo: false
+#| results: asis
+.SITE <- .currentTarget("siteID.target")
+.STEM <- if (is.character(.SITE) && length(.SITE) == 1L) paste0(tolower(.SITE), "-") else ""
+NGR::knitBlock(
+  path = "/_fig/UHS.TR.ES.qmd",
+  stem = paste0(.STEM, "uhs-tr"),
+  labels = "rewrite",
+  vars = list(ID.target = .ID.BASE, siteID.target = .SITE),
+  root = root
+)
+rm(list = intersect(c(
+  ".SITE", ".STEM"
+), ls()))
+```
+
+### PoE (Total)
+
+{{< include /_fig/POE.ES.qmd >}}
+
+```{r}
+#| echo: false
+#| results: asis
+if (!is.null(AEPSTable) && nrow(AEPSTable)) {
+  .SITE <- .currentTarget("siteID.target")
+  .STEM <- if (is.character(.SITE) && length(.SITE) == 1L) paste0(tolower(.SITE), "-") else ""
+  cat("\n### PoE (por fuente)\n\n")
+  ID.target <- .ID.BASE
+  NGR::knitBlock(path = "/_fig/POES.ES.qmd", stem = paste0(.STEM, "poes"), labels = "rewrite", root = root)
+  rm(.SITE, .STEM)
+}
+```
+
+### AEP (Total)
+
+```{r}
+#| include: false
+ID.target <- .ID.BASE
+```
+
+{{< include /_fig/AEP.ES.qmd >}}
+
+```{r}
+#| echo: false
+#| results: asis
+if (!is.null(AEPSTable) && nrow(AEPSTable)) {
+  .SITE <- .currentTarget("siteID.target")
+  .STEM <- if (is.character(.SITE) && length(.SITE) == 1L) paste0(tolower(.SITE), "-") else ""
+  cat("\n### AEP (por fuente)\n\n")
+  ID.target <- .ID.BASE
+  NGR::knitBlock(path = "/_fig/AEPS.ES.qmd", stem = paste0(.STEM, "aeps"), labels = "rewrite", root = root)
+  rm(.SITE, .STEM)
+}
+```
+
+:::
+
+```{r}
+#| include: false
+rm(list = intersect(c("ID.target", ".ID.BASE"), ls()))
+```

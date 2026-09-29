@@ -1,0 +1,8 @@
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-mce-mde-one
+#| fig-cap: !expr CAP |> sprintf(Vs30.target, SiteID.caption)
+source(file.path(root, "scripts", "fig/MCE.MDE.R"))
+PLOT
+```

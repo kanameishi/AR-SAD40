@@ -1,0 +1,97 @@
+:::{.content-hidden when-format='docx'}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+ID <- "PSV"
+```
+
+:::{.panel-tabset .full-width }
+
+#### H1
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+DIR <- "H1"
+source(file.path(root, "scripts", "fig", "PS.R"))
+```
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| label: fig-srs-psv-h1
+#| fig-cap: !expr sprintf(readCaption("fig.srs.ps"), ID, DIR)
+PLOT
+```
+
+#### H2
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+DIR <- "H2"
+source(file.path(root, "scripts", "fig", "PS.R"))
+```
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| label: fig-srs-psv-h2
+#| fig-cap: !expr sprintf(readCaption("fig.srs.ps"), ID, DIR)
+PLOT
+```
+
+#### UP
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+DIR <- "UP"
+source(file.path(root, "scripts", "fig", "PS.R"))
+```
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| label: fig-srs-psv-up
+#| fig-cap: !expr sprintf(readCaption("fig.srs.ps"), ID, DIR)
+PLOT
+```
+
+#### D50
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+DIR <- "D50"
+source(file.path(root, "scripts", "fig", "PS.R"))
+```
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| label: fig-srs-psv-d50
+#| fig-cap: !expr sprintf(readCaption("fig.srs.ps"), ID, DIR)
+PLOT
+```
+
+#### D100
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+DIR <- "D100"
+source(file.path(root, "scripts", "fig", "PS.R"))
+```
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| label: fig-srs-psv-d100
+#| fig-cap: !expr sprintf(readCaption("fig.srs.ps"), ID, DIR)
+PLOT
+```
+
+:::
+
+:::

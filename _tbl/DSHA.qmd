@@ -1,0 +1,42 @@
+```{r}
+#| include: false
+root <- here::here()
+if (!exists("PSA_Units") || !length(PSA_Units)) PSA_Units <- "g"
+if (!exists("Vs30.target", inherits = FALSE) || length(Vs30.target) != 1L) Vs30.target <- 760
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.DSHA")
+```
+
+::: {.content-visible when-format='docx'}
+
+&nbsp;
+
+```{r}
+#| eval: !expr knitr::pandoc_to("docx")
+#| include: true
+#| label: tbl-dsha-docx
+#| tbl-cap: !expr CAP |> sprintf(Vs30.target, PSA_Units, .requireOneTarget(.currentTarget("siteID.target"), "siteID.target", "DSHA table caption"))
+source(file.path(root, "scripts", "tbl", "DSHA.R"))
+TBL
+```
+
+&nbsp;
+
+:::
+
+::: {.content-visible when-format='html'}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: tbl-dsha
+#| tbl-cap: !expr CAP |> sprintf(Vs30.target, PSA_Units, .requireOneTarget(.currentTarget("siteID.target"), "siteID.target", "DSHA table caption"))
+source(file.path(root, "scripts", "tbl", "DSHA.R"))
+TBL
+```
+
+:::
+
+```{r}
+#| include: false
+rm(list = intersect("CAP", ls()))
+```

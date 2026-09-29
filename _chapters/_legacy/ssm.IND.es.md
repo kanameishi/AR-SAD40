@@ -1,0 +1,5 @@
+
+
+El modelo de fuentes sísmicas (SSM) define la distribución espacial, la geometría y las tasas de ocurrencia de terremotos de todas las fuentes sismogénicas consideradas capaces de contribuir a la amenaza sísmica en un sitio. En la integral de amenaza ([-@eq-hazard-integral]), el SSM proporciona las distribuciones magnitud-frecuencia $f_{M,s}(m)$, las distribuciones espaciales $f_{\mathbf{R}|M,s}(\mathbf{r}|m)$, las tasas de ocurrencia $\nu_0^{(s)}$ y la magnitud máxima $M_{\max}^{(s)}$ para cada fuente $s$ [@Cornell1968; @SSHAC1997]. La incertidumbre epistémica en estos parámetros se captura mediante el árbol lógico del modelo de fuentes descrito en [@sec-ssm].
+
+Este apéndice documenta el SSM del subcontinente indio adoptado en esta evaluación, incluidos el inventario de fuentes, la estructura del árbol lógico, los parámetros de recurrencia, los tipos de distribución magnitud-frecuencia, las relaciones de escalamiento magnitud-área, la caracterización de magnitud máxima y la arquitectura de profundidad sismogénica. El modelo se implementa en OpenQuake Engine mediante archivos XML de modelo de fuentes referenciados por el árbol lógico.

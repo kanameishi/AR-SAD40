@@ -1,0 +1,13 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+```
+
+# Criterios sísmicos normativos para depósitos de relaves {#sec-tsf-criteria-appendix}
+
+{{< include /_tbl/gistm.ES.qmd >}}
+
+{{< include /_tbl/cda.ES.qmd >}}
+
+{{< include /_tbl/ancold.ES.qmd >}}

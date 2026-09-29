@@ -1,0 +1,138 @@
+
+```{r}
+#| include: true
+Stage.target <- "Operation"
+if (!exists("Stage.label", inherits = FALSE)) {
+  Stage.label <- if (length(Standard.target) != 1L) NULL else switch(
+    Standard.target,
+    ANCOLD = "OBE",
+    CDA = "Construction, Operation and Transition",
+    GISTM = "Operations and Active-Care Closure",
+    Stage.target
+  )
+}
+if (is.null(Stage.label)) Stage.label <- "Operation"
+if (!exists("CAP", inherits = FALSE)) {
+  CAP <- paste0(
+    if (length(Standard.target) == 1L) paste0(Standard.target, ". ") else "", Stage.label, ". ",
+    readCaption("fig.DEQ.operation")
+  )
+}
+ID.target <- .resolveIDTarget(
+  DEQTable,
+  "DEQ.operation figure",
+  base = TRUE,
+  target = .currentTarget("ID.target"),
+  siteID = .currentTarget("siteID.target")
+)
+Sa.log <- TRUE
+Tn.log <- TRUE
+root <- here::here()
+SiteID.caption <- .requireOneTarget(
+  .currentTarget("siteID.target"), "siteID.target", "DEQ operation figure caption"
+)
+```
+
+:::{.content-visible when-format='docx'}
+
+```{r}
+#| include: true
+#| label: fig-deq-operation-vs30-800-docx
+#| fig-cap: !expr CAP |> sprintf(800, SiteID.caption)
+Vs30.target <- 800
+source(file.path(root, "scripts", "fig/DEQ.R"))
+PLOT
+```
+
+:::
+
+:::{.content-hidden when-format='docx'}
+:::{.panel-tabset .full-width }
+
+#### `r Site.label[7]`
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-deq-operation-vs30-1500
+#| fig-cap: !expr CAP |> sprintf(Vs30.gmdp[7], SiteID.caption)
+Vs30.target <- Vs30.gmdp[7]
+source(file.path(root, "scripts", "fig/DEQ.R"))
+PLOT
+```
+
+#### `r Site.label[6]`
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-deq-operation-vs30-1250
+#| fig-cap: !expr CAP |> sprintf(Vs30.gmdp[6], SiteID.caption)
+Vs30.target <- Vs30.gmdp[6]
+source(file.path(root, "scripts", "fig/DEQ.R"))
+PLOT
+```
+
+#### `r Site.label[5]`
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-deq-operation-vs30-800
+#| fig-cap: !expr CAP |> sprintf(Vs30.gmdp[5], SiteID.caption)
+Vs30.target <- Vs30.gmdp[5]
+source(file.path(root, "scripts", "fig/DEQ.R"))
+PLOT
+```
+
+#### `r Site.label[4]`
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-deq-operation-vs30-560
+#| fig-cap: !expr CAP |> sprintf(Vs30.gmdp[4], SiteID.caption)
+Vs30.target <- Vs30.gmdp[4]
+source(file.path(root, "scripts", "fig/DEQ.R"))
+PLOT
+```
+
+#### `r Site.label[3]`
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-deq-operation-vs30-360
+#| fig-cap: !expr CAP |> sprintf(Vs30.gmdp[3], SiteID.caption)
+Vs30.target <- Vs30.gmdp[3]
+source(file.path(root, "scripts", "fig/DEQ.R"))
+PLOT
+```
+
+
+#### `r Site.label[2]`
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-deq-operation-vs30-270
+#| fig-cap: !expr CAP |> sprintf(Vs30.gmdp[2], SiteID.caption)
+Vs30.target <- Vs30.gmdp[2]
+source(file.path(root, "scripts", "fig/DEQ.R"))
+PLOT
+```
+
+#### `r Site.label[1]`
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-deq-operation-vs30-180
+#| fig-cap: !expr CAP |> sprintf(Vs30.gmdp[1], SiteID.caption)
+Vs30.target <- Vs30.gmdp[1]
+source(file.path(root, "scripts", "fig/DEQ.R"))
+PLOT
+```
+
+:::
+:::
+
+```{r}
+#| include: false
+rm(ID.target, Stage.target, Stage.label, Vs30.target, Sa.log, Tn.log, CAP, SiteID.caption)
+```

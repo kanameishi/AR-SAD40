@@ -1,0 +1,52 @@
+```{r }
+#| include: true
+Target <- .currentTarget("ID.target")
+if (!exists("p.target") || !length(p.target)) p.target <- p.gmdp
+ID.target <- .resolveIDTarget(
+  UHSTable,
+  "AF.qmd",
+  target = Target,
+  siteID = .currentTarget("siteID.target"),
+  base = TRUE
+)
+AF.log   <- FALSE
+Tn.log   <- TRUE
+TR.label <- prettyNum(TR.gmdp, big.mark = ",", scientific = FALSE)
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("fig.AF")
+if (!exists("CAP.MCE", inherits = FALSE)) CAP.MCE <- readCaption("fig.AF.MCE")
+SiteID.caption <- .requireOneTarget(
+  .currentTarget("siteID.target"), "siteID.target", "AF caption"
+)
+```
+
+::: {.content-visible when-format='html'}
+:::{.panel-tabset .full-width }
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| results: asis
+for (k in seq_along(TR.gmdp)) {
+  cat("\n### $", TR.label[k], "$\n\n", sep = "")
+  NGR::knitBlock(path = "/_fig/AF.Vs30.qmd", stem = .composeTargetStem(paste0("af-tr", k)), labels = "rewrite", vars = list(TR.target = TR.gmdp[k]), root = root)
+}
+if (!is.null(MCETable) && nrow(MCETable)) {
+  cat("\n### MCE\n\n")
+  NGR::knitBlock(path = "/_fig/AF.Vs30.qmd", stem = .composeTargetStem("af-mce"), labels = "rewrite", vars = list(ID.target = "MCE", CAP = CAP.MCE), root = root)
+}
+rm(k)
+```
+
+
+:::
+:::
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "ID.target", "p.target", "AF.log", "Tn.log", "TR.target", "Vs30.target",
+  "TR.label", "CAP", "CAP.MCE", "SiteID.caption"
+), ls()))
+if (exists("Target", inherits = FALSE) && length(Target)) ID.target <- Target
+rm(list = intersect("Target", ls()))
+```

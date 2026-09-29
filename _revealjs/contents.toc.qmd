@@ -1,0 +1,16 @@
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Contents"`
+
+::: {.index}
+
+```{r}
+#| label: toc-decks
+#| echo: false
+#| results: asis
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "toc.R"))
+knitTocContents(root,
+  scope = if (exists("TOC.scope", inherits = FALSE)) TOC.scope else "main",
+  language = if (exists("TOC.language", inherits = FALSE)) TOC.language else "en")
+```
+
+:::

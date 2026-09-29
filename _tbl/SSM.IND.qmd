@@ -1,0 +1,122 @@
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) {
+  CAP <- stats::setNames(
+    lapply(
+      c("inventory", "lt", "recurrence", "depth"),
+      function(key) readCaption(sprintf("tbl.SSM.IND.%s", key))
+    ),
+    c("inventory", "lt", "recurrence", "depth")
+  )
+}
+```
+
+&nbsp;
+
+```{r}
+#| label: tbl-ssm-ind-inventory
+#| tbl-cap: !expr CAP$inventory
+
+DT <- data.table::data.table(
+  TRT   = c("SIS", "SIF", "SCC", "ASC", "Total"),
+  Area  = c(35L, 27L, 17L, 29L, 108L),
+  Point = c(139942L, 123748L, 94433L, 84966L, 443089L),
+  Total = c(139977L, 123775L, 94450L, 84995L, 443197L)
+)
+
+TBL <- DT |> buildTable(
+  library = "flextable",
+  align.body = "center",
+  font.size.body = FONT.SIZE.BODY,
+  font.size.header = FONT.SIZE.HEADER
+) |>
+  flextable::set_table_properties(layout = "autofit")
+TBL <- flextable::align(TBL, j = c("Area", "Point", "Total"), align = "right", part = "body")
+TBL
+```
+
+&nbsp;
+
+```{r}
+#| label: tbl-ssm-ind-lt
+#| tbl-cap: !expr CAP$lt
+
+DT <- data.table::data.table(
+  `Set` = c(1L, 2L, 3L),
+  `Parameter` = c("Source model", "Mmax", "b"),
+  `Branches (value, weight)` = c(
+    "b1m1 areal model (0.40); b1m2 smoothed grid, threshold 4.5 (0.27); b1m3 smoothed grid, threshold 5.5 (0.33)",
+    "-0.3 (0.32); 0.0 (0.36); +0.3 (0.32)",
+    "-0.1 (0.32); 0.0 (0.36); +0.1 (0.32)"
+  )
+)
+
+TBL <- DT |> buildTable(
+  library = "flextable",
+  align.body = "center",
+  font.size.body = FONT.SIZE.BODY,
+  font.size.header = FONT.SIZE.HEADER
+) |>
+  flextable::set_table_properties(layout = "autofit")
+TBL
+```
+
+&nbsp;
+
+```{r}
+#| label: tbl-ssm-ind-recurrence
+#| tbl-cap: !expr CAP$recurrence
+
+DT <- data.table::data.table(
+  TRT   = c("ASC", "SCC", "SIF", "SIS"),
+  MFD   = c("truncGR", "truncGR", "truncGR", "truncGR"),
+  a     = c("2.73–7.08", "1.58–4.84", "3.12–5.40", "3.22–7.33"),
+  b     = c("0.72–1.37", "0.63–1.19", "0.72–1.24", "0.80–1.57"),
+  Mmin  = c("4.5", "4.5", "4.5", "4.5–7.5"),
+  Mmax  = c("7.0–8.8", "6.0–8.2", "6.5–9.4", "6.5–8.6"),
+  Low   = c("6.7–8.5", "5.7–7.9", "6.2–9.1", "6.2–8.3"),
+  High  = c("7.3–9.1", "6.3–8.5", "6.8–9.7", "6.8–8.9"),
+  N     = c(29L, 17L, 27L, 35L)
+)
+
+TBL <- DT |> buildTable(
+  library = "flextable",
+  align.body = "center",
+  font.size.body = FONT.SIZE.BODY,
+  font.size.header = FONT.SIZE.HEADER
+) |>
+  .mathHeader(c(a = "a", b = "b", Mmin = "M_{min}", Mmax = "M_{max}", N = "N")) |>
+  flextable::set_table_properties(layout = "autofit")
+TBL <- flextable::align(TBL, j = "N", align = "right", part = "body")
+TBL
+```
+
+&nbsp;
+
+```{r}
+#| label: tbl-ssm-ind-depth
+#| tbl-cap: !expr CAP$depth
+
+DT <- data.table::data.table(
+  TRT = c("ASC", "SCC", "SIF", "SIS"),
+  `z_upper (km)` = c("0", "0–25", "0–70", "25–180"),
+  `z_lower (km)` = c("25", "25–70", "25–180", "70–300"),
+  `Mean hypocentral depth (km)` = c("15", "15–25", "15–70", "25–180")
+)
+
+TBL <- DT |> buildTable(
+  library = "flextable",
+  align.body = "center",
+  font.size.body = FONT.SIZE.BODY,
+  font.size.header = FONT.SIZE.HEADER
+) |>
+  flextable::set_table_properties(layout = "autofit")
+TBL
+```
+
+&nbsp;
+
+```{r}
+#| include: false
+rm(DT, TBL, CAP)
+```

@@ -1,0 +1,24 @@
+```{r}
+#| include: false
+root <- here::here()
+if (!exists("PSA_Units") || !length(PSA_Units)) PSA_Units <- "g"
+if (!exists("p.target") || !length(p.target)) p.target <- c("0.50", "0.84", "0.90", "0.95", "mean")
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption(if (identical(ID.target, "MCE")) "tbl.MCE.envelope" else "tbl.MCE.PSA")
+```
+
+&nbsp;
+
+```{r}
+#| include: true
+#| label: tbl-mce-psa
+#| tbl-cap: !expr CAP |> sprintf(ID.target, PSA_Units, paste(p.target, collapse = ", "), .requireOneTarget(.currentTarget("siteID.target"), "siteID.target", "MCE PSA table caption"))
+source(file.path(root, "scripts", "tbl", "MCE.PSA.R"))
+TBL
+```
+
+&nbsp;
+
+```{r}
+#| include: false
+rm(list = intersect("CAP", ls()))
+```

@@ -1,0 +1,43 @@
+
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.Scenarios.PGA")
+if (!exists("Vs30.target") || !length(Vs30.target)) Vs30.target <- Vs30.gmdp
+if (!exists("PSA_Units") || !length(PSA_Units)) PSA_Units <- "g"
+root <- here::here()
+```
+
+::: {.content-visible when-format='docx'}
+
+&nbsp;
+
+```{r}
+#| eval: !expr knitr::pandoc_to("docx")
+#| include: true
+#| label: tbl-scenarios-pga-docx
+#| tbl-cap: !expr CAP |> sprintf(.requireOneTarget(.currentTarget("siteID.target"), "siteID.target", "Scenarios.PGA caption"), PSA_Units)
+source(file.path(root, "scripts", "tbl", "Scenarios.PGA.R"))
+TBL
+```
+
+&nbsp;
+
+:::
+
+::: {.content-visible when-format='html'}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: tbl-scenarios-pga
+#| tbl-cap: !expr CAP |> sprintf(.requireOneTarget(.currentTarget("siteID.target"), "siteID.target", "Scenarios.PGA caption"), PSA_Units)
+source(file.path(root, "scripts", "tbl", "Scenarios.PGA.R"))
+TBL
+```
+
+:::
+
+```{r}
+#| include: false
+rm(Vs30.target, PSA_Units, CAP)
+```

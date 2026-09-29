@@ -1,0 +1,25 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+```
+
+# Introducción
+
+```{r}
+#| echo: false
+#| results: asis
+.localChapter("intro.background.es.md", root, heading = "Antecedentes")
+```
+
+## Objetivos
+
+{{< include /_chapters/intro.objectives.es.md >}}
+
+## Formato
+
+{{< include /_chapters/intro.format.es.md >}}
+
+## Descargo de responsabilidad
+
+{{< include /_chapters/intro.disclaimer.es.md >}}

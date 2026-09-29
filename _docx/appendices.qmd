@@ -1,0 +1,49 @@
+# Appendices
+
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+```
+
+## Notation {#sec-notation}
+
+{{< include /_chapters/notation.md >}}
+
+## Ground Motion Prediction Equations (GMPE)
+
+### Active Shallow Crust (ASC)
+
+{{< include /_chapters/gmm.ASC.md >}}
+
+### Stable Continental Crust (SCC)
+
+{{< include /_chapters/gmm.SCC.md >}}
+
+### Subduction Interface (SIF)
+
+{{< include /_chapters/gmm.SIF.md >}}
+
+### Subduction Intraslab (SIS)
+
+{{< include /_chapters/gmm.SIS.md >}}
+
+## Normative Seismic Criteria for Tailings Storage Facilities {#sec-tsf-criteria-appendix}
+
+{{< include /_tbl/gistm.qmd >}}
+
+{{< include /_tbl/cda.qmd >}}
+
+{{< include /_tbl/ancold.qmd >}}
+
+## Site Classification and Ground Properties {#sec-site_model}
+
+### Site Classification {#sec-classification}
+
+{{< include /_chapters/site.Vs30.md >}}
+
+{{< include /_chapters/site.appendix.md >}}
+
+## Newmark Permanent-Displacement Formulations {#sec-newmark-appendix}
+
+{{< include /_chapters/dn.appendix.md >}}

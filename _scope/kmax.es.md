@@ -1,0 +1,1 @@
+**Criterios de diseño sísmico para botaderos y depósitos de relaves.** Estimación de los desplazamientos permanentes máximos esperados en cuñas de deslizamiento representativas de los depósitos de relaves, los botaderos de estériles y los taludes de banco, y definición de un coeficiente sísmico pseudoestático horizontal calibrado para distintos niveles de deformación admisible.

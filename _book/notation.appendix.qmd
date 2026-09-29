@@ -1,0 +1,9 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+```
+
+# Notation {#sec-notation}
+
+{{< include /_chapters/notation.md >}}

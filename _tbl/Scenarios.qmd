@@ -1,0 +1,41 @@
+
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.Scenarios")
+root <- here::here()
+```
+
+::: {.content-visible when-format='docx'}
+
+&nbsp;
+
+```{r}
+#| eval: !expr knitr::pandoc_to("docx")
+#| include: true
+#| label: tbl-scenarios-docx
+#| tbl-cap: !expr CAP |> sprintf(.requireOneTarget(.currentTarget("siteID.target"), "siteID.target", "Scenarios caption"))
+source(file.path(root, "scripts", "tbl", "Scenarios.R"))
+TBL
+```
+
+&nbsp;
+
+:::
+
+::: {.content-visible when-format='html'}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: tbl-scenarios
+#| tbl-cap: !expr CAP |> sprintf(.requireOneTarget(.currentTarget("siteID.target"), "siteID.target", "Scenarios caption"))
+source(file.path(root, "scripts", "tbl", "Scenarios.R"))
+TBL
+```
+
+:::
+
+```{r}
+#| include: false
+rm(CAP)
+```

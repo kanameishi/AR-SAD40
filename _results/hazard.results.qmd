@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+source(file.path(root, "scripts", "setup", "hazardResults.R"))
+```
+
+At reference rock ($V_{S30}=760$ m/s), the mean PGA ranges from `r HazardSummary$pga[Vs30 == 760 & p == "mean", .fmtSa(min(SaF), PSA_Units)]` to `r HazardSummary$pga[Vs30 == 760 & p == "mean", .fmtSa(max(SaF), PSA_Units)]` `r PSA_Units` for return periods between `r HazardSummary$pga[Vs30 == 760 & p == "mean", .fmti(min(TR))]` and `r HazardSummary$pga[Vs30 == 760 & p == "mean", .fmti(max(TR))]` years. The following table reports the mean PGA by return period and site condition, together with the deterministic MCE envelopes.

@@ -1,0 +1,7 @@
+
+```{r}
+#| include: false
+CAP <- readCaption("tbl.DEQ.PGA.ES")
+```
+
+{{< include /_tbl/DEQ.PGA.qmd >}}

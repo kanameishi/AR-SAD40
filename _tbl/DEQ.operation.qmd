@@ -1,0 +1,132 @@
+
+```{r}
+#| include: true
+root <- here::here()
+ID.target <- .resolveIDTarget(
+  DEQTable,
+  "DEQ.operation.qmd",
+  base = TRUE,
+  target = .currentTarget("ID.target"),
+  siteID = .currentTarget("siteID.target")
+)
+if (!exists("Tn.target") || !length(Tn.target)) Tn.target <- 0
+if (!exists("PSA_Units") || !length(PSA_Units)) PSA_Units <- "cm/s2"
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.DEQ.operation")
+Stage.target <- "Operation"
+SiteID.caption <- .requireOneTarget(
+  .currentTarget("siteID.target"), "siteID.target", "DEQ operation table caption"
+)
+```
+
+:::{.content-visible when-format='docx'}
+
+&nbsp;
+
+```{r}
+#| eval: !expr knitr::pandoc_to("docx")
+#| include: true
+#| label: tbl-deq-operation-vs30-800-docx
+#| tbl-cap: !expr CAP |> sprintf(PSA_Units, paste(Standard.target, collapse = ", "), 800, SiteID.caption)
+Vs30.target <- 800
+source(file.path(root, "scripts", "tbl/DEQ.R"))
+TBL
+```
+
+&nbsp;
+
+:::
+
+:::{.content-hidden when-format='docx'}
+:::{`r if (knitr::is_html_output()) ".panel-tabset .full-width" else ".docx-tabset-disabled"`}
+
+#### `r Site.label[7]`
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: tbl-deq-operation-vs30-1500
+#| tbl-cap: !expr CAP |> sprintf(PSA_Units, paste(Standard.target, collapse = ", "), Vs30.gmdp[7], SiteID.caption)
+Vs30.target <- Vs30.gmdp[7]
+source(file.path(root, "scripts", "tbl/DEQ.R"))
+TBL
+```
+
+#### `r Site.label[6]`
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: tbl-deq-operation-vs30-1250
+#| tbl-cap: !expr CAP |> sprintf(PSA_Units, paste(Standard.target, collapse = ", "), Vs30.gmdp[6], SiteID.caption)
+Vs30.target <- Vs30.gmdp[6]
+source(file.path(root, "scripts", "tbl/DEQ.R"))
+TBL
+```
+
+#### `r Site.label[5]`
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: tbl-deq-operation-vs30-800
+#| tbl-cap: !expr CAP |> sprintf(PSA_Units, paste(Standard.target, collapse = ", "), Vs30.gmdp[5], SiteID.caption)
+Vs30.target <- Vs30.gmdp[5]
+source(file.path(root, "scripts", "tbl/DEQ.R"))
+TBL
+```
+
+#### `r Site.label[4]`
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: tbl-deq-operation-vs30-560
+#| tbl-cap: !expr CAP |> sprintf(PSA_Units, paste(Standard.target, collapse = ", "), Vs30.gmdp[4], SiteID.caption)
+Vs30.target <- Vs30.gmdp[4]
+source(file.path(root, "scripts", "tbl/DEQ.R"))
+TBL
+```
+
+#### `r Site.label[3]`
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: tbl-deq-operation-vs30-360
+#| tbl-cap: !expr CAP |> sprintf(PSA_Units, paste(Standard.target, collapse = ", "), Vs30.gmdp[3], SiteID.caption)
+Vs30.target <- Vs30.gmdp[3]
+source(file.path(root, "scripts", "tbl/DEQ.R"))
+TBL
+```
+
+#### `r Site.label[2]`
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: tbl-deq-operation-vs30-270
+#| tbl-cap: !expr CAP |> sprintf(PSA_Units, paste(Standard.target, collapse = ", "), Vs30.gmdp[2], SiteID.caption)
+Vs30.target <- Vs30.gmdp[2]
+source(file.path(root, "scripts", "tbl/DEQ.R"))
+TBL
+```
+
+#### `r Site.label[1]`
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: tbl-deq-operation-vs30-180
+#| tbl-cap: !expr CAP |> sprintf(PSA_Units, paste(Standard.target, collapse = ", "), Vs30.gmdp[1], SiteID.caption)
+Vs30.target <- Vs30.gmdp[1]
+source(file.path(root, "scripts", "tbl/DEQ.R"))
+TBL
+```
+
+:::
+:::
+
+```{r}
+#| include: false
+rm(ID.target, Tn.target, Vs30.target, PSA_Units, Stage.target, CAP, SiteID.caption)
+```

@@ -1,0 +1,1 @@
+Material scenarios representative of most of the universe of slope and geostructure materials — among them tailings storage facilities (TSF) and waste rock dumps (WRD) — used in the Newmark displacement and fundamental-period analyses, with the slope materials classified per the Unified Soil Classification System (USCS).

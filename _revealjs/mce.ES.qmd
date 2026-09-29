@@ -1,0 +1,86 @@
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Deterministic Hazard Assessment"`
+
+```{r}
+#| include: false
+root <- normalizePath(here::here())
+# MCE products carry no TR and use their own fractile set: clear pins
+# left in the global env by earlier slides before any child knits.
+rm(list = intersect(c("TR.target", "p.target"), ls()))
+SiteID.target <- .currentTarget("siteID.target")
+ID.target <- sort(unique(MCETable[
+  !ID %in% c("MCE", "max", "min") & !grepl("\\.(site|oq|max)$", ID),
+  ID
+]))
+if (!length(SiteID.target)) SiteID.target <- siteID.gmdp[[1L]]
+siteID.target <- SiteID.target
+Vs30.target <- 760
+.IDS <- c(ID.target, "MCE")
+.SITE <- if (length(siteID.target) == 1L) tolower(siteID.target) else NULL
+.P.curves <- c("0.84", "0.90", "0.95", "mean")
+.P.tables <- c("0.84", "0.90", "0.95", "mean")
+```
+
+:::{.panel-tabset .full-width}
+
+### Medianas de los espectros de respuesta
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path = "/_fig/GMPE.PSA.ES.qmd",
+  stem = paste(c(.SITE, "gmm-psa"), collapse = "-"),
+  labels = "rewrite",
+  vars = list(siteID.target = siteID.target),
+  root = root
+)
+```
+
+### MCE
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path = "/_fig/MCE.UHS.ES.qmd",
+  stem = paste(c(.SITE, "mce", "hazard-spectrum"), collapse = "-"),
+  labels = "rewrite",
+  vars = list(
+    ID.target = "MCE",
+    siteID.target = siteID.target,
+    p.target = .P.curves,
+    Sa.log = TRUE
+  ),
+  root = root
+)
+```
+
+### Resumen
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path = "/_tbl/MCE.PGA.ES.qmd",
+  stem = paste(c(.SITE, "mce-pga"), collapse = "-"),
+  labels = "rewrite",
+  vars = list(
+    ID.target = .IDS,
+    siteID.target = siteID.target,
+    p.target = .P.tables
+  ),
+  root = root
+)
+```
+
+:::
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "ID.target", "siteID.target", "Vs30.target", ".SITE", ".IDS",
+  ".P.curves", ".P.tables", "p.target", "TRT.text", ".mceBullet"
+), ls()))
+siteID.target <- SiteID.target
+rm(SiteID.target)
+```

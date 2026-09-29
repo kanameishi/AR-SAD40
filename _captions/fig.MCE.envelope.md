@@ -1,0 +1,1 @@
+Maximum credible earthquake (MCE) envelope over the deterministic scenarios: fractiles of the total-variability mixture at the probability levels $p = %s$ of the maximum horizontal spectral acceleration $S_a(T_n)$, in $g$, with 5%% critical damping, at the reference rock condition $V_{S30} = %.0f$ m/s. Site `%s`.

@@ -1,0 +1,1 @@
+Envolvente del sismo máximo creíble (MCE) sobre los escenarios determinísticos: fractiles de la mezcla de variabilidad total en los niveles de probabilidad $p = %s$ de la aceleración espectral horizontal máxima $S_a(T_n)$, en $g$, con 5%% de amortiguamiento crítico, en la condición de roca de referencia $V_{S30} = %.0f$ m/s. Sitio `%s`.

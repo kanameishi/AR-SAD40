@@ -1,0 +1,28 @@
+```{r}
+#| include: true
+source(file.path(root,"scripts","fig/seismicity.R"))
+LEGEND <- ""
+if (Available) {
+  if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("fig.seismicity.ES")
+  if (!exists("CAP.same", inherits = FALSE)) CAP.same <- readCaption("fig.seismicity.same.ES")
+  LEGEND <- glue::glue(if (key.Mw == key.Rhyp) CAP.same else CAP)
+}
+```
+
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Sismicidad Regional"`
+
+```{r}
+#| include: true
+#| fig-label: fig_byEvent
+#| fig-cap: !expr sprintf(LEGEND)
+
+```
+
+<iframe src="mapper/byEvent/index.html" width="100%" height="900px"></iframe>
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "EVENTS", "MCE.Mw", "MCE.Rhyp", "key.Mw", "key.Rhyp", "Available", "CAP", "CAP.same", "LEGEND"
+), ls()))
+```

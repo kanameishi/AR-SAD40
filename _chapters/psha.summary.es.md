@@ -1,0 +1,1 @@
+La tabla siguiente reúne la PGA probabilística y determinística para las condiciones de sitio evaluadas. El MDE corresponde al período de retorno de 10,000 años; el MCE y el MCE (84 %) corresponden a las envolventes determinísticas de las medias y los percentiles 84, respectivamente.

@@ -1,0 +1,11 @@
+{{< include /_revealjs/tabreflow.qmd >}}
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Contenidos"`
+
+::: {.index}
+
+- [ ] Criterios de Diseño GISTM
+- [ ] Criterios de Diseño ANCOLD
+- [ ] Criterios de Diseño CDA
+- [ ] Criterios de Diseño ASCE-7
+
+:::

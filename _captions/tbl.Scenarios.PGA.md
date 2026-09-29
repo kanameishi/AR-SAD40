@@ -1,0 +1,1 @@
+Peak ground acceleration of the deterministic scenarios for site `%s`, by site condition. Each scenario $e$ reports its mean PGA (%s); the MCE rows report the mean and 84th-percentile deterministic envelope of the scenarios. Each remaining column is a site condition identified by its time-averaged shear-wave velocity $V_{S30}$ (m/s).

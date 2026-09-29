@@ -1,0 +1,7 @@
+```{r}
+#| echo: false
+#| results: asis
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "cover.R"))
+knitSignaturePpt(params, language = "en")
+```

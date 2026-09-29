@@ -1,0 +1,1 @@
+AEP curves report the mean annual exceedance rate, $\lambda_I$, in $1/\text{year}$ for each ground-motion threshold. Total hazard curves integrate the contribution of all sources considered; by-source curves retain the individual contribution. The exact probability for an exposure interval is presented in the PoE curves.

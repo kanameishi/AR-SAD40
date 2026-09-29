@@ -1,0 +1,57 @@
+```{r}
+#| include: true
+root <- here::here()
+if (!exists("TR.target") || !length(TR.target))   TR.target   <- TR.gmdp[6]
+if (!exists("IDg.target") || !length(IDg.target)) IDg.target  <- IDg.gmdp[4]
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.Ts")
+```
+
+
+:::{.content-visible when-format='docx'}
+
+&nbsp;
+
+```{r}
+#| eval: !expr knitr::pandoc_to("docx")
+#| include: true
+#| label: tbl-idg-0
+#| tbl-cap: !expr CAP |> sprintf(IDg.target|> gsub(pattern="S",replacement="") |> as.numeric())
+p.target <- c("mean")
+source(file.path(root,"scripts","tbl/Ts.R"))
+TBL
+```
+
+&nbsp;
+
+:::
+
+
+:::{.content-hidden when-format='docx'}
+
+:::{`r if (knitr::is_html_output()) ".panel-tabset .full-width" else ".docx-tabset-disabled"`}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| results: asis
+p.target <- c("mean")
+for (IDgTab in IDg.gmdp) {
+  cat("\n#### ", IDgTab, "\n\n", sep = "")
+  NGR::knitBlock(path = "/_tbl/Ts.one.qmd", stem = .composeTargetStem(paste("ts-idg", tolower(IDgTab), sep = "-")), labels = "rewrite", vars = list(IDg.target = IDgTab), root = root)
+}
+rm(IDgTab)
+```
+
+
+:::
+
+
+:::
+
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "IDg.target", "TR.target", "p.target", "CAP"
+), ls()))
+```

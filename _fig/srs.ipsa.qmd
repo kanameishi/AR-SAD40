@@ -1,0 +1,26 @@
+:::{.content-hidden when-format='docx'}
+
+:::{.panel-tabset .full-width }
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| results: asis
+# Un tab por registro disponible; las suites con menos de 24 (p. ej.
+# CENA) generan solo los suyos en lugar de abortar.
+for (k in seq_along(RecordIDs)) {
+  cat("\n#### S", sprintf("%02d", k), "\n\n", sep = "")
+  NGR::knitBlock(
+    path = "/_fig/srs.ipsa.one.qmd",
+    stem = .composeTargetStem(paste0("srs-ipsa-s", k)),
+    labels = "rewrite",
+    vars = list(RecordID.target = RecordIDs[[k]]),
+    root = root
+  )
+}
+rm(k)
+```
+
+:::
+
+:::

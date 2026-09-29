@@ -1,0 +1,8 @@
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-srs-ipsa-one
+#| fig-cap: !expr .srsIpsaCaption(RecordID.target)
+source(file.path(root, "scripts", "fig", "IPSA.R"))
+PLOT
+```

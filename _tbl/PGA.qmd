@@ -1,0 +1,51 @@
+
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.PGA")
+if (!exists("Vs30.docx", inherits = FALSE)) Vs30.docx <- 800
+SiteID.caption <- .requireOneTarget(
+  .currentTarget("siteID.target"), "siteID.target", "PGA caption"
+)
+Target <- .currentTarget("ID.target")
+ID.target <- .resolveIDTarget(
+  UHSTable,
+  "PGA.qmd",
+  base = TRUE,
+  target = Target,
+  siteID = .currentTarget("siteID.target")
+)
+if (!exists("TR.target") || !length(TR.target)) TR.target <- TR.gmdp
+if (!exists("PSA_Units") || !length(PSA_Units)) PSA_Units <- "cm/s2"
+root <- here::here()
+```
+
+:::{.content-visible when-format='docx'}
+
+&nbsp;
+
+```{r}
+#| eval: !expr knitr::pandoc_to("docx")
+#| include: true
+#| label: tbl-pga-vs30-800-docx
+#| tbl-cap: !expr CAP |> sprintf(PSA_Units, Vs30.docx, SiteID.caption)
+Vs30.target <- Vs30.docx
+source(file.path(root, "scripts", "tbl/PGA.R"))
+TBL
+```
+
+&nbsp;
+
+:::
+
+:::{.content-hidden when-format='docx'}
+
+{{< include /_tbl/PGA.Vs30.qmd >}}
+
+:::
+
+```{r}
+#| include: false
+rm(ID.target, TR.target, PSA_Units, CAP, Vs30.target, SiteID.caption)
+if (exists("Target", inherits = FALSE) && length(Target)) ID.target <- Target
+rm(list = intersect("Target", ls()))
+```

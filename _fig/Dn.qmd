@@ -1,0 +1,46 @@
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+if (!exists("MODELS", inherits = FALSE)) MODELS <- c(rigid = "Rigid Models", flexible = "Flexible Models", ensemble = "Ensemble Models")
+if (!exists("IDn.target") || !length(IDn.target)) IDn.target <- names(MODELS)
+MODELS <- MODELS[names(MODELS) %in% IDn.target]
+IDg.target <- IDg.gmdp
+if (!exists("p.target") || !length(p.target)) p.target <- "mean"
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("fig.Dn")
+if (!exists("CAP.MCE", inherits = FALSE)) CAP.MCE <- readCaption("fig.Dn.MCE")
+TR.label <- prettyNum(TR.gmdp, big.mark = ",", scientific = FALSE)
+IDm.target <- IDm.gmdp
+SiteID.caption <- .requireOneTarget(
+  .currentTarget("siteID.target"), "siteID.target", "Newmark displacement figure caption"
+)
+```
+
+:::: {.content-visible when-format='html'}
+
+:::{.panel-tabset .full-width}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| results: asis
+for (IDn in names(MODELS)) {
+  cat("\n#### ", MODELS[[IDn]], "\n\n", sep = "")
+  NGR::knitBlock(path = "/_fig/Dn.IDn.qmd", stem = .composeTargetStem(paste("dn", IDn, sep = "-")), labels = "rewrite", vars = list(IDn.target = IDn), root = root)
+}
+rm(IDn)
+```
+
+
+:::
+
+::::
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: false
+rm(list = intersect(c(
+  "MODELS",
+  "TR.target", "IDn.target", "IDg.target", "IDm.target", "p.target", "CAP", "CAP.MCE", "TR.label",
+  "SiteID.caption"
+), ls()))
+```

@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+source(file.path(root, "scripts", "setup", "displacements.R"))
+```
+
+Las curvas $D_n(k_y)$ relacionan, para cada combinación de geometría, material y escenario de diseño, la aceleración de fluencia con el desplazamiento permanente esperado. Para las aceleraciones de fluencia de referencia $k_y=$ `r round(DisplacementsSummary$dn$ky, 1)` g, el desplazamiento de Newmark medio del conjunto `ensemble` presenta límites inferiores de `r round(DisplacementsSummary$dn$minimum, 1)` cm y superiores de `r round(DisplacementsSummary$dn$maximum, 1)` cm, en el mismo orden, entre los escenarios de demanda y las combinaciones de geometría y material evaluadas. El conjunto `ensemble` constituye la estimación adoptada para el diseño; las familias `rigid` y `flexible` cuantifican la sensibilidad a la representación dinámica de la masa deslizante. Para un desplazamiento admisible $D_a$, la inversión probabilística de estas curvas determina la aceleración de fluencia $k_{\max}$ que satisface el objetivo de desempeño y permite obtener el coeficiente normalizado $k_h$.

@@ -1,0 +1,125 @@
+::: {.content-hidden when-format='html'}
+## Evaluación de la amenaza sísmica (PSHA / DSHA)
+:::
+
+{{< include /_chapters/psha.summary.es.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(path = "/_tbl/PGA.TR.ES.qmd", stem = "exec-pga-tr", labels = "rewrite", vars = list(ID.target = ID.gmdp, siteID.target = SiteTable$siteID, TR.target = TR.gmdp, Vs30.target = Vs30.gmdp, PSA_Units = "cm/s2"), root = root)
+```
+
+{{< include /_chapters/site.summary.es.md >}}
+
+
+::: {.content-hidden when-format='html'}
+`r .deckNote("sha", "Evaluación de Amenaza Sísmica", "Las curvas de amenaza y los espectros probabilísticos se desarrollan en el anexo %s.")`
+:::
+
+```{r}
+#| echo: false
+#| results: asis
+if (!is.null(SelectionTable)) {
+  cat("::: {.content-hidden when-format='html'}\n## Selección de registros sísmicos\n:::\n\n")
+  NGR::knitBlock(
+    path = "/_chapters/srs.summary.es.md",
+    stem = "exec-srs-summary",
+    labels = "keep",
+    root = root
+  )
+  for (i in seq_len(nrow(SelectionTable))) {
+    .knitSelectionBlock(
+      path = "/_results/srs.results.es.qmd",
+      stem = "exec-srs-results",
+      selections = SelectionTable,
+      i = i,
+      root = root,
+      heading = SelectionTable$label[[i]],
+      level = 3L,
+      anchor = "sec-exec-srs-selection",
+      context = "resumen ejecutivo SRS"
+    )
+  }
+  cat(sprintf(
+    "\n::: {.content-hidden when-format='html'}\n%s\n:::\n",
+    .deckNote("srs", "Selección de Registros Sísmicos", "Los registros seleccionados y sus verificaciones se presentan en el anexo %s.")
+  ))
+  rm(i)
+}
+```
+
+::: {.content-hidden when-format='html'}
+## Criterios de diseño sísmico para depósitos de relaves
+:::
+
+{{< include /_chapters/deq.summary.es.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(path = "/_tbl/DEQ.PGA.ES.qmd", stem = "exec-deq-pga", labels = "keep", vars = list(ID.target = ID.gmdp, siteID.target = SiteTable$siteID, Standard.target = "GISTM", Stage.target = "Operation", Vs30.target = 800, PSA_Units = "cm/s2"), root = root)
+```
+
+::: {.content-hidden when-format='html'}
+`r .deckNote("sdc", "Criterios de Diseño Sísmico", "Los criterios de diseño por estándar y clase de consecuencias se desarrollan en el anexo %s.")`
+:::
+
+::: {.content-hidden when-format='html'}
+## Criterios de diseño sísmico para estructuras convencionales
+:::
+
+{{< include /_chapters/mcer.summary.es.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(path = "/_tbl/MCER.sites.ES.qmd", stem = "exec-mcer-sites", labels = "keep", vars = list(ID.target = ID.gmdp, siteID.target = SiteTable$siteID, Vs30.target = Vs30.gmdp, PSA_Units = "cm/s2"), root = root)
+```
+
+::: {.content-hidden when-format='html'}
+`r .deckNote("sdc", "Criterios de Diseño Sísmico", "Los espectros de diseño estructural y sus parámetros se desarrollan en el anexo %s.")`
+:::
+
+::: {.content-hidden when-format='html'}
+## Propiedades dinámicas de taludes
+:::
+
+
+```{r}
+#| echo: false
+#| results: asis
+.knitReportBlock(
+  path = "/_results/ts.results.es.qmd",
+  stem = "exec-ts-results",
+  sites = SiteTable,
+  i = 1L,
+  root = root,
+  context = "resultados ejecutivos de períodos"
+)
+```
+
+::: {.content-hidden when-format='html'}
+`r .deckNote("gmdp", "Parámetros de Diseño Sísmico", "Los períodos fundamentales y las propiedades dinámicas se detallan en el anexo %s.")`
+:::
+
+::: {.content-hidden when-format='html'}
+## Coeficientes sísmicos basados en desempeño
+:::
+
+{{< include /_chapters/kmax.summary.es.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(path = "/_tbl/kh.sites.ES.qmd", stem = "exec-kh-sites", labels = "rewrite", vars = list(siteID.target = SiteTable$siteID, IDg.target = .summaryIDg(ShearTable, IDg.gmdp), IDm.target = IDm.gmdp), root = root)
+```
+
+::: {.content-hidden when-format='html'}
+`r .deckNote("gmdp", "Parámetros de Diseño Sísmico", "Los coeficientes sísmicos $k_{max}$ y $k_h$ se desarrollan en el anexo %s.")`
+:::
+
+```{r}
+#| include: false
+rm(list = intersect(c("siteID.target"), ls()))
+```

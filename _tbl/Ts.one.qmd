@@ -1,0 +1,8 @@
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: tbl-ts-one
+#| tbl-cap: !expr CAP |> sprintf(IDg.target |> gsub(pattern = "S", replacement = "") |> as.numeric())
+source(file.path(root, "scripts", "tbl/Ts.R"))
+TBL
+```

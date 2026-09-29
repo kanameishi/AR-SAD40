@@ -1,0 +1,16 @@
+---
+title: "Estudio de Peligrosidad Sísmica"
+lang: es
+bibliography:
+  - bib/references.bib
+  - _local/bib/references.bib
+chapters:
+  - index.qmd
+  - _docx/executive.ES.qmd
+  - _docx/intro.ES.qmd
+  - _docx/sha.ES.qmd
+  - _docx/sdc.ES.qmd
+  - _docx/gmdp.ES.qmd
+  - _docx/references.ES.qmd
+  - _docx/appendices.ES.qmd
+---

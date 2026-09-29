@@ -1,0 +1,1 @@
+`r params$consultant$name` preparó este informe para `r params$client$name` en el marco del proyecto `r params$project_id`, ubicado en `r params$location`. El informe presenta la evaluación de amenaza sísmica y los criterios de diseño sísmico del proyecto.

@@ -1,0 +1,94 @@
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("fig.POES")
+SiteID.caption <- .requireOneTarget(
+  .currentTarget("siteID.target"), "siteID.target", "POES caption"
+)
+if (!exists("Vs30.target") || !length(Vs30.target)) {
+  Vs30.target <- .resolveValueTarget(sort(unique(AEPSTable$Vs30)), "Vs30.target", "POES.qmd")
+}
+Target <- .currentTarget("ID.target")
+ID.target <- .resolveIDTarget(
+  AEPSTable,
+  "POES.qmd",
+  target = Target,
+  siteID = .currentTarget("siteID.target"),
+  base = TRUE
+)
+if (!exists("POE_MIN") || !length(POE_MIN)) POE_MIN <- 0.50
+ITo <- unique(AEPSTable$ITo)[1]
+
+```
+
+::: {.content-visible when-format='html'}
+:::{.panel-tabset .full-width }
+
+### $T_n=0$ (PGA)
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-poes-pga
+#| fig-cap: !expr CAP |> sprintf(0, ITo, Vs30.target, SiteID.caption)
+ 
+Tn.target <- 0
+source(file.path(root,"scripts","fig/POES.R"))
+PLOT
+```
+
+### $0.10\,s$
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-poes-tn010
+#| fig-cap: !expr CAP |> sprintf(0.1, ITo, Vs30.target, SiteID.caption)
+ 
+Tn.target <- 0.1
+source(file.path(root,"scripts","fig/POES.R"))
+PLOT
+```
+
+### $0.20\,s$
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-poes-tn020
+#| fig-cap: !expr CAP |> sprintf(0.2, ITo, Vs30.target, SiteID.caption)
+ 
+Tn.target <- 0.2
+source(file.path(root,"scripts","fig/POES.R"))
+PLOT
+```
+
+### $0.50\,s$
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-poes-tn050
+#| fig-cap: !expr CAP |> sprintf(0.5, ITo, Vs30.target, SiteID.caption)
+ 
+Tn.target <- 0.5
+source(file.path(root,"scripts","fig/POES.R"))
+PLOT
+```
+
+### $1.0\,s$
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-poes-tn100
+#| fig-cap: !expr CAP |> sprintf(1.0, unique(AEPSTable$ITo)[1], Vs30.target, SiteID.caption)
+ 
+Tn.target <- 1.0
+source(file.path(root,"scripts","fig/POES.R"))
+PLOT
+```
+
+:::
+:::
+
+```{r}
+#| include: false
+rm(ID.target, Vs30.target, Tn.target, POE_MIN, ITo, CAP, SiteID.caption)
+if (exists("Target", inherits = FALSE) && length(Target)) ID.target <- Target
+rm(list = intersect("Target", ls()))
+```

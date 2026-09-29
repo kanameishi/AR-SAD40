@@ -1,0 +1,59 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+```
+
+# Seismic Record Selection {#sec-srs}
+
+{{< include /_chapters/srs.model.md >}}
+
+## Record Selection {#sec-srs_results}
+
+### Selected Suite {#sec-srs_results_records}
+
+```{r}
+#| echo: false
+#| results: asis
+if (!is.null(SelectionTable)) {
+  for (i in seq_len(nrow(SelectionTable))) {
+    .knitSelectionBlock(
+      path = "/_tbl/SRS.qmd",
+      stem = "srs-records",
+      selections = SelectionTable,
+      i = i,
+      root = root,
+      heading = SelectionTable$label[[i]],
+      level = 4L,
+      anchor = "sec-srs_records",
+      context = "SRS chapter"
+    )
+  }
+  rm(i)
+}
+```
+
+### Target-Spectrum Compatibility {#sec-srs_results_psa}
+
+```{r}
+#| echo: false
+#| results: asis
+if (!is.null(SelectionTable)) {
+  for (i in seq_len(nrow(SelectionTable))) {
+    .knitSelectionBlock(
+      path = "/_fig/srs.psa.qmd",
+      stem = "srs-psa",
+      selections = SelectionTable,
+      i = i,
+      root = root,
+      heading = SelectionTable$label[[i]],
+      level = 4L,
+      anchor = "sec-srs_psa",
+      context = "SRS chapter"
+    )
+  }
+  rm(i)
+}
+rm(list = intersect(c("SiteTable", "SelectionTable"), ls()))
+```

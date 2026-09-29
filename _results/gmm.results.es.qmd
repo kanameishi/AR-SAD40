@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+source(file.path(root, "scripts", "setup", "gmmResults.R"))
+```
+
+La composición de los árboles caracteriza el planteo epistémico: los regímenes `r GMMSummary$epistemic$TRT` reúnen `r round(GMMSummary$epistemic$models)` modelos equipesados, con $w_k=$ `r round(GMMSummary$epistemic$weight, 3)`, respectivamente. La variabilidad aleatoria de las formulaciones individuales, $\sigma_{\ln I}$, varía entre `r round(min(GMMSummary$epistemic$sigma.min), 2)` y `r round(max(GMMSummary$epistemic$sigma.max), 2)`. Las curvas de atenuación y los espectros por régimen se desarrollan en el capítulo de modelos de predicción de movimiento sísmico.

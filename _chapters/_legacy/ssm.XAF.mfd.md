@@ -1,0 +1,8 @@
+
+Three magnitude-frequency distribution types are present in the XAF seismic source model, each associated with a distinct source group and rate specification method [@Poggi2020].
+
+The truncated Gutenberg-Richter MFD (`multiMFD:truncGutenbergRichterMFD`) is applied to 86 multi-point sources, comprising the SC_1 through SC_54 NAF smoothed-seismicity sources and the `MPS-1` through MPS-6 WAF sources. Earthquake rates are parameterised by an activity-rate coefficient ($a$-value) and a slope parameter ($b$-value) within explicit $M_{\min}$ and $M_{\max}$ bounds; within those bounds the relationship follows the standard Gutenberg-Richter form. The $a$-value ranges from 3.13 to 5.45 and the $b$-value from 0.93 to 1.16 across all 86 sources [@Poggi2020].
+
+The incremental MFD (`incrementalMFD`) is applied to all 115 simple fault sources. Occurrence rates are specified as discrete values per 0.1-Mw magnitude bin starting at $M_{\min} = 6.05$ Mw; $a$- and $b$-values are not defined for sources using this MFD type. This formulation directly encodes the expected annual rate at each magnitude level, permitting non-parametric shapes consistent with activity rates estimated from fault geometry and slip-rate data [@Poggi2020].
+
+The arbitrary MFD (`multiMFD:arbitraryMFD`) is applied to 54 background multi-point sources (BG_1 through BG_54). Occurrence rates are specified at arbitrary, non-uniformly spaced magnitude points without an underlying parametric model, providing a non-parametric representation of distributed background seismicity that does not assume a Gutenberg-Richter relationship [@Poggi2020].

@@ -1,0 +1,8 @@
+```{r}
+#| include: false
+MODELS <- c(rigid = "Modelos rígidos", flexible = "Modelos flexibles", ensemble = "Modelos ensemble")
+CAP <- readCaption("fig.kh.ES")
+CAP.MCE <- readCaption("fig.kh.MCE.ES")
+```
+
+{{< include /_fig/kh.qmd >}}

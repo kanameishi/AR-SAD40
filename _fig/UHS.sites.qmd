@@ -1,0 +1,39 @@
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("fig.UHS.sites")
+if (!exists("TR.target") || !length(TR.target)) TR.target <- TR.MDE
+Vs30.target <- .resolveValueTarget(Vref.gmdp, "Vs30.target", "UHS.sites.qmd")
+p.target <- "mean"
+fill.target <- FALSE
+Sa.log <- TRUE
+Sites.caption <- paste(siteID.target, collapse = ", ")
+Target <- .currentTarget("ID.target")
+ID.target <- .resolveIDTarget(
+  UHSTable,
+  "UHS.sites.qmd",
+  base = TRUE,
+  target = Target,
+  siteID = siteID.target
+)
+root <- here::here()
+```
+
+::: {.content-visible when-format='html'}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-uhs-sites
+#| fig-cap: !expr CAP |> sprintf(prettyNum(round(TR.target, 0), big.mark = ","), Vs30.target, Sites.caption)
+source(file.path(root, "scripts", "fig", "UHS.R"))
+PLOT
+```
+
+:::
+
+```{r}
+#| include: false
+rm(TR.target, Vs30.target, p.target, fill.target, Sa.log, CAP, ID.target, Sites.caption)
+if (exists("Target", inherits = FALSE) && length(Target)) ID.target <- Target
+rm(list = intersect("Target", ls()))
+```

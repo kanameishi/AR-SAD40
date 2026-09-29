@@ -1,0 +1,41 @@
+```{r}
+#| include: false
+root <- normalizePath(here::here())
+if (!exists("CAP", inherits = FALSE)) {
+  CAP <- sprintf(
+    readCaption("tbl.SRS"),
+    .requireOneTarget(.currentTarget("siteID.target"), "siteID.target", "SRS table caption")
+  )
+}
+if (!exists("PathSRS", inherits = FALSE)) {
+  if (exists("SRS.target", inherits = FALSE)) {
+    PathSRS <- file.path(root, "gmsp", "match", SRS.target)
+  } else {
+    SRS_ROOT <- file.path(root, "gmsp", "match")
+    SRS_RUNS <- list.dirs(SRS_ROOT, full.names = TRUE, recursive = FALSE)
+    if (length(SRS_RUNS) != 1L) {
+      stop("SRS table: set SRS.target or PathSRS before including _tbl/SRS.qmd.", call. = FALSE)
+    }
+    PathSRS <- SRS_RUNS[[1L]]
+    SRS.target <- basename(PathSRS)
+  }
+}
+```
+
+&nbsp;
+
+```{r}
+#| label: tbl-srs-records
+#| tbl-cap: !expr CAP
+source(file.path(root, "scripts", "tbl", "SRS.R"))
+TBL
+```
+
+&nbsp;
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "PathSRS", "SRS.target", "SRS_ROOT", "SRS_RUNS", "CAP", "N"
+), ls()))
+```

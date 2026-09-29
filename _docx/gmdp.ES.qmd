@@ -1,0 +1,73 @@
+# Parámetros de Diseño Sísmico
+
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+```
+
+## Propiedades dinámicas de taludes {#sec-slope_periods}
+
+{{< include /_chapters/ts.model.es.md >}}
+
+{{< include /_tbl/IDm.ES.qmd >}}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/Ts.ES.qmd",
+    stem = "periods-table",
+    sites = SiteTable,
+    i = i,
+    root = root,
+    context = "tabla de períodos fundamentales"
+  )
+}
+rm(i)
+```
+
+## Coeficiente sísmico basado en desempeño {#sec-coefficients}
+
+{{< include /_chapters/dn.ensemble.es.md >}}
+
+{{< include /_chapters/dn.model.es.md >}}
+
+{{< include /_chapters/dn.uncertainty.es.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+if (nrow(SiteTable)) {
+  NOTE <- .deckNote("gmdp", "Parámetros de Diseño Sísmico", "Las curvas de desplazamiento de Newmark se desarrollan en el anexo %s.")
+  if (nzchar(NOTE)) cat("\n\n", NOTE, "\n\n", sep = "")
+  rm(NOTE)
+}
+```
+
+```{r}
+#| echo: false
+#| results: asis
+if (nrow(SiteTable)) {
+  NOTE <- .deckNote("gmdp", "Parámetros de Diseño Sísmico", "Los coeficientes sísmicos $k_{max}$ y $k_h$ se desarrollan en el anexo %s.")
+  if (nzchar(NOTE)) cat("\n\n", NOTE, "\n\n", sep = "")
+  rm(NOTE)
+}
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/kh.sites.ES.qmd",
+    stem = "kh-table",
+    sites = SiteTable,
+    i = i,
+    vars = list(IDg.target = IDg.gmdp, IDm.target = IDm.gmdp),
+    root = root,
+    heading = SiteTable$label[[i]],
+    level = 3L,
+    anchor = "sec-kh-table-site",
+    context = "MCE kh table"
+  )
+}
+rm(i, SiteTable)
+```

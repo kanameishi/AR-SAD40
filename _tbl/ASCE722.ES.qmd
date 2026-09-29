@@ -1,0 +1,17 @@
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.ASCE722.ES")
+ASCE722Table <- data.table(
+  "SC" = c("A", "B", "BC", "C", "CD", "D", "DE", "E", "F"),
+  "Descripción" = c("Roca dura", "Roca de dureza media", "Roca blanda",
+    "Suelo muy denso o arcilla dura", "Arena densa o arcilla muy rígida",
+    "Arena medianamente densa o arcilla rígida", "Arena suelta o arcilla de rigidez media",
+    "Arena muy suelta o arcilla blanda",
+    "Suelos que requieren un análisis de respuesta de sitio (ASCE/SEI 7-22, 21.1)"),
+  "Vs30" = c(">1500 [m/s]", ">910-1500 [m/s]", ">640-910 [m/s]", ">440-640 [m/s]",
+    ">300-440 [m/s]", ">210-300 [m/s]", ">150-210 [m/s]", "<=150 [m/s]",
+    "*Véase ASCE 7, sección 20.2.1")
+)
+```
+
+{{< include /_tbl/ASCE722.qmd >}}

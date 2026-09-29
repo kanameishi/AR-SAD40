@@ -1,0 +1,1 @@
+The following table presents $k_h$ for MCE, expressed as a percentage of PGA, for the selected heights and relative-displacement limits $D_a/H_s$. Each cell summarizes the ensemble model as the arithmetic mean [minimum–maximum] across the material scenarios using their mean estimates.

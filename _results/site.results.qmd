@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+source(file.path(root, "scripts", "setup", "siteResults.R"))
+```
+
+For the `r .fmti(SiteSummary$scope$nVs30)` evaluated site conditions and `r .fmti(SiteSummary$scope$nTR)` return periods between `r .fmti(min(SiteSummary$returnPeriods))` and `r .fmti(max(SiteSummary$returnPeriods))` years, the mean design PGA of the MDE ($T_R=`r .fmti(SiteSummary$returnPeriodMDE)`$ years) ranges from `r .fmtSa(min(SiteSummary$pgaMDE$SaF), PSA_Units)` to `r .fmtSa(max(SiteSummary$pgaMDE$SaF), PSA_Units)` `r PSA_Units` across site conditions ($V_{S30}$ from `r .fmti(min(SiteSummary$pgaMDE$Vs30))` to `r .fmti(max(SiteSummary$pgaMDE$Vs30))` m/s). These values correspond to the mixture of the two demand estimates: the direct logic-tree evaluation at the target $V_{S30}$ and the ST20 transformation of the reference-condition evaluation at 760 m/s.

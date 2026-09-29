@@ -1,0 +1,8 @@
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: tbl-pga-one
+#| tbl-cap: !expr CAP |> sprintf(PSA_Units, Vs30.target, SiteID.caption)
+source(file.path(root, "scripts", "tbl/PGA.R"))
+TBL
+```

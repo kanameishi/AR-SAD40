@@ -1,0 +1,13 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+```
+
+# Normative Seismic Criteria for Tailings Storage Facilities {#sec-tsf-criteria-appendix}
+
+{{< include /_tbl/gistm.qmd >}}
+
+{{< include /_tbl/cda.qmd >}}
+
+{{< include /_tbl/ancold.qmd >}}

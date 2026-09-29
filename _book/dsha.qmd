@@ -1,0 +1,71 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+```
+
+# Deterministic Seismic Hazard Assessment (DSHA) {#sec-mce}
+
+{{< include /_chapters/dsha.model.md >}}
+
+{{< include /_chapters/dsha.uncertainty.md >}}
+
+## Deterministic Scenarios {#sec-mce_results}
+
+{{< include /_chapters/dsha.results.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_fig/GMPE.PSA.qmd",
+    stem = "dsha-gmm",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = NULL),
+    root = root,
+    context = "scenario GMM spectra"
+  )
+  .knitReportBlock(
+    path = "/_fig/UHS.compare.qmd",
+    stem = "dsha-compare",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "DSHA comparison"
+  )
+  .knitReportBlock(
+    path = "/_tbl/Scenarios.qmd",
+    stem = "dsha-scenarios",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "declared scenario parameters"
+  )
+  .knitReportBlock(
+    path = "/_tbl/DSHA.qmd",
+    stem = "dsha-table",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp, Vs30.target = 760),
+    root = root,
+    context = "DSHA comparison table"
+  )
+  .knitReportBlock(
+    path = "/_tbl/Scenarios.PGA.qmd",
+    stem = "dsha-scenarios-pga",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "scenario PGA by condition"
+  )
+}
+rm(list = intersect(c(
+  "i", "SiteTable"
+), ls()))
+```

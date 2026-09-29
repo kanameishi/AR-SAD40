@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+source(file.path(root, "scripts", "setup", "structures.R"))
+```
+
+For site `r siteID.target`, the MCER spectra and design parameters were obtained for the `r uniqueN(StructuresSummary$parameters$Vs30)` evaluated site conditions ($V_{S30}$ from `r round(min(StructuresSummary$parameters$Vs30))` to `r round(max(StructuresSummary$parameters$Vs30))` m/s): $S_{DS}$ ranges from `r .fmt(min(StructuresSummary$parameters$SDS), 3)` to `r .fmt(max(StructuresSummary$parameters$SDS), 3)` g and $S_{D1}$ from `r .fmt(min(StructuresSummary$parameters$SD1), 3)` to `r .fmt(max(StructuresSummary$parameters$SD1), 3)` g. The following table summarizes the parameters by site condition.

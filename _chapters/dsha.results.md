@@ -1,0 +1,3 @@
+The results correspond to the maximum horizontal component of $S_a(T_n)$ at 5% of critical damping on reference rock, $V_{S30}=760$ m/s. The mean is presented for each scenario; the MCE and the MCE (84%) are obtained through independent per-period maxima. The table compares their ordinates with the mean spectrum for $T_R=10{,}000$ years; the graphical superposition of those spectra and the available mean uniform-hazard spectra is provided in the online results identified at the beginning of this section.
+
+The identification of the governing scenario is carried out separately for each period and statistic and represents the changes of controlling source along the spectrum. Each envelope thus preserves the identity of the scenario contributing its ordinate at each period.

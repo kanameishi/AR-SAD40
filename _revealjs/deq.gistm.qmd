@@ -1,0 +1,77 @@
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "GISTM Design Criteria"`
+
+```{r}
+#| include: false
+root <- normalizePath(here::here())
+.SITE <- .currentTarget("siteID.target")
+.STEM <- paste0(tolower(.SITE), "-gistm")
+.VARS <- list(
+  Standard.target = "GISTM",
+  ID.target = .currentTarget("ID.target"),
+  siteID.target = .SITE
+)
+.VARS <- .VARS[lengths(.VARS) > 0L]
+```
+
+:::{.panel-tabset .full-width}
+
+### Criteria
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path = "/_tbl/gistm.qmd",
+  stem = .STEM,
+  labels = "rewrite",
+  vars = .VARS,
+  root = root
+)
+```
+
+### UHS
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path = "/_fig/DEQ.operation.qmd",
+  stem = paste0(.STEM, "-operation"),
+  labels = "rewrite",
+  vars = .VARS,
+  root = root
+)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path = "/_fig/DEQ.postclosure.qmd",
+  stem = paste0(.STEM, "-postclosure"),
+  labels = "rewrite",
+  vars = .VARS,
+  root = root
+)
+```
+
+### PGA
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path = "/_tbl/DEQ.qmd",
+  stem = paste0(.STEM, "-pga"),
+  labels = "rewrite",
+  vars = .VARS,
+  root = root
+)
+```
+
+:::
+
+```{r}
+#| include: false
+rm(list = intersect(c("TITLE", ".SITE", ".STEM", ".VARS"), ls()))
+```

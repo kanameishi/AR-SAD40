@@ -1,0 +1,195 @@
+# Evaluación del Peligro Sísmico
+
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+```
+
+## Evaluación probabilística de la amenaza sísmica (PSHA)
+
+{{< include /_chapters/psha.model.es.md >}}
+
+{{< include /_chapters/psha.uncertainty.es.md >}}
+
+{{< include /_chapters/psha.disagg.es.md >}}
+
+### Curvas y espectros de amenaza {#sec-hazard_results}
+
+{{< include /_chapters/psha.aep.es.md >}}
+
+{{< include /_chapters/psha.poe.es.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/RMw.ES.qmd",
+    stem = "hazard-rmw-table",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "tabla RMw"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+if (nrow(SiteTable)) {
+  NOTE <- .deckNote("sha", "Evaluación de Amenaza Sísmica", "Las curvas de amenaza y los espectros probabilísticos se desarrollan en el anexo %s.")
+  if (nzchar(NOTE)) cat("\n\n", NOTE, "\n\n", sep = "")
+  rm(NOTE)
+}
+```
+
+## Caracterización de fuentes sísmicas {#sec-ssc}
+
+### Marco sismotectónico
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path   = sprintf("/_chapters/ssm.tectonic.%s.es.md", params$ssm),
+  stem   = sprintf("ssm-tectonic-%s", tolower(params$ssm)),
+  labels = "keep",
+  root   = root
+)
+```
+
+### Sismicidad
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path   = sprintf("/_chapters/ssm.seismicity.%s.es.md", params$ssm),
+  stem   = sprintf("ssm-seismicity-%s", tolower(params$ssm)),
+  labels = "keep",
+  root   = root
+)
+```
+
+### Neotectónica
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path   = sprintf("/_chapters/ssm.faults.%s.es.md", params$ssm),
+  stem   = sprintf("ssm-faults-%s", tolower(params$ssm)),
+  labels = "keep",
+  root   = root
+)
+```
+
+### Fuentes regionales (SSM) {#sec-ssm}
+
+```{r}
+#| echo: false
+#| results: asis
+if (is.null(params$ssm) || !nzchar(params$ssm)) {
+  stop("params.yml: params$ssm must name the seismic source model chapter (_chapters/ssm.<ID>.es.md).", call. = FALSE)
+}
+NGR::knitBlock(
+  path = sprintf("/_chapters/ssm.%s.es.md", params$ssm),
+  stem = sprintf("ssm-%s", tolower(params$ssm)),
+  labels = "keep",
+  root = root
+)
+```
+
+## Modelos de predicción de movimiento sísmico (GMM) {#sec-gmm_appendix}
+
+{{< include /_chapters/gmm.model.es.md >}}
+
+{{< include /_chapters/gmm.trees.es.md >}}
+
+{{< include /_chapters/gmm.uncertainty.es.md >}}
+
+`r .deckNote("sha", "Evaluación de Amenaza Sísmica", "La evaluación de amenaza sísmica se desarrolla en el anexo %s.")`
+
+## Evaluación determinística de la amenaza sísmica (DSHA) {#sec-mce}
+
+{{< include /_chapters/dsha.model.es.md >}}
+
+{{< include /_chapters/dsha.uncertainty.es.md >}}
+
+{{< include /_chapters/dsha.results.es.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_tbl/Scenarios.ES.qmd",
+    stem = "dsha-scenarios",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "parámetros declarados de escenarios"
+  )
+  .knitReportBlock(
+    path = "/_tbl/DSHA.ES.qmd",
+    stem = "dsha-table",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp, Vs30.target = 760),
+    root = root,
+    context = "tabla comparativa DSHA"
+  )
+  .knitReportBlock(
+    path = "/_tbl/Scenarios.PGA.ES.qmd",
+    stem = "dsha-scenarios-pga",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "PGA de escenarios por condición"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+if (nrow(SiteTable)) {
+  NOTE <- .deckNote("sha", "Evaluación de Amenaza Sísmica", "Los espectros de los escenarios determinísticos y su comparación con la demanda probabilística se desarrollan en el anexo %s.")
+  if (nzchar(NOTE)) cat("\n\n", NOTE, "\n\n", sep = "")
+  rm(NOTE)
+}
+```
+
+## Selección de registros sísmicos {#sec-srs}
+
+{{< include /_chapters/srs.model.es.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+if (!is.null(SelectionTable)) {
+  for (i in seq_len(nrow(SelectionTable))) {
+    .knitSelectionBlock(
+      path = "/_tbl/SRS.ES.qmd",
+      stem = "srs-records",
+      selections = SelectionTable,
+      i = i,
+      root = root,
+      context = "capítulo SRS"
+    )
+  }
+  NOTE <- .deckNote("srs", "Selección de Registros Sísmicos", "Los registros seleccionados y sus verificaciones se presentan en el anexo %s.")
+  if (nzchar(NOTE)) cat("\n\n", NOTE, "\n\n", sep = "")
+  rm(NOTE)
+  rm(i)
+}
+rm(list = intersect(c("SiteTable", "SelectionTable"), ls()))
+```

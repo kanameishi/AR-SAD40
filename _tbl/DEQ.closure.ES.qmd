@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+CAP <- readCaption("tbl.DEQ.closure.ES")
+```
+
+{{< include /_tbl/DEQ.closure.qmd >}}

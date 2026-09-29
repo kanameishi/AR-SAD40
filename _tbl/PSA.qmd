@@ -1,0 +1,56 @@
+
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.PSA")
+if (!exists("Vs30.docx", inherits = FALSE)) Vs30.docx <- 800
+SiteID.caption <- .requireOneTarget(
+  .currentTarget("siteID.target"), "siteID.target", "PSA caption"
+)
+if (!exists("PSA_Units") || !length(PSA_Units)) PSA_Units <- "cm/s2"
+if (!exists("Tn.target") || !length(Tn.target)) Tn.target <- Tn.gmdp
+if (!exists("TR.target") || !length(TR.target)) TR.target <- TR.gmdp
+if (!exists("p.target") || !length(p.target))  p.target  <- "mean"
+Target <- .currentTarget("ID.target")
+ID.target <- .resolveIDTarget(
+  UHSTable,
+  "PSA.qmd",
+  base = TRUE,
+  target = Target,
+  siteID = .currentTarget("siteID.target")
+)
+root <- here::here()
+```
+
+:::{.content-visible when-format='docx'}
+
+&nbsp;
+
+```{r}
+#| eval: !expr knitr::pandoc_to("docx")
+#| include: true
+#| label: tbl-psa-vs30-800-docx
+#| tbl-cap: !expr CAP |> sprintf(PSA_Units, min(TR.target), max(TR.target), min(Tn.target), max(Tn.target), Vs30.docx, p.target, SiteID.caption)
+Vs30.target <- Vs30.docx
+source(file.path(root, "scripts", "tbl/PSA.R"))
+TBL
+```
+
+&nbsp;
+
+:::
+
+:::{.content-hidden when-format='docx'}
+
+{{< include /_tbl/PSA.Vs30.qmd >}}
+
+:::
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "PSA_Units", "Tn.target", "TR.target", "p.target", "CAP",
+  "Vs30.target", "ID.target", "SiteID.caption"
+), ls()))
+if (exists("Target", inherits = FALSE) && length(Target)) ID.target <- Target
+rm(list = intersect("Target", ls()))
+```

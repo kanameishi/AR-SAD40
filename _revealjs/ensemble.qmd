@@ -1,0 +1,56 @@
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Ensemble Models"`
+
+:::{.panel-tabset }
+
+### $k_{max}$
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path = "/_fig/kmax.qmd",
+  stem = .composeTargetStem("kmax-ensemble"),
+  labels = "rewrite",
+  vars = list(
+    p.target = "mean",
+    IDn.target = "ensemble"
+  ),
+  root = root
+)
+```
+
+### $k_h$
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path = "/_fig/kh.qmd",
+  stem = .composeTargetStem("kh-ensemble"),
+  labels = "rewrite",
+  vars = list(
+    p.target = "mean",
+    IDn.target = "ensemble"
+  ),
+  root = root
+)
+```
+
+### $D_n$
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path = "/_fig/Dn.qmd",
+  stem = .composeTargetStem("dn-ensemble"),
+  labels = "rewrite",
+  vars = list(
+    p.target = "mean",
+    IDn.target = "ensemble"
+  ),
+  root = root
+)
+```
+
+:::

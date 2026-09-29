@@ -1,0 +1,48 @@
+```{r}
+#| include: false
+root <- here::here()
+Target <- .currentTarget("ID.target")
+P.saved <- .currentTarget("p.target")
+Vs30.saved <- .currentTarget("Vs30.target")
+if (!exists("Vs30.target", inherits = FALSE) || length(Vs30.target) != 1L) {
+  Vs30.target <- 760
+}
+if (!exists("p.target", inherits = FALSE) || !length(p.target)) {
+  p.target <- "mean"
+}
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("fig.UHS.compare")
+```
+
+::: {.content-visible when-format='html'}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-uhs-compare
+#| fig-cap: !expr CAP |> sprintf(Vs30.target, .requireOneTarget(.currentTarget("siteID.target"), "siteID.target", "UHS comparison caption"))
+source(file.path(root, "scripts", "fig", "UHS.compare.R"))
+PLOT
+```
+
+:::
+
+```{r}
+#| include: false
+rm(list = intersect("CAP", ls()))
+if (length(Target)) {
+  ID.target <- Target
+} else {
+  rm(list = intersect("ID.target", ls()))
+}
+if (length(P.saved)) {
+  p.target <- P.saved
+} else {
+  rm(list = intersect("p.target", ls()))
+}
+if (length(Vs30.saved)) {
+  Vs30.target <- Vs30.saved
+} else {
+  rm(list = intersect("Vs30.target", ls()))
+}
+rm(Target, P.saved, Vs30.saved)
+```

@@ -1,0 +1,29 @@
+&nbsp;
+
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.SiteGo")
+if (!exists("SiteGo.headers", inherits = FALSE)) {
+  SiteGo.headers <- c("Formulation", "Family", "Reference material", "Author")
+  SiteGo.groups <- c(Sands = "Sands", Fines = "Fines", Gravels = "Gravels")
+}
+```
+
+```{r}
+#| include: true
+#| label: tbl-ish1
+#| tbl-cap: !expr CAP
+
+source(file.path(root, "scripts", "tbl", "SiteGo.R"))
+TBL
+```
+
+```{r}
+#| include: false
+rm(list = intersect(
+  c("CAP", "TBL", "SiteGo.headers", "SiteGo.groups"),
+  ls()
+))
+```
+
+&nbsp;

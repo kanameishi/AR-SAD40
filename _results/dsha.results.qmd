@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+source(file.path(root, "scripts", "setup", "dshaResults.R"))
+```
+
+On reference rock, $V_{S30}=760$ m/s, the mean PGA of `r if (nrow(DSHASummary$scenarios) == 1L) "the scenario" else "each scenario"` is `r paste(DSHASummary$scenarios[, sprintf("%s: %s", ID, .fmtSa(PGA.mean, PSA_Units))], collapse = "; ")` `r PSA_Units`. At PGA, `r DSHASummary$governorMean` defines the maximum of the means. As a probabilistic reference, the mean PGA of the uniform hazard spectrum for $T_R=10{,}000$ years is `r .fmtSa(DSHASummary$probabilisticPGA, PSA_Units)` `r PSA_Units`.

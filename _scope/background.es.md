@@ -1,0 +1,5 @@
+**Revisión de antecedentes.** Revisión de los estudios de amenaza sísmica previos —locales, nacionales o regionales— y de las condiciones geotécnicas y geofísicas de los sitios. Identificación de las instalaciones críticas y de sus niveles de consecuencia según los estándares aplicables. Las actividades a desarrollar son:
+
+- *Clasificación de sitio:* revisión de los perfiles geotécnicos bajo las instalaciones críticas; estimación de la velocidad de onda de corte equivalente de los 30 m superiores (Vs30) de cada sitio y clasificación según las categorías NEHRP y las clases de sitio de ASCE/SEI 7-22.
+- *Clasificación de consecuencia:* caracterización de las instalaciones críticas; clasificación de los depósitos de relaves por nivel de consecuencias según los estándares aplicables (GISTM, CDA, ANCOLD), y de las demás instalaciones según los criterios de diseño establecidos por el [Cliente].
+- *Revisión del modelo de fuentes:* compilación de los modelos de fuentes sísmicas regionales y locales disponibles en fuentes públicas y estudios previos, y adopción del modelo regional de fuentes del estado del arte aplicable a los sitios.

@@ -1,0 +1,9 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+```
+
+# Newmark Permanent-Displacement Formulations {#sec-newmark-appendix}
+
+{{< include /_chapters/dn.appendix.md >}}

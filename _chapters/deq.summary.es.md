@@ -1,0 +1,1 @@
+La tabla siguiente presenta la PGA de diseño según GISTM para la etapa de operación y la condición de sitio $V_{S30} = 800$ m/s [@gistm2020]. Los resultados para los demás criterios y etapas se presentan en el cuerpo del informe.

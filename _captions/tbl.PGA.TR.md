@@ -1,0 +1,1 @@
+Peak ground acceleration by return period and site condition (`siteID`: %s). Columns identified by $V_{S30}$ (m/s) represent the site conditions. The $T_R$ rows (years) report the mean probabilistic PGA (%s). The MCE and MCE (84%%) rows report the deterministic envelope at its mean and 84th percentile, respectively, for the same site conditions.

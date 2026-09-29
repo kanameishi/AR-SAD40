@@ -1,0 +1,17 @@
+```{r}
+#| include: false
+Stage.label <- if (length(Standard.target) != 1L) NULL else switch(
+  Standard.target,
+  ANCOLD = "OBE",
+  CDA = "Construcción, operación y transición",
+  GISTM = "Operación y cierre con cuidado activo",
+  "Operación"
+)
+if (is.null(Stage.label)) Stage.label <- "Operación"
+CAP <- paste0(
+  if (length(Standard.target) == 1L) paste0(Standard.target, ". ") else "", Stage.label, ". ",
+  readCaption("fig.DEQ.operation.ES")
+)
+```
+
+{{< include /_fig/DEQ.operation.qmd >}}

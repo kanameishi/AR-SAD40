@@ -1,0 +1,3 @@
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Selected Ground-Motion Suite<br>Retained VMD Modal Response Spectra"`
+
+{{< include /_fig/srs.ipsa.qmd >}}

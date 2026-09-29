@@ -1,0 +1,3 @@
+## <br>Períodos fundamentales
+
+{{< include /_tbl/Ts.ES.qmd >}}

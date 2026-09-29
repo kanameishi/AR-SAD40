@@ -1,0 +1,7 @@
+**Design Ground Motions and Site Response Spectra.** This task covers the dynamic site characterisation and the seismic response analysis of the foundation sites, including site amplification, the dynamic properties of slopes and embankments, and uncertainty quantification. The activities to be carried out are:
+
+- *Dynamic site characterisation:* the foundation sites are identified and characterised according to the NEHRP and ASCE/SEI 7-22 classifications, based on the geotechnical properties of the stratigraphy determined previously.
+- *Dynamic response and site amplification:* the median and the error term of the site amplification factor are estimated using ergodic empirical models, accounting for spectral ordinates and site conditions.
+- *Dynamic characterisation of slopes:* based on the geometric and mechanical properties of the structures, the dynamic properties of slopes and embankments are estimated — such as the small-strain shear modulus and the fundamental periods — using proxy models of equivalent shear beams.
+- *Uncertainty analysis:* definition of confidence intervals based on the epistemic uncertainty of the ground-motion logic trees and the random variability of the ground-motion and site-amplification models.
+- *Uniform hazard spectra (UHS) and design earthquakes:* determination of spectral ordinates and design earthquakes for different return periods and site conditions, according to GISTM, CDA, ANCOLD, and ASCE/SEI 7-22.

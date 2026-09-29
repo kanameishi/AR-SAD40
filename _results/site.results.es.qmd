@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+source(file.path(root, "scripts", "setup", "siteResults.R"))
+```
+
+Para las `r .fmti(SiteSummary$scope$nVs30)` condiciones de sitio evaluadas y `r .fmti(SiteSummary$scope$nTR)` períodos de retorno entre `r .fmti(min(SiteSummary$returnPeriods))` y `r .fmti(max(SiteSummary$returnPeriods))` años, la PGA media de diseño del MDE ($T_R=`r .fmti(SiteSummary$returnPeriodMDE)`$ años) varía entre `r .fmtSa(min(SiteSummary$pgaMDE$SaF), PSA_Units)` y `r .fmtSa(max(SiteSummary$pgaMDE$SaF), PSA_Units)` `r PSA_Units` según la condición de sitio ($V_{S30}$ de `r .fmti(min(SiteSummary$pgaMDE$Vs30))` a `r .fmti(max(SiteSummary$pgaMDE$Vs30))` m/s). Estos valores corresponden a la mezcla de las dos estimaciones de la demanda: la evaluación directa del árbol lógico en el $V_{S30}$ objetivo y la transformación ST20 de la evaluación en la condición de referencia de 760 m/s.

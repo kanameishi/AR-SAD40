@@ -1,0 +1,30 @@
+&nbsp;
+
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.AS1726")
+root <- here::here()
+if (!exists("AS1726Table", inherits = FALSE)) {
+  AS1726Table <- data.table(
+    "SC" = c("A", "B", "C", "D", "E"),
+    "Description" = c("Strong Rocks", "Rocks", "Shallow soil site", "Deep or soft soil site",
+    "Very soft soil site"),
+    "Vs30" = c(">1500 [m/s]", ">360 [m/s]", ">150 [m/s]", ">150 [m/s]", "<=150 [m/s]"
+    )
+  )
+}
+```
+
+```{r}
+#| include: true
+#| label: tbl-scas
+#| tbl-cap: !expr CAP
+source(file.path(root, "scripts", "tbl", "AS1726.R"))
+TBL
+```
+
+```{r}
+#| include: false
+rm(list = intersect(c("CAP", "AS1726Table"), ls()))
+```
+&nbsp;

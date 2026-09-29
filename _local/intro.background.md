@@ -1,0 +1,1 @@
+<!-- Project background. Who commissioned the study and for which asset; location and description of the facility; relevant history (raises, operation, events); purpose of the assessment and the standards framing it. Delete this comment and write the content; the chapter is included in the report only when this file has text. -->

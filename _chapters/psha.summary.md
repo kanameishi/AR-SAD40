@@ -1,0 +1,1 @@
+The following table brings together the probabilistic and deterministic PGA for the evaluated site conditions. The MDE corresponds to the 10,000-year return period; the MCE and MCE (84%) correspond to the deterministic envelopes of the means and 84th percentiles, respectively.

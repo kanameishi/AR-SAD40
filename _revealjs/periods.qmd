@@ -1,0 +1,8 @@
+## <br>Fundamental Periods
+
+```{r}
+#| include: false
+CAP <- readCaption("tbl.Ts")
+```
+
+{{< include /_tbl/Ts.qmd >}}

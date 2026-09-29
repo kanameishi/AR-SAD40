@@ -1,0 +1,5 @@
+**Background analysis.** Review previous local, national, or regional seismic hazard studies. Review geophysical and geotechnical site conditions. Identify critical facilities and consequence levels according to the applicable standards. The activities to be carried out are:
+
+- *Site classification:* review of geotechnical profiles under critical installations; estimation of the average shear-wave velocity in the first thirty metres (Vs30) for each site and classification according to the NEHRP categories and the ASCE/SEI 7-22 site classes.
+- *Consequence classification:* characterisation of the critical installations; classification of the tailings storage facilities by level of consequences in accordance with the applicable standards (GISTM, CDA, ANCOLD), and of the remaining installations in accordance with the design criteria established by [Client].
+- *Source model review:* compilation of the regional and local seismic source models available from public sources and previous studies, and adoption of the state-of-the-art regional source model applicable to the sites.

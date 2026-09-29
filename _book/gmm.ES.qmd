@@ -1,0 +1,13 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "setup", "setup.R"))
+```
+
+# Modelos de predicción de movimiento sísmico (GMM) {#sec-gmm_appendix}
+
+{{< include /_chapters/gmm.model.es.md >}}
+
+{{< include /_chapters/gmm.trees.es.md >}}
+
+{{< include /_chapters/gmm.uncertainty.es.md >}}

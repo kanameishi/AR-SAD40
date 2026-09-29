@@ -1,0 +1,7 @@
+```{r}
+#| include: false
+MODELS <- c(rigid = "Modelos rígidos", flexible = "Modelos flexibles", ensemble = "Modelos ensemble")
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.kh.ES")
+```
+
+{{< include /_tbl/kh.qmd >}}

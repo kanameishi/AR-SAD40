@@ -1,0 +1,1 @@
+According to the USGS instrumental earthquake catalog, the **largest and closest significant event** ($M_w \geq 4.5$) within a 1,000 km radius of the site was the earthquake at {MCE.Mw$Location} on {format(MCE.Mw$Date, '%B, %Y')}, with a moment magnitude of $M_w$ {MCE.Mw$Mw} and a hypocentral distance of {MCE.Mw$Rhyp} km from the site.

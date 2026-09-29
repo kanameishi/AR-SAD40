@@ -1,0 +1,31 @@
+```{r}
+#| echo: false
+#| results: asis
+# Mw.gmm: scalar for a flat magnitude, or a named vector keyed by TRT
+# for scenario-linked magnitudes (e.g. c(ASC = 7.7, SCC = 5.5, SIF = 9)).
+# No shared ephemerals here: knitBlock children run in the global env
+# and rm() the canonical names (AUX et al.).
+SiteID <- .cleanTarget(.currentTarget("siteID.target"))
+StemPrefix <- if (length(SiteID) == 1L) paste0(tolower(SiteID), "-") else ""
+Title <- if (exists("TITLE", inherits = FALSE)) TITLE else "Modelos de Predicción de Movimiento Sísmico"
+for (Trt in sort(unique(GMPETable$TRT))) {
+  Mw.target <- if (!exists("Mw.gmm", inherits = FALSE)) 6.5 else if (is.null(names(Mw.gmm))) Mw.gmm[[1L]] else if (Trt %in% names(Mw.gmm)) Mw.gmm[[Trt]] else 6.5
+  FillColor <- unname(.TrtColors[[Trt]])
+  cat(sprintf("\n\n## <br>%s\n\n", sub("(?=<br>|$)", sprintf(" (%s)", Trt), Title, perl = TRUE)))
+  NGR::knitBlock(
+    path = "/_fig/GMPE.ES.qmd",
+    stem = paste0(StemPrefix, "gmm-", tolower(Trt), "-att"),
+    labels = "rewrite",
+    vars = list(
+      ID.target = unique(GMPETable[TRT == Trt, ID]),
+      Mw.target = Mw.target,
+      fillColor = FillColor
+    ),
+    root = root
+  )
+}
+rm(list = intersect(c(
+  "Trt", "FillColor", "Mw.target", "SiteID", "StemPrefix", "Title"
+), ls()))
+rm(list = intersect(c("ID.target", "p.target"), ls()))
+```

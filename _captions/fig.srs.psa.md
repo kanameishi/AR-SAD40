@@ -1,0 +1,1 @@
+Spectral match for selected records%s. Curves are reported for the H1 component: thin curves are 5%%-damped matched individual-record PSA(Tn) spectra; the thick solid curve is the selected-suite mean; the dashed curve is the target spectrum used for matching; the shaded region is its compatibility interval.

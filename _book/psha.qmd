@@ -1,0 +1,132 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root,"scripts","setup","setup.R"))
+source(file.path(root, "scripts", "setup", "report.R"))
+```
+
+
+# Probabilistic Seismic Hazard Assessment (PSHA)
+
+{{< include /_chapters/psha.model.md >}}
+
+{{< include /_chapters/psha.uncertainty.md >}}
+
+{{< include /_chapters/psha.disagg.md >}}
+
+## Hazard Curves and Spectra {#sec-hazard_results}
+
+{{< include /_chapters/psha.aep.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_fig/AEP.qmd",
+    stem = "hazard-aep",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    heading = if (knitr::is_html_output()) SiteTable$label[[i]] else NULL,
+    level = 4L,
+    anchor = "sec-hazard-aep-site",
+    context = "hazard AEP"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_fig/AEPS.qmd",
+    stem = "hazard-aeps",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    heading = if (knitr::is_html_output()) SiteTable$label[[i]] else NULL,
+    level = 5L,
+    anchor = "sec-hazard-aeps-site",
+    context = "hazard AEPS"
+  )
+}
+rm(i)
+```
+
+{{< include /_chapters/psha.poe.md >}}
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_fig/POE.qmd",
+    stem = "hazard-poe",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    heading = if (knitr::is_html_output()) SiteTable$label[[i]] else NULL,
+    level = 4L,
+    anchor = "sec-hazard-poe-site",
+    context = "hazard POE"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_fig/POES.qmd",
+    stem = "hazard-poes",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    heading = if (knitr::is_html_output()) SiteTable$label[[i]] else NULL,
+    level = 5L,
+    anchor = "sec-hazard-poes-site",
+    context = "hazard POES"
+  )
+}
+rm(i)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+for (i in seq_len(nrow(SiteTable))) {
+  .knitReportBlock(
+    path = "/_fig/RMw2D.qmd",
+    stem = "hazard-rmw",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    heading = if (knitr::is_html_output()) SiteTable$label[[i]] else NULL,
+    level = 4L,
+    anchor = "sec-hazard-rmw-site",
+    context = "hazard RMw figures"
+  )
+  .knitReportBlock(
+    path = "/_tbl/RMw.qmd",
+    stem = "hazard-rmw-table",
+    sites = SiteTable,
+    i = i,
+    vars = list(ID.target = ID.gmdp),
+    root = root,
+    context = "hazard RMw table"
+  )
+}
+rm(list = intersect(c(
+  "i", "SiteTable"
+), ls()))
+```

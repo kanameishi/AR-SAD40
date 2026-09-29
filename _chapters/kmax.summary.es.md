@@ -1,0 +1,1 @@
+La tabla siguiente presenta $k_h$ para MCE, expresado como porcentaje de la PGA, para las alturas seleccionadas y los límites de desplazamiento relativo $D_a/H_s$. Cada celda resume el modelo ensemble mediante la media aritmética [mínimo–máximo] entre los escenarios de material a partir de sus estimaciones medias.

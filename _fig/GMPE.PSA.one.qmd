@@ -1,0 +1,24 @@
+```{r}
+#| include: false
+Scn <- ScenarioTable[ID %in% ID.target & siteID %in% SiteID.caption]
+if (nrow(Scn) != 1L) stop("GMPE.PSA: expected one scenario/site.", call. = FALSE)
+fillColor <- unname(.TrtColors[[Scn$TRT]])
+```
+
+::: {.content-visible when-format='html'}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-gmpe-psa
+#| fig-cap: !expr CAP |> sprintf(ID.target, Scn$TRT, Scn$Mw, Scn$Repi, paste(p.target, collapse = ", "), Vs30.target, SiteID.caption)
+source(file.path(root, "scripts", "fig/GMPE.PSA.R"))
+PLOT
+```
+
+:::
+
+```{r}
+#| include: false
+rm(Scn, fillColor)
+```

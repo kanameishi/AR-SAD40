@@ -1,0 +1,1 @@
+<!-- Antecedentes del encargo. Quién contrató el estudio y para qué activo; ubicación y descripción de la instalación; historia relevante (recrecimientos, operación, eventos); motivo de la evaluación y estándares que la enmarcan. Borre este comentario y escriba el contenido; el capítulo se incluye en el reporte solo cuando este archivo tiene texto. -->

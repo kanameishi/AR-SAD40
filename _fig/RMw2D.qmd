@@ -1,0 +1,61 @@
+::: {.content-visible when-format='html'}
+:::{.panel-tabset .full-width }
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| results: asis
+DT <- RMwTable
+if ("siteID" %in% names(DT) && exists("siteID.target", inherits = FALSE)) {
+  DT <- DT[siteID %in% siteID.target]
+}
+if ("ID" %in% names(DT)) {
+  ID.target <- .resolveIDTarget(
+    DT,
+    "RMw2D.qmd",
+    target = .currentTarget("ID.target"),
+    siteID = .currentTarget("siteID.target"),
+    base = TRUE
+  )
+  DT <- DT[ID %in% ID.target]
+}
+# Display set matches the previous slide: TR >= 500 (shorter TRs exist
+# in the data but were never shown).
+.TRS <- sort(unique(DT$TR))
+.TRS <- .TRS[.TRS >= 500]
+.TNS <- sort(unique(DT$Tn))
+.SITE <- .currentTarget("siteID.target")
+SiteID.caption <- .requireOneTarget(.SITE, "siteID.target", "RMw2D caption")
+.CONTEXT <- .currentReportContext()
+.REPORT <- !is.null(.CONTEXT)
+.MULTIPLE <- if (.REPORT) {
+  .CONTEXT$multiple
+} else {
+  is.character(.SITE) && length(.SITE) == 1L
+}
+.KEY <- if (.REPORT) .CONTEXT$key else tolower(.SITE)
+.STEM <- if (.MULTIPLE) paste0(.KEY, "-") else ""
+for (.tr in .TRS) {
+  cat("\n### $", prettyNum(round(.tr, 0), big.mark = ","), "$\n\n", sep = "")
+  cat(":::{.panel-tabset .full-width}\n")
+  for (.tn in .TNS) {
+    cat("\n#### ", if (.tn == 0) "$T_n=0$ (PGA)" else sprintf("$%.2f\\,s$", .tn), "\n\n", sep = "")
+    NGR::knitBlock(
+      path = "/_fig/RMw2D_cell.qmd",
+      stem = paste0(.STEM, sprintf("rmw2d-tr%s-tn%s", round(.tr), gsub("[.]", "p", .tn))),
+      labels = "rewrite",
+      vars = list(TR.target = .tr, Tn.target = .tn),
+      root = root
+    )
+  }
+  cat("\n:::\n")
+}
+rm(list = intersect(c(
+  "DT", ".TRS", ".TNS", ".SITE", ".CONTEXT", ".REPORT", ".MULTIPLE", ".KEY", ".STEM", ".tr", ".tn", "SiteID.caption"
+), ls()))
+rm(list = intersect("ID.target", ls()))
+rm(list = intersect("CAP", ls()))
+```
+
+:::
+:::

@@ -1,0 +1,1 @@
+**Ground motion records.** Selection of recorded ground motions consistent with the scenarios that control the hazard, and spectral adjustment of the selected records to the target design demand, preserving the phases and temporal structure of the recorded motions; the processed records are delivered with their intensity measures for use in the dynamic analyses.

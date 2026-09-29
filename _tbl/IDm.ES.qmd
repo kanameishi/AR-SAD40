@@ -1,0 +1,17 @@
+```{r}
+#| include: false
+CAP <- readCaption("tbl.IDm.ES")
+HEADER <- "Zona del TSF"
+ZONE <- c(
+  "Relaves finos (lamas, laguna)",
+  "Playa de relaves gruesos / espaldón aguas arriba",
+  "Zona de transición (margen de playa / relaves intermedios)",
+  "Contrafuerte de enrocado / espaldón aguas abajo",
+  "Espaldón aguas abajo con filtro granular o capa de transición",
+  "Espaldón aguas abajo con transición o filtro enriquecido en finos",
+  "Zona de núcleo (núcleo impermeable / trinchera de corte)",
+  "Zona de núcleo con transición limo-arcillosa (margen del núcleo / relleno fino)"
+)
+```
+
+{{< include /_tbl/IDm.qmd >}}

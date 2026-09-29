@@ -1,0 +1,8 @@
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: tbl-af-one
+#| tbl-cap: !expr CAP |> sprintf(min(TR.target), max(TR.target), min(Tn.target), max(Tn.target), Vs30.target, paste(p.target, collapse = ", "), SiteID.caption)
+source(file.path(root, "scripts", "tbl/AF.R"))
+TBL
+```

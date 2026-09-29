@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+CAP <- readCaption("fig.MCE.MDE.ES")
+```
+
+{{< include /_fig/MCE.MDE.qmd >}}

@@ -1,0 +1,44 @@
+```{r}
+#| include: true
+if (!exists("p.target") || !length(p.target)) p.target <- "mean"
+if (!exists("Da.target") || !length(Da.target))  Da.target  <- sort(Da.gmdp)
+if (!exists("MODELS", inherits = FALSE)) MODELS <- c(rigid = "Rigid Models", flexible = "Flexible Models", ensemble = "Ensemble Models")
+if (!exists("IDn.target") || !length(IDn.target)) IDn.target <- names(MODELS)
+MODELS <- MODELS[names(MODELS) %in% IDn.target]
+if (!exists("PSA_Units") || !length(PSA_Units))  PSA_Units  <- "cm/s2"
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("fig.kh")
+if (!exists("CAP.MCE", inherits = FALSE)) CAP.MCE <- readCaption("fig.kh.MCE")
+TR.label <- prettyNum(TR.gmdp, big.mark = ",", scientific = FALSE)
+IDg.target <- IDg.gmdp
+IDm.target <- IDm.gmdp
+SiteID.caption <- .requireOneTarget(
+  .currentTarget("siteID.target"), "siteID.target", "kh figure caption"
+)
+```
+
+:::{.content-hidden when-format='docx'}
+:::{.panel-tabset .full-width }
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| results: asis
+for (IDn in names(MODELS)) {
+  cat("\n#### ", MODELS[[IDn]], "\n\n", sep = "")
+  NGR::knitBlock(path = "/_fig/kh.IDn.qmd", stem = .composeTargetStem(paste("kh", IDn, sep = "-")), labels = "rewrite", vars = list(IDn.target = IDn), root = root)
+}
+rm(IDn)
+```
+
+
+:::
+:::
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "MODELS",
+  "TR.target", "p.target", "Da.target", "PSA_Units", "IDm.target",
+  "IDg.target", "IDn.target", "CAP", "CAP.MCE", "TR.label", "SiteID.caption"
+), ls()))
+```

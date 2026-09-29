@@ -1,0 +1,34 @@
+---
+title: "Estudio de Peligrosidad Sísmica"
+lang: es
+bibliography:
+  - bib/references.bib
+  - _local/bib/references.bib
+chapters:
+  - index.qmd
+  - _book/executive.ES.qmd
+  - _book/intro.ES.qmd
+  - part: "Evaluación del Peligro Sísmico"
+    chapters:
+      - _book/psha.ES.qmd
+      - _book/ssm.ES.qmd
+      - _book/gmm.ES.qmd
+      - _book/dsha.ES.qmd
+      - _book/srs.ES.qmd
+  - part: "Sismos de Diseño"
+    chapters:
+      - _book/site.ES.qmd
+      - _book/deq.ES.qmd
+      - _book/mcer.ES.qmd
+  - part: "Parámetros de Diseño Sísmico"
+    chapters:
+      - _book/ts.ES.qmd
+      - _book/dn.ES.qmd
+  - _book/references.ES.qmd
+appendices:
+  - _book/notation.appendix.ES.qmd
+  - _book/gmm.appendix.ES.qmd
+  - _book/deq.appendix.ES.qmd
+  - _book/site.appendix.ES.qmd
+  - _book/dn.appendix.ES.qmd
+---

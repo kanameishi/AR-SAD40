@@ -1,0 +1,20 @@
+:::{.content-hidden when-format='docx'}
+
+
+:::{.panel-tabset .full-width }
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| results: asis
+for (v in rev(seq_along(Vs30.gmdp))) {
+  cat("\n#### ", Site.label[v], "\n\n", sep = "")
+  NGR::knitBlock(path = "/_fig/UHS.one.qmd", stem = .composeTargetStem(paste("uhs-vs30", if (exists("TR.target", inherits = FALSE)) round(TR.target) else "x", v, sep = "-")), labels = "rewrite", vars = list(Vs30.target = Vs30.gmdp[v]), root = root)
+}
+rm(v)
+```
+
+
+:::
+
+:::

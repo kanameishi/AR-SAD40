@@ -1,0 +1,8 @@
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-dn-one
+#| fig-cap: !expr CAP |> sprintf(paste(IDn.target, collapse = ", "), paste(IDg.target, collapse = ", "), paste(IDm.target, collapse = ", "), if (exists("TR.target", inherits = FALSE)) prettyNum(round(TR.target, 0), big.mark = ",") else "", paste(p.target, collapse = ", "), paste(.fmt(DAMAGE.CUTS, 1), collapse = ", "), SiteID.caption)
+source(file.path(root, "scripts", "fig/Dn.R"))
+PLOT
+```

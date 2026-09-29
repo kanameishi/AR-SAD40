@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+source(file.path(root, "scripts", "setup", "hazardResults.R"))
+```
+
+En roca de referencia ($V_{S30}=760$ m/s), la PGA media varía entre `r HazardSummary$pga[Vs30 == 760 & p == "mean", .fmtSa(min(SaF), PSA_Units)]` y `r HazardSummary$pga[Vs30 == 760 & p == "mean", .fmtSa(max(SaF), PSA_Units)]` `r PSA_Units` para períodos de retorno entre `r HazardSummary$pga[Vs30 == 760 & p == "mean", .fmti(min(TR))]` y `r HazardSummary$pga[Vs30 == 760 & p == "mean", .fmti(max(TR))]` años. La tabla siguiente reporta la PGA media por período de retorno y condición de sitio, junto con las envolventes determinísticas del MCE.

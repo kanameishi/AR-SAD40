@@ -1,0 +1,1 @@
+**Registros sísmicos.** Selección de registros sísmicos compatibles con los escenarios que controlan la amenaza, y ajuste espectral de los registros seleccionados a la demanda de diseño objetivo, preservando las fases y la estructura temporal de los movimientos registrados; los registros procesados se entregan con sus medidas de intensidad para su uso en los análisis dinámicos.

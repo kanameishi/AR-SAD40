@@ -1,0 +1,3 @@
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Modelos de Predicción de Movimiento Sísmico"`
+
+{{< include /_fig/GMPE.PSA.ES.qmd >}}

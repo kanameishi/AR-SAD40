@@ -1,0 +1,104 @@
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) {
+  CAP <- stats::setNames(
+    lapply(
+      c("lt", "recurrence", "depth"),
+      function(key) readCaption(sprintf("tbl.SSM.XAF.%s", key))
+    ),
+    c("lt", "recurrence", "depth")
+  )
+}
+```
+
+&nbsp;
+
+```{r}
+#| label: tbl-ssm-xaf-lt
+#| tbl-cap: !expr CAP$lt
+
+DT <- data.table::data.table(
+  `Set` = c(1L, 2L, 3L, 4L, 5L),
+  `ID` = c("sourceModel", "mmax_waf", "bval_waf", "naf_b", "naf_m"),
+  `Type` = c("Source model selection", "maxMagGRRelative", "bGRRelative", "bGRRelative", "maxMagGRRelative"),
+  `Applies to` = c("All sources", "MPS-1 to MPS-6", "MPS-1 to MPS-6", "SC_1 to SC_54", "SC_1 to SC_54"),
+  `Branches (perturbation, weight)` = c(
+    "naf_faults (-, 0.50); naf_smooth (-, 0.50)",
+    "+0.2 (0.25); 0.0 (0.50); -0.2 (0.25)",
+    "+0.05 (0.25); 0.0 (0.50); -0.05 (0.25)",
+    "+0.05 (0.25); 0.0 (0.50); -0.05 (0.25)",
+    "+0.2 (0.25); 0.0 (0.50); -0.2 (0.25)"
+  )
+)
+
+TBL <- DT |> buildTable(
+  library = "flextable",
+  align.body = "center",
+  font.size.body = FONT.SIZE.BODY,
+  font.size.header = FONT.SIZE.HEADER
+) |>
+  flextable::set_table_properties(layout = "autofit")
+TBL
+```
+
+&nbsp;
+
+```{r}
+#| label: tbl-ssm-xaf-recurrence
+#| tbl-cap: !expr CAP$recurrence
+
+DT <- data.table::data.table(
+  Group = c("Simple fault", "MPS/SC", "BG"),
+  MFD   = c("incrementalMFD", "truncGutenbergRichterMFD", "arbitraryMFD"),
+  a     = c("-", "3.13–5.45", "-"),
+  b     = c("-", "0.93–1.16", "-"),
+  Mmin  = c("6.05", "4.0–4.5", "-"),
+  Mmax  = c("6.05–7.75", "5.25–9.00", "5.25–9.00"),
+  N     = c(115L, 86L, 54L)
+)
+
+TBL <- DT |> buildTable(
+  library = "flextable",
+  align.body = "center",
+  font.size.body = FONT.SIZE.BODY,
+  font.size.header = FONT.SIZE.HEADER
+) |>
+  .mathHeader(c(a = "a", b = "b", Mmin = "M_{min}", Mmax = "M_{max}", N = "N")) |>
+  flextable::set_table_properties(layout = "autofit")
+TBL <- flextable::align(TBL, j = "N", align = "right", part = "body")
+TBL
+```
+
+&nbsp;
+
+```{r}
+#| label: tbl-ssm-xaf-depth
+#| tbl-cap: !expr CAP$depth
+
+DT <- data.table::data.table(
+  `Source type` = c("Simple fault", "Multi-point (WAF)", "Multi-point (SSA)"),
+  `z_upper (km)` = c("0.0", "0.0", "0.0"),
+  `z_lower (km)` = c("1.7–25.0", "45.0", "40.0"),
+  `Hypocentral depth` = c(
+    "From fault geometry",
+    "5 km (0.267); 15 km (0.267); 25 km (0.333); 35 km (0.133)",
+    "Discrete distribution; mean 18.0–19.5 km"
+  )
+)
+
+TBL <- DT |> buildTable(
+  library = "flextable",
+  align.body = "center",
+  font.size.body = FONT.SIZE.BODY,
+  font.size.header = FONT.SIZE.HEADER
+) |>
+  flextable::set_table_properties(layout = "autofit")
+TBL
+```
+
+&nbsp;
+
+```{r}
+#| include: false
+rm(DT, TBL, CAP)
+```

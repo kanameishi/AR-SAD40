@@ -1,0 +1,20 @@
+```{r}
+#| include: false
+CAP <- readCaption("tbl.ancold.ES")
+AncoldTable <- data.table(
+  "Clase" = c("Low", "Significant", "High C", "High B", "High A", "Extreme"),
+  "PAR" = c("0", "1–10", "11–100", "101–1,000", ">1,000 (hasta algunos miles)", ">varios miles"),
+  "Consecuencias" = c(
+    "No se espera pérdida de vidas; impacto insignificante fuera del emplazamiento.",
+    "Pocas personas en riesgo; impacto menor fuera del emplazamiento o sobre el medioambiente.",
+    "Posible pérdida de vidas; impacto ambiental o económico moderado.",
+    "Probables múltiples víctimas mortales; pérdidas ambientales o económicas importantes.",
+    "Probables múltiples víctimas mortales; impacto regional o catastrófico.",
+    "Se espera una pérdida de vidas muy elevada; impactos catastróficos y de larga duración."),
+  "OBE" = c("1/475", "1/475", "1/475–1/1,000", "1/475–1/1,000", "1/475–1/1,000", "1/475–1/1,000"),
+  "SEE" = c("1/1,000", "1/1,000", "1/2,000", "1/5,000", "1/10,000",
+    "Mayor entre MCE y 1/10,000 (percentil 85)")
+)
+```
+
+{{< include /_tbl/ancold.qmd >}}

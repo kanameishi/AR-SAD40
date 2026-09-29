@@ -1,0 +1,55 @@
+
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.AF")
+if (!exists("Vs30.docx", inherits = FALSE)) Vs30.docx <- 800
+SiteID.caption <- .requireOneTarget(
+  .currentTarget("siteID.target"), "siteID.target", "AF table caption"
+)
+if (!exists("Tn.target") || !length(Tn.target)) Tn.target <- Tn.gmdp
+if (!exists("TR.target") || !length(TR.target)) TR.target <- TR.gmdp
+if (!exists("p.target") || !length(p.target))  p.target  <- "mean"
+Target <- .currentTarget("ID.target")
+ID.target <- .resolveIDTarget(
+  UHSTable,
+  "AF.qmd",
+  base = TRUE,
+  target = Target,
+  siteID = .currentTarget("siteID.target")
+)
+root <- here::here()
+```
+
+:::{.content-visible when-format='docx'}
+
+&nbsp;
+
+```{r}
+#| eval: !expr knitr::pandoc_to("docx")
+#| include: true
+#| label: tbl-af-vs30-800-docx
+#| tbl-cap: !expr CAP |> sprintf(min(TR.target), max(TR.target), min(Tn.target), max(Tn.target), Vs30.docx, paste(p.target, collapse = ", "), SiteID.caption)
+Vs30.target <- Vs30.docx
+source(file.path(root, "scripts", "tbl/AF.R"))
+TBL
+```
+
+&nbsp;
+
+:::
+
+:::{.content-hidden when-format='docx'}
+
+{{< include /_tbl/AF.Vs30.qmd >}}
+
+:::
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "Tn.target", "TR.target", "p.target", "CAP", "ID.target", "SiteID.caption"
+), ls()))
+rm(list = intersect("Vs30.target", ls()))
+if (exists("Target", inherits = FALSE) && length(Target)) ID.target <- Target
+rm(list = intersect("Target", ls()))
+```

@@ -1,0 +1,23 @@
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "ASCE-7 Design Criteria"`
+
+:::{.panel-tabset .full-width}
+
+### Design Parameters
+
+{{< include /_tbl/MCER.qmd >}}
+
+### Design Spectra
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path = "/_fig/MCE.MDE.qmd",
+  stem = .composeTargetStem("demands"),
+  labels = "rewrite",
+  vars = list(),
+  root = root
+)
+```
+
+:::

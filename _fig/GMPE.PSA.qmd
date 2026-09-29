@@ -1,0 +1,41 @@
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: false
+SiteID.caption <- .requireOneTarget(
+  .currentTarget("siteID.target"), "siteID.target", "GMM spectrum caption"
+)
+Scenarios <- ScenarioTable[siteID %in% SiteID.caption, ID]
+if (!length(Scenarios)) stop("GMPE.PSA: no scenarios for the selected site.", call. = FALSE)
+p.target <- c("0.10", "0.16", "0.50", "0.84", "0.90")
+Vs30.target <- 760
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("fig.GMPE.PSA")
+```
+
+:::: {.content-visible when-format='html'}
+
+:::{.panel-tabset .full-width}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| results: asis
+for (Scenario in Scenarios) {
+  cat("\n#### ", Scenario, "\n\n", sep = "")
+  NGR::knitBlock(
+    path = "/_fig/GMPE.PSA.one.qmd",
+    stem = .composeTargetStem(paste("gmm", tolower(Scenario), "psa", sep = "-")),
+    labels = "rewrite",
+    vars = list(ID.target = Scenario),
+    root = root
+  )
+}
+rm(Scenario)
+```
+
+:::
+::::
+
+```{r}
+#| include: false
+rm(list = intersect(c("CAP", "Scenarios", "SiteID.caption", "p.target", "Vs30.target"), ls()))
+```

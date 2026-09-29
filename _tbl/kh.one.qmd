@@ -1,0 +1,11 @@
+&nbsp;
+
+```{r}
+#| include: true
+#| label: tbl-kh
+#| tbl-cap: !expr CAP |> sprintf(IDg.target, IDm.target, paste(prettyNum(round(sort(TR.target), 0), big.mark = ","), collapse = ", "), SiteID.caption)
+source(file.path(root, "scripts", "tbl/kh.R"))
+TBL
+```
+
+&nbsp;

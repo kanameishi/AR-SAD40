@@ -1,0 +1,8 @@
+
+Tres tipos de distribución magnitud-frecuencia están presentes en el modelo de fuentes sísmicas XAF, cada uno asociado con un grupo de fuentes distinto y un método de especificación de tasas diferente [@Poggi2020].
+
+La MFD Gutenberg-Richter truncada (`multiMFD:truncGutenbergRichterMFD`) se aplica a 86 fuentes multipunto, que comprenden las fuentes de sismicidad suavizada NAF SC_1 a SC_54 y las fuentes WAF `MPS-1` a MPS-6. Las tasas de terremotos se parametrizan mediante un coeficiente de tasa de actividad (valor $a$) y un parámetro de pendiente (valor $b$) dentro de límites explícitos $M_{\min}$ y $M_{\max}$; dentro de esos límites, la relación sigue la forma estándar Gutenberg-Richter. El valor $a$ varía de 3.13 a 5.45 y el valor $b$ de 0.93 a 1.16 en las 86 fuentes [@Poggi2020].
+
+La MFD incremental (`incrementalMFD`) se aplica a las 115 fuentes de falla simple. Las tasas de ocurrencia se especifican como valores discretos por intervalo de magnitud de 0.1 Mw, comenzando en $M_{\min} = 6.05$ Mw; los valores $a$ y $b$ no se definen para fuentes que usan este tipo de MFD. Esta formulación codifica directamente la tasa anual esperada en cada nivel de magnitud, permitiendo formas no paramétricas consistentes con tasas de actividad estimadas a partir de geometría de falla y datos de tasa de deslizamiento [@Poggi2020].
+
+La MFD arbitraria (`multiMFD:arbitraryMFD`) se aplica a 54 fuentes multipunto de fondo (BG_1 a BG_54). Las tasas de ocurrencia se especifican en puntos de magnitud arbitrarios y no uniformemente espaciados sin un modelo paramétrico subyacente, proporcionando una representación no paramétrica de la sismicidad de fondo distribuida que no supone una relación Gutenberg-Richter [@Poggi2020].

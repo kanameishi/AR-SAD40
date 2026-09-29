@@ -1,0 +1,31 @@
+## <br>Curvas de diseño — `r if (exists("TITLE", inherits = FALSE)) TITLE else "$k_h$"` {.scrollable}
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path = "/_fig/kh.ES.qmd",
+  stem = .composeTargetStem("kh-curves"),
+  labels = "rewrite",
+  vars = list(
+    p.target = "mean"
+  ),
+  root = root
+)
+```
+
+## <br>Tablas de diseño — `r if (exists("TITLE", inherits = FALSE)) TITLE else "$k_h$"` {.scrollable}
+
+```{r}
+#| echo: false
+#| results: asis
+NGR::knitBlock(
+  path = "/_tbl/kh.ES.qmd",
+  stem = .composeTargetStem("kh-tables"),
+  labels = "rewrite",
+  vars = list(
+    p.target = "mean"
+  ),
+  root = root
+)
+```

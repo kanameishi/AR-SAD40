@@ -1,0 +1,26 @@
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Espectros de Diseño"`
+
+```{r}
+#| echo: false
+#| results: asis
+.SITE <- .currentTarget("siteID.target")
+.STEM <- if (is.character(.SITE) && length(.SITE) == 1L) {
+  paste0(tolower(.SITE), "-")
+} else {
+  ""
+}
+NGR::knitBlock(
+  path = "/_fig/UHS.compare.ES.qmd",
+  stem = paste0(.STEM, "uhs-compare"),
+  labels = "rewrite",
+  vars = list(
+    siteID.target = .SITE,
+    Vs30.target = 760,
+    p.target = "mean"
+  ),
+  root = root
+)
+rm(list = intersect(c(
+  ".SITE", ".STEM"
+), ls()))
+```

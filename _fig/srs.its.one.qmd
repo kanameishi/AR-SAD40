@@ -1,0 +1,8 @@
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: fig-srs-its-one
+#| fig-cap: !expr .srsItsCaption(RecordID.target)
+source(file.path(root, "scripts", "fig", "ITS.R"))
+PLOT
+```

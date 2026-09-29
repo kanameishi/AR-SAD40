@@ -1,0 +1,18 @@
+:::{.panel-tabset .full-width}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| results: asis
+for (k in seq_along(TR.gmdp)) {
+  cat("\n##### $", TR.label[k], "$\n\n", sep = "")
+  NGR::knitBlock(path = "/_fig/kh.one.qmd", stem = .composeTargetStem(paste(c("kh", if (length(IDn.target) == 1L) tolower(IDn.target), paste0("tr", k)), collapse = "-")), labels = "rewrite", vars = list(TR.target = TR.gmdp[k]), root = root)
+}
+if (nrow(kmaxTable[ID == "MCE" & siteID %in% SiteID.caption])) {
+  cat("\n##### MCE\n\n")
+  NGR::knitBlock(path = "/_fig/kh.one.qmd", stem = .composeTargetStem(paste(c("kh", if (length(IDn.target) == 1L) tolower(IDn.target), "mce"), collapse = "-")), labels = "rewrite", vars = list(ID.target = "MCE", CAP = CAP.MCE), root = root)
+}
+rm(k)
+```
+
+:::

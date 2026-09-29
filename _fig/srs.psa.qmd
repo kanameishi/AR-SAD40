@@ -1,0 +1,41 @@
+```{r}
+#| include: false
+root <- normalizePath(here::here())
+source(file.path(root, "scripts", "fig", "srs.psa.R"))
+if (!exists("CAPTION", inherits = FALSE)) {
+  Site <- .reportLabel()
+  Site <- if (nzchar(Site)) {
+    sprintf(" at %s", Site)
+  } else if (exists("params", inherits = FALSE) && !is.null(params$site)) {
+    sprintf(" at %s", params$site)
+  } else {
+    ""
+  }
+  CAPTION <- sprintf(readCaption("fig.srs.psa"), Site)
+  rm(Site)
+}
+```
+
+::: {.content-visible when-format='html'}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| label: fig-srs-psa-h1
+#| fig-cap: !expr CAPTION
+source(file.path(root, "scripts", "fig", "PS.R"))
+PLOT
+```
+
+:::
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "ID", "DIR", "PathSRS", "SRS_UNITS", "PSW_FILE", "PSWTable", "TARGET_FILE",
+  "TARGET_META_FILE", "SRS_TARGET_CONFIG", "SRS_TARGET_LOWER",
+  "SRS_TARGET_UPPER", "SRS_TARGET_LOWER_LABEL", "SRS_TARGET_UPPER_LABEL",
+  "SRS_TARGET_FILL_LEGEND", ".srsFormatProbability",
+  "CAPTION", "SRS_SITE_TEXT", "SRS.target", "SRS_ROOT", "SRS_RUNS"
+), ls()))
+if (exists("TargetTable", inherits = FALSE)) rm(TargetTable)
+```

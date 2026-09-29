@@ -1,0 +1,6 @@
+```{r}
+#| include: false
+source(file.path(root, "scripts", "setup", "displacements.R"))
+```
+
+At the reference yield accelerations, the mean Newmark displacement of the `ensemble` set spans `r DisplacementsSummary$dn[order(ky), paste(sprintf("%s–%s cm at $k_y = %s$ g", .fmt(minimum, 1), .fmt(maximum, 1), .fmt(ky, 1)), collapse = " and ")]` across the MDE and MCE demand scenarios and the evaluated geometry–material combinations.

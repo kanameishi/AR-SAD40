@@ -1,0 +1,16 @@
+
+
+## <br>`r if (exists("TITLE", inherits = FALSE)) TITLE else "Hazard Deaggregation"`
+:::{.panel-tabset}
+
+
+
+### $(M_w,R)$ Heatmap
+
+{{< include /_fig/RMw2D.qmd >}}
+
+### $(M_w,R)$ Tables
+
+{{< include /_tbl/RMw.qmd >}}
+
+:::

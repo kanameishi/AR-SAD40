@@ -1,0 +1,40 @@
+&nbsp;
+
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.cda")
+root <- here::here()
+if (!exists("CdaTable", inherits = FALSE)) {
+  CdaTable <- data.table(
+    "Class" = c("Low", "Significant", "High", "Very High", "Extreme"),
+    "Population at risk" = c("None", "Temporary only", "Permanent", "Permanent", "Permanent"
+    ),
+    "Loss of life" = c("0", "Unspecified", "10 or fewer", "100 or fewer", "More than 100"
+    ),
+    "Construction, Operation and Transition" = c("1/100", "Between 1/100 and 1/1,000", "1/2,475", "1/2 between 1/2,475 and 1/10,000, or MCE",
+    "1/10,000, or MCE"),
+    "Closure and Passive Care" = c("1/1,000", "1/2,475", "1/2 between 1/2,475 and 1/10,000, or MCE",
+    "1/10,000, or MCE", "1/10,000, or MCE")
+  )
+  CdaNotes <- c("CDA Technical Bulletin Table 3-1, after Table 2-1 of the CDA Dam Safety Guidelines.",
+  "Annual exceedance probability for earthquakes, CDA Technical Bulletin Table 3-3. ",
+  "The 1/2,475 level is anchored to the National Building Code of Canada.",
+  "Annual exceedance probability for earthquakes, CDA Technical Bulletin Table 4-2. ",
+  "Closure under active care with regular monitoring retains the Table 3-3 levels."
+  )
+}
+```
+
+```{r}
+#| include: true
+#| label: tbl-cda
+#| tbl-cap: !expr CAP
+source(file.path(root, "scripts", "tbl", "cda.R"))
+TBL
+```
+
+```{r}
+#| include: false
+rm(list = intersect(c("CAP", "CdaTable", "CdaNotes"), ls()))
+```
+&nbsp;

@@ -1,0 +1,15 @@
+---
+title: "Seismic Hazard Study"
+bibliography:
+  - bib/references.bib
+  - _local/bib/references.bib
+chapters:
+  - index.qmd
+  - _docx/executive.qmd
+  - _docx/intro.qmd
+  - _docx/sha.qmd
+  - _docx/sdc.qmd
+  - _docx/gmdp.qmd
+  - _docx/references.qmd
+  - _docx/appendices.qmd
+---

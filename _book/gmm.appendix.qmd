@@ -1,0 +1,72 @@
+```{r}
+#| include: true
+root <- normalizePath(here::here())
+source(file.path(root,"scripts","setup","setup.R"))
+```
+
+# Ground Motion Prediction Models
+
+## Active Shallow Crust (ASC)
+
+{{< include /_chapters/gmm.ASC.md >}}
+
+
+::: {.content-hidden when-format='docx'}
+```{r}
+#| echo: false
+#| results: asis
+if (!is.null(GMPETable) && nrow(GMPETable[TRT == "ASC"])) {
+  Mw.target <- if (!exists("Mw.gmm", inherits = FALSE)) 6.5 else if (is.null(names(Mw.gmm))) Mw.gmm[[1L]] else if ("ASC" %in% names(Mw.gmm)) Mw.gmm[["ASC"]] else 6.5
+  NGR::knitBlock(path = "/_fig/GMPE.qmd", stem = "gmm-asc-att", labels = "rewrite", vars = list(ID.target = unique(GMPETable[TRT == "ASC", ID]), Mw.target = Mw.target, fillColor = unname(.TrtColors[["ASC"]])), root = root)
+  rm(Mw.target)
+}
+```
+:::
+
+## Stable Continental Crust (SCC)
+
+{{< include /_chapters/gmm.SCC.md >}}
+
+::: {.content-hidden when-format='docx'}
+```{r}
+#| echo: false
+#| results: asis
+if (!is.null(GMPETable) && nrow(GMPETable[TRT == "SCC"])) {
+  Mw.target <- if (!exists("Mw.gmm", inherits = FALSE)) 6.5 else if (is.null(names(Mw.gmm))) Mw.gmm[[1L]] else if ("SCC" %in% names(Mw.gmm)) Mw.gmm[["SCC"]] else 6.5
+  NGR::knitBlock(path = "/_fig/GMPE.qmd", stem = "gmm-scc-att", labels = "rewrite", vars = list(ID.target = unique(GMPETable[TRT == "SCC", ID]), Mw.target = Mw.target, fillColor = unname(.TrtColors[["SCC"]])), root = root)
+  rm(Mw.target)
+}
+```
+:::
+
+## Subduction Interface (SIF)
+
+{{< include /_chapters/gmm.SIF.md >}}
+
+::: {.content-hidden when-format='docx'}
+```{r}
+#| echo: false
+#| results: asis
+if (!is.null(GMPETable) && nrow(GMPETable[TRT == "SIF"])) {
+  Mw.target <- if (!exists("Mw.gmm", inherits = FALSE)) 6.5 else if (is.null(names(Mw.gmm))) Mw.gmm[[1L]] else if ("SIF" %in% names(Mw.gmm)) Mw.gmm[["SIF"]] else 6.5
+  NGR::knitBlock(path = "/_fig/GMPE.qmd", stem = "gmm-sif-att", labels = "rewrite", vars = list(ID.target = unique(GMPETable[TRT == "SIF", ID]), Mw.target = Mw.target, fillColor = unname(.TrtColors[["SIF"]])), root = root)
+  rm(Mw.target)
+}
+```
+:::
+
+## Subduction Intraslab (SIS)
+
+{{< include /_chapters/gmm.SIS.md >}}
+
+::: {.content-hidden when-format='docx'}
+```{r}
+#| echo: false
+#| results: asis
+if (!is.null(GMPETable) && nrow(GMPETable[TRT == "SIS"])) {
+  Mw.target <- if (!exists("Mw.gmm", inherits = FALSE)) 6.5 else if (is.null(names(Mw.gmm))) Mw.gmm[[1L]] else if ("SIS" %in% names(Mw.gmm)) Mw.gmm[["SIS"]] else 6.5
+  NGR::knitBlock(path = "/_fig/GMPE.qmd", stem = "gmm-sis-att", labels = "rewrite", vars = list(ID.target = unique(GMPETable[TRT == "SIS", ID]), Mw.target = Mw.target, fillColor = unname(.TrtColors[["SIS"]])), root = root)
+  rm(Mw.target)
+}
+```
+:::

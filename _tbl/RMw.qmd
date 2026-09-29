@@ -1,0 +1,59 @@
+```{r}
+#| include: false
+if (!exists("CAP", inherits = FALSE)) CAP <- readCaption("tbl.RMw")
+DT <- RMwTable
+if ("siteID" %in% names(DT) && exists("siteID.target", inherits = FALSE)) {
+  DT <- DT[siteID %in% siteID.target]
+}
+if ("ID" %in% names(DT)) {
+  ID.target <- .resolveIDTarget(
+    DT,
+    "RMw.qmd",
+    target = .currentTarget("ID.target"),
+    siteID = .currentTarget("siteID.target"),
+    base = TRUE
+  )
+  DT <- DT[ID %in% ID.target]
+}
+Tn.target <- sort(unique(as.numeric(DT$Tn)))
+TR.target <- sort(unique(as.numeric(DT$TR)))
+rm(DT)
+```
+
+::: {.content-visible when-format='docx'}
+
+&nbsp;
+
+```{r}
+#| eval: !expr knitr::pandoc_to("docx")
+#| include: true
+#| label: tbl-rmw-b-docx
+#| tbl-cap: !expr CAP |> sprintf(.requireOneTarget(.currentTarget("siteID.target"), "siteID.target", "RMw table caption"))
+source(file.path(root,"scripts","tbl/RMw.R"))
+TBL
+```
+
+&nbsp;
+
+:::
+
+::: {.content-visible when-format='html'}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| include: true
+#| label: tbl-rmw-b
+#| tbl-cap: !expr CAP |> sprintf(.requireOneTarget(.currentTarget("siteID.target"), "siteID.target", "RMw table caption"))
+source(file.path(root,"scripts","tbl/RMw.R"))
+TBL
+```
+
+:::
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "Tn.target", "TR.target", "CAP"
+), ls()))
+rm(list = intersect("ID.target", ls()))
+```

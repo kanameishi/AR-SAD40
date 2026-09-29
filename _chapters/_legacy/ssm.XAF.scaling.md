@@ -1,0 +1,2 @@
+
+Two magnitude-area scaling relationships are applied in the source model, assigned by source type. All 115 simple fault sources use the `Leonard2014_Interplate` relationship [@Leonard2014] with a rupture aspect ratio of 2.0. All 140 multi-point sources use the `WC1994` relationship [@WellsCoppersmith1994] also with a rupture aspect ratio of 2.0. These relationships convert rupture area to moment magnitude and are used by OpenQuake to determine rupture dimensions during hazard calculation.

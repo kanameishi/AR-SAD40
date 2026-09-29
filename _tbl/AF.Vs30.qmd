@@ -1,0 +1,22 @@
+:::{.content-hidden when-format='docx'}
+:::{`r if (knitr::is_html_output()) ".panel-tabset .full-width" else ".docx-tabset-disabled"`}
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+#| echo: false
+#| results: asis
+for (v in rev(seq_along(Vs30.gmdp))) {
+  cat("\n#### ", Site.label[v], "\n\n", sep = "")
+  NGR::knitBlock(path = "/_tbl/AF.one.qmd", stem = .composeTargetStem(paste("af-tbl-vs30", v, sep = "-")), labels = "rewrite", vars = list(Vs30.target = Vs30.gmdp[v]), root = root)
+}
+rm(v)
+```
+
+
+:::
+:::
+
+```{r}
+#| include: false
+rm(Vs30.target)
+```

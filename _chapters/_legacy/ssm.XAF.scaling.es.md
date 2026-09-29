@@ -1,0 +1,2 @@
+
+Dos relaciones de escalamiento magnitud-área se aplican en el modelo de fuentes, asignadas por tipo de fuente. Las 115 fuentes de falla simple usan la relación `Leonard2014_Interplate` [@Leonard2014] con una razón de aspecto de ruptura de 2.0. Las 140 fuentes multipunto usan la relación `WC1994` [@WellsCoppersmith1994], también con una razón de aspecto de ruptura de 2.0. Estas relaciones convierten el área de ruptura en magnitud de momento y OpenQuake las usa para determinar dimensiones de ruptura durante el cálculo de amenaza.

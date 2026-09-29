@@ -1,0 +1,1 @@
+**Análisis determinístico de amenaza sísmica.** Definición de los escenarios del sismo máximo creíble (MCE) sobre las fuentes tectónicas que gobiernan la demanda del sitio, evaluación de los espectros de los escenarios resultantes y comparación con los resultados probabilísticos.

@@ -1,0 +1,17 @@
+```{r}
+#| include: false
+if (!exists("SRS.PGA.units", inherits = FALSE)) SRS.PGA.units <- "g"
+SRS.range.word <- "a"
+source(file.path(root, "scripts", "setup", "srs.R"))
+SRS_TARGET <- paste0(intToUtf8(96), SRS.config$target, intToUtf8(96))
+```
+
+El conjunto seleccionado comprende `r .fmti(SRS$records)` registros de movimiento fuerte correspondientes a `r .fmti(SRS$events)` sismos y provenientes de `r .fmti(SRS$providers)` bases de datos. Abarca $M_w$ `r SRS$Mw` y distancia epicentral $R_{\mathrm{epi}}$ `r SRS$Repi`, con coeficientes de escala de `r SRS_SCALE$range`. Para el objetivo identificado como `r SRS_TARGET`, definido a $V_{S30}=$ `r .fmti(SRS.config$Vs30)` m/s, el RMSE relativo entre el espectro medio del conjunto y el espectro objetivo es `r SRS_STAGE$RMSE`, y la razón entre la PGA media del conjunto y la PGA objetivo es `r SRS_STAGE$pgaRatio`.
+
+```{r}
+#| include: false
+rm(list = intersect(c(
+  "SRS.selection.text", "SRS.PGA.units", "SRS.range.word", "SrsG", "SRS",
+  "SRS.target.PGA", "SRS.config", "SRS_STAGE", "SRS_SCALE", "SRS_TARGET"
+), ls()))
+```
